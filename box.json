@@ -1,0 +1,36 @@
+{
+    "name":"cbLivewire",
+    "version":"0.0.0",
+    "author":"",
+    "location":"GrantCopley/cbLivewire#v0.0.0",
+    "homepage":"https://github.com/GrantCopley/cbLivewire",
+    "documentation":"https://github.com/GrantCopley/cbLivewire",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/GrantCopley/cbLivewire"
+    },
+    "bugs":"https://github.com/GrantCopley/cbLivewire/issues",
+    "slug":"cbLivewire",
+    "shortDescription":"ColdBox + Livewire",
+    "description":"ColdBox + Livewire",
+    "type":"modules",
+    "dependencies":{},
+    "devDependencies":{
+        "coldbox":"^5.0.0",
+        "testbox":"^3.0.0"
+    },
+    "installPaths":{
+        "testbox":"testbox/",
+        "coldbox":"tests/resources/app/coldbox/"
+    },
+    "scripts":{
+        "postVersion":"package set location='GrantCopley/cbLivewire#v`package version`'",
+        "onRelease":"publish",
+        "postPublish":"!git push && git push --tags"
+    },
+    "ignore":[
+        "**/.*",
+        "test",
+        "tests"
+    ]
+}
