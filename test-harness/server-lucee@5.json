@@ -1,5 +1,5 @@
 {
-    "name":"cbmessagebox-lucee@5",
+    "name":"cbLivewire-lucee@5",
     "app":{
         "serverHomeDirectory":".engine/lucee5",
         "cfengine":"lucee@5"

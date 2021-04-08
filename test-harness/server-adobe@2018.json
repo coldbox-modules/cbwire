@@ -1,5 +1,5 @@
 {
-    "name":"cbmessagebox-adobe@2018",
+    "name":"cbLivewire-adobe@2018",
     "app":{
         "serverHomeDirectory":".engine/adobe2018",
         "cfengine":"adobe@2018"
