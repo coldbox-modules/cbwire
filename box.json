@@ -1,36 +1,31 @@
 {
     "name":"cbLivewire",
-    "version":"0.0.0",
-    "author":"",
-    "location":"GrantCopley/cbLivewire#v0.0.0",
-    "homepage":"https://github.com/GrantCopley/cbLivewire",
-    "documentation":"https://github.com/GrantCopley/cbLivewire",
+    "version":"1.0.0",
+    "author":"Ortus Solutions.com <info@ortussolutions.com>",
+    "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbLivewire/@build.version@/cbLivewire-@build.version@.zip",
+	"slug":"cbLivewire",
+	"type":"modules",
+    "homepage":"https://github.com/coldbox-modules/cbLivewire",
+    "documentation":"https://github.com/coldbox-modules/cbLivewire",
     "repository":{
         "type":"git",
-        "URL":"https://github.com/GrantCopley/cbLivewire"
+        "URL":"https://github.com/coldbox-modules/cbLivewire"
     },
-    "bugs":"https://github.com/GrantCopley/cbLivewire/issues",
-    "slug":"cbLivewire",
+    "bugs":"https://github.com/coldbox-modules/cbLivewire/issues",
     "shortDescription":"ColdBox + Livewire",
     "description":"ColdBox + Livewire",
-    "type":"modules",
     "dependencies":{},
     "devDependencies":{
-        "coldbox":"^5.0.0",
-        "testbox":"^3.0.0"
-    },
-    "installPaths":{
-        "testbox":"testbox/",
-        "coldbox":"tests/resources/app/coldbox/"
     },
     "scripts":{
-        "postVersion":"package set location='GrantCopley/cbLivewire#v`package version`'",
-        "onRelease":"publish",
-        "postPublish":"!git push && git push --tags"
+        "release":"recipe build/release.boxr",
+        "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
+        "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
+        "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc"
     },
     "ignore":[
         "**/.*",
-        "test",
-        "tests"
+        "test-harness",
+        "*/.md"
     ]
 }
