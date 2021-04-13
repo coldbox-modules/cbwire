@@ -11,7 +11,7 @@
         "rewrites":{
             "enable":"true"
         },
-		"aliases":{
+        "aliases":{
             "/moduleroot/cbLivewire":"../"
         }
     },

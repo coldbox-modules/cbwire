@@ -1,6 +1,7 @@
 component {
 
-    function render() {
-        return "Hello World";
-    }
+	function render(){
+		return "Hello World";
+	}
+
 }
