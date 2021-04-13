@@ -8,14 +8,20 @@ component {
 	 * Returns the styles to be placed in HTML head
 	 */
 	function getStyles( event, rc, prc ){
-		return renderer.renderView( view="styles", module="cblivewire" );
+		return renderer.renderView(
+			view   = "styles",
+			module = "cblivewire"
+		);
 	}
 
 	/**
 	 * Returns the JS to be placed in HTML body
 	 */
 	function getScripts( event, rc, prc ){
-		return fileRead( expandPath( "../helpers/scripts.html" ) ).trim();
+		return renderer.renderView(
+			view   = "scripts",
+			module = "cblivewire"
+		);
 	}
 
 	/**

@@ -29,25 +29,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( event.getRenderedContent() ).toInclude( "Hello World" );
 			} );
 
-			describe( "livewire()", function() {
-				it( "renders simple 'Hello World'", function() {
+			describe( "livewire()", function(){
+				it( "renders simple 'Hello World'", function(){
 					var event = get( "/_tests/hello_world" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
-				it( "renders 'Hello world' using a view and passing args to the view'", function() {
+				it( "renders 'Hello world' using a view and passing args to the view'", function(){
 					var event = get( "/_tests/hello_world_with_render_view_and_args" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 			} );
 
 			it( "livewireStyles() renders the livewire styles", function(){
-				var event = get( "/_tests/livewire_styles" );
+				var event   = get( "/_tests/livewire_styles" );
 				var content = event.getRenderedContent();
 				expect( content ).toInclude( "<!-- Livewire Styles -->" );
 				expect( content ).toInclude( "@keyframes livewireautofill { from {} }" );
 			} );
-			
+
+			it( "livewireScripts() renders the livewire scripts", function(){
+				var event = get( "/_tests/livewire_scripts" );
+				var content = event.getRenderedContent();
+				expect( content ).toInclude( "/modules/cblivewire/includes/js/livewire.js" );
+			} );
 		} );
 	}
 
