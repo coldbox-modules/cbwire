@@ -1,3 +1,3 @@
 <cfoutput>
-	Done!
+	#livewire("HelloWorld")#
 </cfoutput>
