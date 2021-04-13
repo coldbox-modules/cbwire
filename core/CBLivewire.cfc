@@ -8,7 +8,7 @@ component {
 	 * Returns the styles to be placed in HTML head
 	 */
 	function getStyles( event, rc, prc ){
-		return renderer.renderView( "../helpers/styles" );
+		return renderer.renderView( view="styles", module="cblivewire" );
 	}
 
 	/**
