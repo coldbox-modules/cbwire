@@ -1,13 +1,13 @@
 component {
 
 	property name="wirebox" inject="wirebox";
-	property name="renderer" inject="coldbox.system.web.Renderer"; // is there a shorter path?
+	property name="renderer" inject="Renderer@coldbox";
 
 
 	/**
 	 * Returns the styles to be placed in HTML head
 	 */
-	function getStyles( event, rc, prc ){
+	function getStyleHTML(){
 		return renderer.renderView(
 			view   = "styles",
 			module = "cblivewire"
@@ -17,7 +17,7 @@ component {
 	/**
 	 * Returns the JS to be placed in HTML body
 	 */
-	function getScripts( event, rc, prc ){
+	function getScriptHTML(){
 		return renderer.renderView(
 			view   = "scripts",
 			module = "cblivewire"
@@ -33,15 +33,6 @@ component {
 			initArguments = { event : event }
 		);
 		return livewireComponent.render();
-	}
-
-	function handleRequest( event, rc, prc ){
-		var livewireComponent = wirebox.getInstance(
-			name          = rc.livewireComponent,
-			initArguments = { event : event }
-		);
-		livewireComponent.hydrate( rc );
-		return livewireComponent.getSubsequentPayload( rc );
 	}
 
 }

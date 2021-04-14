@@ -12,8 +12,10 @@ component {
 	this.applicationHelper  = [ "helpers/helpers.cfm" ];
 
 
-	function configure(){
-		//
-	}
+    function configure() {
+        routes = [
+            { pattern = "message/:livewireComponent", handler = "CBLivewire", action = "index" }
+        ];
+    }
 
 }

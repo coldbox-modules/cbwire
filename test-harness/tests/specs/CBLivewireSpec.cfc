@@ -31,27 +31,45 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "livewire()", function(){
 				it( "renders simple 'Hello World'", function(){
-					var event = get( "/_tests/hello_world" );
+					var event = get( "/_tests/helloWorld" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
 				it( "renders 'Hello world' using a view and passing args to the view'", function(){
-					var event = get( "/_tests/hello_world_with_render_view_and_args" );
+					var event = get( "/_tests/helloWorldWithRenderViewPropertyAndArgs" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
+				} );
+
+				it( "renders with wire:id and wire:initial-data attributes added to outer div tag'", function(){
+					var event   = get( "/_tests/dataBinding" );
+					var content = event.getRenderedContent();
+					expect( content ).toInclude( "<div wire:id=" );
+					expect( content ).toInclude( "wire:initial-data=" );
 				} );
 			} );
 
 			it( "livewireStyles() renders the livewire styles", function(){
-				var event   = get( "/_tests/livewire_styles" );
+				var event   = get( "/_tests/livewireStyles" );
 				var content = event.getRenderedContent();
 				expect( content ).toInclude( "<!-- Livewire Styles -->" );
 				expect( content ).toInclude( "@keyframes livewireautofill { from {} }" );
 			} );
 
 			it( "livewireScripts() renders the livewire scripts", function(){
-				var event = get( "/_tests/livewire_scripts" );
+				var event   = get( "/_tests/livewireScripts" );
 				var content = event.getRenderedContent();
-				expect( content ).toInclude( "/modules/cblivewire/includes/js/livewire.js" );
+				expect( content ).toInclude( "/moduleroot/cblivewire/includes/js/livewire.js" );
+			} );
+
+			it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
+				var event         = post( "/livewire/message/handlers.cblivewire.DataBinding" );
+				var content       = event.getRenderedContent();
+				var parsedContent = deserializeJSON( content );
+
+				expect( content ).toBeJSON();
+				expect( structKeyExists( parsedContent.serverMemo, "checksum" ) ).toBeTrue();
+				expect( structKeyExists( parsedContent.serverMemo, "data" ) ).toBeTrue();
+				expect( parsedContent.serverMemo.data.message ).toBe( "We have data binding!" );
 			} );
 		} );
 	}

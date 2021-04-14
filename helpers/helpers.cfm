@@ -3,14 +3,14 @@
     * Returns the styles to be placed in HTML head
     */
     function livewireStyles() {
-        return getInstance( "cblivewire.core.CBLivewire" ).getStyles();
+        return getInstance( "cblivewire.core.CBLivewire" ).getStyleHTML();
     }
 
     /**
     * Returns the JS to be placed in HTML body
     */
     function livewireScripts() {
-        return getInstance( "cblivewire.core.CBLivewire" ).getScripts();
+        return getInstance( "cblivewire.core.CBLivewire" ).getScriptHTML();
     }
 
     /**
