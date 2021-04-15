@@ -1,11 +1,12 @@
 component accessors="true" {
 
-	property name="event";
+	property name="renderer" inject="Renderer@coldbox";
 	property name="wirebox" inject="wirebox";
+	property name="livewireRequest" type="LivewireRequest";
 	property name="initialRendering" default="true";
 
-	function init( required RequestContext event ){
-		this.setEvent( event );
+	function init( required LivewireRequest livewireRequest ){
+		this.setLivewireRequest( livewireRequest );
 	}
 
 	function getId(){
@@ -34,7 +35,7 @@ component accessors="true" {
 		};
 	}
 
-	function getSubsequentPayload(){
+	function getPayload(){
 		return {
 			"effects" : {
 				"html"  : this.render(),
@@ -60,17 +61,18 @@ component accessors="true" {
 	}
 
 	function hydrate(){
-		var context = getEvent().getCollection();
+		var livewireRequest = getLivewireRequest();
+		var context = livewireRequest.getCollection();
 
 		setInitialRendering( false );
 
-		if ( structKeyExists( context, "serverMemo" ) && structKeyExists( context.serverMemo, "data" ) ) {
-			context.serverMemo.data.each( function( key, value ){
+		if ( livewireRequest.hasServerMemo() ) {
+			livewireRequest.getServerMemo().data.each( function( key, value ){
 				this[ "set#key#" ]( value );
 			} );
 		}
 
-		if ( structKeyExists( context, "updates" ) ) {
+		if ( livewireRequest.hasUpdates() ) {
 			context.updates.each( function( thisUpdate ){
 				if ( thisUpdate.type == "callMethod" ) {
 					this[ thisUpdate[ "payload" ][ "method" ] ]( );
@@ -82,13 +84,13 @@ component accessors="true" {
 			} );
 		}
 
-		return getSubsequentPayload();
+		return this;
 	}
 
 	function renderView(){
-		var renderer   = wirebox.getInstance( "Renderer@coldbox" );
 		// Pass the properties of the Livewire component as variables to the view
 		arguments.args = getData();
+
 
 		var rendering = renderer.renderView( argumentCollection = arguments );
 

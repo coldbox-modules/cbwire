@@ -8,14 +8,15 @@ component {
 	this.entryPoint         = "livewire";
 	this.layoutParentLookup = false;
 	this.viewParentLookup   = false;
-	this.cfmapping          = "cblivewire";
+	this.cfmapping          = "cbLivewire";
+	this.modelNamespace		= "cbLivewire";
 	this.applicationHelper  = [ "helpers/helpers.cfm" ];
-
 
     function configure() {
         routes = [
             { pattern = "message/:livewireComponent", handler = "CBLivewire", action = "index" }
         ];
+		binder.mapDirectory( "#moduleMapping#.core" );
     }
 
 }

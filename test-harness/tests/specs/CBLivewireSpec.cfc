@@ -1,6 +1,3 @@
-/**
- * MessageBox tests
- */
 component extends="coldbox.system.testing.BaseTestCase" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/

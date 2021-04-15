@@ -28,10 +28,13 @@ component {
 	 * Renders a livewire component
 	 */
 	function render( RequestContext event, componentName ){
+		var livewireRequest = wirebox.getInstance( name="cbLivewire.core.LivewireRequest", initArguments={ event: event } );
+
 		var livewireComponent = wirebox.getInstance(
 			name          = "handlers.cblivewire.#componentName#",
-			initArguments = { event : event }
+			initArguments = { livewireRequest : livewireRequest }
 		);
+
 		return livewireComponent.render();
 	}
 
