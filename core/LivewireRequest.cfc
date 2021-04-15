@@ -1,5 +1,6 @@
 component accessors="true" {
     
+    property name="wirebox" inject="wirebox";
     property name="event" type="RequestContext";
 
     function init( RequestContext event ) {
@@ -26,5 +27,16 @@ component accessors="true" {
     function getCollection() {
         return getEvent().getCollection( argumentsCollection=arguments );
     }
+
+    function getComponent( componentName ) {
+		return wirebox.getInstance(
+			name          = "handlers.cbLivewire.#componentName#",
+			initArguments = { livewireRequest : this }
+		);
+    }
+
+	function render( componentName ){
+		return getComponent( componentName ).render();
+	}
 
 }
