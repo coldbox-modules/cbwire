@@ -1,6 +1,6 @@
 component accessors="true" {
 
-	property name="renderer" inject="Renderer@coldbox";
+	property name="renderer" inject="coldbox:renderer";
 	property name="wirebox" inject="wirebox";
 	property name="livewireRequest" type="LivewireRequest";
 	property name="initialRendering" default="true";
@@ -35,7 +35,7 @@ component accessors="true" {
 		};
 	}
 
-	function getPayload(){
+	function getMemento(){
 		return {
 			"effects" : {
 				"html"  : this.render(),
@@ -90,7 +90,6 @@ component accessors="true" {
 	function renderView(){
 		// Pass the properties of the Livewire component as variables to the view
 		arguments.args = getData();
-
 
 		var rendering = renderer.renderView( argumentCollection = arguments );
 

@@ -1,6 +1,6 @@
 component {
 
-	property name="renderer" inject="Renderer@coldbox";
+	property name="renderer" inject="coldbox:renderer";
 
 	/**
 	 * Returns the styles to be placed in HTML head

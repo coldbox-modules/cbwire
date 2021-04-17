@@ -7,16 +7,11 @@ component {
     * URI: /livewire/messages/:component
     */
 	function index( event, rc, prc ){
-		var livewireRequest = wirebox.getInstance( name="cbLivewire.core.LivewireRequest", initArguments={ event = event } );
-
-		var livewireComponent = wirebox.getInstance(
-			name          = rc.livewireComponent,
-			initArguments = { livewireRequest : livewireRequest }
-		);
-
-		return livewireComponent
+		return wirebox
+			.getInstance( name="cbLivewire.core.LivewireRequest" )
+			.withComponent( rc.livewireComponent )
 			.hydrate()
-			.getPayload();
+			.getMemento();
 	}
 
 }

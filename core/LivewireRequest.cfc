@@ -1,11 +1,10 @@
 component accessors="true" {
     
     property name="wirebox" inject="wirebox";
-    property name="event" type="RequestContext";
+    property name="requestService" inject="coldbox:requestService";
 
-    function init( RequestContext event ) {
-        setEvent( arguments.event );
-        return this;
+    function getEvent() {
+        return requestService.getContext();
     }
 
     function hasFingerprint() {
@@ -28,7 +27,11 @@ component accessors="true" {
         return getEvent().getCollection( argumentsCollection=arguments );
     }
 
-    function getComponent( componentName ) {
+    function withComponent( componentName ) {
+        if ( reFindNoCase( "handlers\.cbLivewire\.", componentName ) ) {
+            arguments.componentName = reReplaceNoCase( componentName, "handlers\.cbLivewire\.", "", "one" );
+        }
+
 		return wirebox.getInstance(
 			name          = "handlers.cbLivewire.#componentName#",
 			initArguments = { livewireRequest : this }
@@ -36,7 +39,7 @@ component accessors="true" {
     }
 
 	function render( componentName ){
-		return getComponent( componentName ).render();
+		return withComponent( componentName ).render();
 	}
 
 }
