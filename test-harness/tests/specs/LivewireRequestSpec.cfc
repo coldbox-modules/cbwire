@@ -36,6 +36,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( livewireRequest.hasUpdates() ).toBeTrue();
             } );
 
+
+			it( "can get updates", function() {
+				event.setValue( "updates", [ { type: "callMethod" } ] );
+				expect( livewireRequest.getUpdates() ).toBeArray();
+				expect( arrayLen( livewireRequest.getUpdates() ) ).toBe( 1 );
+			} );
+
             it( "can detect fingerprint", function() {
                 event.setValue( "fingerprint", { id: "" } );
                 expect( livewireRequest.hasFingerprint() ).toBeTrue();

@@ -23,6 +23,10 @@ component accessors="true" {
         return structKeyExists( getCollection(), "updates" );
     }
 
+    function getUpdates() {
+        return getCollection()[ "updates" ];
+    }
+
     function getCollection() {
         return getEvent().getCollection( argumentsCollection=arguments );
     }
