@@ -73,9 +73,14 @@ component accessors="true" {
 		}
 
 		if ( livewireRequest.hasUpdates() ) {
-			context.updates.each( function( thisUpdate ){
+			livewireRequest.getUpdates().each( function( thisUpdate ){
 				if ( thisUpdate.type == "callMethod" ) {
-					this[ thisUpdate[ "payload" ][ "method" ] ]( );
+					
+					if ( structKeyExists( this, thisUpdate[ "payload" ][ "method" ] ) ) {
+						this[ thisUpdate[ "payload" ][ "method" ] ]( );
+					} else {
+						throw(type="LivewireMethodNotFound", message="Method '" & thisUpdate[ "payload" ][ "method" ] & "' not found on your component." );
+					}
 				}
 
 				if ( thisUpdate.type == "syncInput" ) {
