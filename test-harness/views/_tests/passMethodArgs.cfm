@@ -1,0 +1,1 @@
+<cfoutput>#livewire( "PassMethodArgs" )#</cfoutput>
