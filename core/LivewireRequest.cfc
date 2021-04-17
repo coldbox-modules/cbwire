@@ -16,7 +16,7 @@ component accessors="true" {
     }
 
     function getServerMemo() {
-        return getCollection().serverMemo;
+        return getCollection()[ "serverMemo" ];
     }
 
     function hasUpdates() {
