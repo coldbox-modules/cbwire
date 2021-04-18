@@ -77,7 +77,15 @@ component accessors="true" {
 				if ( thisUpdate.type == "callMethod" ) {
 					
 					if ( structKeyExists( this, thisUpdate[ "payload" ][ "method" ] ) ) {
-						this[ thisUpdate[ "payload" ][ "method" ] ]( );
+						if ( structKeyExists( thisUpdate[ "payload" ], "params" ) && isArray( thisUpdate[ "payload" ][ "params" ] ) ) {
+							var params = thisUpdate[ "payload" ][ "params" ].reduce( function( agg, param, index ) {
+								agg[ index ] = param;
+								return agg;
+							}, {} );
+						} else {
+							var params = {};
+						}
+						this[ thisUpdate[ "payload" ][ "method" ] ]( argumentCollection=params );
 					} else {
 						throw(type="LivewireMethodNotFound", message="Method '" & thisUpdate[ "payload" ][ "method" ] & "' not found on your component." );
 					}
