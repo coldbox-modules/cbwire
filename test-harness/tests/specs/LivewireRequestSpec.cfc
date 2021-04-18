@@ -38,7 +38,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( livewireRequest.hasUpdates() ).toBeTrue();
 			} );
 
-
 			it( "can get updates", function(){
 				event.setValue(
 					"updates",

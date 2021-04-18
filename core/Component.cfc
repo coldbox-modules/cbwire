@@ -60,6 +60,10 @@ component accessors="true" {
 		}, {} );
 	}
 
+	function hasMethod( methodName ) {
+		return structKeyExists( this, methodName );
+	}
+
 	function hydrate(){
 		var livewireRequest = getLivewireRequest();
 		var context = livewireRequest.getCollection();
@@ -73,26 +77,21 @@ component accessors="true" {
 		}
 
 		if ( livewireRequest.hasUpdates() ) {
-			livewireRequest.getUpdates().each( function( thisUpdate ){
-				if ( thisUpdate.type == "callMethod" ) {
-					
-					if ( structKeyExists( this, thisUpdate[ "payload" ][ "method" ] ) ) {
-						if ( structKeyExists( thisUpdate[ "payload" ], "params" ) && isArray( thisUpdate[ "payload" ][ "params" ] ) ) {
-							var params = thisUpdate[ "payload" ][ "params" ].reduce( function( agg, param, index ) {
-								agg[ index ] = param;
-								return agg;
-							}, {} );
-						} else {
-							var params = {};
-						}
-						this[ thisUpdate[ "payload" ][ "method" ] ]( argumentCollection=params );
-					} else {
-						throw(type="LivewireMethodNotFound", message="Method '" & thisUpdate[ "payload" ][ "method" ] & "' not found on your component." );
+
+			livewireRequest.getUpdates().each( function( update ){
+
+				if ( update.isType( "callMethod" ) ) {
+
+					if ( update.hasCallableMethod( this ) ) {
+						callMethod( update );
+						return;
 					}
+
+					throw(type="LivewireMethodNotFound", message="Method '" & update.getPayloadMethod() & "' not found on your component." );
 				}
 
-				if ( thisUpdate.type == "syncInput" ) {
-					this[ "set" & thisUpdate[ "payload" ][ "name" ] ]( thisUpdate[ "payload" ][ "value" ] );
+				if ( update.isType( "syncInput" ) ) {
+					this[ "set" & update[ "payload" ][ "name" ] ]( update[ "payload" ][ "value" ] );
 				}
 			} );
 		}
@@ -134,6 +133,10 @@ component accessors="true" {
 			);
 		}
 		return this;
+	}
+
+	private function callMethod( required LivewireUpdate update ) {
+		this[ update.getPayloadMethod() ]( argumentCollection=update.getPassedParamsAsArguments() );
 	}
 
 }
