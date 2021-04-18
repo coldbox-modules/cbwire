@@ -28,7 +28,7 @@ component accessors="true" {
     }
 
     function getCollection() {
-        return getEvent().getCollection( argumentsCollection=arguments );
+        return getEvent().getCollection( argumentCollection=arguments );
     }
 
     function withComponent( componentName ) {
