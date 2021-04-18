@@ -43,7 +43,9 @@ component accessors="true" {
     }
 
 	function render( componentName ){
-		return withComponent( componentName ).render();
+		return withComponent( componentName )
+            .$mount()
+            .render();
 	}
 
 }

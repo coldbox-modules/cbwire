@@ -117,4 +117,15 @@ component accessors="true" {
 		return rendering;
 	}
 
+	function $mount() {
+		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
+			this[ "mount" ](
+				event = livewireRequest.getEvent(),
+				rc = livewireRequest.getCollection(),
+				prc = livewireRequest.getCollection( private=true )
+			);
+		}
+		return this;
+	}
+
 }

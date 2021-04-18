@@ -1,0 +1,3 @@
+<cfoutput>
+#args.message#
+</cfoutput>
