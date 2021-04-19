@@ -72,7 +72,7 @@ component accessors="true" {
 
 		if ( livewireRequest.hasServerMemo() ) {
 			livewireRequest.getServerMemo().data.each( function( key, value ){
-				this[ "set#key#" ]( value );
+				this.$set( key, value );
 			} );
 		}
 
