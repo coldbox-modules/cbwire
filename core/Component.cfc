@@ -135,6 +135,10 @@ component accessors="true" {
 		return this;
 	}
 
+	function $set( propertyName, value ) {
+		this[ "set#propertyName#" ]( value );
+	}
+
 	private function callMethod( required LivewireUpdate update ) {
 		this[ update.getPayloadMethod() ]( argumentCollection=update.getPassedParamsAsArguments() );
 	}

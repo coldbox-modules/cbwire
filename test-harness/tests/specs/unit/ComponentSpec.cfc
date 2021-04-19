@@ -102,6 +102,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						expect( componentObj.$once( "resetName" ) ).toBeTrue();
 						expect( callLog[ "1" ] ).toBe( "George" );
 					} );
+
+					it( "uses set", function(){
+						var rc = livewireRequest.getCollection();
+
+						rc[ "updates" ] = [
+							{
+								type    : "callMethod",
+								payload : {
+									method : "$set",
+									params : [ "name", "George" ]
+								}
+							}
+						];
+
+						componentObj.$("setName", true );
+						componentObj.hydrate();
+
+						var passedArgs = componentObj.$callLog()[ "setName" ][1];
+						expect( componentObj.$once( "setName") ).toBeTrue();
+						expect( passedArgs[ 1 ] ).toBe( "George" );
+					} );
+
 				} );
 			} );
 
@@ -111,7 +133,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					componentObj.$mount();
 					expect( componentObj.$once( "mount" ) ).toBeTrue();
 				} );
-
 
 				it( "it should pass in the event, rc, and prc into mount()", function(){
 					var rc = livewireRequest.getCollection();
