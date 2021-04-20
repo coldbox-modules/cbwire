@@ -50,6 +50,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
 				} );
 
+				
+
 				describe( "callMethod", function(){
 					it( "executes method on component object", function(){
 						var rc = livewireRequest.getCollection();
@@ -124,6 +126,26 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						expect( passedArgs[ 1 ] ).toBe( "George" );
 					} );
 
+				} );
+
+				describe( "syncInput", function() {
+					xit( "it calls the expected setter", function(){
+						var rc = livewireRequest.getCollection();
+
+						rc[ "updates" ] = [
+							{
+								type    : "callMethod",
+								payload : {
+									method : "$set",
+									params : [ "name", "George" ]
+								}
+							}
+						];
+
+						componentObj.$("setName", true );
+						componentObj.hydrate();
+						expect( componentObj.$once( "mount" ) ).toBeTrue();
+					} );
 				} );
 			} );
 

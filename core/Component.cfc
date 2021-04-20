@@ -1,12 +1,22 @@
 component accessors="true" {
 
+	// DI
 	property name="renderer" inject="coldbox:renderer";
 	property name="wirebox" inject="wirebox";
-	property name="livewireRequest" type="LivewireRequest";
-	property name="initialRendering" default="true";
+	property name="$populator" inject="wirebox:populator";
+	property name="$controller" inject="coldbox";
+	property name="livewireRequest" inject="LivewireRequest@cbLivewire";
 
-	function init( required LivewireRequest livewireRequest ){
-		this.setLivewireRequest( livewireRequest );
+	/**
+	 *
+	 */
+	property name="initialRendering" default="true";
+	property name="$name";
+
+	function init(){
+		variables.name = "";
+		variables.initialRendering = true;
+		return this;
 	}
 
 	function getId(){
@@ -14,11 +24,18 @@ component accessors="true" {
 		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
 
+	function getName(){
+		if( len( variables._name ) ){
+			return variables._name;
+		}
+		return getMetadata( this ).name;
+	}
+
 	function getInitialPayload(){
 		return {
 			"fingerprint" : {
 				"id"     : "#getID()#",
-				"name"   : "#getMetadata( this ).name#",
+				"name"   : "#getName()#",
 				"locale" : "en",
 				"path"   : "/",
 				"method" : "GET"
@@ -52,6 +69,11 @@ component accessors="true" {
 	}
 
 	function getData(){
+
+		return variables.filter( function( key, value ){
+			return !reFind( "^\$", arguments.key ) && isCustomFunction( arguments.value );
+		});
+
 		return getMetadata( this ).properties.reduce( function( agg, prop ){
 			if ( structKeyExists( this, "get" & prop.name ) ) {
 				agg[ prop.name ] = this[ "get" & prop.name ]( );
@@ -69,11 +91,19 @@ component accessors="true" {
 		var context = livewireRequest.getCollection();
 
 		setInitialRendering( false );
+		//variables.initialRendering = false;
 
 		if ( livewireRequest.hasServerMemo() ) {
-			livewireRequest.getServerMemo().data.each( function( key, value ){
-				this.$set( key, value );
-			} );
+			// Injecting the state
+			variables.$populator.populateFromStruct(
+				target : this,
+				memento : livewireRequest.getServerMemo().data,
+				excludes : ""
+			);
+			// Instead of calling setters
+			//livewireRequest.getServerMemo().data.each( function( key, value ){
+			//	this.$set( key, value );
+			//} );
 		}
 
 		if ( livewireRequest.hasUpdates() ) {
@@ -91,12 +121,17 @@ component accessors="true" {
 				}
 
 				if ( update.isType( "syncInput" ) ) {
-					this[ "set" & update[ "payload" ][ "name" ] ]( update[ "payload" ][ "value" ] );
+					//this[ "set" & update[ "payload" ][ "name" ] ]( update[ "payload" ][ "value" ] );
 				}
 			} );
 		}
 
 		return this;
+	}
+
+	function renderIt(){
+		// Core renderer by convention
+		return renderView( "livewire/#getName()#" );
 	}
 
 	function renderView(){
@@ -135,9 +170,11 @@ component accessors="true" {
 		return this;
 	}
 
-	function $set( propertyName, value ) {
-		this[ "set#propertyName#" ]( value );
-	}
+	//function $set( propertyName, value ) {
+	//	invoke( this, "set#propertyName#", [ arguments.value ] );
+	//	return this;
+	//	this[ "set#propertyName#" ]( value );
+	//}
 
 	private function callMethod( required LivewireUpdate update ) {
 		this[ update.getPayloadMethod() ]( argumentCollection=update.getPassedParamsAsArguments() );

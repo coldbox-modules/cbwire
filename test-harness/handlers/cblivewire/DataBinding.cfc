@@ -1,6 +1,6 @@
-component extends="cblivewire.core.Component" accessors="true" {
+component extends="cblivewire.core.Component" {
 
-    property name="message" default="We have data binding!";
+    property name="message" default="Hello";
 
     function render() {
         return renderView( "_cblivewire/dataBinding" );

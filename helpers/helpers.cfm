@@ -4,6 +4,7 @@
     */
     function livewireStyles() {
         return getInstance( "cbLivewire.core.LivewireHTML" ).getStyles();
+        //return getInstance( "LivewireHTML@cbLivewire" ).getStyles();
     }
 
     /**
@@ -17,6 +18,6 @@
     * Renders a livewire component
     */
     function livewire( componentName ) {
-        return getInstance( "cbLivewire.core.LivewireRequest" ).render( componentName );
+        return getInstance( "cbLivewire.core.LivewireRequest" ).renderIt( componentName );
     }
 </cfscript>
