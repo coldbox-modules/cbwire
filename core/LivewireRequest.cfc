@@ -1,11 +1,7 @@
-component accessors="true" singleton{
-
-    property name="controller" inject="coldbox";
+component accessors="true" {
+    
     property name="wirebox" inject="wirebox";
     property name="requestService" inject="coldbox:requestService";
-    property name="modulesConfig" inject="coldbox:modulesConfig";
-
-  
 
     function getEvent() {
         return requestService.getContext();
@@ -46,26 +42,6 @@ component accessors="true" singleton{
 			name          = "handlers.cbLivewire.#componentName#",
 			initArguments = { livewireRequest : this }
 		);
-
-        if( find( "@", arguments.componentName ) ){
-            return getModuleComponent()
-        } else {
-            return getRootComponent()
-        }
-
-        // Root convention: helloWorld
-        var appMapping = variables.controller.getSetting( "AppMapping" );
-        var livewireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "livewire";
-        wirebox.getInstance( "#livewireRoot#.#componentName#")
-
-        // ModuleConvention: helloWorld@ui
-
-        // Verify the module
-        variables.modulesConfig.keyExists( moduleName ); //else throw exception
-        // Instantion Prefix of the module
-        var livewireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".livewire"
-
-
     }
 
 	function render( componentName ){

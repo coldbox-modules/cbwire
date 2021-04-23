@@ -14,7 +14,7 @@ component {
 
     function configure() {
         routes = [
-            { pattern = "message/:livewireComponent", handler = "CBLivewire" }
+            { pattern = "message/:livewireComponent", handler = "CBLivewire", action = "index" }
         ];
 		binder.mapDirectory( "#moduleMapping#.core" );
     }
