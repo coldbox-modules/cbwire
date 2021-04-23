@@ -44,10 +44,10 @@ component accessors="true" {
 		);
     }
 
-	function render( componentName ){
+	function renderIt( componentName ){
 		return withComponent( componentName )
             .$mount()
-            .render();
+            .renderIt();
 	}
 
 }

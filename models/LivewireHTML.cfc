@@ -1,4 +1,4 @@
-component {
+component singleton{
 
 	property name="renderer" inject="coldbox:renderer";
 
@@ -6,7 +6,7 @@ component {
 	 * Returns the styles to be placed in HTML head
 	 */
 	function getStyles(){
-		return renderer.renderView(
+		return variables.renderer.renderView(
 			view   = "styles",
 			module = "cblivewire"
 		);
@@ -16,7 +16,7 @@ component {
 	 * Returns the JS to be placed in HTML body
 	 */
 	function getScripts(){
-		return renderer.renderView(
+		return variables.renderer.renderView(
 			view   = "scripts",
 			module = "cblivewire"
 		);

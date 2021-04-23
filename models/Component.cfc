@@ -38,7 +38,7 @@ component accessors="true" {
 	function getMemento(){
 		return {
 			"effects" : {
-				"html"  : this.render(),
+				"html"  : this.renderIt(),
 				"dirty" : [
 					"count" // need to fix
 				]

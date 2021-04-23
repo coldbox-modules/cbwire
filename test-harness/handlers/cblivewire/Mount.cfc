@@ -6,7 +6,7 @@ component extends="cbLivewire.models.Component" accessors="true" {
         setMessage( "Mounted value" );
     }
 
-    function render() {
+    function renderIt() {
         return renderView( "_cblivewire/mount" );
     }
 }

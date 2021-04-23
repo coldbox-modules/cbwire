@@ -6,7 +6,7 @@ component extends="cbLivewire.models.Component" accessors="true" {
         variables.count += 1;
     }
 
-    function render() {
+    function renderIt() {
         return renderView( "_cblivewire/dataBindingCount" );
     }
 }

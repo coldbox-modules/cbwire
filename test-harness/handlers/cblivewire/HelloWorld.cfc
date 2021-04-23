@@ -1,6 +1,6 @@
 component extends="cbLivewire.models.Component" {
 
-	function render(){
+	function renderIt(){
 		return "Hello World";
 	}
 

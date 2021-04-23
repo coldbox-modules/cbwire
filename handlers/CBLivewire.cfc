@@ -8,7 +8,7 @@ component {
     */
 	function index( event, rc, prc ){
 		return wirebox
-			.getInstance( "cbLivewire.models..LivewireRequest" )
+			.getInstance( "cbLivewire.models.LivewireRequest" )
 			.withComponent( rc.livewireComponent )
 			.hydrate()
 			.getMemento();
