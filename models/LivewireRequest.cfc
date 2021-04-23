@@ -25,7 +25,7 @@ component accessors="true" {
 
     function getUpdates() {
         return getCollection()[ "updates" ].map( function( update ) {
-            return wirebox.getInstance( name="cbLivewire.core.LivewireUpdate", initArguments={ update: update } );
+            return wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: update } );
         } );
     }
 

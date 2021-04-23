@@ -18,10 +18,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				livewireRequest = prepareMock( getInstance( "cbLivewire.core.LivewireRequest" ) );
+				livewireRequest = prepareMock( getInstance( "cbLivewire.models..LivewireRequest" ) );
 				componentObj    = prepareMock(
 					getInstance(
-						name          = "cbLivewire.core.Component",
+						name          = "cbLivewire.models..Component",
 						initArguments = { livewireRequest : livewireRequest }
 					)
 				);

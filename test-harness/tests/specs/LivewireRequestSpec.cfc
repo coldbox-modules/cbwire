@@ -24,7 +24,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				setup();
 				event           = getRequestContext();
 				livewireRequest = getInstance(
-					name          = "cbLivewire.core.LivewireRequest",
+					name          = "cbLivewire.models.LivewireRequest",
 					initArguments = { event : event }
 				);
 			} );

@@ -1,4 +1,4 @@
-component extends="cbLivewire.core.Component" {
+component extends="cbLivewire.models.Component" {
 
 	function render(){
 		return "Hello World";
