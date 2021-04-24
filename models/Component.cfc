@@ -52,10 +52,10 @@ component {
 
 	function $getData(){
 		return getMetadata( this ).properties.reduce( function( agg, prop ){
-			if ( structKeyExists( this, "get" & prop.name ) ) {
-				agg[ prop.name ] = this[ "get" & prop.name ]( );
+			if ( structKeyExists( this, "get" & arguments.prop.name ) ) {
+				arguments.agg[ arguments.prop.name ] = this[ "get" & arguments.prop.name ]( );
 			}
-			return agg;
+			return arguments.agg;
 		}, {} );
 	}
 
@@ -78,18 +78,18 @@ component {
 
 			variables.$livewireRequest.getUpdates().each( function( update ){
 
-				if ( update.isType( "callMethod" ) ) {
+				if ( arguments.update.isType( "callMethod" ) ) {
 
-					if ( update.hasCallableMethod( this ) ) {
-						callMethod( update );
+					if ( arguments.update.hasCallableMethod( this ) ) {
+						callMethod( arguments.update );
 						return;
 					}
 
-					throw(type="LivewireMethodNotFound", message="Method '" & update.getPayloadMethod() & "' not found on your component." );
+					throw(type="LivewireMethodNotFound", message="Method '" & arguments.update.getPayloadMethod() & "' not found on your component." );
 				}
 
-				if ( update.isType( "syncInput" ) ) {
-					this[ "set" & update.getPayload()[ "name" ] ]( update.getPayload()[ "value" ] );
+				if ( arguments.update.isType( "syncInput" ) ) {
+					this[ "set" & arguments.update.getPayload()[ "name" ] ]( arguments.update.getPayload()[ "value" ] );
 				}
 			} );
 		}
@@ -108,7 +108,7 @@ component {
 		if ( variables.$initialRendering ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
-				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( getInitialPayload() ).replace( """", "&quot;", "all" )#""",
+				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.getInitialPayload() ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
@@ -134,11 +134,11 @@ component {
 	}
 
 	function $set( propertyName, value ) {
-		this[ "set#propertyName#" ]( value );
+		this[ "set#arguments.propertyName#" ]( arguments.value );
 	}
 
 	private function callMethod( required LivewireUpdate update ) {
-		this[ update.getPayloadMethod() ]( argumentCollection=update.getPassedParamsAsArguments() );
+		this[ update.getPayloadMethod() ]( argumentCollection=arguments.update.getPassedParamsAsArguments() );
 	}
 
 }
