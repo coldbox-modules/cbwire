@@ -2,11 +2,10 @@ component {
 
 	property name="$renderer" inject="coldbox:renderer";
 	property name="$wirebox" inject="wirebox";
-	property name="$livewireRequest" type="LivewireRequest";
+	property name="$livewireRequest" inject="LivewireRequest@cbLivewire";
 
-	function init( required LivewireRequest livewireRequest ){
+	function init(){
 		variables.$initialRendering = true;
-		variables.$livewireRequest = arguments.livewireRequest;
 	}
 
 	function $getId(){

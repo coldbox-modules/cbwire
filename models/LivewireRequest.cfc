@@ -1,5 +1,6 @@
-component accessors="true" {
+component singleton{
     
+    property name="controller" inject="coldbox";
     property name="wirebox" inject="wirebox";
     property name="requestService" inject="coldbox:requestService";
 
@@ -8,23 +9,23 @@ component accessors="true" {
     }
 
     function hasFingerprint() {
-        return structKeyExists( getCollection(), "fingerprint" );
+        return structKeyExists( this.getCollection(), "fingerprint" );
     }  
 
     function hasServerMemo() {
-        return structKeyExists( getCollection(), "serverMemo" );
+        return structKeyExists( this.getCollection(), "serverMemo" );
     }
 
     function getServerMemo() {
-        return getCollection()[ "serverMemo" ];
+        return this.getCollection()[ "serverMemo" ];
     }
 
     function hasUpdates() {
-        return structKeyExists( getCollection(), "updates" );
+        return structKeyExists( this.getCollection(), "updates" );
     }
 
     function getUpdates() {
-        return getCollection()[ "updates" ].map( function( update ) {
+        return this.getCollection()[ "updates" ].map( function( update ) {
             return wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: update } );
         } );
     }
@@ -38,10 +39,11 @@ component accessors="true" {
             arguments.componentName = reReplaceNoCase( componentName, "handlers\.cbLivewire\.", "", "one" );
         }
 
-		return wirebox.getInstance(
-			name          = "handlers.cbLivewire.#componentName#",
-			initArguments = { livewireRequest : this }
-		);
+        if( find( "@", arguments.componentName ) ){
+            return getModuleComponent( arguments.componentName );
+        } else {
+            return getRootComponent( arguments.componentName );
+        }
     }
 
 	function renderIt( componentName ){
@@ -49,5 +51,21 @@ component accessors="true" {
             .$mount()
             .renderIt();
 	}
+
+    // Root convention: helloWorld
+    private function getRootComponent( required string componentName ) {
+        var appMapping = variables.controller.getSetting( "AppMapping" );
+        var livewireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "handlers.cbLivewire";
+        return wirebox.getInstance( "#livewireRoot#.#arguments.componentName#");
+    }
+
+    // ModuleConvention: helloWorld@ui
+    private function getModuleComponent( required string componentName ) {
+        throw(message="Need to finish implementing this");
+        // Verify the module
+        variables.modulesConfig.keyExists( moduleName ); //else throw exception
+        // Instantion Prefix of the module
+        var livewireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".livewire"
+    }
 
 }
