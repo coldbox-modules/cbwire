@@ -1,12 +1,12 @@
-component accessors="true" {
+component {
 
 	property name="$renderer" inject="coldbox:renderer";
 	property name="$wirebox" inject="wirebox";
-	property name="livewireRequest" type="LivewireRequest";
-	property name="initialRendering" default="true";
+	property name="$livewireRequest" type="LivewireRequest";
 
 	function init( required LivewireRequest livewireRequest ){
-		this.setLivewireRequest( livewireRequest );
+		variables.$initialRendering = true;
+		variables.$livewireRequest = arguments.livewireRequest;
 	}
 
 	function $getId(){
@@ -28,7 +28,7 @@ component accessors="true" {
 				"children" : [],
 				"errors"   : [],
 				"htmlHash" : "ac82b577",
-				"data"     : getData(),
+				"data"     : this.$getData(),
 				"dataMeta" : [],
 				"checksum" : "2731fee42e720ea86ae36f5f076eca0943c885857c098a55592662729341e9cb"
 			}
@@ -45,13 +45,13 @@ component accessors="true" {
 			},
 			"serverMemo" : {
 				"htmlHash" : "71146cf2",
-				"data"     : getData(),
+				"data"     : this.$getData(),
 				"checksum" : "1ca298d9d162c7967d2313f76ba882d9bce208822308e04920c2080497c04fc1"
 			}
 		}
 	}
 
-	function getData(){
+	function $getData(){
 		return getMetadata( this ).properties.reduce( function( agg, prop ){
 			if ( structKeyExists( this, "get" & prop.name ) ) {
 				agg[ prop.name ] = this[ "get" & prop.name ]( );
@@ -65,20 +65,19 @@ component accessors="true" {
 	}
 
 	function hydrate(){
-		var livewireRequest = getLivewireRequest();
-		var context = livewireRequest.getCollection();
+		var context = variables.$livewireRequest.getCollection();
 
-		setInitialRendering( false );
+		variables.$initialRendering = false;
 
-		if ( livewireRequest.hasServerMemo() ) {
-			livewireRequest.getServerMemo().data.each( function( key, value ){
+		if ( variables.$livewireRequest.hasServerMemo() ) {
+			variables.$livewireRequest.getServerMemo().data.each( function( key, value ){
 				this.$set( key, value );
 			} );
 		}
 
-		if ( livewireRequest.hasUpdates() ) {
+		if ( variables.$livewireRequest.hasUpdates() ) {
 
-			livewireRequest.getUpdates().each( function( update ){
+			variables.$livewireRequest.getUpdates().each( function( update ){
 
 				if ( update.isType( "callMethod" ) ) {
 
@@ -101,13 +100,13 @@ component accessors="true" {
 
 	function renderView(){
 		// Pass the properties of the Livewire component as variables to the view
-		arguments.args = getData();
+		arguments.args = this.$getData();
 
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
 		// Add livewire properties to top element to make livewire actually work
 		// We will need to make this work with more than just <div>s of course
-		if ( getInitialRendering() ) {
+		if ( variables.$initialRendering ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
 				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( getInitialPayload() ).replace( """", "&quot;", "all" )#""",
@@ -127,9 +126,9 @@ component accessors="true" {
 	function $mount() {
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
 			this[ "mount" ](
-				event = livewireRequest.getEvent(),
-				rc = livewireRequest.getCollection(),
-				prc = livewireRequest.getCollection( private=true )
+				event = variables.$livewireRequest.getEvent(),
+				rc = variables.$livewireRequest.getCollection(),
+				prc = variables.$livewireRequest.getCollection( private=true )
 			);
 		}
 		return this;
