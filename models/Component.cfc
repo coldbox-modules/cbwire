@@ -91,7 +91,7 @@ component accessors="true" {
 				}
 
 				if ( update.isType( "syncInput" ) ) {
-					this[ "set" & update[ "payload" ][ "name" ] ]( update[ "payload" ][ "value" ] );
+					this[ "set" & update.getPayload()[ "name" ] ]( update.getPayload()[ "value" ] );
 				}
 			} );
 		}
