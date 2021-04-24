@@ -39,14 +39,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "hydrate()", function(){
+			describe( "$hydrate()", function(){
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = livewireRequest.getCollection();
 
 					rc[ "serverMemo" ] = { data : { "hello" : "world" } };
 
 					componentObj.$( "setHello", true );
-					componentObj.hydrate();
+					componentObj.$hydrate();
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
 				} );
 
@@ -62,7 +62,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "whyAmIAwakeAt3am", true );
-						componentObj.hydrate();
+						componentObj.$hydrate();
 						expect( componentObj.$once( "whyAmIAwakeAt3am" ) ).toBeTrue();
 					} );
 
@@ -77,7 +77,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						expect( function(){
-							componentObj.hydrate();
+							componentObj.$hydrate();
 						} ).toThrow( type = "LivewireMethodNotFound" );
 					} );
 
@@ -95,7 +95,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "resetName" );
-						componentObj.hydrate();
+						componentObj.$hydrate();
 
 						var callLog = componentObj.$callLog()[ "resetName" ][ 1 ];
 
@@ -117,7 +117,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$("setName", true );
-						componentObj.hydrate();
+						componentObj.$hydrate();
 
 						var passedArgs = componentObj.$callLog()[ "setName" ][1];
 						expect( componentObj.$once( "setName") ).toBeTrue();

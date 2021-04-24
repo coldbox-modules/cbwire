@@ -10,8 +10,8 @@ component {
 		return wirebox
 			.getInstance( "cbLivewire.models.LivewireRequest" )
 			.withComponent( rc.livewireComponent )
-			.hydrate()
-			.getMemento();
+			.$hydrate()
+			.$getMemento();
 	}
 
 }

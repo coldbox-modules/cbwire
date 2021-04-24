@@ -5,7 +5,7 @@ component singleton{
     property name="requestService" inject="coldbox:requestService";
 
     function getEvent() {
-        return requestService.getContext();
+        return variables.requestService.getContext();
     }
 
     function hasFingerprint() {
@@ -26,7 +26,7 @@ component singleton{
 
     function getUpdates() {
         return this.getCollection()[ "updates" ].map( function( update ) {
-            return wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: update } );
+            return wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: arguments.update } );
         } );
     }
 
@@ -35,8 +35,8 @@ component singleton{
     }
 
     function withComponent( componentName ) {
-        if ( reFindNoCase( "handlers\.cbLivewire\.", componentName ) ) {
-            arguments.componentName = reReplaceNoCase( componentName, "handlers\.cbLivewire\.", "", "one" );
+        if ( reFindNoCase( "handlers\.cbLivewire\.", arguments.componentName ) ) {
+            arguments.componentName = reReplaceNoCase( arguments.componentName, "handlers\.cbLivewire\.", "", "one" );
         }
 
         if( find( "@", arguments.componentName ) ){
@@ -47,7 +47,7 @@ component singleton{
     }
 
 	function renderIt( componentName ){
-		return withComponent( componentName )
+		return withComponent( arguments.componentName )
             .$mount()
             .renderIt();
 	}

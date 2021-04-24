@@ -34,7 +34,7 @@ component {
 		};
 	}
 
-	function getMemento(){
+	function $getMemento(){
 		return {
 			"effects" : {
 				"html"  : this.renderIt(),
@@ -63,7 +63,7 @@ component {
 		return structKeyExists( this, methodName );
 	}
 
-	function hydrate(){
+	function $hydrate(){
 		var context = variables.$livewireRequest.getCollection();
 
 		variables.$initialRendering = false;
