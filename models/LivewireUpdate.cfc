@@ -1,7 +1,7 @@
 component {
 
     function init( required struct update ) {
-        variables.update = update;
+        variables.update = arguments.update;
     }
 
     function getType() {
@@ -9,7 +9,7 @@ component {
     }
 
     function isType( checkType ) {
-        return checkType == this.getType();
+        return arguments.checkType == this.getType();
     }
 
     function hasPayload() {
