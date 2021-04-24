@@ -5,40 +5,40 @@ component {
     }
 
     function getType() {
-        return update.type;
+        return variables.update.type;
     }
 
     function isType( checkType ) {
-        return checkType == getType();
+        return checkType == this.getType();
     }
 
     function hasPayload() {
-        return structKeyExists( update, "payload" );
+        return structKeyExists( variables.update, "payload" );
     }
 
     function getPayload() {
-        return update[ "payload" ];
+        return variables.update[ "payload" ];
     }
 
     function hasPayloadMethod() {
-        return hasPayload() && structKeyExists( getPayload(), "method" );
+        return this.hasPayload() && structKeyExists( this.getPayload(), "method" );
     }
 
     function getPayloadMethod() {
-        return getPayload()[ "method" ];
+        return this.getPayload()[ "method" ];
     }
 
     function hasPassedParams() {
-        return hasPayload() && structKeyExists( getPayload(), "params" ) && isArray( getPayload()[ "params" ] );
+        return this.hasPayload() && structKeyExists( this.getPayload(), "params" ) && isArray( this.getPayload()[ "params" ] );
     }
 
     function getPassedParams() {
-        return getPayload()[ "params" ];
+        return this.getPayload()[ "params" ];
     }
 
     function getPassedParamsAsArguments() {
-        if ( hasPassedParams() ) {
-            return getPassedParams().reduce( function( agg, param, index ) {
+        if ( this.hasPassedParams() ) {
+            return this.getPassedParams().reduce( function( agg, param, index ) {
                 agg[ index ] = param;
                 return agg;
             }, {} );
@@ -47,7 +47,7 @@ component {
     }
 
     function hasCallableMethod( required Component livewireComponent ) {
-        return hasPayloadMethod() && livewireComponent.hasMethod( getPayloadMethod() );
+        return this.hasPayloadMethod() && livewireComponent.hasMethod( getPayloadMethod() );
     }
 
 }
