@@ -33,7 +33,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getId()", function(){
 				it( "returns 21 character guid to match Livewire's implmentation", function(){
-					var id = componentObj.getId();
+					var id = componentObj.$getId();
 					expect( len( id ) ).toBe( 21 );
 					expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
 				} );

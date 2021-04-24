@@ -1,7 +1,7 @@
 component accessors="true" {
 
-	property name="renderer" inject="coldbox:renderer";
-	property name="wirebox" inject="wirebox";
+	property name="$renderer" inject="coldbox:renderer";
+	property name="$wirebox" inject="wirebox";
 	property name="livewireRequest" type="LivewireRequest";
 	property name="initialRendering" default="true";
 
@@ -9,7 +9,7 @@ component accessors="true" {
 		this.setLivewireRequest( livewireRequest );
 	}
 
-	function getId(){
+	function $getId(){
 		// match Livewire's 21 characters
 		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
@@ -17,7 +17,7 @@ component accessors="true" {
 	function getInitialPayload(){
 		return {
 			"fingerprint" : {
-				"id"     : "#getID()#",
+				"id"     : "#this.$getID()#",
 				"name"   : "#getMetadata( this ).name#",
 				"locale" : "en",
 				"path"   : "/",
@@ -103,20 +103,20 @@ component accessors="true" {
 		// Pass the properties of the Livewire component as variables to the view
 		arguments.args = getData();
 
-		var rendering = renderer.renderView( argumentCollection = arguments );
+		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
 		// Add livewire properties to top element to make livewire actually work
 		// We will need to make this work with more than just <div>s of course
 		if ( getInitialRendering() ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
-				"<div wire:id=""#getId()#"" wire:initial-data=""#serializeJSON( getInitialPayload() ).replace( """", "&quot;", "all" )#""",
+				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( getInitialPayload() ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
 			rendering = rendering.replaceNoCase(
 				"<div",
-				"<div wire:id=""#getId()#""",
+				"<div wire:id=""#this.$getId()#""",
 				"once"
 			);
 		}
