@@ -1,6 +1,14 @@
+/**
+ * This is an awesome component. 
+ */
 component {
 
+	/**
+	 * 
+	 * The renderer
+	 */
 	property name="$renderer" inject="coldbox:renderer";
+
 	property name="$wirebox" inject="wirebox";
 	property name="$livewireRequest" inject="LivewireRequest@cbLivewire";
 
@@ -13,7 +21,10 @@ component {
 		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
 
-	function getInitialPayload(){
+	/**
+	* This method does stuff.
+	*/
+	function $getInitialPayload(){
 		return {
 			"fingerprint" : {
 				"id"     : "#this.$getID()#",
@@ -59,7 +70,7 @@ component {
 		}, {} );
 	}
 
-	function hasMethod( methodName ) {
+	function $hasMethod( methodName ) {
 		return structKeyExists( this, methodName );
 	}
 
@@ -81,7 +92,7 @@ component {
 				if ( arguments.update.isType( "callMethod" ) ) {
 
 					if ( arguments.update.hasCallableMethod( this ) ) {
-						callMethod( arguments.update );
+						variables.$callMethod( arguments.update );
 						return;
 					}
 
@@ -108,7 +119,7 @@ component {
 		if ( variables.$initialRendering ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
-				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.getInitialPayload() ).replace( """", "&quot;", "all" )#""",
+				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialPayload() ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
@@ -137,8 +148,8 @@ component {
 		this[ "set#arguments.propertyName#" ]( arguments.value );
 	}
 
-	private function callMethod( required LivewireUpdate update ) {
-		this[ update.getPayloadMethod() ]( argumentCollection=arguments.update.getPassedParamsAsArguments() );
+	private function $callMethod( required LivewireUpdate update ) {
+		this[ arguments.update.getPayloadMethod() ]( argumentCollection=arguments.update.getPassedParamsAsArguments() );
 	}
 
 }

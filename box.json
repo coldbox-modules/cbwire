@@ -3,8 +3,8 @@
     "version":"1.0.0",
     "author":"Ortus Solutions.com <info@ortussolutions.com>",
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbLivewire/@build.version@/cbLivewire-@build.version@.zip",
-	"slug":"cbLivewire",
-	"type":"modules",
+    "slug":"cbLivewire",
+    "type":"modules",
     "homepage":"https://github.com/coldbox-modules/cbLivewire",
     "documentation":"https://github.com/coldbox-modules/cbLivewire",
     "repository":{
@@ -16,6 +16,7 @@
     "description":"ColdBox + Livewire",
     "dependencies":{},
     "devDependencies":{
+        "docbox":"^3.0.0+57"
     },
     "scripts":{
         "release":"recipe build/release.boxr",
@@ -27,5 +28,8 @@
         "**/.*",
         "test-harness",
         "*/.md"
-    ]
+    ],
+    "installPaths":{
+        "docbox":"docbox/"
+    }
 }
