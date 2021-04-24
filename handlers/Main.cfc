@@ -7,9 +7,9 @@ component {
     * URI: /livewire/messages/:component
     */
 	function index( event, rc, prc ){
-		return wirebox
+		return variables.wirebox
 			.getInstance( "cbLivewire.models.LivewireRequest" )
-			.withComponent( rc.livewireComponent )
+			.withComponent( arguments.rc.livewireComponent )
 			.$hydrate()
 			.$getMemento();
 	}

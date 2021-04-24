@@ -39,15 +39,15 @@ component {
     function getPassedParamsAsArguments() {
         if ( this.hasPassedParams() ) {
             return this.getPassedParams().reduce( function( agg, param, index ) {
-                agg[ index ] = param;
-                return agg;
+                arguments.agg[ index ] = param;
+                return arguments.agg;
             }, {} );
         }
         return {};
     }
 
     function hasCallableMethod( required Component livewireComponent ) {
-        return this.hasPayloadMethod() && livewireComponent.hasMethod( getPayloadMethod() );
+        return this.hasPayloadMethod() && arguments.livewireComponent.hasMethod( this.getPayloadMethod() );
     }
 
 }

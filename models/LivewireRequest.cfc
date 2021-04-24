@@ -26,7 +26,7 @@ component singleton{
 
     function getUpdates() {
         return this.getCollection()[ "updates" ].map( function( update ) {
-            return wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: arguments.update } );
+            return variables.wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: arguments.update } );
         } );
     }
 
@@ -56,7 +56,7 @@ component singleton{
     private function getRootComponent( required string componentName ) {
         var appMapping = variables.controller.getSetting( "AppMapping" );
         var livewireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "handlers.cbLivewire";
-        return wirebox.getInstance( "#livewireRoot#.#arguments.componentName#");
+        return variables.wirebox.getInstance( "#livewireRoot#.#arguments.componentName#");
     }
 
     // ModuleConvention: helloWorld@ui
