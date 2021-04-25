@@ -4,6 +4,9 @@ component {
         variables.update = arguments.update;
     }
 
+    /**
+     * undocumented function
+     */
     function getType() {
         return variables.update.type;
     }

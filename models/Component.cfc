@@ -1,23 +1,43 @@
 /**
- * This is an awesome component. 
+ * This is the base object that all cbLivewire components extend for functionality.
+ * 
+ * Most internal methods and properties here are namespaced with a "$" to avoid collisions
+ * with child components. 
  */
 component {
 
 	/**
-	 * 
-	 * The renderer
+	 * Injected ColdBox Renderer for rendering operations.
 	 */
 	property name="$renderer" inject="coldbox:renderer";
 
+	/**
+	 * Injected WireBox for dependency injection.
+	 */
 	property name="$wirebox" inject="wirebox";
+
+	/**
+	 * Injected LivewireRequest that's incoming from the browser.
+	 */
 	property name="$livewireRequest" inject="LivewireRequest@cbLivewire";
 
+	/**
+	 * Our beautiful, simple constructor.
+	 * 
+	 * @return Component
+	 */
 	function init(){
 		variables.$initialRendering = true;
+		return this;
 	}
 
+	/**
+	 * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
+	 * The 21 characters matches Livewire's native implementation.
+	 * 
+	 * @return string
+	 */
 	function $getId(){
-		// match Livewire's 21 characters
 		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
 
@@ -45,6 +65,11 @@ component {
 		};
 	}
 
+	/**
+	 * Returns the memento for our component which holds the current 
+	 * state of our component. This is returned on subsequent XHR requests
+	 * called by Livewire's JS.
+	 */
 	function $getMemento(){
 		return {
 			"effects" : {
@@ -70,10 +95,22 @@ component {
 		}, {} );
 	}
 
-	function $hasMethod( methodName ) {
+	/**
+	 * Returns true if the provided method name can be found on our component.
+	 *
+	 * @methodName The method name we are checking.
+	 * @return boolean
+	 */
+	function $hasMethod( required string methodName ) {
 		return structKeyExists( this, methodName );
 	}
 
+	/**
+	 * This hydrates (re-populates) our component state with
+	 * values provided by the incoming LivewireRequest object.
+	 * 
+	 * @return Component
+	 */
 	function $hydrate(){
 		var context = variables.$livewireRequest.getCollection();
 
@@ -108,6 +145,11 @@ component {
 		return this;
 	}
 
+	/**
+	 * Renders our component's view and returns the HTML
+	 * 
+	 * @return string
+	 */
 	function renderView(){
 		// Pass the properties of the Livewire component as variables to the view
 		arguments.args = this.$getData();
@@ -133,6 +175,12 @@ component {
 		return rendering;
 	}
 
+	/**
+	 * Fires when the cbLivewire component is initially created.
+	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
+	 * 
+	 * @return this
+	 */
 	function $mount() {
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
 			this[ "mount" ](

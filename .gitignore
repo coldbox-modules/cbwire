@@ -4,6 +4,7 @@
 .tmp/**
 
 docbox/**
+dist/**
 
 test-harness/.engine/**
 test-harness/coldbox/**
