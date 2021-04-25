@@ -102,7 +102,7 @@ component {
 	 * @return boolean
 	 */
 	function $hasMethod( required string methodName ) {
-		return structKeyExists( this, methodName );
+		return structKeyExists( this, arguments.methodName );
 	}
 
 	/**
@@ -118,7 +118,7 @@ component {
 
 		if ( variables.$livewireRequest.hasServerMemo() ) {
 			variables.$livewireRequest.getServerMemo().data.each( function( key, value ){
-				this.$set( key, value );
+				this.$set( arguments.key, arguments.value );
 			} );
 		}
 
