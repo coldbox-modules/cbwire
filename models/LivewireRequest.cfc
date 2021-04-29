@@ -99,7 +99,7 @@ component singleton{
     // Root convention: helloWorld
     private function getRootComponent( required string componentName ) {
         var appMapping = variables.controller.getSetting( "AppMapping" );
-        var livewireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "handlers.cbLivewire";
+        var livewireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "livewire";
         return variables.wirebox.getInstance( "#livewireRoot#.#arguments.componentName#");
     }
 
