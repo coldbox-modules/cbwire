@@ -79,8 +79,8 @@ component singleton{
     }
 
     function withComponent( componentName ) {
-        if ( reFindNoCase( "handlers\.cbLivewire\.", arguments.componentName ) ) {
-            arguments.componentName = reReplaceNoCase( arguments.componentName, "handlers\.cbLivewire\.", "", "one" );
+        if ( reFindNoCase( "livewire\.", arguments.componentName ) ) {
+            arguments.componentName = reReplaceNoCase( arguments.componentName, "livewire\.", "", "one" );
         }
 
         if( find( "@", arguments.componentName ) ){

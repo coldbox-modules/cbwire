@@ -67,7 +67,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
-				var event         = post( "/livewire/message/handlers.cblivewire.DataBinding" );
+				var event         = post( "/livewire/message/livewire.DataBinding" );
 				var content       = event.getRenderedContent();
 				var parsedContent = deserializeJSON( content );
 
