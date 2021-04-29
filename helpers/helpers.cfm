@@ -16,7 +16,7 @@
     /**
     * Renders a livewire component
     */
-    function livewire( componentName ) {
-        return getInstance( "cbLivewire.models.LivewireRequest" ).renderIt( arguments.componentName );
+    function livewire() {
+        return getInstance( "cbLivewire.models.LivewireRequest" ).renderIt( argumentCollection=arguments );
     }
 </cfscript>

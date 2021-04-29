@@ -43,6 +43,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( content ).toInclude( "<div wire:id=" );
 					expect( content ).toInclude( "wire:initial-data=" );
 				} );
+
+				it( "has ability to pass parameters'", function(){
+					var event = get( "/_tests/passParameters" );
+					var content = event.getRenderedContent();
+					expect( content ).toInclude( "<ul>" );
+					expect( content ).toInclude( "<li>Pepperoni</li>" );
+				} );
+
 			} );
 
 			it( "livewireStyles() renders the livewire styles", function(){

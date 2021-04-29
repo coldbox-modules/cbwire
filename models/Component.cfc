@@ -181,7 +181,17 @@ component {
 	 * 
 	 * @return this
 	 */
-	function $mount() {
+	function $mount( parameters = {} ) {
+
+		// Injecting the state from our passed in parameters
+		// variables.$populator.populateFromStruct(
+		// 	target : variables,
+		// 	memento : arguments.parameters,
+		// 	excludes : ""
+		// );
+
+		this.$loadParameters( arguments.parameters );
+
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
 			this[ "mount" ](
 				event = variables.$livewireRequest.getEvent(),
@@ -190,6 +200,17 @@ component {
 			);
 		}
 		return this;
+	}
+
+	/**
+	 * Loads the passed parameters into our component's variables scope
+	 *
+	 * @parameters The parameters that we want to load into our variables scope
+	 */
+	function $loadParameters( required struct parameters ) {
+		arguments.parameters.each( function( key, value ) {
+			variables[ arguments.key ] = arguments.value;
+		} );
 	}
 
 	function $set( propertyName, value ) {

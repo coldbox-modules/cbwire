@@ -90,9 +90,9 @@ component singleton{
         }
     }
 
-	function renderIt( componentName ){
+	function renderIt( componentName, parameters = {} ){
 		return withComponent( arguments.componentName )
-            .$mount()
+            .$mount( arguments.parameters )
             .renderIt();
 	}
 
