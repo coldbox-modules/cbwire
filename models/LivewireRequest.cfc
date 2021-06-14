@@ -78,6 +78,15 @@ component singleton{
         return getEvent().getCollection( argumentCollection=arguments );
     }
 
+    /**
+     * Returns our event's private request collection
+     * 
+     * @return Struct
+     */
+    function getPrivateCollection() {
+        return getEvent().getPrivateCollection( argumentCollection=arguments );
+    }
+
     function withComponent( componentName ) {
         if ( reFindNoCase( "livewire\.", arguments.componentName ) ) {
             arguments.componentName = reReplaceNoCase( arguments.componentName, "livewire\.", "", "one" );
