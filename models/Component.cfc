@@ -21,6 +21,12 @@ component {
 	 */
 	property name="$livewireRequest" inject="LivewireRequest@cbLivewire";
 
+
+	/**
+	 * Method aliases
+	 */	
+	variables[ "view" ] = this.renderView;
+
 	/**
 	 * Our beautiful, simple constructor.
 	 * 
