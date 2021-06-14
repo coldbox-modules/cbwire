@@ -32,8 +32,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
-				it( "renders 'Hello world' using a view and passing args to the view'", function(){
+				it( "renders 'Hello world' using renderView() and passing args to the view'", function(){
 					var event = get( "/_tests/helloWorldWithRenderViewPropertyAndArgs" );
+					expect( event.getRenderedContent() ).toInclude( "Hello World" );
+				} );
+
+				it( "renders 'Hello world' using view() and passing args to the view'", function(){
+					var event = get( "/_tests/usingViewtoRender" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
