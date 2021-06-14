@@ -1,10 +1,6 @@
-component extends="cbLivewire.models.Component" {
+component extends="cbLivewire.models.Component" accessors="true" {
 
     property name="pizzaToppings";
-
-    function getPizzaToppings() {
-        return variables.pizzaToppings;
-    }
 
     function renderIt() {
         return renderView( "_cblivewire/passParameters" );
