@@ -53,18 +53,18 @@ component {
 	}
 
 	/**
-	 * Returns the initial payload of our component, which is ultimately serialized
+	 * Returns the initial data of our component, which is ultimately serialized
 	 * to json and return in the view as our component is first rendered.
 	 * 
 	 * @return Struct
 	 */
-	function $getInitialPayload(){
+	function $getInitialData(){
 		return {
 			"fingerprint" : {
 				"id"     : "#this.$getID()#",
 				"name"   : "#getMetadata( this ).name#",
 				"locale" : "en",
-				"path"   : "/",
+				"path"   : "#this.$getPath()#",
 				"method" : "GET"
 			},
 			"effects"    : { "listeners" : [] },
@@ -155,7 +155,7 @@ component {
 				if ( arguments.update.isType( "callMethod" ) ) {
 
 					if ( arguments.update.hasCallableMethod( this ) ) {
-						variables.$callMethod( arguments.update );
+						arguments.update.invokeComponentMethod( this );
 						return;
 					}
 
@@ -194,7 +194,7 @@ component {
 		if ( variables.$initialRendering ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
-				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialPayload() ).replace( """", "&quot;", "all" )#""",
+				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData() ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {

@@ -53,4 +53,13 @@ component {
         return this.hasPayloadMethod() && arguments.livewireComponent.$hasMethod( this.getPayloadMethod() );
     }
 
+    /**
+     * Runs the specified action method within the request payload on the provided component.
+     * 
+     * @return Void
+     */
+    function invokeComponentMethod( required comp ){
+        comp[ getPayloadMethod() ]( argumentCollection=getPassedParamsAsArguments() );
+    }
+
 }
