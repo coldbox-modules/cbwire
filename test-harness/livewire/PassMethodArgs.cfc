@@ -6,7 +6,7 @@ component extends="cbLivewire.models.Component" accessors="true" {
         setName( otherName );
     }
 
-    function renderIt() {
-        return renderView( "_cblivewire/passMethodArgs" );
+    function $renderIt() {
+        return this.$renderView( "_cblivewire/passMethodArgs" );
     }
 }

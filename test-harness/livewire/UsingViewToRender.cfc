@@ -2,8 +2,8 @@ component extends="cbLivewire.models.Component" accessors="true" {
 
 	property name="message" default="Hello World";
 
-	function renderIt(){
-		return view( "_cblivewire/helloWorldWithRenderViewPropertyAndArgs" );
+	function $renderIt(){
+		return this.$view( "_cblivewire/helloWorldWithRenderViewPropertyAndArgs" );
 	}
 
 }

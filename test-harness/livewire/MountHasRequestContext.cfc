@@ -7,7 +7,7 @@ component extends="cbLivewire.models.Component" accessors="true" {
         setMessage( event.getValue( "message" ) );
     }
 
-    function renderIt() {
-        return renderView( "_cblivewire/mount" );
+    function $renderIt() {
+        return this.$renderView( "_cblivewire/mount" );
     }
 }

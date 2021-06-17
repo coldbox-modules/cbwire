@@ -30,7 +30,7 @@ component singleton{
     /**
      * Returns true if our request context contains a 'fingerprint' property.
      * 
-     * @return boolean
+     * @return Boolean
      */
     function hasFingerprint() {
         return structKeyExists( this.getCollection(), "fingerprint" );
@@ -39,10 +39,28 @@ component singleton{
     /**
      * Returns true if our request context contains a 'serverMemo' property.
      * 
-     * @return boolean
+     * @return Boolean
      */
     function hasServerMemo() {
         return structKeyExists( this.getCollection(), "serverMemo" );
+    }
+
+    /**
+     * Returns true if our server memo contains a mounted state property.
+     * 
+     * @return Boolean
+     */
+    function hasMountedState(){
+        return this.hasServerMemo() && structKeyExists( this.getServerMemo(), "mountedState" );
+    }
+
+    /**
+     * Returns our mounted state
+     * 
+     * @return Struct
+     */
+    function getMountedState(){
+        return this.getServerMemo()[ "mountedState" ];
     }
 
     /**
@@ -57,7 +75,7 @@ component singleton{
     /**
      * Returns true if our request context contains an 'updates' property.
      * 
-     * @return boolean
+     * @return Boolean
      */
     function hasUpdates() {
         return structKeyExists( this.getCollection(), "updates" );
@@ -66,7 +84,7 @@ component singleton{
     /**
      * Returns an array of LivewireUpdate objects with our updates from the request context.
      * 
-     * @return array | LivewireUpdate
+     * @return Array | LivewireUpdate
      */
     function getUpdates() {
         return this.getCollection()[ "updates" ].map( function( update ) {
@@ -74,12 +92,17 @@ component singleton{
         } );
     }
 
+    /**
+     * Returns our event's public request collection.
+     * 
+     * @return Struct
+     */
     function getCollection() {
         return getEvent().getCollection( argumentCollection=arguments );
     }
 
     /**
-     * Returns our event's private request collection
+     * Returns our event's private request collection.
      * 
      * @return Struct
      */
@@ -87,33 +110,63 @@ component singleton{
         return getEvent().getPrivateCollection( argumentCollection=arguments );
     }
 
+    /**
+     * Finds and returns our Livewire component by name, either using
+     * module syntax Component@Module or root sytax, which looks
+     * in the root "livewire" folder.
+     *
+     * @componentName String | The name of the component.
+     */
     function withComponent( componentName ) {
         if ( reFindNoCase( "livewire\.", arguments.componentName ) ) {
             arguments.componentName = reReplaceNoCase( arguments.componentName, "livewire\.", "", "one" );
         }
 
         if( find( "@", arguments.componentName ) ){
+            // This is a module reference, find in our module
             return getModuleComponent( arguments.componentName );
         } else {
+            // Look in our root folder for our Livewire component
             return getRootComponent( arguments.componentName );
         }
     }
 
+    /**
+     * Instantiates our Livewire component, mounts it,
+     * and then calls it's internal $renderIt() method.
+     *
+     * @componentName String | The name of the component in your Livewire folder.
+     * @parameters Struct | The parameters you want mounted initially.
+     * 
+     * @return Component
+     */
 	function renderIt( componentName, parameters = {} ){
 		return withComponent( arguments.componentName )
             .$mount( arguments.parameters )
-            .renderIt();
+            .$renderIt();
 	}
 
-    // Root convention: helloWorld
-    private function getRootComponent( required string componentName ) {
+    /**
+     * Returns a cbLivewire component using the root "HelloWorld" convention.
+     * 
+     * @componentName String | Name of the cbLivewire component.
+     * 
+     * @return Component
+     */
+    private function getRootComponent( required componentName ) {
         var appMapping = variables.controller.getSetting( "AppMapping" );
         var livewireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "livewire";
         return variables.wirebox.getInstance( "#livewireRoot#.#arguments.componentName#");
     }
 
-    // ModuleConvention: helloWorld@ui
-    private function getModuleComponent( required string componentName ) {
+    /**
+     * Returns a cbLivewire component using the module convention.
+     * 
+     * @componentName String | Name of the cbLivewire component and module. Ex. HelloWorld@MODULE
+     * 
+     * @return Component
+     */
+    private function getModuleComponent( required componentName ) {
         throw(message="Need to finish implementing this");
         // Verify the module
         variables.modulesConfig.keyExists( moduleName ); //else throw exception

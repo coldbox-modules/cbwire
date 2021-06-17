@@ -56,6 +56,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( content ).toInclude( "<li>Pepperoni</li>" );
 				} );
 
+				it( "has ability to pass parameters that are then passed into our mount() method'", function(){
+					var event = get( "/_tests/passedParametersProvidedToMount" );
+					var content = event.getRenderedContent();
+					expect( content ).toInclude( "<ul>" );
+					expect( content ).toInclude( "<li>Bacon</li>" );
+				} );
+
 			} );
 
 			it( "livewireStyles() renders the livewire styles", function(){
