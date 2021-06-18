@@ -113,6 +113,44 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$renderView", function(){
+
+				beforeEach( function(){
+					componentObj.$property( propertyName="$renderer", propertyScope="variables", mock={
+						"renderView": function() { return "<div>test</div>"; }
+					});
+				} );
+
+				it( "provides rendering", function(){
+					expect( componentObj.$renderView( "someView" ) ).toInclude( "<div" );
+				} );
+
+				it( "should support various outer element tags", function(){
+					var outerElements = [
+						"div",
+						"span",
+						"section"
+					];
+
+					outerElements.each( function( element ) {	
+						componentObj.$property( propertyName="$renderer", propertyScope="variables", mock={
+							"renderView": function() { return "<#element#>test</#element#>"; }
+						});
+						expect( componentObj.$renderView( "someView" ) ).toInclude( "<#arguments.element# wire:id=" );
+					} );
+					
+				} );
+
+				it( "throws error if there's no outer element to bind to", function(){
+					componentObj.$property( propertyName="$renderer", propertyScope="variables", mock={
+						"renderView": function() { return "test"; }
+					});
+					expect( function(){
+						componentObj.$renderView( "someView" )
+					 } ).toThrow( type="NoOuterElement" );
+				} );
+			} );
+
 			describe( "$getRendering", function(){
 				it( "calls the $renderIt() method on our component", function(){
 					componentObj.$( "$renderIt", "got here" );
