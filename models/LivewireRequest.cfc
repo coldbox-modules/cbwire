@@ -162,6 +162,32 @@ component singleton{
     }
 
     /**
+     * Hydrates the provided component with state from our request.
+     *
+     * @comp cbLivewire.models.Component | Component we are updating.
+     * 
+     * @return Void 
+     */
+    function hydrateComponent( comp ) {
+
+		if ( this.hasMountedState() ) {
+			arguments.comp.$setMountedState( this.getMountedState() );
+		}
+
+		// Check if our request contains a server memo, and if so update our component state.
+		if ( this.hasServerMemo() ) {
+			this.getServerMemo().data.each( function( key, value ){
+				comp.$set( arguments.key, arguments.value );
+			} );
+		}
+
+		// Check if our request contains updates, and if so apply them.
+		if ( this.hasUpdates() ) {
+			this.applyUpdates( arguments.comp );
+		}
+    }
+
+    /**
      * Returns a cbLivewire component using the root "HelloWorld" convention.
      * 
      * @componentName String | Name of the cbLivewire component.

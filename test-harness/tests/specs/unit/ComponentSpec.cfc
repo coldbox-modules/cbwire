@@ -63,6 +63,24 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
+			describe( "$getMeta", function(){
+				it( "should return the meta", function(){
+					expect( componentObj.$getMeta().name ).toBe( "cbLivewire.models.Component" );
+				} );
+
+				it( "should cache the results", function(){
+					expect( structKeyExists( componentObj, "$meta") ).toBeFalse();
+					componentObj.$getMeta();
+					expect( structKeyExists( componentObj, "$meta") ).toBeTrue();
+				} );
+
+				it( "should return cached results if they exists", function(){
+					componentObj.$property( propertyName="$meta", propertyScope="this", mock="some meta" );
+					expect( componentObj.$getMeta() ).toBe( "some meta" );
+				} );
+
+			} );
+
 
 			describe( "$getInitialData", function(){
 				

@@ -1,1 +1,0 @@
-<cfoutput>#livewire( "EmitFromButton" )#</cfoutput>

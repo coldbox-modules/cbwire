@@ -49,8 +49,8 @@ component {
         return {};
     }
 
-    function hasCallableMethod( required Component livewireComponent ) {
-        return this.hasPayloadMethod() && arguments.livewireComponent.$hasMethod( this.getPayloadMethod() );
+    function hasCallableMethod( required comp ) {
+        return this.hasPayloadMethod() && arguments.comp.$hasMethod( this.getPayloadMethod() );
     }
 
     /**

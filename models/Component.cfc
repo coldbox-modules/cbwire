@@ -51,7 +51,7 @@ component {
 		return {
 			"fingerprint" : {
 				"id"     : "#this.$getID()#",
-				"name"   : "#getMetadata( this ).name#",
+				"name"   : "#this.$getMeta().name#",
 				"locale" : "en",
 				"path"   : "#this.$getPath()#",
 				"method" : "GET"
@@ -129,24 +129,8 @@ component {
 	 * @return Component
 	 */
 	function $hydrate(){
-
 		variables.$initialRendering = false;
-
-		if ( variables.$livewireRequest.hasMountedState() ) {
-			this.$setMountedState( variables.$livewireRequest.getMountedState() );
-		}
-
-		if ( variables.$livewireRequest.hasServerMemo() ) {
-			// Re-populate our component state with data from the server memo first
-			variables.$livewireRequest.getServerMemo().data.each( function( key, value ){
-				this.$set( arguments.key, arguments.value );
-			} );
-		}
-
-		if ( variables.$livewireRequest.hasUpdates() ) {
-			variables.$livewireRequest.applyUpdates( this );
-		}
-
+		variables.$livewireRequest.hydrateComponent( this );
 		return this;
 	}
 
@@ -266,6 +250,16 @@ component {
 	}
 
 	/**
+	 * Sets the mounted state for our component for the ability to rollback changes.
+	 * 
+	 * @state Struct
+	 * @return Void
+	 */
+	function $setMountedState( required state ){
+		variables.$mountedState = arguments.state;
+	}
+
+	/**
 	 * Resets a property back to it's original state when the component
 	 * was initially hydrated.
 	 * 
@@ -297,16 +291,6 @@ component {
 			return variables.$mountedState;
 		}
 		return {};
-	}
-
-	/**
-	 * Sets our mounted state
-	 * 
-	 * @state Struct
-	 * @return Void
-	 */
-	private function $setMountedState( required state ){
-		variables.$mountedState = arguments.state;
 	}
 
 	/**
@@ -365,6 +349,19 @@ component {
 			return this.$listeners;
 		}
 		return {};
+	}
+
+	/**
+	 * Returns the meta data for this component.
+	 * Ensures that we only run this once.
+	 * 
+	 * @return Struct
+	 */
+	function $getMeta(){
+		if ( !structKeyExists( this, "$meta" ) ){
+			this.$meta = getMetaData( this );
+		}
+		return this.$meta;
 	}
 
 	/**
