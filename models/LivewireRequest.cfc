@@ -156,7 +156,7 @@ component singleton{
      */
     function applyUpdates( comp ){
         // Fire our preUpdate lifecycle event.
-        comp.$invoke( "preUpdate" );
+        arguments.comp.$invoke( "preUpdate" );
 
         // Update the state of our component with each of our updates
         this.getUpdates().each( function( update ){
@@ -164,7 +164,7 @@ component singleton{
         } );
 
         // Fire our postUpdate lifecycle event.
-        comp.$invoke( "preUpdate" );
+        arguments.comp.$invoke( "preUpdate" );
     }
 
     /**
@@ -190,13 +190,15 @@ component singleton{
 			} );
 		}
 
+        // Invoke '$postHydrate' event
+        arguments.comp.$invoke( "$postHydrate" );
+
 		// Check if our request contains updates, and if so apply them.
 		if ( this.hasUpdates() ) {
 			this.applyUpdates( arguments.comp );
 		}
 
-        // Invoke '$postHydrate' event
-        arguments.comp.$invoke( "$postHydrate" );
+
     }
 
     /**
