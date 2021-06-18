@@ -18,7 +18,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				livewireRequest = prepareMock( getInstance( "cbLivewire.models..LivewireRequest" ) );
+				livewireRequest = prepareMock( getInstance( "cbLivewire.models.LivewireRequest" ) );
 				componentObj    = prepareMock(
 					getInstance(
 						name          = "cbLivewire.models.Component",
@@ -98,6 +98,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 					expect( componentObj.$getInitialData().effects.listeners ).toBeArray();
 					expect( componentObj.$getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
+				} );
+
+				it( "returns the component checksum in the serverMemo", function(){
+					componentObj.$( "$getChecksum", "test" );
+					expect( componentObj.$getInitialData().serverMemo.checksum ).toBe( "test" );
+				} );
+			} );
+
+			describe( "$getChecksum", function(){
+				it( "returns the expected checksum", function(){
+					componentObj.$( "$getState", { "test" : "checksum" } );
+					expect( componentObj.$getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
 				} );
 			} );
 

@@ -63,7 +63,7 @@ component {
 				"htmlHash" 		: "ac82b577",
 				"data"     		: this.$getState(),
 				"dataMeta" 		: [],
-				"checksum" 		: "2731fee42e720ea86ae36f5f076eca0943c885857c098a55592662729341e9cb",
+				"checksum" 		: this.$getChecksum(),
 				"mountedState" : this.$getMountedState()
 			}
 		};
@@ -88,10 +88,19 @@ component {
 			"serverMemo" : {
 				"htmlHash" 		: "71146cf2",
 				"data"     		: this.$getState(),
-				"checksum" 		: "1ca298d9d162c7967d2313f76ba882d9bce208822308e04920c2080497c04fc1",
+				"checksum" 		: this.$getChecksum(),
 				"mountedState" : this.$getMountedState()
 			}
 		}
+	}
+
+	/**
+	 * Returns the checksum hash of our current state.
+	 * 
+	 * @return String
+	 */
+	function $getChecksum(){
+		return hash( serializeJSON( this.$getState() ) );
 	}
 
 	/**
