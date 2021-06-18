@@ -1,5 +1,5 @@
 /**
- * Represents an subsequent, incoming Livewire XHR Request from the browser.
+ * Represents a subsequent, incoming Livewire XHR Request from the browser.
  */
 component singleton{
     
@@ -197,7 +197,6 @@ component singleton{
 		if ( this.hasUpdates() ) {
 			this.applyUpdates( arguments.comp );
 		}
-
 
     }
 
