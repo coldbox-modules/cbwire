@@ -45,9 +45,11 @@ component {
 	 * Returns the initial data of our component, which is ultimately serialized
 	 * to json and return in the view as our component is first rendered.
 	 * 
+	 * @renderingHash String | Hash of the view rendering. Used to populate serverMemo.htmlHash in struct response.
+	 * 
 	 * @return Struct
 	 */
-	function $getInitialData(){
+	function $getInitialData( renderingHash="" ){
 		return {
 			"fingerprint" : {
 				"id"     : "#this.$getID()#",
@@ -60,7 +62,7 @@ component {
 			"serverMemo" : {
 				"children" 		: [],
 				"errors"   		: [],
-				"htmlHash" 		: "ac82b577",
+				"htmlHash" 		: arguments.renderingHash,
 				"data"     		: this.$getState(),
 				"dataMeta" 		: [],
 				"checksum" 		: this.$getChecksum(),
@@ -167,12 +169,14 @@ component {
 
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
+		var renderingHash = hash( rendering );
+
 		// Add livewire properties to top element to make livewire actually work
 		// We will need to make this work with more than just <div>s of course
 		if ( variables.$isInitialRendering ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
-				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData() ).replace( """", "&quot;", "all" )#""",
+				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash=renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
