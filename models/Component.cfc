@@ -79,7 +79,7 @@ component {
 	function $getMemento(){
 		return {
 			"effects" : {
-				"html"  : this.$renderIt(),
+				"html"  : this.$getRendering(),
 				"dirty" : [
 					"count" // need to fix
 				],
@@ -89,9 +89,22 @@ component {
 				"htmlHash" 		: "71146cf2",
 				"data"     		: this.$getState(),
 				"checksum" 		: this.$getChecksum(),
-				"mountedState" : this.$getMountedState()
+				"mountedState"  : this.$getMountedState()
 			}
 		}
+	}
+
+	/**
+	 * Invokes $renderIt() on the cbLivewire component and caches the rendered
+	 * results into variables.$rendering.
+	 * 
+	 * @return String
+	 */
+	function $getRendering(){
+		if ( !structKeyExists( variables, "$rendering" ) ){
+			variables.$rendering = this.$renderIt();
+		}
+		return variables.$rendering;
 	}
 
 	/**

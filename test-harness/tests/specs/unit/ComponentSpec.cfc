@@ -113,6 +113,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$getRendering", function(){
+				it( "calls the $renderIt() method on our component", function(){
+					componentObj.$( "$renderIt", "got here" );
+					expect( componentObj.$getRendering() ).toBe( "got here" );
+				} );
+
+				it( "returns the cached results in variables.$rendering", function(){
+					componentObj.$property( propertyName="$rendering", propertyScope="variables", mock="got here too" );
+					expect( componentObj.$getRendering() ).toBe( "got here too" );
+				} );
+			} );
+
 			describe( "$getState", function(){
 				it( "returns empty struct by default", function(){
 					expect( componentObj.$getState() ).toBe( {} );
