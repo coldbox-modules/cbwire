@@ -6,30 +6,19 @@
  */
 component {
 
-	/**
-	 * Injected ColdBox Renderer for rendering operations.
-	 */
+	// Injected ColdBox Renderer for rendering operations.
 	property name="$renderer" inject="coldbox:renderer";
 
-	/**
-	 * Injected WireBox for dependency injection.
-	 */
+	// Injected WireBox for dependency injection.
 	property name="$wirebox" inject="wirebox";
 
-	/**
-	 * Injected LivewireRequest that's incoming from the browser.
-	 */
+	// Injected LivewireRequest that's incoming from the browser.
 	property name="$livewireRequest" inject="LivewireRequest@cbLivewire";
 
-	/**
-	 * Injected populator.
-	 */
+	// Injected populator.
 	property name="$populator" inject="wirebox:populator";
 
-
-	/**
-	 * Method aliases, mainly for backwards compatability.
-	 */	
+	// Method aliases, mainly for backwards compatability.	
 	variables[ "$view" ] = this.$renderView;
 
 	/**
@@ -67,7 +56,7 @@ component {
 				"path"   : "#this.$getPath()#",
 				"method" : "GET"
 			},
-			"effects"    : { "listeners" : [] },
+			"effects"    : { "listeners" : this.$getListenersNames() },
 			"serverMemo" : {
 				"children" 		: [],
 				"errors"   		: [],
@@ -93,7 +82,8 @@ component {
 				"html"  : this.$renderIt(),
 				"dirty" : [
 					"count" // need to fix
-				]
+				],
+				"path": "http://127.0.0.1:60299/_tests/usingSet?yoyo=true"
 			},
 			"serverMemo" : {
 				"htmlHash" 		: "71146cf2",
@@ -110,9 +100,16 @@ component {
 	 * @return Struct
 	 */
 	function $getState(){
-		return variables.filter( function( key, value ){
+		var state = variables.filter( function( key, value ){
 			return !reFindNoCase( "^(\$|this)", arguments.key ) && !isCustomFunction( arguments.value );
 		});
+
+		return state.map( function( key, value ){
+			if ( this.$hasMethod( "get" & arguments.key ) ){
+				return this[ "get" & arguments.key ]();
+			}
+			return value;
+		} );
 	}
 
 	/**
@@ -146,33 +143,8 @@ component {
 			} );
 		}
 
-
 		if ( variables.$livewireRequest.hasUpdates() ) {
-
-			// Update the state of our component with each of our updates
-			variables.$livewireRequest.getUpdates().each( function( update ){
-
-				if ( arguments.update.isType( "callMethod" ) ) {
-
-					if ( arguments.update.hasCallableMethod( this ) ) {
-						arguments.update.invokeComponentMethod( this );
-						return;
-					}
-
-					throw(type="LivewireMethodNotFound", message="Method '" & arguments.update.getPayloadMethod() & "' not found on your component." );
-				}
-
-				if ( arguments.update.isType( "syncInput" ) ) {
-					variables.$populator.populateFromStruct(
-						target : this,
-						memento : {
-							"#arguments.update.getPayload()[ "name" ]#": "#arguments.update.getPayload()[ "value" ]#"
-						},
-						excludes : ""
-					);
-
-				}
-			} );
+			variables.$livewireRequest.applyUpdates( this );
 		}
 
 		return this;
@@ -272,8 +244,25 @@ component {
 		}
 	}
 
-	private function $callMethod( required LivewireUpdate update ) {
-		this[ arguments.update.getPayloadMethod() ]( argumentCollection=arguments.update.getPassedParamsAsArguments() );
+	/**
+	 * Returns the URL which is included in the initial data that is rendered
+	 * with the view.
+	 * 
+	 * Inspects the cbLivewire component for properties that should
+	 * be included in the path
+	 * 
+	 * @return String
+	 */
+	function $getPath(){
+
+		var queryStringValues = this.$getQueryStringValues();
+
+		if ( len( queryStringValues ) ){
+			return "#cgi.http_host#?#queryStringValues#";
+		}
+
+		// Return empty string by default;
+		return "";
 	}
 
 	/**
@@ -327,4 +316,46 @@ component {
 		return $renderer.relocate( argumentCollection=arguments );
 	}
 
+	/**
+	 * Check if there are properties to be included in our query string
+	 * and assembles them together in a single string to be used within a URL.
+	 * 
+	 * @return String
+	 */
+	private function $getQueryStringValues(){
+
+		// Default with an empty array
+		if ( !structKeyExists( variables, "queryString" ) ){
+			return [];
+		}
+
+		var currentState = this.$getState();
+
+		// Handle array of property names
+		if ( isArray( variables.queryString ) ){
+			var result = variables.queryString.reduce( function( agg, prop ){
+				agg &= prop & "=" & currentState[ prop ];
+				return agg;
+			}, "" );
+		} else {
+			writeDump( variables.queryString );
+			abort;
+		}
+
+		return result;
+	}
+
+
+	/**
+	 * Returns the names of the listeners defined on our component.
+	 * 
+	 * @return Array
+	 */
+	private function $getListenersNames(){
+		if ( structKeyExists( this, "$listeners" ) && isStruct( this.$listeners ) ){
+			return structKeyList( this.$listeners ).listToArray();
+		}
+
+		return [];
+	}
 }

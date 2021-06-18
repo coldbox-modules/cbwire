@@ -34,17 +34,43 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			it( "can detect updates", function(){
-				event.setValue( "updates", { payload : {} } );
+				event.setValue( "updates", [] );
+				expect( livewireRequest.hasUpdates() ).toBeFalse();
+				event.setValue( "updates", [ {} ] );
 				expect( livewireRequest.hasUpdates() ).toBeTrue();
 			} );
 
-			it( "can get updates", function(){
-				event.setValue(
-					"updates",
-					[ { type : "callMethod" } ]
-				);
-				expect( livewireRequest.getUpdates() ).toBeArray();
-				expect( arrayLen( livewireRequest.getUpdates() ) ).toBe( 1 );
+			describe( "getUpdates", function(){
+				it( "can get updates", function(){
+					event.setValue(
+						"updates",
+						[ { type : "callMethod" } ]
+					);
+					expect( livewireRequest.getUpdates() ).toBeArray();
+					expect( arrayLen( livewireRequest.getUpdates() ) ).toBe( 1 );
+					expect( livewireRequest.getUpdates()[1] ).toBeInstanceOf( "LivewireUpdate" );
+				} );
+
+				it( "returns type of callmethod", function(){
+					event.setValue(
+						"updates",
+						[ { type : "callMethod" } ]
+					);
+					expect( livewireRequest.getUpdates() ).toBeArray();
+					expect( arrayLen( livewireRequest.getUpdates() ) ).toBe( 1 );
+					expect( livewireRequest.getUpdates()[1] ).toBeInstanceOf( "CallMethod" );
+				} );
+
+				it( "returns type of fireevent", function(){
+					event.setValue(
+						"updates",
+						[ { type : "fireEvent" } ]
+					);
+					expect( livewireRequest.getUpdates() ).toBeArray();
+					expect( arrayLen( livewireRequest.getUpdates() ) ).toBe( 1 );
+					expect( livewireRequest.getUpdates()[1] ).toBeInstanceOf( "FireEvent" );
+				} );
+
 			} );
 
 			it( "can detect fingerprint", function(){

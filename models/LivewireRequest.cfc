@@ -78,7 +78,8 @@ component singleton{
      * @return Boolean
      */
     function hasUpdates() {
-        return structKeyExists( this.getCollection(), "updates" );
+        var collection = this.getCollection();
+        return structKeyExists( collection, "updates" ) && isArray( collection.updates ) && arrayLen( collection.updates );
     }
 
     /**
@@ -88,7 +89,7 @@ component singleton{
      */
     function getUpdates() {
         return this.getCollection()[ "updates" ].map( function( update ) {
-            return variables.wirebox.getInstance( name="cbLivewire.models.LivewireUpdate", initArguments={ update: arguments.update } );
+            return variables.wirebox.getInstance( name="cbLivewire.models.updates.#arguments.update.type#", initArguments={ update: arguments.update } );
         } );
     }
 
@@ -147,6 +148,20 @@ component singleton{
 	}
 
     /**
+     * Applies any updates in our request to the specified cbLivewire component
+     *
+     * @comp cbLivewire.models.Component
+     * 
+     * @return Void
+     */
+    function applyUpdates( comp ){
+        // Update the state of our component with each of our updates
+        this.getUpdates().each( function( update ){
+            update.apply( comp );
+        } );
+    }
+
+    /**
      * Returns a cbLivewire component using the root "HelloWorld" convention.
      * 
      * @componentName String | Name of the cbLivewire component.
@@ -172,6 +187,10 @@ component singleton{
         variables.modulesConfig.keyExists( moduleName ); //else throw exception
         // Instantion Prefix of the module
         var livewireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".livewire"
+    }
+
+    private function updateComponentState(){
+
     }
 
 }

@@ -39,6 +39,70 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$getPath", function(){
+				it( "returns empty string by default", function(){
+					expect( componentObj.$getPath() ).toBe( "" );
+				} );
+
+				it( "includes properties we've defined in our component as queryString", function(){
+					componentObj.$property( propertyName="queryString", mock=["count"] );
+					componentObj.$property( propertyName="count", mock=2 );
+					expect( componentObj.$getPath() ).toInclude( "?count=2" );
+				} );
+			} );
+
+
+			describe( "$getInitialData", function(){
+				
+				it( "returns a struct", function(){
+					expect( componentObj.$getInitialData() ).toBeStruct();
+				} );
+
+				it( "should include listeners defined on our component", function(){
+					componentObj.$property(
+						propertyName="$listeners",
+						propertyScope="this",
+						mock={
+							"postAdded": "doSomething"
+						}
+					);
+					expect( componentObj.$getInitialData().effects.listeners ).toBeArray();
+					expect( componentObj.$getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
+				} );
+			} );
+
+			describe( "$getState", function(){
+				it( "returns empty struct by default", function(){
+					expect( componentObj.$getState() ).toBe( {} );
+				} );
+
+				it( "returns the property values", function(){
+					var state = componentObj.$getState();
+
+					componentObj.$property( propertyName="count", mock=1 );
+
+					expect( componentObj.$getState()[ "count" ] ).toBe( 1 );
+				} );
+
+				it( "ignores custom functions that are not getters", function(){
+					componentObj.$property( propertyName="count", mock=function() {} );
+					
+					var state = componentObj.$getState();
+
+					expect( structKeyExists( state, "count" ) ).toBeFalse();
+				} );
+
+				it( "returns value from getter function if it exists", function(){
+					componentObj.$property( propertyName="count", mock=1 );
+					componentObj.$( "getCount", 2 );
+					
+					var state = componentObj.$getState();
+
+					expect( componentObj.$getState()[ "count" ] ).toBe( 2 );
+				} );
+			
+			} );
+
 			describe( "$hydrate()", function(){
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = livewireRequest.getCollection();

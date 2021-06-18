@@ -1,12 +1,12 @@
 component {
 
+   	// Injected populator.
+	property name="$populator" inject="wirebox:populator";
+
     function init( required struct update ) {
         variables.update = arguments.update;
     }
 
-    /**
-     * undocumented function
-     */
     function getType() {
         return variables.update.type;
     }
@@ -51,6 +51,16 @@ component {
 
     function hasCallableMethod( required Component livewireComponent ) {
         return this.hasPayloadMethod() && arguments.livewireComponent.$hasMethod( this.getPayloadMethod() );
+    }
+
+    /**
+     * Applies this update to the specified component.
+     * 
+     * @comp cbLivewire.models.Component | Component we're updating
+     */
+    function apply( required comp ){
+        // throw error to ensure that our child classes implement this
+        throw( message="This must be implemented in the child class." );
     }
 
     /**
