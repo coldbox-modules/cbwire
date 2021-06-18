@@ -159,7 +159,7 @@ component {
 	}
 
 	/**
-	 * Renders our component's view and returns the HTML
+	 * Renders our component's view and returns the rendering.
 	 * 
 	 * @return String
 	 */
@@ -167,27 +167,11 @@ component {
 		// Pass the properties of the cbLivewire component as variables to the view
 		arguments.args = this.$getState();
 
+		// Render our view using coldbox rendering
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
-		var renderingHash = hash( rendering );
-
-		// Add livewire properties to top element to make livewire actually work
-		// We will need to make this work with more than just <div>s of course
-		if ( variables.$isInitialRendering ) {
-			rendering = rendering.replaceNoCase(
-				"<div",
-				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash=renderingHash ) ).replace( """", "&quot;", "all" )#""",
-				"once"
-			);
-		} else {
-			rendering = rendering.replaceNoCase(
-				"<div",
-				"<div wire:id=""#this.$getId()#""",
-				"once"
-			);
-		}
-
-		return rendering;
+		// Add livewire properties to top element to make livewire actually work.
+		return this.$applyLivewireAttributesToOuterElement( rendering );
 	}
 
 	/**
@@ -445,5 +429,54 @@ component {
 	 */
 	private function $getListenerNames(){
 		return structKeyList( this.$getListeners() ).listToArray();
+	}
+
+	/**
+	 * Apply livewire attribute to the outer element in the provided rendering.
+	 *
+	 * @rendering String | The view rendering.
+	 */
+	private function $applyLivewireAttributesToOuterElement( required rendering ){
+		var renderingResult = "";
+
+		// Provide a hash of our rendering which is used by Livewire.js
+		var renderingHash = hash( arguments.rendering );
+
+		// Determine our outer element
+		var outerElement = $getOuterElement( arguments.rendering );
+
+		// Add livewire properties to top element to make livewire actually work
+		// We will need to make this work with more than just <div>s of course
+		if ( variables.$isInitialRendering ) {
+			renderingResult = rendering.replaceNoCase(
+				outerElement,
+				outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash=renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				"once"
+			);
+		} else {
+			renderingResult = rendering.replaceNoCase(
+				outerElement,
+				outerElement & " wire:id=""#this.$getId()#""",
+				"once"
+			);
+		}
+		
+		return renderingResult;
+	}
+
+	/**
+	 * Determines the outer element within our rendering.
+	 * If an outer element isn't found, an error is thrown.
+	 *
+	 * @rendering String | The view rendering.
+	 */
+	private function $getOuterElement( required rendering ){
+		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
+
+		if ( arrayLen( matches ) ){
+			return matches[ 1 ];
+		}
+
+		throw( type="NoOuterElement", message="Unable to find an outer element to bind cbLivewire to." );
 	}
 }
