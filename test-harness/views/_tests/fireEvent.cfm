@@ -1,0 +1,1 @@
+<cfoutput>#livewire( "FireEvent" )#</cfoutput>

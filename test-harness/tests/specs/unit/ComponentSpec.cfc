@@ -51,6 +51,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$getListeners", function(){
+				it( "should return empty struct by default", function(){
+					expect( componentObj.$getListeners() ).toBe( {} );
+				} );
+
+				it( "should return listeners defined on the component", function(){
+					componentObj.$property( propertyName="$listeners", propertyScope="this", mock={"someEvent": "someMethod"} );
+					expect( componentObj.$getListeners() ).toBe( {"someEvent": "someMethod"}  );
+				} );
+
+			} );
+
 
 			describe( "$getInitialData", function(){
 				

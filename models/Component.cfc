@@ -56,7 +56,7 @@ component {
 				"path"   : "#this.$getPath()#",
 				"method" : "GET"
 			},
-			"effects"    : { "listeners" : this.$getListenersNames() },
+			"effects"    : { "listeners" : this.$getListenerNames() },
 			"serverMemo" : {
 				"children" 		: [],
 				"errors"   		: [],
@@ -345,17 +345,34 @@ component {
 		return result;
 	}
 
+	/**
+	 * Returns true if listeners are detected on the component.
+	 * 
+	 * @return Boolean
+	 */
+	function $hasListeners(){
+		return arrayLen( this.$getListenerNames() );
+	}
+
+	/**
+	 * Returns the listeners defined on the component.
+	 * If no listeners are defined, an empty struct is returned.
+	 * 
+	 * @return Struct
+	 */
+	function $getListeners(){
+		if ( structKeyExists( this, "$listeners" ) && isStruct( this.$listeners ) ){
+			return this.$listeners;
+		}
+		return {};
+	}
 
 	/**
 	 * Returns the names of the listeners defined on our component.
 	 * 
 	 * @return Array
 	 */
-	private function $getListenersNames(){
-		if ( structKeyExists( this, "$listeners" ) && isStruct( this.$listeners ) ){
-			return structKeyList( this.$listeners ).listToArray();
-		}
-
-		return [];
+	private function $getListenerNames(){
+		return structKeyList( this.$getListeners() ).listToArray();
 	}
 }
