@@ -40,6 +40,34 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( livewireRequest.hasUpdates() ).toBeTrue();
 			} );
 
+			describe( "hydrateComponent", function(){
+				it( "fires '$preHydrate' event", function(){
+					var comp = prepareMock(
+						getInstance(
+							name          = "cbLivewire.models.Component",
+							initArguments = { livewireRequest : livewireRequest }
+						)
+					);		
+					comp.$( "$preHydrate", true );
+					livewireRequest.hydrateComponent( comp );
+					expect( comp.$once( "$preHydrate" ) ).toBeTrue();			
+				} );
+
+				it( "fires '$postHydrate' event", function(){
+					var comp = prepareMock(
+						getInstance(
+							name          = "cbLivewire.models.Component",
+							initArguments = { livewireRequest : livewireRequest }
+						)
+					);
+					comp.$( "$preHydrate", true );		
+					comp.$( "$postHydrate", true );
+					livewireRequest.hydrateComponent( comp );
+					expect( comp.$once( "$preHydrate" ) ).toBeTrue();	
+					expect( comp.$once( "$postHydrate" ) ).toBeTrue();			
+				} );
+			} );
+
 			describe( "getUpdates", function(){
 				it( "can get updates", function(){
 					event.setValue(

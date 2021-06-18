@@ -243,6 +243,8 @@ component {
 	 * Sets an individual property value, first by using a setter
 	 * if it exists, and otherwise setting directly to our variables
 	 * scope.
+	 * 
+	 * Fires '$preUpdate[prop]' and '$postUpdate[prop]' events on the cbLivewire component.
 	 *
 	 * @propertyName String | Name of the property we are setting
 	 * @value Any | Value of the property we are settting
@@ -250,11 +252,18 @@ component {
 	 * @return Void
 	 */
 	function $set( propertyName, value ) {
+
+		// Invoke '$preUpdate[prop]' event
+		this.$invoke( "$preUpdate" & arguments.propertyName, arguments.value );
+
 		if ( structKeyExists( this, "set#arguments.propertyName#" ) ){
 			this[ "set#arguments.propertyName#" ]( arguments.value );
 		} else {
 			variables[ propertyName ] = value;
 		}
+
+		// Invoke '$postUpdate[prop]' event
+		this.$invoke( "$postUpdate" & arguments.propertyName, arguments.value );
 	}
 
 	/**
@@ -393,6 +402,25 @@ component {
 		return this.$meta;
 	}
 
+
+	/** 
+	 * Invokes a dynamic method on our component. If the method doesn't exist, then it proceeds without error.
+	 * Returns whatever the method returns.
+	 * Used mainly with lifecycle hooks.
+	 * 
+	 * @return Any
+	 */
+	function $invoke( required method, value = "" ){
+		if ( this.$hasMethod( arguments.method ) ){
+			return this[ method ]( arguments.value );
+		}
+	}
+
+	/**
+	 * Emits and event on our cbLivewire component.
+	 *
+	 * @eventName String | The name of our event to emit. 
+	 */
 	function $emit( required eventName ){
 
 		var listeners = this.$getListeners();
@@ -404,7 +432,7 @@ component {
 		var listener = this.$getListeners()[ eventName ];
 
         if ( len( arguments.eventName ) && this.$hasMethod( listener )){
-            return this[ listener ]();
+			return this.$invoke( listener );
         }
 
         throw( message="Couldn't find a listener definition for '#listener#'." );

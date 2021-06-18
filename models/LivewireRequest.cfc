@@ -155,10 +155,16 @@ component singleton{
      * @return Void
      */
     function applyUpdates( comp ){
+        // Fire our preUpdate lifecycle event.
+        comp.$invoke( "preUpdate" );
+
         // Update the state of our component with each of our updates
         this.getUpdates().each( function( update ){
             update.apply( comp );
         } );
+
+        // Fire our postUpdate lifecycle event.
+        comp.$invoke( "preUpdate" );
     }
 
     /**
@@ -169,6 +175,9 @@ component singleton{
      * @return Void 
      */
     function hydrateComponent( comp ) {
+
+        // Invoke '$preHydrate' event
+		arguments.comp.$invoke( "$preHydrate" );
 
 		if ( this.hasMountedState() ) {
 			arguments.comp.$setMountedState( this.getMountedState() );
@@ -185,6 +194,9 @@ component singleton{
 		if ( this.hasUpdates() ) {
 			this.applyUpdates( arguments.comp );
 		}
+
+        // Invoke '$postHydrate' event
+        arguments.comp.$invoke( "$postHydrate" );
     }
 
     /**

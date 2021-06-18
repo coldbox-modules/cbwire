@@ -125,6 +125,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$set", function(){
+				it( "calls setter on our component", function(){
+					componentObj.$( "setName", true );
+					componentObj.$set( propertyName="name", value="test" );
+					expect( componentObj.$once( "setName") ).toBeTrue();
+				} );
+
+				it( "sets value in variables scope if component doesn't contain a setter method", function(){
+					componentObj.$set( propertyName="name", value="test" );
+					expect( componentObj.$getState()["name"] ).toBe( "test" );
+				} );
+
+				it( "fires 'preUpdate[prop] event", function(){
+					componentObj.$( "$preUpdateName", true );
+					componentObj.$set( propertyName="name", value="test" );
+					expect( componentObj.$once( "$preUpdateName" ) ).toBeTrue();
+					expect( componentObj.$callLog()["$preUpdateName"][1][1] ).toBe( "test" );
+				} );
+
+				it( "fires 'postUpdate[prop] event", function(){
+					componentObj.$( "$postUpdateName", true );
+					componentObj.$set( propertyName="name", value="test" );
+					expect( componentObj.$once( "$postUpdateName" ) ).toBeTrue();
+					expect( componentObj.$callLog()["$postUpdateName"][1][1] ).toBe( "test" );
+				} );
+			} );
+
 			describe( "$getState", function(){
 				it( "returns empty struct by default", function(){
 					expect( componentObj.$getState() ).toBe( {} );
@@ -166,6 +193,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					componentObj.$( "setHello", true );
 					componentObj.$hydrate();
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
+				} );
+
+				it( "fires 'preHydrate' event", function(){
+					componentObj.$( "$preHydrate", true );
+					componentObj.$hydrate();
+					expect( componentObj.$once( "$preHydrate" ) ).toBeTrue();
+				} );
+
+				it( "fires 'postHydrate' event", function(){
+					componentObj.$( "$postHydrate", true );
+					componentObj.$hydrate();
+					expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
 				} );
 
 				describe( "callMethod", function(){
