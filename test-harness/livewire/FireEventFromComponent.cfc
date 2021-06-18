@@ -6,8 +6,12 @@ component extends="cbLivewire.models.Component"{
         "someEvent": "someListener"
     };
 
+    function mount(){
+        this.$emit( "someEvent" );
+    }
+
     function someListener(){
-        variables.message = "We have fired someListener()!";
+        variables.message = "We have fired someListener() using this.$emit in our component!";
     }
 
     function $renderIt() {

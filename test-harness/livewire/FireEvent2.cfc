@@ -7,7 +7,7 @@ component extends="cbLivewire.models.Component"{
     };
 
     function someListener(){
-        variables.message = "We have fired someListener()!";
+        variables.message = "We have fired someListener() from a second listener!";
     }
 
     function $renderIt() {

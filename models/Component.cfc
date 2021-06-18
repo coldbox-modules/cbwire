@@ -140,7 +140,7 @@ component {
 	 * @return String
 	 */
 	function $renderView() {
-		// Pass the properties of the Livewire component as variables to the view
+		// Pass the properties of the cbLivewire component as variables to the view
 		arguments.args = this.$getState();
 
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
@@ -166,16 +166,16 @@ component {
 
 	/**
 	 * Fires when the cbLivewire component is initially created.
-	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
+	 * Looks to see if a $mount() method is defined on our component and if so, invokes it.
 	 * 
 	 * @parameters Struct of params to bind into the component
 	 * 
 	 * @return Component
 	 */
-	function $mount( parameters = {} ) {
+	function $_mount( parameters = {} ) {
 
-		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
-			this[ "mount" ](
+		if ( structKeyExists( this, "$mount" ) && isCustomFunction( this.$mount ) ) {
+			this[ "$mount" ](
 				parameters = arguments.parameters,
 				event = variables.$livewireRequest.getEvent(),
 				rc = variables.$livewireRequest.getCollection(),
@@ -362,6 +362,23 @@ component {
 			this.$meta = getMetaData( this );
 		}
 		return this.$meta;
+	}
+
+	function $emit( required eventName ){
+
+		var listeners = this.$getListeners();
+
+		if ( !structKeyExists( listeners, arguments.eventName )){
+			throw( message="Couldn't find a listener definition for '#listener#'." );
+		}
+
+		var listener = this.$getListeners()[ eventName ];
+
+        if ( len( arguments.eventName ) && this.$hasMethod( listener )){
+            return this[ listener ]();
+        }
+
+        throw( message="Couldn't find a listener definition for '#listener#'." );
 	}
 
 	/**

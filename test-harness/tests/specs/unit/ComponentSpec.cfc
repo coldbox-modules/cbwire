@@ -21,7 +21,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				livewireRequest = prepareMock( getInstance( "cbLivewire.models..LivewireRequest" ) );
 				componentObj    = prepareMock(
 					getInstance(
-						name          = "cbLivewire.models..Component",
+						name          = "cbLivewire.models.Component",
 						initArguments = { livewireRequest : livewireRequest }
 					)
 				);
@@ -222,21 +222,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "$mount()", function(){
-				it( "it calls mount() if it's defined on component", function(){
-					componentObj.$( "mount", "sup?" );
-					componentObj.$mount();
-					expect( componentObj.$once( "mount" ) ).toBeTrue();
+				it( "it calls $mount() if it's defined on component", function(){
+					componentObj.$( "$mount", "sup?" );
+					componentObj.$_mount();
+					expect( componentObj.$once( "$mount" ) ).toBeTrue();
 				} );
 
-				it( "it should pass in the event, rc, and prc into mount()", function(){
+				it( "it should pass in the event, rc, and prc into $mount()", function(){
 					var rc = livewireRequest.getCollection();
 
 					rc[ "someRandomVar" ] = "someRandomValue";
 
-					componentObj.$( "mount" );
-					componentObj.$mount();
+					componentObj.$( "$mount" );
+					componentObj.$_mount();
 
-					var passedArgs = componentObj.$callLog().mount[ 1 ];
+					var passedArgs = componentObj.$callLog().$mount[ 1 ];
 
 					expect( passedArgs.event ).toBeInstanceOf( "RequestContext" );
 					expect( passedArgs.prc ).toBeStruct();
