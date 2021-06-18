@@ -27,7 +27,7 @@ component {
 	 * @return Component
 	 */
 	function init(){
-		variables.$initialRendering = true;
+		variables.$isInitialRendering = true;
 		return this;
 	}
 
@@ -129,7 +129,7 @@ component {
 	 * @return Component
 	 */
 	function $hydrate(){
-		variables.$initialRendering = false;
+		variables.$isInitialRendering = false;
 		variables.$livewireRequest.hydrateComponent( this );
 		return this;
 	}
@@ -147,7 +147,7 @@ component {
 
 		// Add livewire properties to top element to make livewire actually work
 		// We will need to make this work with more than just <div>s of course
-		if ( variables.$initialRendering ) {
+		if ( variables.$isInitialRendering ) {
 			rendering = rendering.replaceNoCase(
 				"<div",
 				"<div wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData() ).replace( """", "&quot;", "all" )#""",
@@ -167,6 +167,9 @@ component {
 	/**
 	 * Fires when the cbLivewire component is initially created.
 	 * Looks to see if a $mount() method is defined on our component and if so, invokes it.
+	 * 
+	 * This method is given the $_ prefix to avoid collision with the $mount method
+	 * that can be optionally defined on a cbLivewire component.
 	 * 
 	 * @parameters Struct of params to bind into the component
 	 * 
