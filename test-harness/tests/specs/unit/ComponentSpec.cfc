@@ -159,6 +159,45 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$getEmits", function(){
+				it( "returns an empty array by default", function(){
+					expect( componentObj.$getEmits() ).toBeArray();
+					expect( arrayLen( componentObj.$getEmits() ) ).toBe( 0 );
+				} );
+
+				it( "tracks emits", function(){
+					componentObj.$emit( "someEvent" );
+					componentObj.$emitSelf( "someOtherEvent" );
+					expect( arrayLen( componentObj.$getEmits() ) ).toBe( 2 );
+				} );
+			} );
+
+			describe( "$getMemento", function(){
+				it( "returns a struct", function(){
+					componentObj.$( "$renderIt", "" );
+					expect( componentObj.$getMemento() ).toBeStruct();
+				} );
+				it( "returns an empty array of events by default", function(){
+					componentObj.$( "$renderIt", "" );
+					expect( componentObj.$getMemento().effects.emits ).toBeArray();
+				} );
+				it( "returns emitted events", function(){
+					componentObj.$( "$renderIt", "" );
+					componentObj.$emit( "event1" );
+					componentObj.$emitSelf( "event2", "hello" );
+					expect( componentObj.$getMemento().effects.emits ).toBeArray();
+					expect( arrayLen( componentObj.$getMemento().effects.emits ) ).toBe( 2 );
+					expect( componentObj.$getMemento().effects.emits[ 1 ] ).toBe( {
+						"event": "event1",
+						"params": []
+					} );
+					expect( componentObj.$getMemento().effects.emits[ 2 ] ).toBe( {
+						"event": "event2",
+						"params": [ "hello" ]
+					} );
+				} );
+			} );
+
 			describe( "$getRendering", function(){
 				it( "calls the $renderIt() method on our component", function(){
 					componentObj.$( "$renderIt", "got here" );

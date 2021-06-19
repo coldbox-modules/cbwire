@@ -28,6 +28,7 @@ component {
 	 */
 	function init(){
 		variables.$isInitialRendering = true;
+		variables.$emits = [];
 		return this;
 	}
 
@@ -85,7 +86,8 @@ component {
 				"dirty" : [
 					"count" // need to fix
 				],
-				"path": ""
+				"path": "",
+				"emits": this.$getEmits()
 			},
 			"serverMemo" : {
 				"htmlHash" 		: "71146cf2",
@@ -291,6 +293,15 @@ component {
 	}
 
 	/**
+	 * Returns any captured emits that need to be returned
+	 *
+	 * @return Array
+	 */
+	function $getEmits(){
+		return variables.$emits;
+	}
+
+	/**
 	 * Resets a property back to it's original state when the component
 	 * was initially hydrated.
 	 * 
@@ -410,25 +421,69 @@ component {
 	}
 
 	/**
-	 * Emits and event on our cbLivewire component.
+	 * Emits a global event from our cbLivewire component.
 	 *
-	 * @eventName String | The name of our event to emit. 
+	 * @eventName String | The name of our event to emit.
+	 * @params Array | The params pass with the emit 
 	 */
 	function $emit( required eventName ){
 
+		// Capture the emit as we will need to notify the UI in our response
+		this.$trackEmit( argumentCollection=arguments );	
+
 		var listeners = this.$getListeners();
 
-		if ( !structKeyExists( listeners, arguments.eventName )){
-			throw( message="Couldn't find a listener definition for '#listener#'." );
+		if ( structKeyExists( listeners, eventName ) ){
+			var listener = listeners[ eventName ];
+
+			if ( len( arguments.eventName ) && this.$hasMethod( listener )){
+				return this.$invoke( listener );
+			}
 		}
+	}
 
-		var listener = this.$getListeners()[ eventName ];
+	/**
+	 * Emits a event that is scoped to just the current cbLivewire component.
+	 *
+	 * Additional parameters can be passed through.
 
-        if ( len( arguments.eventName ) && this.$hasMethod( listener )){
-			return this.$invoke( listener );
-        }
+	 * @eventName String | The name of our event to emit.
+	 * 
+	 * @return Void
+	 */
+	function $emitSelf( required eventName ){
 
-        throw( message="Couldn't find a listener definition for '#listener#'." );
+		// Capture the emit as we will need to notify the UI in our response
+		this.$trackEmit( argumentCollection=arguments );
+
+
+	}
+
+	/**
+	 * Tracks an emit, which is later returned in our API response and used
+	 * by Livewire.
+	 * 
+	 * @eventName String | The name of our event to emit.
+	 * 
+	 * @return Array;
+	 */
+	private function $trackEmit( required eventName ){
+		
+		var params = duplicate( arguments );
+
+		params = params.reduce( function( agg, arg ){
+			agg.append( params[ arg ] );
+			return agg;
+		}, [] );
+
+		params = params.filter( function( value ){
+			return value != eventName;
+		} );
+	
+		variables.$emits.append( {
+			"event": arguments.eventName,
+			"params": params
+		} );
 	}
 
 	/**
