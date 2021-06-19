@@ -85,7 +85,7 @@ component {
 				"dirty" : [
 					"count" // need to fix
 				],
-				"path": "http://127.0.0.1:60299/_tests/usingSet?yoyo=true"
+				"path": ""
 			},
 			"serverMemo" : {
 				"htmlHash" 		: "71146cf2",
