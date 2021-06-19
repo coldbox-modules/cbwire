@@ -453,6 +453,8 @@ component {
 	 */
 	function $emitSelf( required eventName ){
 
+		arguments.isEmitSelf = true;
+
 		// Capture the emit as we will need to notify the UI in our response
 		this.$trackEmit( argumentCollection=arguments );
 
@@ -464,26 +466,36 @@ component {
 	 * by Livewire.
 	 * 
 	 * @eventName String | The name of our event to emit.
-	 * 
 	 * @return Array;
 	 */
 	private function $trackEmit( required eventName ){
 		
+		// Duplicate our arguments so that we don't alter them
 		var params = duplicate( arguments );
 
+		// Get only the params we want
 		params = params.reduce( function( agg, arg ){
-			agg.append( params[ arg ] );
+			if ( arg != "isEmitSelf" && arg != "eventName" ){
+				agg.append( params[ arg ] );
+			}
 			return agg;
 		}, [] );
-
-		params = params.filter( function( value ){
-			return value != eventName;
-		} );
 	
-		variables.$emits.append( {
+		// Setup our result
+		var result = {
 			"event": arguments.eventName,
 			"params": params
-		} );
+		};
+		
+		var isEmitSelf = structKeyExists( arguments, "isEmitSelf" ) && arguments.isEmitSelf ? true : false;
+
+		if ( isEmitSelf ){
+			// We are tracking a .$emitSelf() call and need to alter our
+			// returned result to Livewire.
+			result[ "selfOnly" ] = true;
+		}
+
+		variables.$emits.append( result );
 	}
 
 	/**
@@ -507,17 +519,18 @@ component {
 		var renderingHash = hash( arguments.rendering );
 
 		// Determine our outer element
-		var outerElement = $getOuterElement( arguments.rendering );
+		var outerElement = this.$getOuterElement( arguments.rendering );
 
-		// Add livewire properties to top element to make livewire actually work
-		// We will need to make this work with more than just <div>s of course
+		// Add livewire properties to top element to make livewire actually work.
 		if ( variables.$isInitialRendering ) {
+			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
 				outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash=renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
+			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
 				outerElement & " wire:id=""#this.$getId()#""",
