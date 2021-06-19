@@ -97,6 +97,15 @@ component {
 	}
 
 	/**
+	 * Throws an error if $renderIt() is not defined on our child class.
+	 * 
+	 * @return Void
+	 */
+	function $renderIt(){
+		throw( type="RenderMethodNotFound", message="Couldn't find a $renderIt() method defined on the component '#this.$getMeta().name#'." );
+	}
+
+	/**
 	 * Invokes $renderIt() on the cbLivewire component and caches the rendered
 	 * results into variables.$rendering.
 	 * 

@@ -113,6 +113,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$renderIt", function(){
+				it( "throw an error if it's not been implemented on the child class", function(){
+					expect( function() {
+						componentObj.$renderIt();
+					} ).toThrow( type="RenderMethodNotFound" );
+				} );
+			});
+
 			describe( "$renderView", function(){
 
 				beforeEach( function(){
