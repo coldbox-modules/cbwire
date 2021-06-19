@@ -486,6 +486,6 @@ component {
 			return matches[ 1 ];
 		}
 
-		throw( type="NoOuterElement", message="Unable to find an outer element to bind cbLivewire to." );
+		throw( type="OuterElementNotFound", message="Unable to find an outer element to bind cbLivewire to." );
 	}
 }

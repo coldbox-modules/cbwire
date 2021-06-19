@@ -155,7 +155,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					});
 					expect( function(){
 						componentObj.$renderView( "someView" )
-					 } ).toThrow( type="NoOuterElement" );
+					 } ).toThrow( type="OuterElementNotFound" );
 				} );
 			} );
 
