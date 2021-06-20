@@ -329,7 +329,7 @@ component {
 			} );
 		} else {
 			// Reset individual property
-			this.$set( property, variables.$getMountedState()[ property ] );
+			this.$set( arguments.property, variables.$getMountedState()[ arguments.property ] );
 		}
 
 	}
