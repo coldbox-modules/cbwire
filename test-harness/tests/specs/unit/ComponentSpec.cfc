@@ -44,11 +44,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.$getPath() ).toBe( "" );
 				} );
 
-				it( "includes properties we've defined in our component as queryString", function(){
-					componentObj.$property( propertyName="queryString", mock=["count"] );
+				it( "includes properties we've defined in our component as this.$queryString", function(){
+					componentObj.$property( propertyName="$queryString", propertyScope="this", mock=["count"] );
 					componentObj.$property( propertyName="count", mock=2 );
 					expect( componentObj.$getPath() ).toInclude( "?count=2" );
 				} );
+
+				it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
+					componentObj.$( "$getHTTPReferer", "http://localhost?count=1" );
+					componentObj.$property( propertyName="$queryString", propertyScope="this", mock=["count"] );
+					componentObj.$property( propertyName="count", mock=2 );
+					expect( componentObj.$getPath() ).toBe( "http://localhost?count=2" );
+				} );
+
 			} );
 
 			describe( "$getListeners", function(){

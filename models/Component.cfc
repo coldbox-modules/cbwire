@@ -53,10 +53,10 @@ component {
 	function $getInitialData( renderingHash="" ){
 		return {
 			"fingerprint" : {
-				"id"     : "#this.$getID()#",
-				"name"   : "#this.$getMeta().name#",
+				"id"     : this.$getID(),
+				"name"   : this.$getMeta().name,
 				"locale" : "en",
-				"path"   : "#this.$getPath()#",
+				"path"   : this.$getPath(),
 				"method" : "GET"
 			},
 			"effects"    : { "listeners" : this.$getListenerNames() },
@@ -67,7 +67,7 @@ component {
 				"data"     		: this.$getState(),
 				"dataMeta" 		: [],
 				"checksum" 		: this.$getChecksum(),
-				"mountedState" : this.$getMountedState()
+				"mountedState" 	: this.$getMountedState()
 			}
 		};
 	}
@@ -86,7 +86,7 @@ component {
 				"dirty" : [
 					"count" // need to fix
 				],
-				"path": "",
+				"path": this.$getPath(),
 				"emits": this.$getEmits()
 			},
 			"serverMemo" : {
@@ -135,6 +135,7 @@ component {
 	 * @return Struct
 	 */
 	function $getState(){
+
 		var state = variables.filter( function( key, value ){
 			return !reFindNoCase( "^(\$|this)", arguments.key ) && !isCustomFunction( arguments.value );
 		});
@@ -209,6 +210,7 @@ component {
 			//Injecting the state from our passed in parameters
 			variables.$populator.populateFromStruct(
 				target : this,
+	            scope: "variables",
 				memento : arguments.parameters,
 				excludes : ""
 			);
@@ -275,7 +277,16 @@ component {
 		var queryStringValues = this.$getQueryStringValues();
 
 		if ( len( queryStringValues ) ){
-			return "#cgi.http_host#?#queryStringValues#";
+
+			var referer = this.$getHTTPReferer();
+
+			// Strip away any queryString parameters from the referer so
+			// we don't duplicate them when we append the queryStringValues below. 
+			if ( referer contains "?" ){
+				referer = listGetAt( referer, 1, "?" );
+			}
+
+			return "#referer#?#queryStringValues#";
 		}
 
 		// Return empty string by default;
@@ -351,20 +362,20 @@ component {
 	private function $getQueryStringValues(){
 
 		// Default with an empty array
-		if ( !structKeyExists( variables, "queryString" ) ){
+		if ( !structKeyExists( this, "$queryString" ) ){
 			return [];
 		}
 
 		var currentState = this.$getState();
 
 		// Handle array of property names
-		if ( isArray( variables.queryString ) ){
-			var result = variables.queryString.reduce( function( agg, prop ){
+		if ( isArray( this.$queryString ) ){
+			var result = this.$queryString.reduce( function( agg, prop ){
 				agg &= prop & "=" & currentState[ prop ];
 				return agg;
 			}, "" );
 		} else {
-			writeDump( variables.queryString );
+			writeDump( this.$queryString );
 			abort;
 		}
 
@@ -555,5 +566,14 @@ component {
 		}
 
 		throw( type="OuterElementNotFound", message="Unable to find an outer element to bind cbLivewire to." );
+	}
+
+	/**
+	 * Returns our HTTP referer.
+	 * 
+	 * @return String
+	 */
+	private function $getHTTPReferer(){
+		return cgi.HTTP_REFERER;
 	}
 }
