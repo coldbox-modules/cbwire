@@ -313,75 +313,6 @@ component {
 	}
 
 	/**
-	 * Resets a property back to it's original state when the component
-	 * was initially hydrated.
-	 * 
-	 * This accepts either a single property or an array of properties
-	 * 
-	 * @return Void
-	 */
-	private function $reset( property ){
-
-		if ( isArray( arguments.property ) ){
-			// Reset each property in our array individually
-			arguments.property.each( function( prop){
-				this.reset( prop );
-			} );
-		} else {
-			// Reset individual property
-			this.$set( arguments.property, variables.$getMountedState()[ arguments.property ] );
-		}
-
-	}
-
-	/**
-	 * Gets our mounted state.
-	 *
-	 * @return Struct
-	 */
-	private function $getMountedState(){
-		if ( structKeyExists( variables, "$mountedState" ) ){
-			return variables.$mountedState;
-		}
-		return {};
-	}
-
-	/**
-	 * Redirects/relocates using ColdBox relocation
-	 */
-	private function $relocate(){
-		return $renderer.relocate( argumentCollection=arguments );
-	}
-
-	/**
-	 * Check if there are properties to be included in our query string
-	 * and assembles them together in a single string to be used within a URL.
-	 * 
-	 * @return String
-	 */
-	private function $getQueryStringValues(){
-
-		// Default with an empty array
-		if ( !structKeyExists( this, "$queryString" ) ){
-			return "";
-		}
-
-		var currentState = this.$getState();
-
-		// Handle array of property names
-		if ( isArray( this.$queryString ) ){
-			var result = this.$queryString.reduce( function( agg, prop ){
-				agg &= prop & "=" & currentState[ prop ];
-				return agg;
-			}, "" );
-		} else {
-			var result = "";
-		}
-
-		return result;
-	}
-
-	/**
 	 * Returns true if listeners are detected on the component.
 	 * 
 	 * @return Boolean
@@ -469,6 +400,75 @@ component {
 		variables.$trackEmit( argumentCollection=arguments );
 
 
+	}
+
+	/**
+	 * Resets a property back to it's original state when the component
+	 * was initially hydrated.
+	 * 
+	 * This accepts either a single property or an array of properties
+	 * 
+	 * @return Void
+	 */
+	private function $reset( property ){
+
+		if ( isArray( arguments.property ) ){
+			// Reset each property in our array individually
+			arguments.property.each( function( prop){
+				this.reset( prop );
+			} );
+		} else {
+			// Reset individual property
+			this.$set( arguments.property, variables.$getMountedState()[ arguments.property ] );
+		}
+
+	}
+
+	/**
+	 * Gets our mounted state.
+	 *
+	 * @return Struct
+	 */
+	private function $getMountedState(){
+		if ( structKeyExists( variables, "$mountedState" ) ){
+			return variables.$mountedState;
+		}
+		return {};
+	}
+
+	/**
+	 * Redirects/relocates using ColdBox relocation
+	 */
+	private function $relocate(){
+		return $renderer.relocate( argumentCollection=arguments );
+	}
+
+	/**
+	 * Check if there are properties to be included in our query string
+	 * and assembles them together in a single string to be used within a URL.
+	 * 
+	 * @return String
+	 */
+	private function $getQueryStringValues(){
+
+		// Default with an empty array
+		if ( !structKeyExists( this, "$queryString" ) ){
+			return "";
+		}
+
+		var currentState = this.$getState();
+
+		// Handle array of property names
+		if ( isArray( this.$queryString ) ){
+			var result = this.$queryString.reduce( function( agg, prop ){
+				agg &= prop & "=" & currentState[ prop ];
+				return agg;
+			}, "" );
+		} else {
+			var result = "";
+		}
+
+		return result;
 	}
 
 	/**
