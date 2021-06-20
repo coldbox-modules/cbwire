@@ -256,7 +256,7 @@ component {
 		if ( structKeyExists( this, "set#arguments.propertyName#" ) ){
 			this[ "set#arguments.propertyName#" ]( arguments.value );
 		} else {
-			variables[ propertyName ] = value;
+			variables[ propertyName ] = arguments.value;
 		}
 
 		// Invoke '$postUpdate[prop]' event
