@@ -216,8 +216,8 @@ component {
 			);
 		}
 
-		// Capture our current 
-		variables.$mountedState = duplicate( $getState() );
+		// Capture the mounted state 
+		variables.$mountedState = duplicate( this.$getState() );
 
 		return this;
 	}
