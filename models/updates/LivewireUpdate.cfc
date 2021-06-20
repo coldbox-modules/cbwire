@@ -69,7 +69,7 @@ component {
      * @return Void
      */
     function invokeComponentMethod( required comp ){
-        arguments.comp[ this.getPayloadMethod() ]( argumentCollection=this.getPassedParamsAsArguments() );
+        invoke( arguments.comp, this.getPayloadMethod(), this.getPassedParamsAsArguments() );
     }
 
 }

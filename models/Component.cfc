@@ -59,7 +59,7 @@ component {
 				"path"   : this.$getPath(),
 				"method" : "GET"
 			},
-			"effects"    : { "listeners" : this.$getListenerNames() },
+			"effects"    : { "listeners" : variables.$getListenerNames() },
 			"serverMemo" : {
 				"children" 		: [],
 				"errors"   		: [],
@@ -67,7 +67,7 @@ component {
 				"data"     		: this.$getState(),
 				"dataMeta" 		: [],
 				"checksum" 		: this.$getChecksum(),
-				"mountedState" 	: this.$getMountedState()
+				"mountedState" 	: variables.$getMountedState()
 			}
 		};
 	}
@@ -93,7 +93,7 @@ component {
 				"htmlHash" 		: "71146cf2",
 				"data"     		: this.$getState(),
 				"checksum" 		: this.$getChecksum(),
-				"mountedState"  : this.$getMountedState()
+				"mountedState"  : variables.$getMountedState()
 			}
 		}
 	}
@@ -183,7 +183,7 @@ component {
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
 		// Add livewire properties to top element to make livewire actually work.
-		return this.$applyLivewireAttributesToOuterElement( rendering );
+		return variables.$applyLivewireAttributesToOuterElement( rendering );
 	}
 
 	/**
@@ -274,11 +274,11 @@ component {
 	 */
 	function $getPath(){
 
-		var queryStringValues = this.$getQueryStringValues();
+		var queryStringValues = variables.$getQueryStringValues();
 
 		if ( len( queryStringValues ) ){
 
-			var referer = this.$getHTTPReferer();
+			var referer = variables.$getHTTPReferer();
 
 			// Strip away any queryString parameters from the referer so
 			// we don't duplicate them when we append the queryStringValues below. 
@@ -329,7 +329,7 @@ component {
 			} );
 		} else {
 			// Reset individual property
-			this.$set( property, this.$getMountedState()[ property ] );
+			this.$set( property, variables.$getMountedState()[ property ] );
 		}
 
 	}
@@ -363,7 +363,7 @@ component {
 
 		// Default with an empty array
 		if ( !structKeyExists( this, "$queryString" ) ){
-			return [];
+			return "";
 		}
 
 		var currentState = this.$getState();
@@ -375,8 +375,7 @@ component {
 				return agg;
 			}, "" );
 		} else {
-			writeDump( this.$queryString );
-			abort;
+			var result = "";
 		}
 
 		return result;
@@ -388,7 +387,7 @@ component {
 	 * @return Boolean
 	 */
 	function $hasListeners(){
-		return arrayLen( this.$getListenerNames() );
+		return arrayLen( variables.$getListenerNames() );
 	}
 
 	/**
@@ -425,9 +424,9 @@ component {
 	 * 
 	 * @return Any
 	 */
-	function $invoke( required method, value = "" ){
-		if ( this.$hasMethod( arguments.method ) ){
-			return this[ method ]( arguments.value );
+	function $invoke( required methodName, value = "" ){
+		if ( this.$hasMethod( arguments.methodName ) ){
+			return invoke( this, arguments.methodName, [ arguments.value ] );
 		}
 	}
 
@@ -440,7 +439,7 @@ component {
 	function $emit( required eventName ){
 
 		// Capture the emit as we will need to notify the UI in our response
-		this.$trackEmit( argumentCollection=arguments );	
+		variables.$trackEmit( argumentCollection=arguments );	
 
 		var listeners = this.$getListeners();
 
@@ -467,7 +466,7 @@ component {
 		arguments.isEmitSelf = true;
 
 		// Capture the emit as we will need to notify the UI in our response
-		this.$trackEmit( argumentCollection=arguments );
+		variables.$trackEmit( argumentCollection=arguments );
 
 
 	}
@@ -530,7 +529,7 @@ component {
 		var renderingHash = hash( arguments.rendering );
 
 		// Determine our outer element
-		var outerElement = this.$getOuterElement( arguments.rendering );
+		var outerElement = variables.$getOuterElement( arguments.rendering );
 
 		// Add livewire properties to top element to make livewire actually work.
 		if ( variables.$isInitialRendering ) {
