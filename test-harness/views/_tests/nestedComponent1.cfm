@@ -1,0 +1,1 @@
+<cfoutput>#livewire( "NestedComponent1" )#</cfoutput>
