@@ -402,7 +402,6 @@ component {
 		variables.$trackEmit( argumentCollection=arguments );
 	}
 
-
 	/**
 	 * Emits an event that is scoped to parents and not children or sibling components.
 	 *
@@ -414,6 +413,23 @@ component {
 	function $emitUp( required eventName ){
 
 		arguments.isEmitUp = true;
+
+		// Capture the emit as we will need to notify the UI in our response
+		variables.$trackEmit( argumentCollection=arguments );
+	}
+
+/**
+	 * Emits an event that is scoped to only a specific compnoent.
+	 *
+	 * Additional parameters can be passed through.
+	 * @componentName String | The name of our component to emit to.
+	 * @eventName String | The name of our event to emit.
+	 * 
+	 * @return Void
+	 */
+	function $emitTo( required componentName, required eventName ){
+
+		arguments.isEmitTo = true;
 
 		// Capture the emit as we will need to notify the UI in our response
 		variables.$trackEmit( argumentCollection=arguments );
@@ -502,7 +518,7 @@ component {
 
 		// Get only the params we want
 		params = params.reduce( function( agg, arg ){
-			if ( arg != "isEmitSelf" && arg != "isEmitUp" && arg != "eventName" && arg != "trackEmit" ){
+			if ( arg != "isEmitSelf" && arg != "isEmitTo" && arg != "isEmitUp" && arg != "eventName" && arg != "trackEmit" && arg != "componentName" ){
 				agg.append( params[ arg ] );
 			}
 			return agg;
@@ -516,13 +532,16 @@ component {
 		
 		var isEmitSelf = structKeyExists( arguments, "isEmitSelf" ) && arguments.isEmitSelf ? true : false;
 		var isEmitUp = structKeyExists( arguments, "isEmitUp" ) && arguments.isEmitUp ? true : false;
+		var isEmitTo = structKeyExists( arguments, "isEmitTo" ) && arguments.isEmitTo ? true : false;
 
 		if ( isEmitSelf ){
 			// We are tracking a .$emitSelf() call and need to alter our
 			// returned result to Livewire.
 			result[ "selfOnly" ] = true;
-		} else if ( isEmitUp ) {
+		} else if ( isEmitUp ){
 			result[ "ancestorsOnly" ] = true;
+		} else if ( isEmitTo ){
+			result[ "to" ] = arguments.componentName;
 		}
 
 		variables.$emits.append( result );

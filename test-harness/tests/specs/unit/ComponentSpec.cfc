@@ -202,6 +202,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$emitTo", function(){
+				it( "tracks the expected values", function(){
+					componentObj.$emitTo( "component1", "event1" );
+					componentObj.$emitTo( "component2", "event2", "test" );
+					expect( componentObj.$getEmits()[ 1 ] ).toBe( {
+						"event": "event1",
+						"params": [],
+						"to": "component1"
+					} );
+					expect( componentObj.$getEmits()[ 2 ] ).toBe( {
+						"event": "event2",
+						"params": [ "test" ],
+						"to": "component2"
+					} );
+				} );
+			} );
+
 			describe( "$getMemento", function(){
 				it( "returns a struct", function(){
 					componentObj.$( "$renderIt", "" );
