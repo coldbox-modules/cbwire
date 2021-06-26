@@ -367,10 +367,12 @@ component {
 	 * @eventName String | The name of our event to emit.
 	 * @params Array | The params pass with the emit 
 	 */
-	function $emit( required eventName ){
+	function $emit( required eventName, trackEmit = true ){
 
 		// Capture the emit as we will need to notify the UI in our response
-		variables.$trackEmit( argumentCollection=arguments );	
+		if ( arguments.trackEmit ){
+			variables.$trackEmit( argumentCollection=arguments );	
+		}
 
 		var listeners = this.$getListeners();
 
@@ -384,7 +386,7 @@ component {
 	}
 
 	/**
-	 * Emits a event that is scoped to just the current cbLivewire component.
+	 * Emits an event that is scoped to just the current cbLivewire component.
 	 *
 	 * Additional parameters can be passed through.
 
@@ -398,8 +400,23 @@ component {
 
 		// Capture the emit as we will need to notify the UI in our response
 		variables.$trackEmit( argumentCollection=arguments );
+	}
 
 
+	/**
+	 * Emits an event that is scoped to parents and not children or sibling components.
+	 *
+	 * Additional parameters can be passed through.
+	 * @eventName String | The name of our event to emit.
+	 * 
+	 * @return Void
+	 */
+	function $emitUp( required eventName ){
+
+		arguments.isEmitUp = true;
+
+		// Capture the emit as we will need to notify the UI in our response
+		variables.$trackEmit( argumentCollection=arguments );
 	}
 
 	/**
@@ -485,7 +502,7 @@ component {
 
 		// Get only the params we want
 		params = params.reduce( function( agg, arg ){
-			if ( arg != "isEmitSelf" && arg != "eventName" ){
+			if ( arg != "isEmitSelf" && arg != "isEmitUp" && arg != "eventName" && arg != "trackEmit" ){
 				agg.append( params[ arg ] );
 			}
 			return agg;
@@ -498,11 +515,14 @@ component {
 		};
 		
 		var isEmitSelf = structKeyExists( arguments, "isEmitSelf" ) && arguments.isEmitSelf ? true : false;
+		var isEmitUp = structKeyExists( arguments, "isEmitUp" ) && arguments.isEmitUp ? true : false;
 
 		if ( isEmitSelf ){
 			// We are tracking a .$emitSelf() call and need to alter our
 			// returned result to Livewire.
 			result[ "selfOnly" ] = true;
+		} else if ( isEmitUp ) {
+			result[ "ancestorsOnly" ] = true;
 		}
 
 		variables.$emits.append( result );

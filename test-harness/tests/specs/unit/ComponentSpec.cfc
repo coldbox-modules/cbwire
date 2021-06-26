@@ -191,6 +191,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$emitUp", function(){
+				it( "tracks the expected values", function(){
+					componentObj.$emitUp( "test", 1 );
+					expect( componentObj.$getEmits()[ 1 ] ).toBe( {
+						"event": "test",
+						"params": [ 1 ],
+						"ancestorsOnly": true
+					} );
+				} );
+			} );
+
 			describe( "$getMemento", function(){
 				it( "returns a struct", function(){
 					componentObj.$( "$renderIt", "" );
