@@ -26,7 +26,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( event.getRenderedContent() ).toInclude( "Hello World" );
 			} );
 
-			describe( "livewire()", function(){
+			describe( "wire()", function(){
 				it( "renders simple 'Hello World'", function(){
 					var event = get( "/_tests/helloWorld" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
