@@ -279,11 +279,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.$once( "setName") ).toBeTrue();
 				} );
 
-				it( "sets value in variables scope if component doesn't contain a setter method", function(){
-					componentObj.$set( propertyName="name", value="test" );
-					expect( componentObj.$getState()["name"] ).toBe( "test" );
-				} );
-
 				it( "fires 'preUpdate[prop] event", function(){
 					componentObj.$( "$preUpdateName", true );
 					componentObj.$set( propertyName="name", value="test" );

@@ -71,21 +71,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
-			it( "livewireStyles() renders the livewire styles", function(){
-				var event   = get( "/_tests/livewireStyles" );
+			it( "wireStyles() renders the wire styles", function(){
+				var event   = get( "/_tests/wireStyles" );
 				var content = event.getRenderedContent();
 				expect( content ).toInclude( "<!-- Livewire Styles -->" );
 				expect( content ).toInclude( "@keyframes livewireautofill { from {} }" );
 			} );
 
-			it( "livewireScripts() renders the livewire scripts", function(){
-				var event   = get( "/_tests/livewireScripts" );
+			it( "wireScripts() renders the livewire scripts", function(){
+				var event   = get( "/_tests/wireScripts" );
 				var content = event.getRenderedContent();
 				expect( content ).toInclude( "/moduleroot/cbwire/includes/js/livewire.js" );
 			} );
 
 			it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
-				var event         = post( "/livewire/message/livewire.DataBinding" );
+				var event         = post( "/livewire/message/wires.DataBinding" );
 				var content       = event.getRenderedContent();
 				var parsedContent = deserializeJSON( content );
 

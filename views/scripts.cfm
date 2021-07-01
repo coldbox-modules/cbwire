@@ -9,6 +9,7 @@
     window.livewire = new Livewire();
     window.livewire.devTools(true);
     window.Livewire = window.livewire;
+    window.cbwire = window.livewire;
     window.livewire_app_url = '';
     window.livewire_token = 'caxTa7qUQqfONmG5vqz16Y5EvNEx77Eaadxnhyqi';
 

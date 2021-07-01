@@ -4,14 +4,14 @@ component
 {
 
     /**
-     * Livewire properties
+     * cbwire properties
      */
     property
         name="name"
         default="test";
 
     /**
-     * Render our livewire wire
+     * Render our wire object.
      */
     function $renderIt(){
         return this.$view( "_wires/resetPropertiesToInitialState" );
