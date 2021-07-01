@@ -182,10 +182,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$emitSelf", function(){
 				it( "tracks the expected values", function(){
-					componentObj.$emitSelf( "test", 1 );
+					componentObj.$emitSelf( "test", [ "how", "much", "wood", "could", "a", "wood", "chuck", "chuck" ] );
 					expect( componentObj.$getEmits()[ 1 ] ).toBe( {
 						"event": "test",
-						"params": [ 1 ],
+						"params": [ "how", "much", "wood", "could", "a", "wood", "chuck", "chuck" ],
 						"selfOnly": true
 					} );
 				} );
@@ -193,10 +193,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$emitUp", function(){
 				it( "tracks the expected values", function(){
-					componentObj.$emitUp( "test", 1 );
+					componentObj.$emitUp( "test", [ "hello", "world" ] );
 					expect( componentObj.$getEmits()[ 1 ] ).toBe( {
 						"event": "test",
-						"params": [ 1 ],
+						"params": [ "hello", "world" ],
 						"ancestorsOnly": true
 					} );
 				} );
@@ -204,8 +204,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$emitTo", function(){
 				it( "tracks the expected values", function(){
-					componentObj.$emitTo( "component1", "event1" );
-					componentObj.$emitTo( "component2", "event2", "test" );
+					componentObj.$emitTo( "event1", "component1"  );
+					componentObj.$emitTo( "event2", "component2", [ "hello", "world" ] );
 					expect( componentObj.$getEmits()[ 1 ] ).toBe( {
 						"event": "event1",
 						"params": [],
@@ -213,9 +213,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					} );
 					expect( componentObj.$getEmits()[ 2 ] ).toBe( {
 						"event": "event2",
-						"params": [ "test" ],
+						"params": [ "hello", "world" ],
 						"to": "component2"
 					} );
+				} );
+			} );
+
+			describe( "$refresh", function(){
+				it( "fires '$postRefresh' event", function(){
+					componentObj.$( "$postRefresh", true );
+					componentObj.$refresh();
+					expect( componentObj.$once( "$postRefresh" ) ).toBeTrue();
 				} );
 			} );
 
@@ -231,7 +239,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "returns emitted events", function(){
 					componentObj.$( "$renderIt", "" );
 					componentObj.$emit( "event1" );
-					componentObj.$emitSelf( "event2", "hello" );
+					componentObj.$emitSelf(
+							eventName="event2",
+							parameters=[
+								"hello",
+								"world"
+							]
+						);
 					expect( componentObj.$getMemento().effects.emits ).toBeArray();
 					expect( arrayLen( componentObj.$getMemento().effects.emits ) ).toBe( 2 );
 					expect( componentObj.$getMemento().effects.emits[ 1 ] ).toBe( {
@@ -240,7 +254,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					} );
 					expect( componentObj.$getMemento().effects.emits[ 2 ] ).toBe( {
 						"event": "event2",
-						"params": [ "hello" ],
+						"params": [ "hello", "world" ],
 						"selfOnly": true
 					} );
 				} );

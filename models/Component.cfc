@@ -362,16 +362,31 @@ component {
 	}
 
 	/**
+	 * Invokes a $postRefresh event and currenlty nothing else.
+	 * This is used with LivewireJS' polling functionality which
+	 * refreshes the component.
+	 * 
+	 * @return Void
+	 */
+	function $refresh(){
+	    // Invoke '$postRefresh' event
+		this.$invoke( "$postRefresh" );
+	}
+
+	/**
 	 * Emits a global event from our cbLivewire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @params Array | The params pass with the emit 
+	 * @parameters Array | The params passed with the emitter. Must be an array to preserve order of arguments that are return to Livewire.
+	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
-	function $emit( required eventName, trackEmit = true ){
+	function $emit( required eventName, parameters = [], trackEmit = true ){
 
 		// Capture the emit as we will need to notify the UI in our response
 		if ( arguments.trackEmit ){
-			variables.$trackEmit( argumentCollection=arguments );	
+			var emitter = createObject( "component", "cbLivewire.models.emit.BaseEmit" ).init( arguments.eventName, arguments.parameters );
+
+			variables.$trackEmit( emitter );	
 		}
 
 		var listeners = this.$getListeners();
@@ -391,15 +406,15 @@ component {
 	 * Additional parameters can be passed through.
 
 	 * @eventName String | The name of our event to emit.
+	 * @parameters Struct | The emitter's params.
 	 * 
 	 * @return Void
 	 */
-	function $emitSelf( required eventName ){
-
-		arguments.isEmitSelf = true;
+	function $emitSelf( required eventName, parameters = {} ){
+		var emitter = createObject( "component", "cbLivewire.models.emit.EmitSelf" ).init( arguments.eventName, arguments.parameters );
 
 		// Capture the emit as we will need to notify the UI in our response
-		variables.$trackEmit( argumentCollection=arguments );
+		variables.$trackEmit( emitter );
 	}
 
 	/**
@@ -407,32 +422,32 @@ component {
 	 *
 	 * Additional parameters can be passed through.
 	 * @eventName String | The name of our event to emit.
+	 * @parameters Struct  The emitter's params.
 	 * 
 	 * @return Void
 	 */
-	function $emitUp( required eventName ){
-
-		arguments.isEmitUp = true;
+	function $emitUp( required eventName, parameters = {} ){
+		var emitter = createObject( "component", "cbLivewire.models.emit.EmitUp" ).init( arguments.eventName, arguments.parameters );
 
 		// Capture the emit as we will need to notify the UI in our response
-		variables.$trackEmit( argumentCollection=arguments );
+		variables.$trackEmit( emitter );
 	}
 
-/**
+	/**
 	 * Emits an event that is scoped to only a specific compnoent.
 	 *
 	 * Additional parameters can be passed through.
-	 * @componentName String | The name of our component to emit to.
 	 * @eventName String | The name of our event to emit.
+	 * @componentName String | The name of our component to emit to.
+	 * @parameters Array | The emitter's params. Must be an array to preserve order of arguments that are return to Livewire.
 	 * 
 	 * @return Void
 	 */
-	function $emitTo( required componentName, required eventName ){
-
-		arguments.isEmitTo = true;
+	function $emitTo( required eventName, required componentName, parameters = []  ){
+		var emitter = createObject( "component", "cbLivewire.models.emit.EmitTo" ).init( arguments.eventName, arguments.componentName, arguments.parameters );
 
 		// Capture the emit as we will need to notify the UI in our response
-		variables.$trackEmit( argumentCollection=arguments );
+		variables.$trackEmit( emitter );
 	}
 
 	/**
@@ -476,6 +491,7 @@ component {
 		return $renderer.relocate( argumentCollection=arguments );
 	}
 
+
 	/**
 	 * Check if there are properties to be included in our query string
 	 * and assembles them together in a single string to be used within a URL.
@@ -508,42 +524,11 @@ component {
 	 * Tracks an emit, which is later returned in our API response and used
 	 * by Livewire.
 	 * 
-	 * @eventName String | The name of our event to emit.
+	 * @emitter cbLivewire.models.emit.BaseEmit | An instance of an emitter. 
 	 * @return Array;
 	 */
-	private function $trackEmit( required eventName ){
-		
-		// Duplicate our arguments so that we don't alter them
-		var params = duplicate( arguments );
-
-		// Get only the params we want
-		params = params.reduce( function( agg, arg ){
-			if ( arg != "isEmitSelf" && arg != "isEmitTo" && arg != "isEmitUp" && arg != "eventName" && arg != "trackEmit" && arg != "componentName" ){
-				agg.append( params[ arg ] );
-			}
-			return agg;
-		}, [] );
-	
-		// Setup our result
-		var result = {
-			"event": arguments.eventName,
-			"params": params
-		};
-		
-		var isEmitSelf = structKeyExists( arguments, "isEmitSelf" ) && arguments.isEmitSelf ? true : false;
-		var isEmitUp = structKeyExists( arguments, "isEmitUp" ) && arguments.isEmitUp ? true : false;
-		var isEmitTo = structKeyExists( arguments, "isEmitTo" ) && arguments.isEmitTo ? true : false;
-
-		if ( isEmitSelf ){
-			// We are tracking a .$emitSelf() call and need to alter our
-			// returned result to Livewire.
-			result[ "selfOnly" ] = true;
-		} else if ( isEmitUp ){
-			result[ "ancestorsOnly" ] = true;
-		} else if ( isEmitTo ){
-			result[ "to" ] = arguments.componentName;
-		}
-
+	private function $trackEmit( required emitter ){
+		var result = emitter.getResult();
 		variables.$emits.append( result );
 	}
 

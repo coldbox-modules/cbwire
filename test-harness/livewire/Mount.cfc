@@ -2,7 +2,7 @@ component extends="cbLivewire.models.Component" accessors="true" {
 
     property name="message" default="Default value";
 
-    function mount() {
+    function $mount() {
         setMessage( "Mounted value" );
     }
 

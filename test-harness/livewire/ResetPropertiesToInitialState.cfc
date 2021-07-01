@@ -1,17 +1,3 @@
-/**
-public $search = '';
-public $isActive = true;
-
-public function resetFilters()
-{
-    $this->reset('search');
-    // Will only reset the search property.
-
-    $this->reset(['search', 'isActive']);
-    // Will reset both the search AND the isActive property.
-}
-
-*/
 component extends="cbLivewire.models.Component" accessors="true" {
 
     /**

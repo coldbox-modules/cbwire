@@ -197,7 +197,6 @@ component singleton{
 		if ( this.hasUpdates() ) {
 			this.applyUpdates( arguments.comp );
 		}
-
     }
 
     /**

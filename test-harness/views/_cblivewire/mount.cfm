@@ -1,3 +1,5 @@
 <cfoutput>
-#args.message#
+    <div>
+        #args.message#
+    </div>
 </cfoutput>
