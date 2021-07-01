@@ -1,5 +1,5 @@
 {
-	"array.empty_padding": true,
+	"array.empty_padding": false,
 	"array.padding": true,
 	"array.multiline.min_length": 40,
 	"array.multiline.element_count": 2,

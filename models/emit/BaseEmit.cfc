@@ -11,7 +11,7 @@ component {
      */
     function init(
         required eventName,
-        parameters = [ ]
+        parameters = []
     ){
         variables.eventName = arguments.eventName;
         variables.parameters = arguments.parameters;
@@ -34,7 +34,7 @@ component {
      */
     function getResult(){
         return {
-            "event" : this.getEventName( ),
+            "event" : this.getEventName(),
             "params" : variables.parameters
         };
     }

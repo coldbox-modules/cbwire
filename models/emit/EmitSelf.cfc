@@ -10,7 +10,7 @@ component extends="BaseEmit" {
      */
     function getResult(){
         return {
-            "event" : this.getEventName( ),
+            "event" : this.getEventName(),
             "params" : variables.parameters,
             "selfOnly" : true
         };

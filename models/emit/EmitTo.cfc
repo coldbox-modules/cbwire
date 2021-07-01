@@ -12,7 +12,7 @@ component extends="BaseEmit" {
     function init(
         required eventName,
         required componentName,
-        parameters = [ ]
+        parameters = []
     ){
         variables.eventName = arguments.eventName;
         variables.componentName = arguments.componentName;
@@ -27,7 +27,7 @@ component extends="BaseEmit" {
      */
     function getResult(){
         return {
-            "event" : this.getEventName( ),
+            "event" : this.getEventName(),
             "params" : variables.parameters,
             "to" : variables.componentName
         };
