@@ -1,5 +1,5 @@
 /**
- * This is the base object that all cbLivewire components extend for functionality.
+ * This is the base object that all cbwire components extend for functionality.
  *
  * Most internal methods and properties here are namespaced with a "$" to avoid collisions
  * with child components.
@@ -16,15 +16,21 @@ component {
         name="$wirebox"
         inject="wirebox";
 
-    // Injected LivewireRequest that's incoming from the browser.
+    // Injected the wire request that's incoming from the browser.
     property
-        name="$livewireRequest"
-        inject="LivewireRequest@cbLivewire";
+        name="$wireRequest"
+        inject="WireRequest@cbwire";
 
     // Injected populator.
     property
         name="$populator"
         inject="wirebox:populator";
+
+    // Injected settings.
+    property
+        name="$settings"
+        inject="coldbox:modulesettings:cbwire";
+
 
     // Method aliases, mainly for backwards compatability.
     variables[ "$view" ] = this.$renderView;
@@ -40,6 +46,36 @@ component {
         return this;
     }
 
+    /**
+	 * Relocate user browser requests to other events, URLs, or URIs.
+	 *
+	 * @event The name of the event to run, if not passed, then it will use the default event found in your configuration file
+	 * @URL The full URL you would like to relocate to instead of an event: ex: URL='http://www.google.com'
+	 * @URI The relative URI you would like to relocate to instead of an event: ex: URI='/mypath/awesome/here'
+	 * @queryString The query string or struct to append, if needed. If in SES mode it will be translated to convention name value pairs
+	 * @persist What request collection keys to persist in flash ram
+	 * @persistStruct A structure key-value pairs to persist in flash ram
+	 * @addToken Wether to add the tokens or not. Default is false
+	 * @ssl Whether to relocate in SSL or not
+	 * @baseURL Use this baseURL instead of the index.cfm that is used by default. You can use this for ssl or any full base url you would like to use. Ex: https://mysite.com/index.cfm
+	 * @postProcessExempt Do not fire the postProcess interceptors
+	 * @statusCode The status code to use in the relocation
+	 */
+	void function $relocate(
+		event,
+		URL,
+		URI,
+		queryString,
+		persist,
+		struct persistStruct,
+		boolean addToken,
+		boolean ssl,
+		baseURL,
+		boolean postProcessExempt,
+		numeric statusCode
+    ) {
+        return variables.$renderer.relocate( argumentCollection=arguments );
+    }
     /**
      * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
      * The 21 characters matches Livewire's native implementation.
@@ -123,7 +159,7 @@ component {
     }
 
     /**
-     * Invokes $renderIt() on the cbLivewire component and caches the rendered
+     * Invokes $renderIt() on the cbwire component and caches the rendered
      * results into variables.$rendering.
      *
      * @return String
@@ -187,13 +223,13 @@ component {
 
     /**
      * This hydrates (re-populates) our component state with
-     * values provided by the incoming LivewireRequest object.
+     * values provided by the incoming wire object.
      *
      * @return Component
      */
     function $hydrate(){
         variables.$isInitialRendering = false;
-        variables.$livewireRequest.hydrateComponent( this );
+        variables.$wireRequest.hydrateComponent( this );
         return this;
     }
 
@@ -203,7 +239,7 @@ component {
      * @return String
      */
     function $renderView(){
-        // Pass the properties of the cbLivewire component as variables to the view
+        // Pass the properties of the cbwire component as variables to the view
         arguments.args = this.$getState();
 
         // Render our view using coldbox rendering
@@ -214,11 +250,11 @@ component {
     }
 
     /**
-     * Fires when the cbLivewire component is initially created.
+     * Fires when the cbwire component is initially created.
      * Looks to see if a $mount() method is defined on our component and if so, invokes it.
      *
      * This method is given the $_ prefix to avoid collision with the $mount method
-     * that can be optionally defined on a cbLivewire component.
+     * that can be optionally defined on a cbwire component.
      *
      * @parameters Struct of params to bind into the component
      *
@@ -228,9 +264,9 @@ component {
         if ( structKeyExists( this, "$mount" ) && isCustomFunction( this.$mount ) ){
             this[ "$mount" ](
                 parameters = arguments.parameters,
-                event = variables.$livewireRequest.getEvent(),
-                rc = variables.$livewireRequest.getCollection(),
-                prc = variables.$livewireRequest.getPrivateCollection()
+                event = variables.$wireRequest.getEvent(),
+                rc = variables.$wireRequest.getCollection(),
+                prc = variables.$wireRequest.getPrivateCollection()
             );
         } else{
             // Injecting the state from our passed in parameters
@@ -270,7 +306,7 @@ component {
      * if it exists, and otherwise setting directly to our variables
      * scope.
      *
-     * Fires '$preUpdate[prop]' and '$postUpdate[prop]' events on the cbLivewire component.
+     * Fires '$preUpdate[prop]' and '$postUpdate[prop]' events on the cbwire component.
      *
      * @propertyName String | Name of the property we are setting
      * @value Any | Value of the property we are settting
@@ -294,10 +330,11 @@ component {
             )
         ){
             this[ "set#arguments.propertyName#" ]( arguments.value );
-        } else{
-            variables[ propertyName ] = arguments.value;
+        } else {
+            //throw( message="No method.");
         }
 
+        
         // Invoke '$postUpdate[prop]' event
         this.$invoke(
             "$postUpdate" & arguments.propertyName,
@@ -309,7 +346,7 @@ component {
      * Returns the URL which is included in the initial data that is rendered
      * with the view.
      *
-     * Inspects the cbLivewire component for properties that should
+     * Inspects the cbwire component for properties that should
      * be included in the path
      *
      * @return String
@@ -426,7 +463,7 @@ component {
     }
 
     /**
-     * Emits a global event from our cbLivewire component.
+     * Emits a global event from our cbwire component.
      *
      * @eventName String | The name of our event to emit.
      * @parameters Array | The params passed with the emitter. Must be an array to preserve order of arguments that are return to Livewire.
@@ -441,7 +478,7 @@ component {
         if ( arguments.trackEmit ){
             var emitter = createObject(
                 "component",
-                "cbLivewire.models.emit.BaseEmit"
+                "cbwire.models.emit.BaseEmit"
             ).init(
                 arguments.eventName,
                 arguments.parameters
@@ -467,7 +504,7 @@ component {
     }
 
     /**
-	 * Emits an event that is scoped to just the current cbLivewire component.
+	 * Emits an event that is scoped to just the current cbwire component.
 	 *
 	 * Additional parameters can be passed through.
 
@@ -482,7 +519,7 @@ component {
     ){
         var emitter = createObject(
             "component",
-            "cbLivewire.models.emit.EmitSelf"
+            "cbwire.models.emit.EmitSelf"
         ).init(
             arguments.eventName,
             arguments.parameters
@@ -507,7 +544,7 @@ component {
     ){
         var emitter = createObject(
             "component",
-            "cbLivewire.models.emit.EmitUp"
+            "cbwire.models.emit.EmitUp"
         ).init(
             arguments.eventName,
             arguments.parameters
@@ -534,7 +571,7 @@ component {
     ){
         var emitter = createObject(
             "component",
-            "cbLivewire.models.emit.EmitTo"
+            "cbwire.models.emit.EmitTo"
         ).init(
             arguments.eventName,
             arguments.componentName,
@@ -588,9 +625,9 @@ component {
     /**
      * Redirects/relocates using ColdBox relocation
      */
-    private function $relocate(){
-        return $renderer.relocate( argumentCollection = arguments );
-    }
+    // private function $relocate(){
+    //     return $renderer.relocate( argumentCollection = arguments );
+    // }
 
 
     /**
@@ -629,7 +666,7 @@ component {
      * Tracks an emit, which is later returned in our API response and used
      * by Livewire.
      *
-     * @emitter cbLivewire.models.emit.BaseEmit | An instance of an emitter.
+     * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
      * @return Array;
      */
     private function $trackEmit( required emitter ){
@@ -706,7 +743,7 @@ component {
 
         throw(
             type = "OuterElementNotFound",
-            message = "Unable to find an outer element to bind cbLivewire to."
+            message = "Unable to find an outer element to bind cbwire to."
         );
     }
 

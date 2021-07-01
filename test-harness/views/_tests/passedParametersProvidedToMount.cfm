@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "PassedParametersProvidedToMount", { "otherPizzaToppings": [ "Bacon", "Mushrooms" ] } )#</cfoutput>
+<cfoutput>#wire( "PassedParametersProvidedToMount", { "otherPizzaToppings": [ "Bacon", "Mushrooms" ] } )#</cfoutput>

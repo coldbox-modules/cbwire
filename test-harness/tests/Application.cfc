@@ -25,7 +25,7 @@ component {
 	this.mappings[ "/root" ] = rootPath;
 
 	// UPDATE THE NAME OF THE MODULE IN TESTING BELOW
-	request.MODULE_NAME = "cbLivewire";
+	request.MODULE_NAME = "cbwire";
 
 	// The module root path
 	moduleRootPath = reReplaceNoCase(

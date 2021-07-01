@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "ResetPropertiesToInitialState" )#</cfoutput>
+<cfoutput>#wire( "ResetPropertiesToInitialState" )#</cfoutput>

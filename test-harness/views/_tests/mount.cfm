@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "Mount" )#</cfoutput>
+<cfoutput>#wire( "Mount" )#</cfoutput>

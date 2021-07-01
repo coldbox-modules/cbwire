@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "HelloWorld" )#</cfoutput>
+<cfoutput>#wire( "HelloWorld" )#</cfoutput>

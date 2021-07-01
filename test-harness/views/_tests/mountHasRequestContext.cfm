@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "MountHasRequestContext" )#</cfoutput>
+<cfoutput>#wire( "MountHasRequestContext" )#</cfoutput>

@@ -2,21 +2,21 @@
     /**
     * Returns the styles to be placed in HTML head
     */
-    function livewireStyles() {
-        return getInstance( "cbLivewire.models.LivewireHTML" ).getStyles();
+    function wireStyles() {
+        return getInstance( "cbwire.models.WireHTML" ).getStyles();
     }
 
     /**
     * Returns the JS to be placed in HTML body
     */
-    function livewireScripts() {
-        return getInstance( "cbLivewire.models.LivewireHTML" ).getScripts();
+    function wireScripts() {
+        return getInstance( "cbwire.models.WireHTML" ).getScripts();
     }
 
     /**
-    * Renders a livewire component
+    * Renders a wire component.
     */
-    function livewire() {
-        return getInstance( "cbLivewire.models.LivewireRequest" ).renderIt( argumentCollection=arguments );
+    function wire() {
+        return getInstance( "cbwire.models.WireRequest" ).renderIt( argumentCollection=arguments );
     }
 </cfscript>

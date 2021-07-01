@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "PassActionArgs" )#</cfoutput>
+<cfoutput>#wire( "PassActionArgs" )#</cfoutput>

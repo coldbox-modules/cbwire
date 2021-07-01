@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "DataBindingCount" )#</cfoutput>
+<cfoutput>#wire( "DataBindingCount" )#</cfoutput>

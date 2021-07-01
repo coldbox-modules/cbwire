@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "MultiSelect" )#</cfoutput>
+<cfoutput>#wire( "MultiSelect" )#</cfoutput>

@@ -18,10 +18,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				livewireRequest = prepareMock( getInstance( "cbLivewire.models.LivewireRequest" ) );
+				livewireRequest = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
 				componentObj    = prepareMock(
 					getInstance(
-						name          = "cbLivewire.models.Component",
+						name          = "cbwire.models.Component",
 						initArguments = { livewireRequest : livewireRequest }
 					)
 				);
@@ -73,7 +73,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getMeta", function(){
 				it( "should return the meta", function(){
-					expect( componentObj.$getMeta().name ).toBe( "cbLivewire.models.Component" );
+					expect( componentObj.$getMeta().name ).toBe( "cbwire.models.Component" );
 				} );
 
 				it( "should cache the results", function(){

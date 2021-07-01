@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "HelloWorldWithRenderViewPropertyAndArgs" )#</cfoutput>
+<cfoutput>#wire( "HelloWorldWithRenderViewPropertyAndArgs" )#</cfoutput>

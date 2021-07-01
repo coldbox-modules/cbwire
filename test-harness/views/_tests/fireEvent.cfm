@@ -1,3 +1,3 @@
-<cfoutput>#livewire( "FireEvent" )#</cfoutput>
+<cfoutput>#wire( "FireEvent" )#</cfoutput>
 
-<cfoutput>#livewire( "FireEvent2" )#</cfoutput>
+<cfoutput>#wire( "FireEvent2" )#</cfoutput>

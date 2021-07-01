@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "PassParameters", { pizzaToppings: [ "Pepperoni", "Ham", "Mo cheese" ] } )#</cfoutput>
+<cfoutput>#wire( "PassParameters", { pizzaToppings: [ "Pepperoni", "Ham", "Mo cheese" ] } )#</cfoutput>

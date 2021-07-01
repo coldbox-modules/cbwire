@@ -1,1 +1,1 @@
-<cfoutput>#livewireScripts()#</cfoutput>
+<cfoutput>#wireScripts()#</cfoutput>

@@ -19,12 +19,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function run( testResults, testBox ){
 		// all your suites go here.
-		describe( "LivewireRequest", function(){
+		describe( "WireRequest", function(){
 			beforeEach( function( currentSpec ){
 				setup();
 				event           = getRequestContext();
 				livewireRequest = getInstance(
-					name          = "cbLivewire.models.LivewireRequest",
+					name          = "cbwire.models.WireRequest",
 					initArguments = { event : event }
 				);
 			} );
@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "fires '$preHydrate' event", function(){
 					var comp = prepareMock(
 						getInstance(
-							name          = "cbLivewire.models.Component",
+							name          = "cbwire.models.Component",
 							initArguments = { livewireRequest : livewireRequest }
 						)
 					);		
@@ -56,7 +56,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "fires '$postHydrate' event", function(){
 					var comp = prepareMock(
 						getInstance(
-							name          = "cbLivewire.models.Component",
+							name          = "cbwire.models.Component",
 							initArguments = { livewireRequest : livewireRequest }
 						)
 					);
@@ -76,7 +76,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 					expect( livewireRequest.getUpdates() ).toBeArray();
 					expect( arrayLen( livewireRequest.getUpdates() ) ).toBe( 1 );
-					expect( livewireRequest.getUpdates()[1] ).toBeInstanceOf( "LivewireUpdate" );
+					expect( livewireRequest.getUpdates()[1] ).toBeInstanceOf( "WireUpdate" );
 				} );
 
 				it( "returns type of callmethod", function(){

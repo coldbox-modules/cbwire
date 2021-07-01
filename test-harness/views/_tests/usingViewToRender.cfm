@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "UsingViewToRender" )#</cfoutput>
+<cfoutput>#wire( "UsingViewToRender" )#</cfoutput>

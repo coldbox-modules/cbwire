@@ -19,11 +19,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			beforeEach( function( currentSpec ){
 				setup();
                 update = {};
-				fireEventUpdate = prepareMock( getInstance( name="cbLivewire.models.updates.FireEvent", initArguments={update=update} ) );
-    			livewireRequest = prepareMock( getInstance( "cbLivewire.models..LivewireRequest" ) );
+				fireEventUpdate = prepareMock( getInstance( name="cbwire.models.updates.FireEvent", initArguments={update=update} ) );
+    			livewireRequest = prepareMock( getInstance( "cbwire.models..WireRequest" ) );
                 componentObj    = prepareMock(
 					getInstance(
-						name          = "cbLivewire.models.Component",
+						name          = "cbwire.models.Component",
 						initArguments = { livewireRequest : livewireRequest }
 					)
 				);

@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "EmitUp" )#</cfoutput>
+<cfoutput>#wire( "EmitUp" )#</cfoutput>

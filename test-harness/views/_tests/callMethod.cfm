@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "CallMethod")#</cfoutput>
+<cfoutput>#wire( "CallMethod")#</cfoutput>

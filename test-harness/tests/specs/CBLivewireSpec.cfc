@@ -16,7 +16,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function run( testResults, testBox ){
 		// all your suites go here.
-		describe( "cbLivewire Module", function(){
+		describe( "cbwire Module", function(){
 			beforeEach( function( currentSpec ){
 				setup();
 			} );

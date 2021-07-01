@@ -1,20 +1,23 @@
 component {
 
-	this.name               = "cbLivewire";
+	this.name               = "cbwire";
 	this.version            = "1.0.0";
 	this.author             = "";
-	this.webUrl             = "https://github.com/coldbox-modules/cbLivewire";
+	this.webUrl             = "https://github.com/coldbox-modules/cbwire";
 	this.dependencies       = [];
 	this.entryPoint         = "livewire";
 	this.layoutParentLookup = false;
 	this.viewParentLookup   = false;
-	this.cfmapping          = "cbLivewire";
-	this.modelNamespace		= "cbLivewire";
+	this.cfmapping          = "cbwire";
+	this.modelNamespace		= "cbwire";
 	this.applicationHelper  = [ "helpers/helpers.cfm" ];
 
     function configure() {
-        routes = [
-            { pattern = "message/:livewireComponent", handler = "Main" }
+
+		settings = {};
+
+		routes = [
+            { pattern = "message/:wireComponent", handler = "Main" }
         ];
     }
 

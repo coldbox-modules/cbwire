@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "Loading" )#</cfoutput>
+<cfoutput>#wire( "Loading" )#</cfoutput>

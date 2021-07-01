@@ -1,1 +1,1 @@
-<cfoutput>#livewireStyles()#</cfoutput>
+<cfoutput>#wireStyles()#</cfoutput>

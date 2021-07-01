@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "UsingSet" )#</cfoutput>
+<cfoutput>#wire( "UsingSet" )#</cfoutput>

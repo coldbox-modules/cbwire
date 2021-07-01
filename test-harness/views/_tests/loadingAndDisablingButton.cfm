@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "LoadingAndDisablingButton" )#</cfoutput>
+<cfoutput>#wire( "LoadingAndDisablingButton" )#</cfoutput>

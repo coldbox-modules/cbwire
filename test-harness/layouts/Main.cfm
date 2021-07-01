@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
 <head>
-	#livewireStyles()#
+	#wireStyles()#
 </head>
 <body>
 	<h1>cbLivewire Tester</h1>
@@ -10,7 +10,7 @@
 		#renderView()#
 	</div>
 
-	#livewireScripts()#
+	#wireScripts()#
 </body>
 </html>
 </cfoutput>

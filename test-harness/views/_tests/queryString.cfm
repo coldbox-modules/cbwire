@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "QueryString" )#</cfoutput>
+<cfoutput>#wire( "QueryString" )#</cfoutput>

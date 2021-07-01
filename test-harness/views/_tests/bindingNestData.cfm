@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "BindingNestedData" )#</cfoutput>
+<cfoutput>#wire( "BindingNestedData" )#</cfoutput>

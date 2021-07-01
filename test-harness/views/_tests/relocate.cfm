@@ -1,1 +1,1 @@
-<cfoutput>#livewire( "Relocate" )#</cfoutput>
+<cfoutput>#wire( "Relocate" )#</cfoutput>
