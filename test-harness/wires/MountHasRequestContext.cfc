@@ -16,7 +16,7 @@ component
     }
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/mount" );
+        return this.$renderView( "_wires/mount" );
     }
 
 }

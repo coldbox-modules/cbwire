@@ -32,7 +32,7 @@ component extends="cbwire.models.Component" {
     }
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/emitUp" );
+        return this.$renderView( "_wires/emitUp" );
     }
 
 }

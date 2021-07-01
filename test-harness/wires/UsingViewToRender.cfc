@@ -8,7 +8,7 @@ component
         default="Hello World";
 
     function $renderIt(){
-        return this.$view( "_cbwire/helloWorldWithRenderViewPropertyAndArgs" );
+        return this.$view( "_wires/helloWorldWithRenderViewPropertyAndArgs" );
     }
 
 }

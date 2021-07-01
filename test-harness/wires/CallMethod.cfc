@@ -12,7 +12,7 @@ component
     }
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/callMethod" );
+        return this.$renderView( "_wires/callMethod" );
     }
 
 }

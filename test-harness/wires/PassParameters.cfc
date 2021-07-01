@@ -8,7 +8,7 @@ component
         default="";
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/passParameters" );
+        return this.$renderView( "_wires/passParameters" );
     }
 
 }

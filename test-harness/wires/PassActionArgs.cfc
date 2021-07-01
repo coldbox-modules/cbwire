@@ -15,7 +15,7 @@ component
     }
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/passActionArgs" );
+        return this.$renderView( "_wires/passActionArgs" );
     }
 
 }

@@ -5,7 +5,7 @@ component extends="cbwire.models.Component" {
     }
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/loading" );
+        return this.$renderView( "_wires/loading" );
     }
 
 }

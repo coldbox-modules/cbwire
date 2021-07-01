@@ -8,7 +8,7 @@ component
         default="";
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/dataBinding" );
+        return this.$renderView( "_wires/dataBinding" );
     }
 
 }

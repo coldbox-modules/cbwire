@@ -14,7 +14,7 @@ component
      * Render our livewire wire
      */
     function $renderIt(){
-        return this.$view( "_cbwire/resetPropertiesToInitialState" );
+        return this.$view( "_wires/resetPropertiesToInitialState" );
     }
 
     /**

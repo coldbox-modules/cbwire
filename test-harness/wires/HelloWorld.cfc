@@ -1,7 +1,7 @@
 component extends="cbwire.models.Component" {
 
     function $renderIt(){
-        return "Hello World";
+        return "Hello World #now()#";
     }
 
 }

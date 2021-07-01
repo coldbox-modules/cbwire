@@ -12,7 +12,7 @@ component
     }
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/getter" );
+        return this.$renderView( "_wires/getter" );
     }
 
 }

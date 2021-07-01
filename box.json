@@ -1,17 +1,17 @@
 {
-    "name":"cbLivewire",
+    "name":"cbwire",
     "version":"1.0.0",
     "author":"Ortus Solutions.com <info@ortussolutions.com>",
-    "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbLivewire/@build.version@/cbLivewire-@build.version@.zip",
-    "slug":"cbLivewire",
+    "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbwire/@build.version@/cbwire-@build.version@.zip",
+    "slug":"cbwire",
     "type":"modules",
-    "homepage":"https://github.com/coldbox-modules/cbLivewire",
-    "documentation":"https://github.com/coldbox-modules/cbLivewire",
+    "homepage":"https://github.com/coldbox-modules/cbwire",
+    "documentation":"https://github.com/coldbox-modules/cbwire",
     "repository":{
         "type":"git",
-        "URL":"https://github.com/coldbox-modules/cbLivewire"
+        "URL":"https://github.com/coldbox-modules/cbwire"
     },
-    "bugs":"https://github.com/coldbox-modules/cbLivewire/issues",
+    "bugs":"https://github.com/coldbox-modules/cbwire/issues",
     "shortDescription":"ColdBox + Livewire",
     "description":"ColdBox + Livewire",
     "dependencies":{},

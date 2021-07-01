@@ -1,5 +1,5 @@
 {
-    "name":"cbLivewire-adobe@2018",
+    "name":"cbwire-adobe@2018",
     "app":{
         "serverHomeDirectory":".engine/adobe2018",
         "cfengine":"adobe@2018"
@@ -12,7 +12,7 @@
             "enable":"true"
         },
         "aliases":{
-            "/moduleroot/cbLivewire":"../"
+            "/moduleroot/cbwire":"../"
         }
     },
     "openBrowser":"false"

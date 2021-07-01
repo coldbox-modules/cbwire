@@ -5,7 +5,7 @@ component extends="cbwire.models.Component" {
         default="";
 
     function $renderIt(){
-        return this.$renderView( "_cbwire/multiselect" );
+        return this.$renderView( "_wires/multiselect" );
     }
 
 }

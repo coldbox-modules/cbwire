@@ -81,7 +81,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "livewireScripts() renders the livewire scripts", function(){
 				var event   = get( "/_tests/livewireScripts" );
 				var content = event.getRenderedContent();
-				expect( content ).toInclude( "/moduleroot/cblivewire/includes/js/livewire.js" );
+				expect( content ).toInclude( "/moduleroot/cbwire/includes/js/livewire.js" );
 			} );
 
 			it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
