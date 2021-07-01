@@ -53,7 +53,7 @@
 	"strings.attributes.quote": "double",
 	"struct.separator": " : ",
 	"struct.padding": true,
-	"struct.empty_padding": true,
+	"struct.empty_padding": false,
 	"struct.quote_keys": true,
 	"struct.multiline.leading_comma": false,
 	"struct.multiline.leading_comma.padding": false,
