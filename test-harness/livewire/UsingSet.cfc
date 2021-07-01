@@ -1,8 +1,14 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
-    property name="name" default="Marty";
+    property
+        name="name"
+        default="Marty";
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/usingSet" );
     }
+
 }

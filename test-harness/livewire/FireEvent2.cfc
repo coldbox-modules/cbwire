@@ -1,10 +1,10 @@
-component extends="cbLivewire.models.Component"{
+component extends="cbLivewire.models.Component" {
 
-    property name="message" default="";
+    property
+        name="message"
+        default="";
 
-    this.$listeners = {
-        "someEvent": "someListener"
-    };
+    this.$listeners = { "someEvent" : "someListener" };
 
     function someAction(){
         this.$emit( "someEvent" );
@@ -14,7 +14,8 @@ component extends="cbLivewire.models.Component"{
         variables.message = "We have fired someListener() from a second listener!";
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/fireEvent" );
     }
+
 }

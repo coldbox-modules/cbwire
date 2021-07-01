@@ -1,12 +1,18 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
-    property name="message" default="Default value";
+    property
+        name="message"
+        default="Default value";
 
-    function $mount() {
+    function $mount(){
         setMessage( "Mounted value" );
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/mount" );
     }
+
 }

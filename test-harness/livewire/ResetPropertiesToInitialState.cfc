@@ -1,9 +1,14 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
     /**
      * Livewire properties
      */
-    property name="name" default="test";
+    property
+        name="name"
+        default="test";
 
     /**
      * Render our livewire wire
@@ -25,5 +30,5 @@ component extends="cbLivewire.models.Component" accessors="true" {
     function resetName(){
         this.$reset( "name" );
     }
-    
+
 }

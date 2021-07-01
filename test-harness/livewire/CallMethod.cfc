@@ -1,12 +1,18 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
-    property name="message" default="";
+    property
+        name="message"
+        default="";
 
     function calledMethod(){
         variables.message = "We have called our method!";
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/callMethod" );
     }
+
 }

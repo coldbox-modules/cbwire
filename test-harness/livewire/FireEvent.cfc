@@ -1,12 +1,15 @@
-component extends="cbLivewire.models.Component"{
+component extends="cbLivewire.models.Component" {
 
-    property name="message" default="";
+    property
+        name="message"
+        default="";
 
     function someAction(){
         this.$emit( "someOtherEvent" );
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/fireEvent" );
     }
+
 }

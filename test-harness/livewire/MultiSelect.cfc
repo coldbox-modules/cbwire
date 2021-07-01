@@ -1,8 +1,11 @@
-component extends="cbLivewire.models.Component"{
+component extends="cbLivewire.models.Component" {
 
-    property name="greeting" default="";
+    property
+        name="greeting"
+        default="";
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/multiselect" );
     }
+
 }

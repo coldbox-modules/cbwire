@@ -1,6 +1,8 @@
-component extends="cbLivewire.models.Component"{
+component extends="cbLivewire.models.Component" {
 
-    property name="timestamp" default="#now()#";
+    property
+        name="timestamp"
+        default="#now()#";
 
     function getTimestamp(){
         return now() & "what!";
@@ -9,4 +11,5 @@ component extends="cbLivewire.models.Component"{
     function $renderIt(){
         return this.$renderView( "_cblivewire/poll" );
     }
+
 }

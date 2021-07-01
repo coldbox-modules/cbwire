@@ -1,12 +1,18 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
-    property name="count" default="0";
+    property
+        name="count"
+        default="0";
 
-    function increment() {
+    function increment(){
         variables.count += 1;
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/dataBindingCount" );
     }
+
 }

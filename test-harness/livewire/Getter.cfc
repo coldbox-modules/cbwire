@@ -1,4 +1,7 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
     function getName(){
         return "Rubble On The Double";
@@ -8,7 +11,8 @@ component extends="cbLivewire.models.Component" accessors="true" {
         variables.name = "Blah";
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cbLivewire/getter" );
     }
+
 }

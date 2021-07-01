@@ -1,7 +1,7 @@
 component extends="cbLivewire.models.Component" {
 
-	function $renderIt(){
-		return "Hello World";
-	}
+    function $renderIt(){
+        return "Hello World";
+    }
 
 }

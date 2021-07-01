@@ -1,6 +1,8 @@
-component extends="cbLivewire.models.Component"{
+component extends="cbLivewire.models.Component" {
 
-    property name="message" default="";
+    property
+        name="message"
+        default="";
 
     function saySomething(){
         variables.message = "Something";
@@ -9,4 +11,5 @@ component extends="cbLivewire.models.Component"{
     function $renderIt(){
         return this.$renderView( "_cblivewire/nestedComponent1" );
     }
+
 }

@@ -1,8 +1,14 @@
-component extends="cbLivewire.models.Component" accessors="true" {
+component
+    extends="cbLivewire.models.Component"
+    accessors="true"
+{
 
-    property name="pizzaToppings" default="";
+    property
+        name="pizzaToppings"
+        default="";
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/passParameters" );
     }
+
 }

@@ -1,15 +1,20 @@
-component extends="cbLivewire.models.Component"{
+component extends="cbLivewire.models.Component" {
 
-    property name="isChild" default="false";
-    property name="message" default="";
+    property
+        name="isChild"
+        default="false";
+
+    property
+        name="message"
+        default="";
 
     function $getListeners(){
         if ( variables.isChild ){
-            return {};
+            return { };
         }
         return {
-            "postAdded": "postAddedListener",
-            "emitUpFired": "emitViaActionCall"
+            "postAdded" : "postAddedListener",
+            "emitUpFired" : "emitViaActionCall"
         };
     }
 
@@ -26,7 +31,8 @@ component extends="cbLivewire.models.Component"{
         this.$emitUp( "emitUpFired" );
     }
 
-    function $renderIt() {
+    function $renderIt(){
         return this.$renderView( "_cblivewire/emitUp" );
     }
+
 }
