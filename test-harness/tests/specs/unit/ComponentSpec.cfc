@@ -353,9 +353,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ 1 ] ).toBe( "test" );
                 } );
 
-                it( "throws an error when 'throwOnMissingSetter' is true", function(){
+                it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
                     componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
-                        "throwOnMissingSetter": true
+                        "throwOnMissingSetterMethod": true
                     } );
                     expect( function(){
                         componentObj.$set(
@@ -365,9 +365,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     } ).toThrow( type="WireSetterNotFound" );
                 } );
 
-                it( "does not throw an error when 'throwOnMissingSetter' is false", function(){
+                it( "does not throw an error when 'throwOnMissingSetterMethod' is false", function(){
                     componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
-                        "throwOnMissingSetter": false
+                        "throwOnMissingSetterMethod": false
                     } );
                     expect( function(){
                         componentObj.$set(

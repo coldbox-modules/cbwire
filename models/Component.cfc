@@ -305,7 +305,7 @@ component {
             this[ "set#arguments.propertyName#" ]( arguments.value );
         } else{
             if (
-                structKeyExists( variables.$settings, "throwOnMissingSetter" ) && variables.$settings.throwOnMissingSetter == true
+                structKeyExists( variables.$settings, "throwOnMissingSetterMethod" ) && variables.$settings.throwOnMissingSetterMethod == true
             ){
                 throw(
                     type = "WireSetterNotFound",
