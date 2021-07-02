@@ -76,7 +76,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
                     expect( wireRequest.getUpdates() ).toBeArray();
                     expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
-                    expect( wireRequest.getUpdates()[1] ).toBeInstanceOf( "WireUpdate" );
+                    expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "WireUpdate" );
                 } );
 
                 it( "returns type of callmethod", function(){
@@ -86,7 +86,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
                     expect( wireRequest.getUpdates() ).toBeArray();
                     expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
-                    expect( wireRequest.getUpdates()[1] ).toBeInstanceOf( "CallMethod" );
+                    expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "CallMethod" );
                 } );
 
                 it( "returns type of fireevent", function(){
@@ -96,7 +96,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
                     expect( wireRequest.getUpdates() ).toBeArray();
                     expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
-                    expect( wireRequest.getUpdates()[1] ).toBeInstanceOf( "FireEvent" );
+                    expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "FireEvent" );
                 } );
             } );
 

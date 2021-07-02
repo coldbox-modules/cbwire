@@ -78,7 +78,7 @@ component {
     }
     /**
      * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
-     * The 21 characters matches Livewire's native implementation.
+     * The 21 characters matches Livewire JS native implementation.
      *
      * @return String
      */
@@ -121,7 +121,7 @@ component {
     /**
      * Returns the memento for our component which holds the current
      * state of our component. This is returned on subsequent XHR requests
-     * called by Livewire's JS.
+     * from cbwire.
      *
      * @return Struct
      */
@@ -230,8 +230,8 @@ component {
         // Render our view using coldbox rendering
         var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
-        // Add livewire properties to top element to make livewire actually work.
-        return variables.$applyLivewireAttributesToOuterElement( rendering );
+        // Add properties to top element to make cbwire actually work.
+        return variables.$applyWiringToOuterElement( rendering );
     }
 
     /**
@@ -420,8 +420,8 @@ component {
     }
 
     /**
-     * Invokes a $postRefresh event and currenlty nothing else.
-     * This is used with LivewireJS' polling functionality which
+     * Invokes a $postRefresh event and currently nothing else.
+     * This is used with cbwire's polling functionality which
      * refreshes the component.
      *
      * @return Void
@@ -435,7 +435,7 @@ component {
      * Emits a global event from our cbwire component.
      *
      * @eventName String | The name of our event to emit.
-     * @parameters Array | The params passed with the emitter. Must be an array to preserve order of arguments that are return to Livewire.
+     * @parameters Array | The params passed with the emitter. Must be an array to preserve order of arguments that are return to cbwire.
      * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
      */
     function $emit(
@@ -518,7 +518,7 @@ component {
      * Additional parameters can be passed through.
      * @eventName String | The name of our event to emit.
      * @componentName String | The name of our component to emit to.
-     * @parameters Array | The emitter's params. Must be an array to preserve order of arguments that are return to Livewire.
+     * @parameters Array | The emitter's params. Must be an array to preserve order of arguments that are return to cbwire.
      *
      * @return Void
      */
@@ -612,7 +612,7 @@ component {
 
     /**
      * Tracks an emit, which is later returned in our API response and used
-     * by Livewire.
+     * by cbwire.
      *
      * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
      * @return Array;
@@ -632,20 +632,20 @@ component {
     }
 
     /**
-     * Apply livewire attribute to the outer element in the provided rendering.
+     * Apply cbwire attribute to the outer element in the provided rendering.
      *
      * @rendering String | The view rendering.
      */
-    private function $applyLivewireAttributesToOuterElement( required rendering ){
+    private function $applyWiringToOuterElement( required rendering ){
         var renderingResult = "";
 
-        // Provide a hash of our rendering which is used by Livewire.js
+        // Provide a hash of our rendering which is used by Livewire JS.
         var renderingHash = hash( arguments.rendering );
 
-        // Determine our outer element
+        // Determine our outer element.
         var outerElement = variables.$getOuterElement( arguments.rendering );
 
-        // Add livewire properties to top element to make livewire actually work.
+        // Add properties to top element to make cbwire actually work.
         if ( variables.$isInitialRendering ){
             // Initial rendering
             renderingResult = rendering.replaceNoCase(

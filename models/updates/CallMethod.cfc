@@ -12,8 +12,8 @@ component extends="WireUpdate" {
         }
 
         throw(
-            type = "LivewireMethodNotFound",
-            message = "Method '" & this.getPayloadMethod() & "' not found on your component."
+            type = "WireActionNotFound",
+            message = "Wire action '" & this.getPayloadMethod() & "' not found on your component."
         );
     }
 

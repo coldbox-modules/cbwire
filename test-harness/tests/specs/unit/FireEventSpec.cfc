@@ -25,11 +25,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         initArguments = { "update" : update }
                     )
                 );
-                livewireRequest = prepareMock( getInstance( "cbwire.models..WireRequest" ) );
+                wireRequest = prepareMock( getInstance( "cbwire.models..WireRequest" ) );
                 componentObj = prepareMock(
                     getInstance(
                         name = "cbwire.models.Component",
-                        initArguments = { "livewireRequest" : livewireRequest }
+                        initArguments = { "wireRequest" : wireRequest }
                     )
                 );
             } );
@@ -46,7 +46,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "calls listener", function(){
-                    update["payload"] = { "event" : "someEvent" };
+                    update[ "payload" ] = { "event" : "someEvent" };
                     componentObj.$property(
                         propertyName = "$listeners",
                         propertyScope = "this",

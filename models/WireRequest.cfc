@@ -1,5 +1,5 @@
 /**
- * Represents a subsequent, incoming Livewire XHR Request from the browser.
+ * Represents a subsequent, incoming cbwire XHR Request from the browser.
  */
 component singleton {
 
@@ -123,9 +123,9 @@ component singleton {
     }
 
     /**
-     * Finds and returns our Livewire component by name, either using
+     * Finds and returns our cbwire component by name, either using
      * module syntax Component@Module or root sytax, which looks
-     * in the root "livewire" folder.
+     * in the root "wires" folder.
      *
      * @componentName String | The name of the component.
      */
@@ -143,16 +143,16 @@ component singleton {
             // This is a module reference, find in our module
             return getModuleComponent( arguments.componentName );
         } else{
-            // Look in our root folder for our Livewire component
+            // Look in our root folder for our cbwire component
             return getRootComponent( arguments.componentName );
         }
     }
 
     /**
-     * Instantiates our Livewire component, mounts it,
+     * Instantiates our cbwire component, mounts it,
      * and then calls it's internal $renderIt() method.
      *
-     * @componentName String | The name of the component in your Livewire folder.
+     * @componentName String | The name of the component in your cbwire folder.
      * @parameters Struct | The parameters you want mounted initially.
      *
      * @return Component
@@ -233,7 +233,7 @@ component singleton {
     /**
      * Returns a cbwire component using the module convention.
      *
-     * @componentName String | Name of the cbwire component and module. Ex. HelloWorld@MODULE
+     * @componentName String | Name of the cbwire component and module.
      *
      * @return Component
      */
@@ -242,7 +242,9 @@ component singleton {
         // Verify the module
         variables.modulesConfig.keyExists( moduleName ); // else throw exception
         // Instantion Prefix of the module
-        var livewireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires"
+        var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
+
+        throw( message = "Need to finish!" );
     }
 
     private function updateComponentState(){

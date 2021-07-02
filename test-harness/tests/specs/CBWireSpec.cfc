@@ -77,7 +77,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( content ).toInclude( "@keyframes livewireautofill { from {} }" );
             } );
 
-            it( "wireScripts() renders the livewire scripts", function(){
+            it( "wireScripts() renders the wire scripts", function(){
                 var event = get( "/_tests/wireScripts" );
                 var content = event.getRenderedContent();
                 expect( content ).toInclude( "/moduleroot/cbwire/includes/js/livewire.js" );

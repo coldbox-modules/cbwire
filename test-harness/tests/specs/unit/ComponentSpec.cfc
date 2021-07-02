@@ -18,11 +18,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
         describe( "Component.cfc", function(){
             beforeEach( function( currentSpec ){
                 setup();
-                livewireRequest = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
+                wireRequest = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
                 componentObj = prepareMock(
                     getInstance(
                         name = "cbwire.models.Component",
-                        initArguments = { "livewireRequest" : livewireRequest }
+                        initArguments = { "wireRequest" : wireRequest }
                     )
                 );
             } );
@@ -32,7 +32,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             describe( "getId()", function(){
-                it( "returns 21 character guid to match Livewire's implmentation", function(){
+                it( "returns 21 character guid", function(){
                     var id = componentObj.$getId();
                     expect( len( id ) ).toBe( 21 );
                     expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
@@ -118,7 +118,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         mock = { "postAdded" : "doSomething" }
                     );
                     expect( componentObj.$getInitialData().effects.listeners ).toBeArray();
-                    expect( componentObj.$getInitialData().effects.listeners[1] ).toBe( "postAdded" );
+                    expect( componentObj.$getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
                 } );
 
                 it( "returns the component checksum in the serverMemo", function(){
@@ -220,7 +220,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                             "chuck"
                         ]
                     );
-                    expect( componentObj.$getEmits()[1] ).toBe( {
+                    expect( componentObj.$getEmits()[ 1 ] ).toBe( {
                         "event" : "test",
                         "params" : [
                             "how",
@@ -240,7 +240,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             describe( "$emitUp", function(){
                 it( "tracks the expected values", function(){
                     componentObj.$emitUp( "test", [ "hello", "world" ] );
-                    expect( componentObj.$getEmits()[1] ).toBe( {
+                    expect( componentObj.$getEmits()[ 1 ] ).toBe( {
                         "event" : "test",
                         "params" : [ "hello", "world" ],
                         "ancestorsOnly" : true
@@ -256,12 +256,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "component2",
                         [ "hello", "world" ]
                     );
-                    expect( componentObj.$getEmits()[1] ).toBe( {
+                    expect( componentObj.$getEmits()[ 1 ] ).toBe( {
                         "event" : "event1",
                         "params" : [],
                         "to" : "component1"
                     } );
-                    expect( componentObj.$getEmits()[2] ).toBe( {
+                    expect( componentObj.$getEmits()[ 2 ] ).toBe( {
                         "event" : "event2",
                         "params" : [ "hello", "world" ],
                         "to" : "component2"
@@ -295,11 +295,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
                     expect( componentObj.$getMemento().effects.emits ).toBeArray();
                     expect( arrayLen( componentObj.$getMemento().effects.emits ) ).toBe( 2 );
-                    expect( componentObj.$getMemento().effects.emits[1] ).toBe( {
+                    expect( componentObj.$getMemento().effects.emits[ 1 ] ).toBe( {
                         "event" : "event1",
                         "params" : []
                     } );
-                    expect( componentObj.$getMemento().effects.emits[2] ).toBe( {
+                    expect( componentObj.$getMemento().effects.emits[ 2 ] ).toBe( {
                         "event" : "event2",
                         "params" : [ "hello", "world" ],
                         "selfOnly" : true
@@ -340,7 +340,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         value = "test"
                     );
                     expect( componentObj.$once( "$preUpdateName" ) ).toBeTrue();
-                    expect( componentObj.$callLog()["$preUpdateName"][1][1] ).toBe( "test" );
+                    expect( componentObj.$callLog()[ "$preUpdateName" ][ 1 ][ 1 ] ).toBe( "test" );
                 } );
 
                 it( "fires 'postUpdate[prop] event", function(){
@@ -350,7 +350,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         value = "test"
                     );
                     expect( componentObj.$once( "$postUpdateName" ) ).toBeTrue();
-                    expect( componentObj.$callLog()["$postUpdateName"][1][1] ).toBe( "test" );
+                    expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ 1 ] ).toBe( "test" );
                 } );
             } );
 
@@ -364,7 +364,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     componentObj.$property( propertyName = "count", mock = 1 );
 
-                    expect( componentObj.$getState()["count"] ).toBe( 1 );
+                    expect( componentObj.$getState()[ "count" ] ).toBe( 1 );
                 } );
 
                 it( "ignores custom functions that are not getters", function(){
@@ -385,15 +385,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     var state = componentObj.$getState();
 
-                    expect( componentObj.$getState()["count"] ).toBe( 2 );
+                    expect( componentObj.$getState()[ "count" ] ).toBe( 2 );
                 } );
             } );
 
             describe( "$hydrate()", function(){
                 it( "sets properties with values from 'serverMemo' payload", function(){
-                    var rc = livewireRequest.getCollection();
+                    var rc = wireRequest.getCollection();
 
-                    rc["serverMemo"] = { "data" : { "hello" : "world" } };
+                    rc[ "serverMemo" ] = { "data" : { "hello" : "world" } };
 
                     componentObj.$( "setHello", true );
                     componentObj.$hydrate();
@@ -414,9 +414,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 describe( "callMethod", function(){
                     it( "executes method on component object", function(){
-                        var rc = livewireRequest.getCollection();
+                        var rc = wireRequest.getCollection();
 
-                        rc["updates"] = [
+                        rc[ "updates" ] = [
                             {
                                 "type" : "callMethod",
                                 "payload" : { "method" : "whyAmIAwakeAt3am" }
@@ -428,10 +428,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         expect( componentObj.$once( "whyAmIAwakeAt3am" ) ).toBeTrue();
                     } );
 
-                    it( "throws error if you try to call method on component that doesn't exist", function(){
-                        var rc = livewireRequest.getCollection();
+                    it( "throws error if you try to call action on component that doesn't exist", function(){
+                        var rc = wireRequest.getCollection();
 
-                        rc["updates"] = [
+                        rc[ "updates" ] = [
                             {
                                 "type" : "callMethod",
                                 "payload" : { "method" : "whyAmIAwakeAt3am" }
@@ -440,13 +440,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                         expect( function(){
                             componentObj.$hydrate();
-                        } ).toThrow( type = "LivewireMethodNotFound" );
+                        } ).toThrow( type = "WireActionNotFound" );
                     } );
 
                     it( "passes in params to the method were calling if they are provided", function(){
-                        var rc = livewireRequest.getCollection();
+                        var rc = wireRequest.getCollection();
 
-                        rc["updates"] = [
+                        rc[ "updates" ] = [
                             {
                                 "type" : "callMethod",
                                 "payload" : {
@@ -459,16 +459,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         componentObj.$( "resetName" );
                         componentObj.$hydrate();
 
-                        var callLog = componentObj.$callLog()["resetName"][1];
+                        var callLog = componentObj.$callLog()[ "resetName" ][ 1 ];
 
                         expect( componentObj.$once( "resetName" ) ).toBeTrue();
-                        expect( callLog["1"] ).toBe( "George" );
+                        expect( callLog[ "1" ] ).toBe( "George" );
                     } );
 
                     it( "uses set", function(){
-                        var rc = livewireRequest.getCollection();
+                        var rc = wireRequest.getCollection();
 
-                        rc["updates"] = [
+                        rc[ "updates" ] = [
                             {
                                 "type" : "callMethod",
                                 "payload" : {
@@ -481,9 +481,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         componentObj.$( "setName", true );
                         componentObj.$hydrate();
 
-                        var passedArgs = componentObj.$callLog()["setName"][1];
+                        var passedArgs = componentObj.$callLog()[ "setName" ][ 1 ];
                         expect( componentObj.$once( "setName" ) ).toBeTrue();
-                        expect( passedArgs[1] ).toBe( "George" );
+                        expect( passedArgs[ 1 ] ).toBe( "George" );
                     } );
                 } );
             } );
@@ -496,14 +496,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "it should pass in the event, rc, and prc into $mount()", function(){
-                    var rc = livewireRequest.getCollection();
+                    var rc = wireRequest.getCollection();
 
-                    rc["someRandomVar"] = "someRandomValue";
+                    rc[ "someRandomVar" ] = "someRandomValue";
 
                     componentObj.$( "$mount" );
                     componentObj.$_mount();
 
-                    var passedArgs = componentObj.$callLog().$mount[1];
+                    var passedArgs = componentObj.$callLog().$mount[ 1 ];
 
                     expect( passedArgs.event ).toBeInstanceOf( "RequestContext" );
                     expect( passedArgs.prc ).toBeStruct();
