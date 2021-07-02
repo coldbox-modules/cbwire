@@ -305,10 +305,10 @@ component {
             this[ "set#arguments.propertyName#" ]( arguments.value );
         } else{
             if (
-                structKeyExists( variables.$settings, "throwOnMissingProperty" ) && variables.$settings.throwOnMissingProperty == true
+                structKeyExists( variables.$settings, "throwOnMissingSetter" ) && variables.$settings.throwOnMissingSetter == true
             ){
                 throw(
-                    type = "WirePropertyNotFound",
+                    type = "WireSetterNotFound",
                     message = "The wire property '#arguments.propertyName#' was not found."
                 );
             }

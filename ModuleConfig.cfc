@@ -21,11 +21,11 @@ component {
     function configure(){
         settings = {
             /**
-             * Set to true to throw a 'WirePropertyNotFound' exception if
-             * the incoming wire requests try to update a missing property
-             * on our component.
+             * Set to true to throw a 'WireSetterNotFound' exception if
+             * the incoming cbwire request tries to update a property
+             * without a setter.
              */
-            "throwOnMissingProperty" : false
+            "throwOnMissingSetter" : false
         };
 
         routes = [
