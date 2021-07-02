@@ -5,9 +5,7 @@ component {
         name="$populator"
         inject="wirebox:populator";
 
-    function init(
-        required struct update
-    ){
+    function init( required struct update ){
         variables.update = arguments.update;
     }
 
@@ -20,10 +18,7 @@ component {
     }
 
     function hasPayload(){
-        return structKeyExists(
-            variables.update,
-            "payload"
-        );
+        return structKeyExists( variables.update, "payload" );
     }
 
     function getPayload(){
@@ -31,10 +26,7 @@ component {
     }
 
     function hasPayloadMethod(){
-        return this.hasPayload() && structKeyExists(
-            this.getPayload(),
-            "method"
-        );
+        return this.hasPayload() && structKeyExists( this.getPayload(), "method" );
     }
 
     function getPayloadMethod(){
@@ -42,10 +34,9 @@ component {
     }
 
     function hasPassedParams(){
-        return this.hasPayload() && structKeyExists(
-            this.getPayload(),
-            "params"
-        ) && isArray( this.getPayload()[ "params" ] );
+        return this.hasPayload() && structKeyExists( this.getPayload(), "params" ) && isArray(
+            this.getPayload()[ "params" ]
+        );
     }
 
     function getPassedParams(){
@@ -59,9 +50,9 @@ component {
                 .reduce( function( agg, param, index ){
                     arguments.agg[ index ] = param;
                     return arguments.agg;
-                }, { } );
+                }, {} );
         }
-        return { };
+        return {};
     }
 
     function hasCallableMethod( required comp ){

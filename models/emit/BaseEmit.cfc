@@ -9,10 +9,7 @@ component {
      * @eventName String | The name of our event.
      * @parameters Array - The Emitter's parameters.
      */
-    function init(
-        required eventName,
-        parameters = []
-    ){
+    function init( required eventName, parameters = [] ){
         variables.eventName = arguments.eventName;
         variables.parameters = arguments.parameters;
         return this;

@@ -39,10 +39,7 @@ component singleton {
      * @return Boolean
      */
     function hasFingerprint(){
-        return structKeyExists(
-            this.getCollection(),
-            "fingerprint"
-        );
+        return structKeyExists( this.getCollection(), "fingerprint" );
     }
 
     /**
@@ -51,10 +48,7 @@ component singleton {
      * @return Boolean
      */
     function hasServerMemo(){
-        return structKeyExists(
-            this.getCollection(),
-            "serverMemo"
-        );
+        return structKeyExists( this.getCollection(), "serverMemo" );
     }
 
     /**
@@ -63,10 +57,7 @@ component singleton {
      * @return Boolean
      */
     function hasMountedState(){
-        return this.hasServerMemo() && structKeyExists(
-            this.getServerMemo(),
-            "mountedState"
-        );
+        return this.hasServerMemo() && structKeyExists( this.getServerMemo(), "mountedState" );
     }
 
     /**
@@ -94,10 +85,9 @@ component singleton {
      */
     function hasUpdates(){
         var collection = this.getCollection();
-        return structKeyExists(
-            collection,
-            "updates"
-        ) && isArray( collection.updates ) && arrayLen( collection.updates );
+        return structKeyExists( collection, "updates" ) && isArray( collection.updates ) && arrayLen(
+            collection.updates
+        );
     }
 
     /**
@@ -140,12 +130,7 @@ component singleton {
      * @componentName String | The name of the component.
      */
     function withComponent( componentName ){
-        if (
-            reFindNoCase(
-                "wires\.",
-                arguments.componentName
-            )
-        ){
+        if ( reFindNoCase( "wires\.", arguments.componentName ) ){
             arguments.componentName = reReplaceNoCase(
                 arguments.componentName,
                 "wires\.",
@@ -154,12 +139,7 @@ component singleton {
             );
         }
 
-        if (
-            find(
-                "@",
-                arguments.componentName
-            )
-        ){
+        if ( find( "@", arguments.componentName ) ){
             // This is a module reference, find in our module
             return getModuleComponent( arguments.componentName );
         } else{
@@ -177,10 +157,7 @@ component singleton {
      *
      * @return Component
      */
-    function renderIt(
-        componentName,
-        parameters = { }
-    ){
+    function renderIt( componentName, parameters = {} ){
         return withComponent( arguments.componentName )
             .$_mount( arguments.parameters )
             .$renderIt();
@@ -227,10 +204,7 @@ component singleton {
             this.getServerMemo()
                 .data
                 .each( function( key, value ){
-                    comp.$set(
-                        arguments.key,
-                        arguments.value
-                    );
+                    comp.$set( arguments.key, arguments.value );
                 } );
         }
 
@@ -250,9 +224,7 @@ component singleton {
      *
      * @return Component
      */
-    private function getRootComponent(
-        required componentName
-    ){
+    private function getRootComponent( required componentName ){
         var appMapping = variables.controller.getSetting( "AppMapping" );
         var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & "wires";
         return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
@@ -265,9 +237,7 @@ component singleton {
      *
      * @return Component
      */
-    private function getModuleComponent(
-        required componentName
-    ){
+    private function getModuleComponent( required componentName ){
         throw( message = "Need to finish implementing this" );
         // Verify the module
         variables.modulesConfig.keyExists( moduleName ); // else throw exception

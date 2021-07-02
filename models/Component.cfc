@@ -47,34 +47,34 @@ component {
     }
 
     /**
-	 * Relocate user browser requests to other events, URLs, or URIs.
-	 *
-	 * @event The name of the event to run, if not passed, then it will use the default event found in your configuration file
-	 * @URL The full URL you would like to relocate to instead of an event: ex: URL='http://www.google.com'
-	 * @URI The relative URI you would like to relocate to instead of an event: ex: URI='/mypath/awesome/here'
-	 * @queryString The query string or struct to append, if needed. If in SES mode it will be translated to convention name value pairs
-	 * @persist What request collection keys to persist in flash ram
-	 * @persistStruct A structure key-value pairs to persist in flash ram
-	 * @addToken Wether to add the tokens or not. Default is false
-	 * @ssl Whether to relocate in SSL or not
-	 * @baseURL Use this baseURL instead of the index.cfm that is used by default. You can use this for ssl or any full base url you would like to use. Ex: https://mysite.com/index.cfm
-	 * @postProcessExempt Do not fire the postProcess interceptors
-	 * @statusCode The status code to use in the relocation
-	 */
-	void function $relocate(
-		event,
-		URL,
-		URI,
-		queryString,
-		persist,
-		struct persistStruct,
-		boolean addToken,
-		boolean ssl,
-		baseURL,
-		boolean postProcessExempt,
-		numeric statusCode
-    ) {
-        return variables.$renderer.relocate( argumentCollection=arguments );
+     * Relocate user browser requests to other events, URLs, or URIs.
+     *
+     * @event The name of the event to run, if not passed, then it will use the default event found in your configuration file
+     * @URL The full URL you would like to relocate to instead of an event: ex: URL='http://www.google.com'
+     * @URI The relative URI you would like to relocate to instead of an event: ex: URI='/mypath/awesome/here'
+     * @queryString The query string or struct to append, if needed. If in SES mode it will be translated to convention name value pairs
+     * @persist What request collection keys to persist in flash ram
+     * @persistStruct A structure key-value pairs to persist in flash ram
+     * @addToken Wether to add the tokens or not. Default is false
+     * @ssl Whether to relocate in SSL or not
+     * @baseURL Use this baseURL instead of the index.cfm that is used by default. You can use this for ssl or any full base url you would like to use. Ex: https://mysite.com/index.cfm
+     * @postProcessExempt Do not fire the postProcess interceptors
+     * @statusCode The status code to use in the relocation
+     */
+    void function $relocate(
+        event,
+        URL,
+        URI,
+        queryString,
+        persist,
+        struct persistStruct,
+        boolean addToken,
+        boolean ssl,
+        baseURL,
+        boolean postProcessExempt,
+        numeric statusCode
+    ){
+        return variables.$renderer.relocate( argumentCollection = arguments );
     }
     /**
      * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
@@ -96,9 +96,7 @@ component {
      *
      * @return Struct
      */
-    function $getInitialData(
-        renderingHash = ""
-    ){
+    function $getInitialData( renderingHash = "" ){
         return {
             "fingerprint" : {
                 "id" : this.$getID(),
@@ -165,12 +163,7 @@ component {
      * @return String
      */
     function $getRendering(){
-        if (
-            !structKeyExists(
-                variables,
-                "$rendering"
-            )
-        ){
+        if ( !structKeyExists( variables, "$rendering" ) ){
             variables.$rendering = this.$renderIt();
         }
         return variables.$rendering;
@@ -192,10 +185,7 @@ component {
      */
     function $getState(){
         var state = variables.filter( function( key, value ){
-            return !reFindNoCase(
-                "^(\$|this)",
-                arguments.key
-            ) && !isCustomFunction( arguments.value );
+            return !reFindNoCase( "^(\$|this)", arguments.key ) && !isCustomFunction( arguments.value );
         } );
 
         return state.map( function( key, value ){
@@ -212,13 +202,8 @@ component {
      * @methodName String | The method name we are checking.
      * @return Boolean
      */
-    function $hasMethod(
-        required methodName
-    ){
-        return structKeyExists(
-            this,
-            arguments.methodName
-        );
+    function $hasMethod( required methodName ){
+        return structKeyExists( this, arguments.methodName );
     }
 
     /**
@@ -260,7 +245,7 @@ component {
      *
      * @return Component
      */
-    function $_mount( parameters = { } ){
+    function $_mount( parameters = {} ){
         if ( structKeyExists( this, "$mount" ) && isCustomFunction( this.$mount ) ){
             this[ "$mount" ](
                 parameters = arguments.parameters,
@@ -313,28 +298,20 @@ component {
      *
      * @return Void
      */
-    function $set(
-        propertyName,
-        value
-    ){
+    function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
         this.$invoke(
             "$preUpdate" & arguments.propertyName,
             arguments.value
         );
 
-        if (
-            structKeyExists(
-                this,
-                "set#arguments.propertyName#"
-            )
-        ){
+        if ( structKeyExists( this, "set#arguments.propertyName#" ) ){
             this[ "set#arguments.propertyName#" ]( arguments.value );
-        } else {
-            //throw( message="No method.");
+        } else{
+            // throw( message="No method.");
         }
 
-        
+
         // Invoke '$postUpdate[prop]' event
         this.$invoke(
             "$postUpdate" & arguments.propertyName,
@@ -405,15 +382,10 @@ component {
      * @return Struct
      */
     function $getListeners(){
-        if (
-            structKeyExists(
-                this,
-                "$listeners"
-            ) && isStruct( this.$listeners )
-        ){
+        if ( structKeyExists( this, "$listeners" ) && isStruct( this.$listeners ) ){
             return this.$listeners;
         }
-        return { };
+        return {};
     }
 
     /**
@@ -437,10 +409,7 @@ component {
      *
      * @return Any
      */
-    function $invoke(
-        required methodName,
-        value = ""
-    ){
+    function $invoke( required methodName, value = "" ){
         if ( this.$hasMethod( arguments.methodName ) ){
             return invoke(
                 this,
@@ -489,12 +458,7 @@ component {
 
         var listeners = this.$getListeners();
 
-        if (
-            structKeyExists(
-                listeners,
-                eventName
-            )
-        ){
+        if ( structKeyExists( listeners, eventName ) ){
             var listener = listeners[ eventName ];
 
             if ( len( arguments.eventName ) && this.$hasMethod( listener ) ){
@@ -513,10 +477,7 @@ component {
 	 *
 	 * @return Void
 	 */
-    function $emitSelf(
-        required eventName,
-        parameters = { }
-    ){
+    function $emitSelf( required eventName, parameters = {} ){
         var emitter = createObject(
             "component",
             "cbwire.models.emit.EmitSelf"
@@ -538,10 +499,7 @@ component {
      *
      * @return Void
      */
-    function $emitUp(
-        required eventName,
-        parameters = { }
-    ){
+    function $emitUp( required eventName, parameters = {} ){
         var emitter = createObject(
             "component",
             "cbwire.models.emit.EmitUp"
@@ -611,15 +569,10 @@ component {
      * @return Struct
      */
     private function $getMountedState(){
-        if (
-            structKeyExists(
-                variables,
-                "$mountedState"
-            )
-        ){
+        if ( structKeyExists( variables, "$mountedState" ) ){
             return variables.$mountedState;
         }
-        return { };
+        return {};
     }
 
     /**
@@ -638,12 +591,7 @@ component {
      */
     private function $getQueryStringValues(){
         // Default with an empty array
-        if (
-            !structKeyExists(
-                this,
-                "$queryString"
-            )
-        ){
+        if ( !structKeyExists( this, "$queryString" ) ){
             return "";
         }
 
@@ -688,9 +636,7 @@ component {
      *
      * @rendering String | The view rendering.
      */
-    private function $applyLivewireAttributesToOuterElement(
-        required rendering
-    ){
+    private function $applyLivewireAttributesToOuterElement( required rendering ){
         var renderingResult = "";
 
         // Provide a hash of our rendering which is used by Livewire.js
@@ -704,11 +650,7 @@ component {
             // Initial rendering
             renderingResult = rendering.replaceNoCase(
                 outerElement,
-                outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash = renderingHash ) ).replace(
-                    """",
-                    "&quot;",
-                    "all"
-                )#""",
+                outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
                 "once"
             );
         } else{
@@ -729,13 +671,8 @@ component {
      *
      * @rendering String | The view rendering.
      */
-    private function $getOuterElement(
-        required rendering
-    ){
-        var matches = reMatchNoCase(
-            "<[a-z]+\s*",
-            arguments.rendering
-        );
+    private function $getOuterElement( required rendering ){
+        var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
 
         if ( arrayLen( matches ) ){
             return matches[ 1 ];

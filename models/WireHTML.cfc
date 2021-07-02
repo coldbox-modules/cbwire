@@ -16,10 +16,7 @@ component singleton {
      * @return string
      */
     function getStyles(){
-        return variables.renderer.renderView(
-            view = "styles",
-            module = "cbwire"
-        );
+        return variables.renderer.renderView( view = "styles", module = "cbwire" );
     }
 
     /**
@@ -28,10 +25,7 @@ component singleton {
      * @return string
      */
     function getScripts(){
-        return variables.renderer.renderView(
-            view = "scripts",
-            module = "cbwire"
-        );
+        return variables.renderer.renderView( view = "scripts", module = "cbwire" );
     }
 
 }

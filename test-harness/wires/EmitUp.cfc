@@ -10,7 +10,7 @@ component extends="cbwire.models.Component" {
 
     function $getListeners(){
         if ( variables.isChild ){
-            return { };
+            return {};
         }
         return {
             "postAdded" : "postAddedListener",

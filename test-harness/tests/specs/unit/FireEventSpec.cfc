@@ -14,11 +14,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     /*********************************** BDD SUITES ***********************************/
 
-    function run(
-        testResults,
-        testBox
-    ){
-        describe( "FireEvent.cfc", function( ){
+    function run( testResults, testBox ){
+        describe( "FireEvent.cfc", function(){
             beforeEach( function( currentSpec ){
                 setup();
                 update = {};
@@ -37,28 +34,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
             } );
 
-            it( "returns an object", function( ){
+            it( "returns an object", function(){
                 expect( isObject( fireEventUpdate ) ).toBeTrue();
             } );
 
-            describe( "apply()", function( ){
-                it( "does nothing when no listener definitions are present", function( ){
+            describe( "apply()", function(){
+                it( "does nothing when no listener definitions are present", function(){
                     componentObj.$( "$fireEvent" );
                     fireEventUpdate.apply( componentObj );
                     expect( componentObj.$once( "$fireEvent" ) ).toBeFalse();
                 } );
 
-                it( "calls listener", function( ){
-                    update[ "payload" ] = { "event" : "someEvent" };
+                it( "calls listener", function(){
+                    update["payload"] = { "event" : "someEvent" };
                     componentObj.$property(
                         propertyName = "$listeners",
                         propertyScope = "this",
                         mock = { "someEvent" : "someListener" }
                     );
-                    componentObj.$(
-                        "someListener",
-                        true
-                    );
+                    componentObj.$( "someListener", true );
                     fireEventUpdate.apply( componentObj );
                     expect( componentObj.$once( "$someListener" ) ).toBeFalse();
                 } );
