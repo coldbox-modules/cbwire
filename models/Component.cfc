@@ -257,7 +257,6 @@ component {
             // Injecting the state from our passed in parameters
             variables.$populator.populateFromStruct(
                 target: this,
-                scope: "variables",
                 memento: arguments.parameters,
                 excludes: ""
             );
