@@ -299,23 +299,24 @@ component {
      */
     function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
-        this.$invoke(
-            "$preUpdate" & arguments.propertyName,
-            arguments.value
-        );
+        this.$invoke( "$preUpdate" & arguments.propertyName, arguments.value );
 
         if ( structKeyExists( this, "set#arguments.propertyName#" ) ){
             this[ "set#arguments.propertyName#" ]( arguments.value );
         } else{
-            // throw( message="No method.");
+            if (
+                structKeyExists( variables.$settings, "throwOnMissingProperty" ) && variables.$settings.throwOnMissingProperty == true
+            ){
+                throw(
+                    type = "WirePropertyNotFound",
+                    message = "The wire property '#arguments.propertyName#' was not found."
+                );
+            }
         }
 
 
         // Invoke '$postUpdate[prop]' event
-        this.$invoke(
-            "$postUpdate" & arguments.propertyName,
-            arguments.value
-        );
+        this.$invoke( "$postUpdate" & arguments.propertyName, arguments.value );
     }
 
     /**
@@ -444,10 +445,7 @@ component {
     ){
         // Capture the emit as we will need to notify the UI in our response
         if ( arguments.trackEmit ){
-            var emitter = createObject(
-                "component",
-                "cbwire.models.emit.BaseEmit"
-            ).init(
+            var emitter = createObject( "component", "cbwire.models.emit.BaseEmit" ).init(
                 arguments.eventName,
                 arguments.parameters
             );
@@ -477,10 +475,7 @@ component {
 	 * @return Void
 	 */
     function $emitSelf( required eventName, parameters = {} ){
-        var emitter = createObject(
-            "component",
-            "cbwire.models.emit.EmitSelf"
-        ).init(
+        var emitter = createObject( "component", "cbwire.models.emit.EmitSelf" ).init(
             arguments.eventName,
             arguments.parameters
         );
@@ -499,10 +494,7 @@ component {
      * @return Void
      */
     function $emitUp( required eventName, parameters = {} ){
-        var emitter = createObject(
-            "component",
-            "cbwire.models.emit.EmitUp"
-        ).init(
+        var emitter = createObject( "component", "cbwire.models.emit.EmitUp" ).init(
             arguments.eventName,
             arguments.parameters
         );
@@ -526,10 +518,7 @@ component {
         required componentName,
         parameters = []
     ){
-        var emitter = createObject(
-            "component",
-            "cbwire.models.emit.EmitTo"
-        ).init(
+        var emitter = createObject( "component", "cbwire.models.emit.EmitTo" ).init(
             arguments.eventName,
             arguments.componentName,
             arguments.parameters
@@ -555,10 +544,7 @@ component {
             } );
         } else{
             // Reset individual property
-            this.$set(
-                arguments.property,
-                variables.$getMountedState()[ arguments.property ]
-            );
+            this.$set( arguments.property, variables.$getMountedState()[ arguments.property ] );
         }
     }
 
@@ -677,10 +663,7 @@ component {
             return matches[ 1 ];
         }
 
-        throw(
-            type = "OuterElementNotFound",
-            message = "Unable to find an outer element to bind cbwire to."
-        );
+        throw( type = "OuterElementNotFound", message = "Unable to find an outer element to bind cbwire to." );
     }
 
     /**

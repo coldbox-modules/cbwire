@@ -352,6 +352,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$once( "$postUpdateName" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ 1 ] ).toBe( "test" );
                 } );
+
+                it( "throws an error when 'throwOnMissingProperty' is true", function(){
+                    componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
+                        "throwOnMissingProperty": true
+                    } );
+                    expect( function(){
+                        componentObj.$set(
+                            propertyName = "name",
+                            value = "test"
+                        );
+                    } ).toThrow( type="WirePropertyNotFound" );
+                } );
+
+                it( "does not throw an error when 'throwOnMissingProperty' is false", function(){
+                    componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
+                        "throwOnMissingProperty": false
+                    } );
+                    expect( function(){
+                        componentObj.$set(
+                            propertyName = "name",
+                            value = "test"
+                        );
+                    } ).notToThrow( type="WirePropertyNotFound" );
+                } );
             } );
 
             describe( "$getState", function(){

@@ -19,7 +19,14 @@ component {
     this.applicationHelper = [ "helpers/helpers.cfm" ];
 
     function configure(){
-        settings = {};
+        settings = {
+            /**
+             * Set to true to throw a 'WirePropertyNotFound' exception if
+             * the incoming wire requests try to update a missing property
+             * on our component.
+             */
+            "throwOnMissingProperty" : false
+        };
 
         routes = [
             {
