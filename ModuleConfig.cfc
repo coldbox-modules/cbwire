@@ -23,7 +23,7 @@ component {
             /**
              * Set to true to throw a 'WireSetterNotFound' exception if
              * the incoming cbwire request tries to update a property
-             * without a setter.
+             * without a setter on our component. Otherwise, missing setters are ignored.
              */
             "throwOnMissingSetter" : false
         };

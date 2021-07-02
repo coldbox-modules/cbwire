@@ -436,6 +436,24 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
                 } );
 
+                describe( "syncInput", function(){
+                    it( "executes a setter method on component object", function(){
+                        var rc = wireRequest.getCollection();
+
+                        rc[ "updates" ] = [
+                            {
+                                "type" : "syncInput",
+                                "payload" : { "name" : "message", "value" : "We have input" }
+                            }
+                        ];
+
+                        componentObj.$( "setMessage", true );
+                        componentObj.$hydrate();
+                        expect( componentObj.$once( "setMessage" ) ).toBeTrue();
+                        expect( componentObj.$callLog().setMessage[ 1 ][ 1 ] ).toBe( "We have input" );
+                    } );
+                } );
+
                 describe( "callMethod", function(){
                     it( "executes method on component object", function(){
                         var rc = wireRequest.getCollection();
