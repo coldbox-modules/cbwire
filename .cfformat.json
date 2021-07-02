@@ -17,7 +17,7 @@
 	"function_call.multiline.leading_comma.padding": true,
 	"function_call.casing.builtin": "cfdocs",
 	"function_call.casing.userdefined": "camel",
-	"function_call.multiline.element_count": 2,
+	"function_call.multiline.element_count": 3,
 	"function_call.multiline.leading_comma": false,
 	"function_call.multiline.min_length": 40,
 	"function_declaration.padding": true,
