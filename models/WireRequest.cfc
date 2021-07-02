@@ -25,6 +25,13 @@ component singleton {
         inject="coldbox:requestService";
 
     /**
+     * Injected settings.
+     */
+    property
+        name="$settings"
+        inject="coldbox:modulesettings:cbwire";
+
+    /**
      * Returns the current ColdBox RequestContext event.
      *
      * @return RequestContext
@@ -125,15 +132,21 @@ component singleton {
     /**
      * Finds and returns our cbwire component by name, either using
      * module syntax Component@Module or root sytax, which looks
-     * in the root "wires" folder.
+     * in the root "wires" folder by default.
+     * 
+     * The folder can be overridden with the 'componentLocation' setting.
      *
      * @componentName String | The name of the component.
      */
     function withComponent( componentName ){
-        if ( reFindNoCase( "wires\.", arguments.componentName ) ){
+
+        // Determine our component location from the cbwire settings.
+        var componentLocation = variables.getComponentLocation();
+
+        if ( reFindNoCase( componentLocation & "\.", arguments.componentName ) ){
             arguments.componentName = reReplaceNoCase(
                 arguments.componentName,
-                "wires\.",
+                componentLocation & "\.",
                 "",
                 "one"
             );
@@ -245,9 +258,15 @@ component singleton {
         var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
 
         throw( message = "Need to finish!" );
-    }
+    }  
 
-    private function updateComponentState(){
+    /**
+     * Returns the cbwire component location setting.
+     * 
+     * @return String
+     */
+    private function getComponentLocation(){
+        return variables.$settings.componentLocation;
     }
 
 }
