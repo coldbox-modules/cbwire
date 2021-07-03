@@ -10,7 +10,7 @@ component
      * Render our wire object.
      */
     function $renderIt(){
-        return this.$view( "_wires/resetPropertiesToInitialState" );
+        return this.$renderView( "_wires/resetPropertiesToInitialState" );
     }
 
     /**

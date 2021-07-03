@@ -46,10 +46,6 @@ component {
      */
     this.$computed = {};
 
-
-    // Method aliases, mainly for backwards compatability.
-    variables[ "$view" ] = this.$renderView;
-
     /**
      * Our beautiful, simple constructor.
      *

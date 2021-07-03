@@ -1,7 +1,7 @@
 component extends="cbwire.models.Component" {
 
     function $renderIt(){
-        return this.$view( "_wires/bindingNestedData" );
+        return this.$renderView( "_wires/bindingNestedData" );
     }
 
 }
