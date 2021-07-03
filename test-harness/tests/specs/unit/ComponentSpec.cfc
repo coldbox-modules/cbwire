@@ -403,14 +403,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( structKeyExists( state, "count" ) ).toBeFalse();
                 } );
 
-                it( "returns value from getter function if it exists", function(){
-                    componentObj.$property( propertyName = "count", mock = 1 );
-                    componentObj.$( "getCount", 2 );
-
-                    var state = componentObj.$getState();
-
-                    expect( componentObj.$getState()[ "count" ] ).toBe( 2 );
-                } );
             } );
 
             describe( "$hydrate()", function(){

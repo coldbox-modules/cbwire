@@ -1,8 +1,9 @@
 component extends="cbwire.models.Component" {
 
-    property
-        name="search"
-        default="";
+
+    this.$data = {
+        "search": ""
+    };
 
     this.$queryString = [ "search" ];
 

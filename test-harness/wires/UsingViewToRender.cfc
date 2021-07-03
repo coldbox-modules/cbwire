@@ -1,11 +1,6 @@
-component
-    extends="cbwire.models.Component"
-    accessors="true"
-{
+component extends="cbwire.models.Component" {
 
-    property
-        name="message"
-        default="Hello World";
+    this.$data = { "message" : "Hello World" };
 
     function $renderIt(){
         return this.$view( "_wires/helloWorldWithRenderViewPropertyAndArgs" );

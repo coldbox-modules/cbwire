@@ -1,11 +1,10 @@
 component
     extends="cbwire.models.Component"
-    accessors="true"
 {
 
-    property
-        name="pizzaToppings"
-        default="";
+    this.$data = {
+        "pizzaToppings": []
+    };
 
     function $renderIt(){
         return this.$renderView( "_wires/passParameters" );

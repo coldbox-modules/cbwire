@@ -31,6 +31,21 @@ component {
         name="$settings"
         inject="coldbox:modulesettings:cbwire";
 
+    
+    /**
+     * The default data struct for cbwire components.
+     * This should be overidden in the child component
+     * with data properties.
+     */
+    this.$data = {};
+
+    /**
+     * The default computed struct for cbwire components.
+     * This should be overidden in the child component with
+     * computed properties.
+     */
+    this.$computed = {};
+
 
     // Method aliases, mainly for backwards compatability.
     variables[ "$view" ] = this.$renderView;
@@ -184,16 +199,19 @@ component {
      * @return Struct
      */
     function $getState(){
-        var state = variables.filter( function( key, value ){
-            return !reFindNoCase( "^(\$|this)", arguments.key ) && !isCustomFunction( arguments.value );
-        } );
+        
+        /**
+         * Get our data properties for our current state.
+         */
+        var state = this.$data;
 
-        return state.map( function( key, value ){
-            if ( this.$hasMethod( "get" & arguments.key ) ){
-                return this[ "get" & arguments.key ]( );
-            }
-            return value;
-        } );
+        if ( structKeyExists( this, "$computed" ) ) {
+            this.$computed.each( function( key, value ){
+                state[ key ] = value;
+            } );
+        }
+
+        return state;
     }
 
     /**
@@ -255,11 +273,7 @@ component {
             );
         } else{
             // Injecting the state from our passed in parameters
-            variables.$populator.populateFromStruct(
-                target: this,
-                memento: arguments.parameters,
-                excludes: ""
-            );
+            structAppend( this.$data, arguments.parameters );
         }
 
         // Capture the mounted state
@@ -526,6 +540,19 @@ component {
 
         // Capture the emit as we will need to notify the UI in our response
         variables.$trackEmit( emitter );
+    }
+
+    /**
+     * Runs if any missing methods are called on our component.
+     * 
+     * Mainly used for component populator using the wirebox populator
+     * and trusted setters.
+     * 
+     * @return Void
+     */
+    function onMissingMethod(){
+        writeDump( arguments );
+        abort;
     }
 
     /**

@@ -1,14 +1,13 @@
 component
     extends="cbwire.models.Component"
-    accessors="true"
 {
 
-    function getName(){
-        return "Rubble On The Double";
-    }
+    this.$computed = {
+        "name": "Rubble on the double"
+    };
 
     function $mount(){
-        variables.name = "Blah";
+        this.$data.name = "Blah";
     }
 
     function $renderIt(){
