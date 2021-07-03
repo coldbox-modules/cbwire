@@ -1,11 +1,8 @@
 component
     extends="cbwire.models.Component"
-    accessors="true"
 {
 
-    property
-        name="message"
-        default="";
+    this.$data[ "message" ] = "";
 
     function sayHello(
         required firstname,

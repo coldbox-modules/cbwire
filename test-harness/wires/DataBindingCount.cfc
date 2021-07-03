@@ -3,12 +3,10 @@ component
     accessors="true"
 {
 
-    property
-        name="count"
-        default="0";
+    this.$data = { "count" : "0" };
 
     function increment(){
-        variables.count += 1;
+        this.$data.count += 1;
     }
 
     function $renderIt(){

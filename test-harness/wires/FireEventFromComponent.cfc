@@ -1,17 +1,15 @@
 component extends="cbwire.models.Component" {
 
-    property
-        name="message"
-        default="";
+    this.$data.message = "";
 
     this.$listeners = { "someEvent" : "someListener" };
 
-    function mount(){
+    function someAction(){
         this.$emit( "someEvent" );
     }
 
     function someListener(){
-        variables.message = "We have fired someListener() using this.$emit in our component!";
+        this.$data.message = "We have fired someListener() using this.$emit in our component!";
     }
 
     function $renderIt(){

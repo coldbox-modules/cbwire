@@ -272,8 +272,16 @@ component {
                 prc = variables.$wireRequest.getPrivateCollection()
             );
         } else{
-            // Injecting the state from our passed in parameters
-            structAppend( this.$data, arguments.parameters );
+            /**
+             * Use setter population to populate our component.
+             */
+            variables.$populator.populateFromStruct(
+                target: this,
+                trustedSetter: true,
+                memento: arguments.parameters,
+                excludes: ""
+            );
+
         }
 
         // Capture the mounted state
@@ -300,7 +308,7 @@ component {
     }
 
     /**
-     * Sets an individual property value, first by using a setter
+     * Sets an individual data property value, first by using a setter
      * if it exists, and otherwise setting directly to our variables
      * scope.
      *
@@ -315,19 +323,7 @@ component {
         // Invoke '$preUpdate[prop]' event
         this.$invoke( "$preUpdate" & arguments.propertyName, arguments.value );
 
-        if ( structKeyExists( this, "set#arguments.propertyName#" ) ){
-            this[ "set#arguments.propertyName#" ]( arguments.value );
-        } else{
-            if (
-                structKeyExists( variables.$settings, "throwOnMissingSetterMethod" ) && variables.$settings.throwOnMissingSetterMethod == true
-            ){
-                throw(
-                    type = "WireSetterNotFound",
-                    message = "The wire property '#arguments.propertyName#' was not found."
-                );
-            }
-        }
-
+        this.$data[ "#arguments.propertyName#" ]  = arguments.value;
 
         // Invoke '$postUpdate[prop]' event
         this.$invoke( "$postUpdate" & arguments.propertyName, arguments.value );
@@ -424,13 +420,11 @@ component {
      * @return Any
      */
     function $invoke( required methodName, value = "" ){
-        if ( this.$hasMethod( arguments.methodName ) ){
-            return invoke(
-                this,
-                arguments.methodName,
-                [ arguments.value ]
-            );
-        }
+        return invoke(
+            this,
+            arguments.methodName,
+            [ arguments.value ]
+        );
     }
 
     /**
@@ -548,11 +542,29 @@ component {
      * Mainly used for component populator using the wirebox populator
      * and trusted setters.
      * 
+     * @missingMethodName String | Name of the missing method that was called.
+     * @missingMethodArguments Struct | The arguments provided to the missing method.
+     * 
      * @return Void
      */
-    function onMissingMethod(){
-        writeDump( arguments );
-        abort;
+    function onMissingMethod( required missingMethodName, required missingMethodArguments ){
+        if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ){
+
+            // Extract data property name from the setter method called.
+            var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
+
+            // Check to see if the data property name is defined in the component.
+            var dataPropertyExists = structKeyExists( this.$data, dataPropertyName );
+
+            if ( dataPropertyExists ) {
+                this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
+            } else if ( structKeyExists( variables.$settings, "throwOnMissingSetterMethod" ) && variables.$settings.throwOnMissingSetterMethod == true ) {
+                throw(
+                    type = "WireSetterNotFound",
+                    message = "The wire property '#dataPropertyName#' was not found."
+                );
+            }
+        }
     }
 
     /**
@@ -563,11 +575,11 @@ component {
      *
      * @return Void
      */
-    private function $reset( property ){
+    function $reset( property ){
         if ( isArray( arguments.property ) ){
             // Reset each property in our array individually
             arguments.property.each( function( prop ){
-                this.reset( prop );
+                this.$reset( prop );
             } );
         } else{
             // Reset individual property

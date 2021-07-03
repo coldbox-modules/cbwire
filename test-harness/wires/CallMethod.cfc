@@ -1,14 +1,13 @@
 component
     extends="cbwire.models.Component"
-    accessors="true"
 {
 
     function $mount(){
-        variables.message = "default";
+        this.$data.message = "default";
     }
 
     function calledMethod(){
-        variables.message = "We have called our method!";
+        this.$data.message = "We have called our method!";
     }
 
     function $renderIt(){

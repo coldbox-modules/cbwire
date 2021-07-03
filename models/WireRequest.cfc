@@ -214,11 +214,14 @@ component singleton {
 
         // Check if our request contains a server memo, and if so update our component state.
         if ( this.hasServerMemo() ){
+
             this.getServerMemo()
                 .data
                 .each( function( key, value ){
-                    comp.$set( arguments.key, arguments.value );
+                    // Call the setter method 
+                    comp.$invoke( "set" & arguments.key, arguments.value );
                 } );
+
         }
 
         // Invoke '$postHydrate' event

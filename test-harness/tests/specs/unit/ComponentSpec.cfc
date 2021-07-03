@@ -50,7 +50,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "this",
                         mock = [ "count" ]
                     );
-                    componentObj.$property( propertyName = "count", mock = 2 );
+
+                    componentObj.$property(
+                        propertyName = "$data",
+                        propertyScope = "this",
+                        mock = {
+                            "count": 2
+                        }
+                    );
+
                     expect( componentObj.$getPath() ).toInclude( "?count=2" );
                 } );
 
@@ -64,7 +72,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "this",
                         mock = [ "count" ]
                     );
-                    componentObj.$property( propertyName = "count", mock = 2 );
+
+                    componentObj.$property(
+                        propertyName = "$data",
+                        propertyScope = "this",
+                        mock = {
+                            "count": 2
+                        }
+                    );
+
                     expect( componentObj.$getPath() ).toBe( "http://localhost?count=2" );
                 } );
             } );
@@ -324,13 +340,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             describe( "$set", function(){
-                it( "calls setter on our component", function(){
-                    componentObj.$( "setName", true );
-                    componentObj.$set(
-                        propertyName = "name",
-                        value = "test"
+                it( "sets data property on our component", function(){
+                    componentObj.$property(
+                        propertyName="$data",
+                        propertyScope="this",
+                        mock = {
+                            "name": "test"
+                        }
                     );
-                    expect( componentObj.$once( "setName" ) ).toBeTrue();
+                    expect( componentObj.$data[ "name" ] ).toBe( "test" );
                 } );
 
                 it( "fires 'preUpdate[prop] event", function(){
@@ -358,10 +376,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "throwOnMissingSetterMethod": true
                     } );
                     expect( function(){
-                        componentObj.$set(
-                            propertyName = "name",
-                            value = "test"
-                        );
+                        componentObj.setName( "test" );
                     } ).toThrow( type="WireSetterNotFound" );
                 } );
 
@@ -369,11 +384,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
                         "throwOnMissingSetterMethod": false
                     } );
+                    
                     expect( function(){
-                        componentObj.$set(
-                            propertyName = "name",
-                            value = "test"
-                        );
+                        componentObj.setName( "test" );
                     } ).notToThrow( type="WireSetterNotFound" );
                 } );
             } );
@@ -383,10 +396,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$getState() ).toBe( {} );
                 } );
 
-                it( "returns the property values", function(){
+                it( "returns the data property values", function(){
                     var state = componentObj.$getState();
 
-                    componentObj.$property( propertyName = "count", mock = 1 );
+                    componentObj.$property( propertyName = "$data", propertyScope="this", mock = {
+                        "count": 1
+                    } );
 
                     expect( componentObj.$getState()[ "count" ] ).toBe( 1 );
                 } );
@@ -410,7 +425,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     var rc = wireRequest.getCollection();
 
                     rc[ "serverMemo" ] = { "data" : { "hello" : "world" } };
-
                     componentObj.$( "setHello", true );
                     componentObj.$hydrate();
                     expect( componentObj.$once( "setHello" ) ).toBeTrue();

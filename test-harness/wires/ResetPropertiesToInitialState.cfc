@@ -1,14 +1,10 @@
 component
     extends="cbwire.models.Component"
-    accessors="true"
 {
 
-    /**
-     * cbwire properties
-     */
-    property
-        name="name"
-        default="test";
+    this.$data = {
+        "name": "test"
+    };
 
     /**
      * Render our wire object.
@@ -21,7 +17,7 @@ component
      * Changes our name
      */
     function changeName(){
-        setName( "Blah #now()#" );
+        this.setName( "Blah #now()#" );
     }
 
     /**
