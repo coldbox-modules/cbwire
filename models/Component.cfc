@@ -317,12 +317,12 @@ component {
      */
     function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
-        this.$invoke( "$preUpdate" & arguments.propertyName, arguments.value );
+        this.$invoke( methodName="$preUpdate" & arguments.propertyName, propertyName=arguments.value );
 
         variables.$data[ "#arguments.propertyName#" ]  = arguments.value;
 
         // Invoke '$postUpdate[prop]' event
-        this.$invoke( "$postUpdate" & arguments.propertyName, arguments.value );
+        this.$invoke( methodName="$postUpdate" & arguments.propertyName, propertyName=arguments.value );
     }
 
     /**
@@ -409,17 +409,21 @@ component {
 
 
     /**
-     * Invokes a dynamic method on our component. If the method doesn't exist, then it proceeds without error.
+     * Invokes a dynamic method on our component. If the method doesn't exist,
+     * then it proceeds without error because of onMissingMethod.
+     * 
      * Returns whatever the method returns.
+     * 
      * Used mainly with lifecycle hooks.
      *
      * @return Any
      */
-    function $invoke( required methodName, value = "" ){
+    function $invoke( required methodName ){
+
         return invoke(
             this,
             arguments.methodName,
-            [ arguments.value ]
+            arguments
         );
     }
 
@@ -447,6 +451,14 @@ component {
         parameters = [],
         trackEmit = true
     ){
+
+        // Invoke '$preEmit' event
+        this.$invoke(
+            methodName="$preEmit", 
+            eventName = arguments.eventName,
+            parameters = arguments.parameters
+        );
+
         // Capture the emit as we will need to notify the UI in our response
         if ( arguments.trackEmit ){
             var emitter = createObject( "component", "cbwire.models.emit.BaseEmit" ).init(
