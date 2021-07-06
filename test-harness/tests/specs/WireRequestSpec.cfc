@@ -23,10 +23,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             beforeEach( function( currentSpec ){
                 setup();
                 event = getRequestContext();
-                wireRequest = getInstance(
-                    name = "cbwire.models.WireRequest",
-                    initArguments = { "event" : event }
-                );
+                wireRequest = getInstance( name = "cbwire.models.WireRequest", initArguments = { "event" : event } );
             } );
 
             it( "can be instantiated", function(){
@@ -43,10 +40,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             describe( "hydrateComponent", function(){
                 it( "fires '$preHydrate' event", function(){
                     var comp = prepareMock(
-                        getInstance(
-                            name = "cbwire.models.Component",
-                            initArguments = { "wireRequest" : wireRequest }
-                        )
+                        getInstance( name = "cbwire.models.Component", initArguments = { "wireRequest" : wireRequest } )
                     );
                     comp.$( "$preHydrate", true );
                     wireRequest.hydrateComponent( comp );
@@ -55,10 +49,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 it( "fires '$postHydrate' event", function(){
                     var comp = prepareMock(
-                        getInstance(
-                            name = "cbwire.models.Component",
-                            initArguments = { "wireRequest" : wireRequest }
-                        )
+                        getInstance( name = "cbwire.models.Component", initArguments = { "wireRequest" : wireRequest } )
                     );
                     comp.$( "$preHydrate", true );
                     comp.$( "$postHydrate", true );
@@ -70,30 +61,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             describe( "getUpdates", function(){
                 it( "can get updates", function(){
-                    event.setValue(
-                        "updates",
-                        [ { "type" : "callMethod" } ]
-                    );
+                    event.setValue( "updates", [ { "type" : "callMethod" } ] );
                     expect( wireRequest.getUpdates() ).toBeArray();
                     expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
                     expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "WireUpdate" );
                 } );
 
                 it( "returns type of callmethod", function(){
-                    event.setValue(
-                        "updates",
-                        [ { "type" : "callMethod" } ]
-                    );
+                    event.setValue( "updates", [ { "type" : "callMethod" } ] );
                     expect( wireRequest.getUpdates() ).toBeArray();
                     expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
                     expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "CallMethod" );
                 } );
 
                 it( "returns type of fireevent", function(){
-                    event.setValue(
-                        "updates",
-                        [ { "type" : "fireEvent" } ]
-                    );
+                    event.setValue( "updates", [ { "type" : "fireEvent" } ] );
                     expect( wireRequest.getUpdates() ).toBeArray();
                     expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
                     expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "FireEvent" );

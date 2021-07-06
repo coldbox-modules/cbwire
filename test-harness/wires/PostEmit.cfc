@@ -1,8 +1,6 @@
-component extends="cbwire.models.Component"{
+component extends="cbwire.models.Component" {
 
-    variables.$data = {
-        "message": ""
-    };
+    variables.$data = { "message" : "" };
 
     function emitEvent(){
         this.$emit( "SomeEvent" );
@@ -15,4 +13,5 @@ component extends="cbwire.models.Component"{
     function $renderIt(){
         return this.$renderView( "_wires/postEmit" );
     }
+
 }

@@ -75,7 +75,6 @@ component {
      * @return Void
      */
     function invokeComponentMethod( required comp ){
-
         if ( this.getPayloadMethod() == "$set" ){
             invoke(
                 arguments.comp,
@@ -85,7 +84,7 @@ component {
             return;
         }
 
-        if ( this.hasCallableMethod ( arguments.comp ) ){
+        if ( this.hasCallableMethod( arguments.comp ) ){
             invoke(
                 arguments.comp,
                 this.getPayloadMethod(),
@@ -98,7 +97,6 @@ component {
             type = "WireActionNotFound",
             message = "Wire action '" & this.getPayloadMethod() & "' not found on your component."
         );
-
     }
 
 }

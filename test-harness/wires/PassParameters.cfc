@@ -1,10 +1,6 @@
-component
-    extends="cbwire.models.Component"
-{
+component extends="cbwire.models.Component" {
 
-    variables.$data = {
-        "pizzaToppings": []
-    };
+    variables.$data = { "pizzaToppings" : [] };
 
     function $renderIt(){
         return this.$renderView( "_wires/passParameters" );

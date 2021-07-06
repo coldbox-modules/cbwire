@@ -133,13 +133,12 @@ component singleton {
      * Finds and returns our cbwire component by name, either using
      * module syntax Component@Module or root sytax, which looks
      * in the root "wires" folder by default.
-     * 
+     *
      * The folder can be overridden with the 'componentLocation' setting.
      *
      * @componentName String | The name of the component.
      */
     function withComponent( componentName ){
-
         // Determine our component location from the cbwire settings.
         var componentLocation = variables.getComponentLocation();
 
@@ -214,14 +213,12 @@ component singleton {
 
         // Check if our request contains a server memo, and if so update our component state.
         if ( this.hasServerMemo() ){
-
             this.getServerMemo()
                 .data
                 .each( function( key, value ){
-                    // Call the setter method 
+                    // Call the setter method
                     comp.$invoke( "set" & arguments.key, arguments.value );
                 } );
-
         }
 
         // Invoke '$postHydrate' event
@@ -261,11 +258,11 @@ component singleton {
         var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
 
         throw( message = "Need to finish!" );
-    }  
+    }
 
     /**
      * Returns the cbwire component location setting.
-     * 
+     *
      * @return String
      */
     private function getComponentLocation(){

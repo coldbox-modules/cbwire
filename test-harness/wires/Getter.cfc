@@ -1,10 +1,6 @@
-component
-    extends="cbwire.models.Component"
-{
+component extends="cbwire.models.Component" {
 
-    this.$computed = {
-        "name": "Rubble on the double"
-    };
+    this.$computed = { "name" : "Rubble on the double" };
 
     function $mount(){
         variables.$data.name = "Blah";

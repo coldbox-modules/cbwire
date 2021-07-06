@@ -1,9 +1,6 @@
 component extends="cbwire.models.Component" {
 
-
-    variables.$data = {
-        "search": ""
-    };
+    variables.$data = { "search" : "" };
 
     variables.$queryString = [ "search" ];
 

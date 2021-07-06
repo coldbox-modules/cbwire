@@ -1,10 +1,6 @@
-component
-    extends="cbwire.models.Component"
-{
+component extends="cbwire.models.Component" {
 
-    variables.$data = {
-        "message": "Default value"
-    };
+    variables.$data = { "message" : "Default value" };
 
     function mount( event, rc, prc ){
         var message = event.paramValue( "message", "Mounted value" );

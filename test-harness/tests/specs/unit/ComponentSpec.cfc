@@ -20,10 +20,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 wireRequest = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
                 componentObj = prepareMock(
-                    getInstance(
-                        name = "cbwire.models.Component",
-                        initArguments = { "wireRequest" : wireRequest }
-                    )
+                    getInstance( name = "cbwire.models.Component", initArguments = { "wireRequest" : wireRequest } )
                 );
             } );
 
@@ -54,19 +51,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     componentObj.$property(
                         propertyName = "$data",
                         propertyScope = "variables",
-                        mock = {
-                            "count": 2
-                        }
+                        mock = { "count" : 2 }
                     );
 
                     expect( componentObj.$getPath() ).toInclude( "?count=2" );
                 } );
 
                 it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
-                    componentObj.$(
-                        "$getHTTPReferer",
-                        "http://localhost?count=1"
-                    );
+                    componentObj.$( "$getHTTPReferer", "http://localhost?count=1" );
                     componentObj.$property(
                         propertyName = "$queryString",
                         propertyScope = "variables",
@@ -76,9 +68,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     componentObj.$property(
                         propertyName = "$data",
                         propertyScope = "variables",
-                        mock = {
-                            "count": 2
-                        }
+                        mock = { "count" : 2 }
                     );
 
                     expect( componentObj.$getPath() ).toBe( "http://localhost?count=2" );
@@ -105,7 +95,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$getMeta().name ).toBe( "cbwire.models.Component" );
                 } );
 
-                it( "should cache the results", function(){                   
+                it( "should cache the results", function(){
                     componentObj.$property(
                         propertyName = "$meta",
                         propertyScope = "variables",
@@ -326,10 +316,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "returns emitted events", function(){
                     componentObj.$( "$renderIt", "" );
                     componentObj.$emit( "event1" );
-                    componentObj.$emitSelf(
-                        eventName = "event2",
-                        parameters = [ "hello", "world" ]
-                    );
+                    componentObj.$emitSelf( eventName = "event2", parameters = [ "hello", "world" ] );
                     expect( componentObj.$getMemento().effects.emits ).toBeArray();
                     expect( arrayLen( componentObj.$getMemento().effects.emits ) ).toBe( 2 );
                     expect( componentObj.$getMemento().effects.emits[ 1 ] ).toBe( {
@@ -363,52 +350,48 @@ component extends="coldbox.system.testing.BaseTestCase" {
             describe( "$set", function(){
                 it( "sets data property on our component", function(){
                     componentObj.$property(
-                        propertyName="$data",
-                        propertyScope="this",
-                        mock = {
-                            "name": "test"
-                        }
+                        propertyName = "$data",
+                        propertyScope = "this",
+                        mock = { "name" : "test" }
                     );
                     expect( componentObj.$data[ "name" ] ).toBe( "test" );
                 } );
 
                 it( "fires 'preUpdate[prop] event", function(){
                     componentObj.$( "$preUpdateName", true );
-                    componentObj.$set(
-                        propertyName = "name",
-                        value = "test"
-                    );
+                    componentObj.$set( propertyName = "name", value = "test" );
                     expect( componentObj.$once( "$preUpdateName" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$preUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
                 } );
 
                 it( "fires 'postUpdate[prop] event", function(){
                     componentObj.$( "$postUpdateName", true );
-                    componentObj.$set(
-                        propertyName = "name",
-                        value = "test"
-                    );
+                    componentObj.$set( propertyName = "name", value = "test" );
                     expect( componentObj.$once( "$postUpdateName" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
                 } );
 
                 it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
-                    componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
-                        "throwOnMissingSetterMethod": true
-                    } );
+                    componentObj.$property(
+                        propertyName = "$settings",
+                        propertyScope = "variables",
+                        mock = { "throwOnMissingSetterMethod" : true }
+                    );
                     expect( function(){
                         componentObj.setName( "test" );
-                    } ).toThrow( type="WireSetterNotFound" );
+                    } ).toThrow( type = "WireSetterNotFound" );
                 } );
 
                 it( "does not throw an error when 'throwOnMissingSetterMethod' is false", function(){
-                    componentObj.$property( propertyName="$settings", propertyScope="variables", mock={
-                        "throwOnMissingSetterMethod": false
-                    } );
-                    
+                    componentObj.$property(
+                        propertyName = "$settings",
+                        propertyScope = "variables",
+                        mock = { "throwOnMissingSetterMethod" : false }
+                    );
+
                     expect( function(){
                         componentObj.setName( "test" );
-                    } ).notToThrow( type="WireSetterNotFound" );
+                    } ).notToThrow( type = "WireSetterNotFound" );
                 } );
             } );
 
@@ -420,9 +403,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "returns the data property values", function(){
                     var state = componentObj.$getState();
 
-                    componentObj.$property( propertyName = "$data", propertyScope="variables", mock = {
-                        "count": 1
-                    } );
+                    componentObj.$property(
+                        propertyName = "$data",
+                        propertyScope = "variables",
+                        mock = { "count" : 1 }
+                    );
 
                     expect( componentObj.$getState()[ "count" ] ).toBe( 1 );
                 } );
@@ -438,7 +423,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     expect( structKeyExists( state, "count" ) ).toBeFalse();
                 } );
-
             } );
 
             describe( "$hydrate()", function(){
@@ -470,7 +454,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         rc[ "updates" ] = [
                             {
                                 "type" : "syncInput",
-                                "payload" : { "name" : "message", "value" : "We have input" }
+                                "payload" : {
+                                    "name" : "message",
+                                    "value" : "We have input"
+                                }
                             }
                         ];
 

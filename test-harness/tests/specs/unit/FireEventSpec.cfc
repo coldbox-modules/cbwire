@@ -20,15 +20,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 update = {};
                 fireEventUpdate = prepareMock(
-                    getInstance(
-                        name = "cbwire.models.updates.FireEvent",
-                        initArguments = { "update" : update }
-                    )
+                    getInstance( name = "cbwire.models.updates.FireEvent", initArguments = { "update" : update } )
                 );
                 wireRequest = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
-                componentObj = prepareMock(
-                    getInstance( name = "cbwire.models.Component" )
-                );
+                componentObj = prepareMock( getInstance( name = "cbwire.models.Component" ) );
             } );
 
             it( "returns an object", function(){

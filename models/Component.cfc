@@ -31,7 +31,7 @@ component {
         name="$settings"
         inject="coldbox:modulesettings:cbwire";
 
-    
+
     /**
      * The default data struct for cbwire components.
      * This should be overidden in the child component
@@ -195,13 +195,12 @@ component {
      * @return Struct
      */
     function $getState(){
-        
         /**
          * Get our data properties for our current state.
          */
         var state = variables.$data;
 
-        if ( structKeyExists( this, "$computed" ) ) {
+        if ( structKeyExists( this, "$computed" ) ){
             this.$computed.each( function( key, value ){
                 state[ key ] = value;
             } );
@@ -277,7 +276,6 @@ component {
                 memento: arguments.parameters,
                 excludes: ""
             );
-
         }
 
         // Capture the mounted state
@@ -300,12 +298,12 @@ component {
      */
     function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
-        this.$invoke( methodName="$preUpdate" & arguments.propertyName, propertyName=arguments.value );
+        this.$invoke( methodName = "$preUpdate" & arguments.propertyName, propertyName = arguments.value );
 
-        variables.$data[ "#arguments.propertyName#" ]  = arguments.value;
+        variables.$data[ "#arguments.propertyName#" ] = arguments.value;
 
         // Invoke '$postUpdate[prop]' event
-        this.$invoke( methodName="$postUpdate" & arguments.propertyName, propertyName=arguments.value );
+        this.$invoke( methodName = "$postUpdate" & arguments.propertyName, propertyName = arguments.value );
     }
 
     /**
@@ -394,15 +392,14 @@ component {
     /**
      * Invokes a dynamic method on our component. If the method doesn't exist,
      * then it proceeds without error because of onMissingMethod.
-     * 
+     *
      * Returns whatever the method returns.
-     * 
+     *
      * Used mainly with lifecycle hooks.
      *
      * @return Any
      */
     function $invoke( required methodName ){
-
         return invoke(
             this,
             arguments.methodName,
@@ -434,10 +431,9 @@ component {
         parameters = [],
         trackEmit = true
     ){
-
         // Invoke '$preEmit' event
         this.$invoke(
-            methodName="$preEmit", 
+            methodName = "$preEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
@@ -464,7 +460,7 @@ component {
 
         // Invoke '$postEmit' event
         this.$invoke(
-            methodName="$postEmit", 
+            methodName = "$postEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
@@ -536,31 +532,37 @@ component {
 
     /**
      * Runs if any missing methods are called on our component.
-     * 
+     *
      * Mainly used for component populator using the wirebox populator
      * and trusted setters.
-     * 
+     *
      * @missingMethodName String | Name of the missing method that was called.
      * @missingMethodArguments Struct | The arguments provided to the missing method.
-     * 
+     *
      * @return Void
      */
-    function onMissingMethod( required missingMethodName, required missingMethodArguments ){
+    function onMissingMethod(
+        required missingMethodName,
+        required missingMethodArguments
+    ){
         if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ){
-
             // Extract data property name from the setter method called.
-            var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
+            var dataPropertyName = reReplaceNoCase(
+                arguments.missingMethodName,
+                "^set",
+                "",
+                "one"
+            );
 
             // Check to see if the data property name is defined in the component.
             var dataPropertyExists = structKeyExists( variables.$data, dataPropertyName );
 
-            if ( dataPropertyExists ) {
+            if ( dataPropertyExists ){
                 this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
-            } else if ( structKeyExists( variables.$settings, "throwOnMissingSetterMethod" ) && variables.$settings.throwOnMissingSetterMethod == true ) {
-                throw(
-                    type = "WireSetterNotFound",
-                    message = "The wire property '#dataPropertyName#' was not found."
-                );
+            } else if (
+                structKeyExists( variables.$settings, "throwOnMissingSetterMethod" ) && variables.$settings.throwOnMissingSetterMethod == true
+            ){
+                throw( type = "WireSetterNotFound", message = "The wire property '#dataPropertyName#' was not found." );
             }
         }
     }

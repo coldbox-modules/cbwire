@@ -1,8 +1,8 @@
 component extends="cbwire.models.Component" {
 
     variables.$data = {
-        "isChild": false,
-        "message": ""
+        "isChild" : false,
+        "message" : ""
     };
 
     function $getListeners(){

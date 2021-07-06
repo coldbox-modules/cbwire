@@ -1,8 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.$data = {
-        "message": "test"
-    };
+    variables.$data = { "message" : "test" };
 
     variables.$listeners = { "someOtherEvent" : "someListener" };
 
@@ -11,7 +9,7 @@ component extends="cbwire.models.Component" {
     }
 
     function someAction(){
-        this.$emit( "someOtherEvent", ["grant", "allen", "copley"]);
+        this.$emit( "someOtherEvent", [ "grant", "allen", "copley" ] );
     }
 
     function $renderIt(){

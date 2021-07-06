@@ -1,6 +1,4 @@
-component
-    extends="cbwire.models.Component"
-{
+component extends="cbwire.models.Component" {
 
     variables.$data[ "message" ] = "";
 
