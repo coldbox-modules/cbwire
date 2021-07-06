@@ -1,3 +1,7 @@
+/**
+ * Represents an update to our UI which ultimately will update our cbwire component state.
+ * This is primarily a parent object that is inherited from.
+ */
 component {
 
     // Injected populator.
@@ -5,98 +9,61 @@ component {
         name="$populator"
         inject="wirebox:populator";
 
+    /**
+     * Our beautiful constructor.
+     *
+     * @update Struct | Incoming request collection.
+     */
     function init( required struct update ){
         variables.update = arguments.update;
     }
 
+    /**
+     * Returns the type of our update.
+     * 
+     * @return String
+     */
     function getType(){
         return variables.update.type;
     }
 
+    /**
+     * Returns true if the update matches the provided type.
+     * 
+     * @checkType String | The type of update to check against.
+     * 
+     * @return Boolean
+     */
     function isType( checkType ){
         return arguments.checkType == this.getType();
     }
 
+    /**
+     * Returns true if the current update includes a payload.
+     * 
+     * @return Boolean
+     */
     function hasPayload(){
         return structKeyExists( variables.update, "payload" );
     }
 
+    /**
+     * Returns the cbwire payload sent over during the update.
+     * 
+     * @return Struct
+     */
     function getPayload(){
         return variables.update[ "payload" ];
-    }
-
-    function hasPayloadMethod(){
-        return this.hasPayload() && structKeyExists( this.getPayload(), "method" );
-    }
-
-    function getPayloadMethod(){
-        return this.getPayload()[ "method" ];
-    }
-
-    function hasPassedParams(){
-        return this.hasPayload() && structKeyExists( this.getPayload(), "params" ) && isArray(
-            this.getPayload()[ "params" ]
-        );
-    }
-
-    function getPassedParams(){
-        return this.getPayload()[ "params" ];
-    }
-
-    function getPassedParamsAsArguments(){
-        if ( this.hasPassedParams() ){
-            return this
-                .getPassedParams()
-                .reduce( function( agg, param, index ){
-                    arguments.agg[ index ] = param;
-                    return arguments.agg;
-                }, {} );
-        }
-        return {};
-    }
-
-    function hasCallableMethod( required comp ){
-        return this.hasPayloadMethod() && arguments.comp.$hasMethod( this.getPayloadMethod() );
     }
 
     /**
      * Applies this update to the specified component.
      *
-     * @comp cbwire.models.Component | Component we're updating
+     * @comp cbwire.models.Component | Component we're updating.
      */
     function apply( required comp ){
         // throw error to ensure that our child classes implement this
         throw( message = "This must be implemented in the child class." );
-    }
-
-    /**
-     * Runs the specified action method within the request payload on the provided component.
-     *
-     * @return Void
-     */
-    function invokeComponentMethod( required comp ){
-        if ( this.getPayloadMethod() == "$set" ){
-            invoke(
-                arguments.comp,
-                "set" & this.getPassedParamsAsArguments()[ 1 ],
-                [ this.getPassedParamsAsArguments()[ 2 ] ]
-            );
-            return;
-        }
-
-        if ( this.hasCallableMethod( arguments.comp ) ){
-            invoke(
-                arguments.comp,
-                this.getPayloadMethod(),
-                this.getPassedParamsAsArguments()
-            );
-            return;
-        }
-
-        throw(
-            type = "WireActionNotFound",
-            message = "Wire action '" & this.getPayloadMethod() & "' not found on your component."
-        );
     }
 
 }
