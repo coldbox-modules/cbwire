@@ -6,13 +6,12 @@ component extends="cbwire.models.Component" {
 
     variables.$listeners = { "someOtherEvent" : "someListener" };
 
-
     function someListener(){
         variables.$data.message = "We have fired someListener() from a listener!";
     }
 
     function someAction(){
-        this.$emit( "someOtherEvent" );
+        this.$emit( "someOtherEvent", ["grant", "allen", "copley"]);
     }
 
     function $renderIt(){

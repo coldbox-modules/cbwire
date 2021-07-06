@@ -478,6 +478,13 @@ component {
                 return this.$invoke( listener );
             }
         }
+
+        // Invoke '$postEmit' event
+        this.$invoke(
+            methodName="$postEmit", 
+            eventName = arguments.eventName,
+            parameters = arguments.parameters
+        );
     }
 
     /**

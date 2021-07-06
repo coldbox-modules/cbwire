@@ -226,6 +226,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
+            describe( "$emit", function(){
+                it( "invokes a $preEmit method on the component if it's defined", function(){
+                    componentObj.$( "$preEmit", true );
+                    componentObj.$emit( "SomeEvent" );
+                    expect( componentObj.$once( "$preEmit" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "$preEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
+                } );
+
+                it( "invokes a $postEmit method on the component if it's defined", function(){
+                    componentObj.$( "$postEmit", true );
+                    componentObj.$emit( "SomeEvent" );
+                    expect( componentObj.$once( "$postEmit" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "$postEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
+                } );
+            } );
+
             describe( "$emitSelf", function(){
                 it( "tracks the expected values", function(){
                     componentObj.$emitSelf(
@@ -363,7 +379,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         value = "test"
                     );
                     expect( componentObj.$once( "$preUpdateName" ) ).toBeTrue();
-                    expect( componentObj.$callLog()[ "$preUpdateName" ][ 1 ][ 1 ] ).toBe( "test" );
+                    expect( componentObj.$callLog()[ "$preUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
                 } );
 
                 it( "fires 'postUpdate[prop] event", function(){
@@ -373,7 +389,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         value = "test"
                     );
                     expect( componentObj.$once( "$postUpdateName" ) ).toBeTrue();
-                    expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ 1 ] ).toBe( "test" );
+                    expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
                 } );
 
                 it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
