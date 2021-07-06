@@ -287,23 +287,6 @@ component {
     }
 
     /**
-     * Loads the passed parameters into our component's variables scope
-     *
-     * @target The target variable or scope to load into
-     * @parameters The parameters that we want to load into our variables scope
-     *
-     * @return Void
-     */
-    function $loadParameters(
-        required struct target,
-        required struct parameters
-    ){
-        arguments.parameters.each( function( key, value ){
-            arguments.target[ arguments.key ] = arguments.value;
-        } );
-    }
-
-    /**
      * Sets an individual data property value, first by using a setter
      * if it exists, and otherwise setting directly to our variables
      * scope.
