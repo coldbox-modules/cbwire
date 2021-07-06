@@ -230,6 +230,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$once( "$postEmit" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$postEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
                 } );
+
+                it( "invokes a $preEmit[EventName] method on the component if it's defined", function(){
+                    componentObj.$( "$preEmitBTTF", true );
+                    componentObj.$emit( "BTTF", [ "gigawatt" ] );
+                    expect( componentObj.$once( "$preEmitBTTF" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "$preEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
+                } );
+
+                it( "invokes a $postEmit[EventName] method on the component if it's defined", function(){
+                    componentObj.$( "$postEmitBTTF", true );
+                    componentObj.$emit( "BTTF", [ "gigawatt" ] );
+                    expect( componentObj.$once( "$postEmitBTTF" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "$postEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
+                } );
+
             } );
 
             describe( "$emitSelf", function(){

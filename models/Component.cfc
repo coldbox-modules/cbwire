@@ -438,6 +438,12 @@ component {
             parameters = arguments.parameters
         );
 
+        // Invoke '$preEmit[EventName]' event
+        this.$invoke(
+            methodName = "$preEmit" & arguments.eventName,
+            parameters = arguments.parameters
+        );
+
         // Capture the emit as we will need to notify the UI in our response
         if ( arguments.trackEmit ){
             var emitter = createObject( "component", "cbwire.models.emit.BaseEmit" ).init(
@@ -462,6 +468,12 @@ component {
         this.$invoke(
             methodName = "$postEmit",
             eventName = arguments.eventName,
+            parameters = arguments.parameters
+        );
+
+        // Invoke '$postEmit[EventName]' event
+        this.$invoke(
+            methodName = "$postEmit" & arguments.eventName,
             parameters = arguments.parameters
         );
     }
