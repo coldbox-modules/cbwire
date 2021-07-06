@@ -1,11 +1,11 @@
 component extends="cbwire.models.Component" {
 
-    this.$data = {
+    variables.$data = {
         message: ""
     };
 
     function saySomething(){
-        this.$data.message = "Something";
+        variables.$data.message = "Something";
     }
 
     function $renderIt(){

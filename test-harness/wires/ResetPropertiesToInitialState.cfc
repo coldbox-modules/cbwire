@@ -2,7 +2,7 @@ component
     extends="cbwire.models.Component"
 {
 
-    this.$data = {
+    variables.$data = {
         "name": "test"
     };
 

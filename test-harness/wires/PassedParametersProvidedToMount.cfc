@@ -1,7 +1,7 @@
 component extends="cbwire.models.Component" {
 
     function $mount( parameters, event, rc, prc ){
-        this.$data.pizzaToppings = arguments.parameters.otherPizzaToppings;
+        variables.$data.pizzaToppings = arguments.parameters.otherPizzaToppings;
     }
 
     function $renderIt(){

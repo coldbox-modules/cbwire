@@ -44,16 +44,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$getPath() ).toBe( "" );
                 } );
 
-                it( "includes properties we've defined in our component as this.$queryString", function(){
+                it( "includes properties we've defined in our component as variables.$queryString", function(){
                     componentObj.$property(
                         propertyName = "$queryString",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = [ "count" ]
                     );
 
                     componentObj.$property(
                         propertyName = "$data",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = {
                             "count": 2
                         }
@@ -69,13 +69,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
                     componentObj.$property(
                         propertyName = "$queryString",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = [ "count" ]
                     );
 
                     componentObj.$property(
                         propertyName = "$data",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = {
                             "count": 2
                         }
@@ -93,7 +93,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "should return listeners defined on the component", function(){
                     componentObj.$property(
                         propertyName = "$listeners",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = { "someEvent" : "someMethod" }
                     );
                     expect( componentObj.$getListeners() ).toBe( { "someEvent" : "someMethod" } );
@@ -105,16 +105,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$getMeta().name ).toBe( "cbwire.models.Component" );
                 } );
 
-                it( "should cache the results", function(){
-                    expect( structKeyExists( componentObj, "$meta" ) ).toBeFalse();
-                    componentObj.$getMeta();
-                    expect( structKeyExists( componentObj, "$meta" ) ).toBeTrue();
+                it( "should cache the results", function(){                   
+                    componentObj.$property(
+                        propertyName = "$meta",
+                        propertyScope = "variables",
+                        mock = "some meta"
+                    );
+
+                    expect( componentObj.$getMeta() ).toBe( "some meta" );
+                    expect( componentObj.$getMeta() ).toBe( "some meta" );
                 } );
 
                 it( "should return cached results if they exists", function(){
                     componentObj.$property(
                         propertyName = "$meta",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = "some meta"
                     );
                     expect( componentObj.$getMeta() ).toBe( "some meta" );
@@ -130,7 +135,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "should include listeners defined on our component", function(){
                     componentObj.$property(
                         propertyName = "$listeners",
-                        propertyScope = "this",
+                        propertyScope = "variables",
                         mock = { "postAdded" : "doSomething" }
                     );
                     expect( componentObj.$getInitialData().effects.listeners ).toBeArray();
@@ -399,7 +404,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "returns the data property values", function(){
                     var state = componentObj.$getState();
 
-                    componentObj.$property( propertyName = "$data", propertyScope="this", mock = {
+                    componentObj.$property( propertyName = "$data", propertyScope="variables", mock = {
                         "count": 1
                     } );
 

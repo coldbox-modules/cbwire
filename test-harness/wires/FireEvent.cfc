@@ -1,14 +1,14 @@
 component extends="cbwire.models.Component" {
 
-    this.$data = {
+    variables.$data = {
         "message": "test"
     };
 
-    this.$listeners = { "someOtherEvent" : "someListener" };
+    variables.$listeners = { "someOtherEvent" : "someListener" };
 
 
     function someListener(){
-        this.$data.message = "We have fired someListener() from a listener!";
+        variables.$data.message = "We have fired someListener() from a listener!";
     }
 
     function someAction(){

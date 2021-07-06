@@ -1,15 +1,15 @@
 component extends="cbwire.models.Component" {
 
-    this.$data[ "message" ] = "test";
+    variables.$data[ "message" ] = "test";
 
-    this.$listeners = { "someEvent" : "someListener" };
+    variables.$listeners = { "someEvent" : "someListener" };
 
     function someAction(){
         this.$emit( "someEvent" );
     }
 
     function someListener(){
-        this.$data.message = "We have fired someListener() from a second listener!";
+        variables.$data.message = "We have fired someListener() from a second listener!";
     }
 
     function $renderIt(){

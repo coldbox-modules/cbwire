@@ -1,11 +1,11 @@
 component extends="cbwire.models.Component" {
 
 
-    this.$data = {
+    variables.$data = {
         "search": ""
     };
 
-    this.$queryString = [ "search" ];
+    variables.$queryString = [ "search" ];
 
     function $renderIt(){
         return this.$renderView( "_wires/queryString" );

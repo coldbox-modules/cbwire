@@ -7,7 +7,7 @@ component
     };
 
     function $mount(){
-        this.$data.name = "Blah";
+        variables.$data.name = "Blah";
     }
 
     function $renderIt(){

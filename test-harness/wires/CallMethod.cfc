@@ -3,11 +3,11 @@ component
 {
 
     function $mount(){
-        this.$data.message = "default";
+        variables.$data.message = "default";
     }
 
     function calledMethod(){
-        this.$data.message = "We have called our method!";
+        variables.$data.message = "We have called our method!";
     }
 
     function $renderIt(){

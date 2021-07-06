@@ -37,7 +37,7 @@ component {
      * This should be overidden in the child component
      * with data properties.
      */
-    this.$data = {};
+    variables.$data = {};
 
     /**
      * The default computed struct for cbwire components.
@@ -199,7 +199,7 @@ component {
         /**
          * Get our data properties for our current state.
          */
-        var state = this.$data;
+        var state = variables.$data;
 
         if ( structKeyExists( this, "$computed" ) ) {
             this.$computed.each( function( key, value ){
@@ -319,7 +319,7 @@ component {
         // Invoke '$preUpdate[prop]' event
         this.$invoke( "$preUpdate" & arguments.propertyName, arguments.value );
 
-        this.$data[ "#arguments.propertyName#" ]  = arguments.value;
+        variables.$data[ "#arguments.propertyName#" ]  = arguments.value;
 
         // Invoke '$postUpdate[prop]' event
         this.$invoke( "$postUpdate" & arguments.propertyName, arguments.value );
@@ -388,8 +388,8 @@ component {
      * @return Struct
      */
     function $getListeners(){
-        if ( structKeyExists( this, "$listeners" ) && isStruct( this.$listeners ) ){
-            return this.$listeners;
+        if ( structKeyExists( variables, "$listeners" ) && isStruct( variables.$listeners ) ){
+            return variables.$listeners;
         }
         return {};
     }
@@ -401,10 +401,10 @@ component {
      * @return Struct
      */
     function $getMeta(){
-        if ( !structKeyExists( this, "$meta" ) ){
-            this.$meta = getMetadata( this );
+        if ( !structKeyExists( variables, "$meta" ) ){
+            variables.$meta = getMetadata( this );
         }
-        return this.$meta;
+        return variables.$meta;
     }
 
 
@@ -550,7 +550,7 @@ component {
             var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
 
             // Check to see if the data property name is defined in the component.
-            var dataPropertyExists = structKeyExists( this.$data, dataPropertyName );
+            var dataPropertyExists = structKeyExists( variables.$data, dataPropertyName );
 
             if ( dataPropertyExists ) {
                 this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
@@ -611,15 +611,15 @@ component {
      */
     private function $getQueryStringValues(){
         // Default with an empty array
-        if ( !structKeyExists( this, "$queryString" ) ){
+        if ( !structKeyExists( variables, "$queryString" ) ){
             return "";
         }
 
         var currentState = this.$getState();
 
         // Handle array of property names
-        if ( isArray( this.$queryString ) ){
-            var result = this.$queryString.reduce( function( agg, prop ){
+        if ( isArray( variables.$queryString ) ){
+            var result = variables.$queryString.reduce( function( agg, prop ){
                 agg &= prop & "=" & currentState[ prop ];
                 return agg;
             }, "" );
