@@ -423,12 +423,12 @@ component {
      * Emits a global event from our cbwire component.
      *
      * @eventName String | The name of our event to emit.
-     * @parameters Array | The params passed with the emitter. Must be an array to preserve order of arguments that are return to cbwire.
+     * @parameters Struct | The params passed with the emitter.
      * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
      */
     function $emit(
         required eventName,
-        parameters = [],
+        parameters = {},
         trackEmit = true
     ){
         // Invoke '$preEmit' event

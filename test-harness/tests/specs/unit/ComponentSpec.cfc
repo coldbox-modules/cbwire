@@ -331,16 +331,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "returns emitted events", function(){
                     componentObj.$( "$renderIt", "" );
                     componentObj.$emit( "event1" );
-                    componentObj.$emitSelf( eventName = "event2", parameters = [ "hello", "world" ] );
+                    componentObj.$emitSelf( eventName = "event2", parameters = { hello: "world" } );
                     expect( componentObj.$getMemento().effects.emits ).toBeArray();
                     expect( arrayLen( componentObj.$getMemento().effects.emits ) ).toBe( 2 );
                     expect( componentObj.$getMemento().effects.emits[ 1 ] ).toBe( {
                         "event" : "event1",
-                        "params" : []
+                        "params" : {}
                     } );
                     expect( componentObj.$getMemento().effects.emits[ 2 ] ).toBe( {
                         "event" : "event2",
-                        "params" : [ "hello", "world" ],
+                        "params" : { hello: "world" },
                         "selfOnly" : true
                     } );
                 } );
