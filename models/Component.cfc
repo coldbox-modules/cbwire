@@ -226,7 +226,7 @@ component {
      *
      * @return Component
      */
-    function $hydrate(){
+    function hydrate(){
         variables.$isInitialRendering = false;
         variables.$wireRequest.hydrateComponent( this );
         return this;
