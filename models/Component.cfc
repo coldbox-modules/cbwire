@@ -140,7 +140,7 @@ component {
     function getMemento(){
         return {
             "effects" : {
-                "html" : this.$getRendering(),
+                "html" : this.getRendering(),
                 "dirty" : [
                     "count" // need to fix
                 ],
@@ -174,7 +174,7 @@ component {
      *
      * @return String
      */
-    function $getRendering(){
+    function getRendering(){
         if ( !structKeyExists( variables, "$rendering" ) ){
             variables.$rendering = this.renderIt();
         }

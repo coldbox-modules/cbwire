@@ -346,10 +346,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$getRendering", function(){
+            describe( "getRendering", function(){
                 it( "calls the renderIt() method on our component", function(){
                     componentObj.$( "renderIt", "got here" );
-                    expect( componentObj.$getRendering() ).toBe( "got here" );
+                    expect( componentObj.getRendering() ).toBe( "got here" );
                 } );
 
                 it( "returns the cached results in variables.$rendering", function(){
@@ -358,7 +358,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "variables",
                         mock = "got here too"
                     );
-                    expect( componentObj.$getRendering() ).toBe( "got here too" );
+                    expect( componentObj.getRendering() ).toBe( "got here too" );
                 } );
             } );
 
