@@ -94,7 +94,7 @@ component {
      *
      * @return String
      */
-    function $getId(){
+    function getID(){
         return createUUID()
             .replace( "-", "", "all" )
             .left( 21 );
@@ -111,13 +111,13 @@ component {
     function getInitialData( renderingHash = "" ){
         return {
             "fingerprint" : {
-                "id" : this.$getID(),
+                "id" : this.getID(),
                 "name" : this.$getMeta().name,
                 "locale" : "en",
                 "path" : this.$getPath(),
                 "method" : "GET"
             },
-            "effects" : { "listeners" : variables.$getListenerNames() },
+            "effects" : { "listeners" : variables.getListenerNames() },
             "serverMemo" : {
                 "children" : [],
                 "errors" : [],
@@ -360,7 +360,7 @@ component {
      * @return Boolean
      */
     function $hasListeners(){
-        return arrayLen( variables.$getListenerNames() );
+        return arrayLen( variables.getListenerNames() );
     }
 
     /**
@@ -664,7 +664,7 @@ component {
      *
      * @return Array
      */
-    private function $getListenerNames(){
+    private function getListenerNames(){
         return structKeyList( this.$getListeners() ).listToArray();
     }
 
@@ -687,14 +687,14 @@ component {
             // Initial rendering
             renderingResult = rendering.replaceNoCase(
                 outerElement,
-                outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+                outerElement & " wire:id=""#this.getID()#"" wire:initial-data=""#serializeJSON( this.getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
                 "once"
             );
         } else{
             // Subsequent renderings
             renderingResult = rendering.replaceNoCase(
                 outerElement,
-                outerElement & " wire:id=""#this.$getId()#""",
+                outerElement & " wire:id=""#this.getID()#""",
                 "once"
             );
         }

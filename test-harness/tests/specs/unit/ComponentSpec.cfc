@@ -30,7 +30,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             describe( "getId()", function(){
                 it( "returns 21 character guid", function(){
-                    var id = componentObj.$getId();
+                    var id = componentObj.getID();
                     expect( len( id ) ).toBe( 21 );
                     expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
                 } );
