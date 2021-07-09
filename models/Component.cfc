@@ -137,7 +137,7 @@ component {
      *
      * @return Struct
      */
-    function $getMemento(){
+    function getMemento(){
         return {
             "effects" : {
                 "html" : this.$getRendering(),

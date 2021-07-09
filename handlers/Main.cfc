@@ -13,7 +13,7 @@ component {
             .getInstance( "cbwire.models.WireRequest" )
             .withComponent( arguments.rc.wireComponent )
             .hydrate()
-            .$getMemento();
+            .getMemento();
     }
 
 }
