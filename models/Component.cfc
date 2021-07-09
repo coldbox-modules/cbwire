@@ -145,7 +145,7 @@ component {
                     "count" // need to fix
                 ],
                 "path" : this.$getPath(),
-                "emits" : this.$getEmits()
+                "emits" : this.getEmits()
             },
             "serverMemo" : {
                 "htmlHash" : "71146cf2",
@@ -350,7 +350,7 @@ component {
      *
      * @return Array
      */
-    function $getEmits(){
+    function getEmits(){
         return variables.emits;
     }
 

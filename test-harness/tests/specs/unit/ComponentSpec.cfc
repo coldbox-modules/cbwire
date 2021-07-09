@@ -203,16 +203,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$getEmits", function(){
+            describe( "getEmits", function(){
                 it( "returns an empty array by default", function(){
-                    expect( componentObj.$getEmits() ).toBeArray();
-                    expect( arrayLen( componentObj.$getEmits() ) ).toBe( 0 );
+                    expect( componentObj.getEmits() ).toBeArray();
+                    expect( arrayLen( componentObj.getEmits() ) ).toBe( 0 );
                 } );
 
                 it( "tracks emits", function(){
                     componentObj.emit( "someEvent" );
                     componentObj.emitSelf( "someOtherEvent" );
-                    expect( arrayLen( componentObj.$getEmits() ) ).toBe( 2 );
+                    expect( arrayLen( componentObj.getEmits() ) ).toBe( 2 );
                 } );
             } );
 
@@ -262,7 +262,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                             "chuck"
                         ]
                     );
-                    expect( componentObj.$getEmits()[ 1 ] ).toBe( {
+                    expect( componentObj.getEmits()[ 1 ] ).toBe( {
                         "event" : "test",
                         "params" : [
                             "how",
@@ -282,7 +282,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             describe( "emitUp", function(){
                 it( "tracks the expected values", function(){
                     componentObj.emitUp( "test", [ "hello", "world" ] );
-                    expect( componentObj.$getEmits()[ 1 ] ).toBe( {
+                    expect( componentObj.getEmits()[ 1 ] ).toBe( {
                         "event" : "test",
                         "params" : [ "hello", "world" ],
                         "ancestorsOnly" : true
@@ -298,12 +298,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "component2",
                         [ "hello", "world" ]
                     );
-                    expect( componentObj.$getEmits()[ 1 ] ).toBe( {
+                    expect( componentObj.getEmits()[ 1 ] ).toBe( {
                         "event" : "event1",
                         "params" : [],
                         "to" : "component1"
                     } );
-                    expect( componentObj.$getEmits()[ 2 ] ).toBe( {
+                    expect( componentObj.getEmits()[ 2 ] ).toBe( {
                         "event" : "event2",
                         "params" : [ "hello", "world" ],
                         "to" : "component2"
