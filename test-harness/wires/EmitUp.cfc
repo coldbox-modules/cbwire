@@ -1,12 +1,12 @@
 component extends="cbwire.models.Component" {
 
-    variables.$data = {
+    variables.data = {
         "isChild" : false,
         "message" : ""
     };
 
     function $getListeners(){
-        if ( variables.$data.isChild ){
+        if ( variables.data.isChild ){
             return {};
         }
         return {
@@ -16,7 +16,7 @@ component extends="cbwire.models.Component" {
     }
 
     function emitViaActionCall(){
-        variables.$data.message = "emitUpFired() fired!";
+        variables.data.message = "emitUpFired() fired!";
     }
 
     function emitViaAction(){
@@ -24,7 +24,7 @@ component extends="cbwire.models.Component" {
     }
 
     function postAddedListener(){
-        variables.$data.message = "postAddedListener() fired!";
+        variables.data.message = "postAddedListener() fired!";
         this.$emitUp( "emitUpFired" );
     }
 

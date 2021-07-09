@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.$data = { "name" : "test" };
+    variables.data = { "name" : "test" };
 
     /**
      * Render our wire object.

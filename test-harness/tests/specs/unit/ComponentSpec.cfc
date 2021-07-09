@@ -49,7 +49,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
 
                     componentObj.$property(
-                        propertyName = "$data",
+                        propertyName = "data",
                         propertyScope = "variables",
                         mock = { "count" : 2 }
                     );
@@ -66,7 +66,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
 
                     componentObj.$property(
-                        propertyName = "$data",
+                        propertyName = "data",
                         propertyScope = "variables",
                         mock = { "count" : 2 }
                     );
@@ -362,14 +362,32 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
+            describe( "$relocate", function(){
+                it( "passes the relocation to the coldbox render", function(){
+                    var renderer = getMockBox().createStub();
+
+                    renderer.$( "relocate" );
+                    componentObj.$property(
+                        propertyName = "$renderer",
+                        propertyScope = "variables",
+                        mock = renderer
+                    );
+                    
+                    componentObj.$relocate( uri="/short-circuit" );
+
+                    expect( renderer.$once( "relocate" ) ).toBeTrue();
+                    expect( renderer.$callLog().relocate[ 1 ].uri ).toBe( "/short-circuit" );
+                } );
+            } );
+
             describe( "$set", function(){
                 it( "sets data property on our component", function(){
                     componentObj.$property(
-                        propertyName = "$data",
+                        propertyName = "data",
                         propertyScope = "this",
                         mock = { "name" : "test" }
                     );
-                    expect( componentObj.$data[ "name" ] ).toBe( "test" );
+                    expect( componentObj.data[ "name" ] ).toBe( "test" );
                 } );
 
                 it( "fires 'preUpdate[prop] event", function(){
@@ -419,7 +437,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     var state = componentObj.$getState();
 
                     componentObj.$property(
-                        propertyName = "$data",
+                        propertyName = "data",
                         propertyScope = "variables",
                         mock = { "count" : 1 }
                     );

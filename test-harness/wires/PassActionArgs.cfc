@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.$data[ "message" ] = "";
+    variables.data[ "message" ] = "";
 
     function sayHello(
         required firstname,

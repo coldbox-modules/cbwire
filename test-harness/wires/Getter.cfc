@@ -3,7 +3,7 @@ component extends="cbwire.models.Component" {
     this.$computed = { "name" : "Rubble on the double" };
 
     function $mount(){
-        variables.$data.name = "Blah";
+        variables.data.name = "Blah";
     }
 
     function $renderIt(){

@@ -1,7 +1,7 @@
 component extends="cbwire.models.Component" {
 
     // Data properties
-    variables.$data = {
+    variables.data = {
         "timestamp" : now(),
         "myQuery" : ""
     };
@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
     // Computed properties
     this.$computed = {
         "myTimestamp" : function(){
-            return variables.$data.timestamp;
+            return variables.data.timestamp;
         }
     }
 

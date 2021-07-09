@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.$data[ "message" ] = "test";
+    variables.data[ "message" ] = "test";
 
     variables.$listeners = { "someEvent" : "someListener" };
 
@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
     }
 
     function someListener(){
-        variables.$data.message = "We have fired someListener() from a second listener!";
+        variables.data.message = "We have fired someListener() from a second listener!";
     }
 
     function $renderIt(){

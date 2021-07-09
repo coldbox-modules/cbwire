@@ -3,10 +3,10 @@ component
     accessors="true"
 {
 
-    variables.$data = { "count" : "0" };
+    variables.data = { "count" : "0" };
 
     function increment(){
-        variables.$data.count += 1;
+        variables.data.count += 1;
     }
 
     function $renderIt(){

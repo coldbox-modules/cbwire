@@ -1,9 +1,9 @@
 component extends="cbwire.models.Component" {
 
-    variables.$data = { "message" : "" };
+    variables.data = { "message" : "" };
 
     function saySomething(){
-        variables.$data.message = "Something ( again )!";
+        variables.data.message = "Something ( again )!";
     }
 
     function $renderIt(){

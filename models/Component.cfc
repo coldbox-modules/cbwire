@@ -37,7 +37,7 @@ component {
      * This should be overidden in the child component
      * with data properties.
      */
-    variables.$data = {};
+    variables.data = {};
 
     /**
      * The default computed struct for cbwire components.
@@ -87,6 +87,7 @@ component {
     ){
         return variables.$renderer.relocate( argumentCollection = arguments );
     }
+
     /**
      * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
      * The 21 characters matches Livewire JS native implementation.
@@ -198,7 +199,7 @@ component {
         /**
          * Get our data properties for our current state.
          */
-        var state = variables.$data;
+        var state = variables.data;
 
         if ( structKeyExists( this, "$computed" ) ){
             this.$computed.each( function( key, value ){
@@ -300,7 +301,7 @@ component {
         // Invoke '$preUpdate[prop]' event
         this.$invoke( methodName = "$preUpdate" & arguments.propertyName, propertyName = arguments.value );
 
-        variables.$data[ "#arguments.propertyName#" ] = arguments.value;
+        variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
         // Invoke '$postUpdate[prop]' event
         this.$invoke( methodName = "$postUpdate" & arguments.propertyName, propertyName = arguments.value );
@@ -567,7 +568,7 @@ component {
             );
 
             // Check to see if the data property name is defined in the component.
-            var dataPropertyExists = structKeyExists( variables.$data, dataPropertyName );
+            var dataPropertyExists = structKeyExists( variables.data, dataPropertyName );
 
             if ( dataPropertyExists ){
                 this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
