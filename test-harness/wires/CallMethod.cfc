@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    function $mount(){
+    function mount(){
         variables.data.message = "default";
     }
 

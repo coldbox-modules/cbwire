@@ -7,7 +7,7 @@ component
         name="message"
         default="Default value";
 
-    function $mount(){
+    function mount(){
         setMessage( "Mounted value" );
     }
 

@@ -250,9 +250,9 @@ component {
 
     /**
      * Fires when the cbwire component is initially created.
-     * Looks to see if a $mount() method is defined on our component and if so, invokes it.
+     * Looks to see if a mount() method is defined on our component and if so, invokes it.
      *
-     * This method is given the $_ prefix to avoid collision with the $mount method
+     * This method is given the $_ prefix to avoid collision with the mount method
      * that can be optionally defined on a cbwire component.
      *
      * @parameters Struct of params to bind into the component
@@ -260,8 +260,8 @@ component {
      * @return Component
      */
     function $_mount( parameters = {} ){
-        if ( structKeyExists( this, "$mount" ) && isCustomFunction( this.$mount ) ){
-            this[ "$mount" ](
+        if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ){
+            this[ "mount" ](
                 parameters = arguments.parameters,
                 event = variables.$wireRequest.getEvent(),
                 rc = variables.$wireRequest.getCollection(),
@@ -280,7 +280,7 @@ component {
         }
 
         // Capture the mounted state
-        variables.$mountedState = duplicate( this.$getState() );
+        variables.mountedState = duplicate( this.$getState() );
 
         return this;
     }
@@ -342,7 +342,7 @@ component {
      * @return Void
      */
     function $setMountedState( required state ){
-        variables.$mountedState = arguments.state;
+        variables.mountedState = arguments.state;
     }
 
     /**
@@ -606,8 +606,8 @@ component {
      * @return Struct
      */
     private function $getMountedState(){
-        if ( structKeyExists( variables, "$mountedState" ) ){
-            return variables.$mountedState;
+        if ( structKeyExists( variables, "mountedState" ) ){
+            return variables.mountedState;
         }
         return {};
     }

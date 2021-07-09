@@ -577,22 +577,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$mount()", function(){
-                it( "it calls $mount() if it's defined on component", function(){
-                    componentObj.$( "$mount", "sup?" );
+            describe( "mount()", function(){
+                it( "it calls mount() if it's defined on component", function(){
+                    componentObj.$( "mount", "sup?" );
                     componentObj.$_mount();
-                    expect( componentObj.$once( "$mount" ) ).toBeTrue();
+                    expect( componentObj.$once( "mount" ) ).toBeTrue();
                 } );
 
-                it( "it should pass in the event, rc, and prc into $mount()", function(){
+                it( "it should pass in the event, rc, and prc into mount()", function(){
                     var rc = wireRequest.getCollection();
 
                     rc[ "someRandomVar" ] = "someRandomValue";
 
-                    componentObj.$( "$mount" );
+                    componentObj.$( "mount" );
                     componentObj.$_mount();
 
-                    var passedArgs = componentObj.$callLog().$mount[ 1 ];
+                    var passedArgs = componentObj.$callLog().mount[ 1 ];
 
                     expect( passedArgs.event ).toBeInstanceOf( "RequestContext" );
                     expect( passedArgs.prc ).toBeStruct();
