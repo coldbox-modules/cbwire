@@ -145,10 +145,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$renderIt", function(){
+            describe( "renderIt", function(){
                 it( "throw an error if it's not been implemented on the child class", function(){
                     expect( function(){
-                        componentObj.$renderIt();
+                        componentObj.renderIt();
                     } ).toThrow( type = "RenderMethodNotFound" );
                 } );
             } );
@@ -321,15 +321,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             describe( "getMemento", function(){
                 it( "returns a struct", function(){
-                    componentObj.$( "$renderIt", "" );
+                    componentObj.$( "renderIt", "" );
                     expect( componentObj.getMemento() ).toBeStruct();
                 } );
                 it( "returns an empty array of events by default", function(){
-                    componentObj.$( "$renderIt", "" );
+                    componentObj.$( "renderIt", "" );
                     expect( componentObj.getMemento().effects.emits ).toBeArray();
                 } );
                 it( "returns emitted events", function(){
-                    componentObj.$( "$renderIt", "" );
+                    componentObj.$( "renderIt", "" );
                     componentObj.emit( "event1" );
                     componentObj.emitSelf( eventName = "event2", parameters = { hello: "world" } );
                     expect( componentObj.getMemento().effects.emits ).toBeArray();
@@ -347,8 +347,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             describe( "$getRendering", function(){
-                it( "calls the $renderIt() method on our component", function(){
-                    componentObj.$( "$renderIt", "got here" );
+                it( "calls the renderIt() method on our component", function(){
+                    componentObj.$( "renderIt", "got here" );
                     expect( componentObj.$getRendering() ).toBe( "got here" );
                 } );
 

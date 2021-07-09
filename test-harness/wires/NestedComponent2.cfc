@@ -6,7 +6,7 @@ component extends="cbwire.models.Component" {
         variables.data.message = "Something ( again )!";
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/nestedComponent2" );
     }
 

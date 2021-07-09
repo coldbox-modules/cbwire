@@ -2,7 +2,7 @@ component extends="cbwire.models.Component" {
 
     variables.data = { "greeting" : "" };
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/multiselect" );
     }
 

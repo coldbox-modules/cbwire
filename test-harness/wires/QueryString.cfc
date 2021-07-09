@@ -4,7 +4,7 @@ component extends="cbwire.models.Component" {
 
     variables.$queryString = [ "search" ];
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/queryString" );
     }
 

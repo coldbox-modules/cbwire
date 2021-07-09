@@ -7,7 +7,7 @@ component
         return this.$relocate( url = "https://www.google.com" );
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/relocate" );
     }
 

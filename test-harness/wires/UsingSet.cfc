@@ -7,7 +7,7 @@ component
         name="name"
         default="Marty";
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/usingSet" );
     }
 

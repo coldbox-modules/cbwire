@@ -162,7 +162,7 @@ component singleton {
 
     /**
      * Instantiates our cbwire component, mounts it,
-     * and then calls it's internal $renderIt() method.
+     * and then calls it's internal renderIt() method.
      *
      * @componentName String | The name of the component in your cbwire folder.
      * @parameters Struct | The parameters you want mounted initially.
@@ -172,7 +172,7 @@ component singleton {
     function renderIt( componentName, parameters = {} ){
         return withComponent( arguments.componentName )
             .$_mount( arguments.parameters )
-            .$renderIt();
+            .renderIt();
     }
 
     /**

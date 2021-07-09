@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    function $renderIt(){
+    function renderIt(){
         return "Hello World #now()#";
     }
 

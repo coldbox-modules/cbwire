@@ -157,26 +157,26 @@ component {
     }
 
     /**
-     * Throws an error if $renderIt() is not defined on our child class.
+     * Throws an error if renderIt() is not defined on our child class.
      *
      * @return Void
      */
-    function $renderIt(){
+    function renderIt(){
         throw(
             type = "RenderMethodNotFound",
-            message = "Couldn't find a $renderIt() method defined on the component '#this.$getMeta().name#'."
+            message = "Couldn't find a renderIt() method defined on the component '#this.$getMeta().name#'."
         );
     }
 
     /**
-     * Invokes $renderIt() on the cbwire component and caches the rendered
+     * Invokes renderIt() on the cbwire component and caches the rendered
      * results into variables.$rendering.
      *
      * @return String
      */
     function $getRendering(){
         if ( !structKeyExists( variables, "$rendering" ) ){
-            variables.$rendering = this.$renderIt();
+            variables.$rendering = this.renderIt();
         }
         return variables.$rendering;
     }

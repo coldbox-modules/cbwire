@@ -9,7 +9,7 @@ component
         variables.data.count += 1;
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/dataBindingCount" );
     }
 

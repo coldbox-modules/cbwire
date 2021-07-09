@@ -11,7 +11,7 @@ component
         setMessage( "Mounted value" );
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/mount" );
     }
 

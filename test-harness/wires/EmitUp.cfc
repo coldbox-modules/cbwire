@@ -28,7 +28,7 @@ component extends="cbwire.models.Component" {
         this.emitUp( "emitUpFired" );
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/emitUp" );
     }
 

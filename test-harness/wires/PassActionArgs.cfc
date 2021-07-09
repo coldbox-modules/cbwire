@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
         this.setMessage( "Well hello " & arguments.firstname & " " & arguments.lastname );
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/passActionArgs" );
     }
 

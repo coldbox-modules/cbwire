@@ -10,7 +10,7 @@ component extends="cbwire.models.Component" {
         variables.data.message = "Called postEmit for event '#arguments.eventName#'!";
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/postEmit" );
     }
 

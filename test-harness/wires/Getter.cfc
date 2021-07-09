@@ -6,7 +6,7 @@ component extends="cbwire.models.Component" {
         variables.data.name = "Blah";
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/getter" );
     }
 

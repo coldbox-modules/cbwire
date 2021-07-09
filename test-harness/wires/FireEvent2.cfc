@@ -12,7 +12,7 @@ component extends="cbwire.models.Component" {
         variables.data.message = "We have fired someListener() from a second listener!";
     }
 
-    function $renderIt(){
+    function renderIt(){
         return this.$renderView( "_wires/fireEvent" );
     }
 
