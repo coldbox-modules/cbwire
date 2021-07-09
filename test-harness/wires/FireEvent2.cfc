@@ -2,7 +2,7 @@ component extends="cbwire.models.Component" {
 
     variables.data[ "message" ] = "test";
 
-    variables.$listeners = { "someEvent" : "someListener" };
+    variables.listeners = { "someEvent" : "someListener" };
 
     function someAction(){
         this.emit( "someEvent" );

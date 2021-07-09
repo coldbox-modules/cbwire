@@ -82,7 +82,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 it( "should return listeners defined on the component", function(){
                     componentObj.$property(
-                        propertyName = "$listeners",
+                        propertyName = "listeners",
                         propertyScope = "variables",
                         mock = { "someEvent" : "someMethod" }
                     );
@@ -124,7 +124,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 it( "should include listeners defined on our component", function(){
                     componentObj.$property(
-                        propertyName = "$listeners",
+                        propertyName = "listeners",
                         propertyScope = "variables",
                         mock = { "postAdded" : "doSomething" }
                     );

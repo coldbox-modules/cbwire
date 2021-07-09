@@ -40,7 +40,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "calls listener", function(){
                     update[ "payload" ] = { "event" : "someEvent" };
                     componentObj.$property(
-                        propertyName = "$listeners",
+                        propertyName = "listeners",
                         propertyScope = "variables",
                         mock = { "someEvent" : "someListener" }
                     );

@@ -370,8 +370,8 @@ component {
      * @return Struct
      */
     function $getListeners(){
-        if ( structKeyExists( variables, "$listeners" ) && isStruct( variables.$listeners ) ){
-            return variables.$listeners;
+        if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ){
+            return variables.listeners;
         }
         return {};
     }
