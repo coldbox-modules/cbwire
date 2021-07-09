@@ -6,8 +6,8 @@ component extends="cbwire.models.Component" {
         this.emit( "SomeEvent" );
     }
 
-    function $postEmit( eventName, parameters ){
-        variables.data.message = "Called $postEmit for event '#arguments.eventName#'!";
+    function postEmit( eventName, parameters ){
+        variables.data.message = "Called postEmit for event '#arguments.eventName#'!";
     }
 
     function $renderIt(){

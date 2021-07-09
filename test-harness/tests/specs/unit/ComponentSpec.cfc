@@ -224,11 +224,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$callLog()[ "$preEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
                 } );
 
-                it( "invokes a $postEmit method on the component if it's defined", function(){
-                    componentObj.$( "$postEmit", true );
+                it( "invokes a postEmit method on the component if it's defined", function(){
+                    componentObj.$( "postEmit", true );
                     componentObj.emit( "SomeEvent" );
-                    expect( componentObj.$once( "$postEmit" ) ).toBeTrue();
-                    expect( componentObj.$callLog()[ "$postEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
+                    expect( componentObj.$once( "postEmit" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "postEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
                 } );
 
                 it( "invokes a $preEmit[EventName] method on the component if it's defined", function(){
@@ -238,11 +238,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$callLog()[ "$preEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
                 } );
 
-                it( "invokes a $postEmit[EventName] method on the component if it's defined", function(){
-                    componentObj.$( "$postEmitBTTF", true );
+                it( "invokes a postEmit[EventName] method on the component if it's defined", function(){
+                    componentObj.$( "postEmitBTTF", true );
                     componentObj.emit( "BTTF", [ "gigawatt" ] );
-                    expect( componentObj.$once( "$postEmitBTTF" ) ).toBeTrue();
-                    expect( componentObj.$callLog()[ "$postEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
+                    expect( componentObj.$once( "postEmitBTTF" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "postEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
                 } );
 
             } );

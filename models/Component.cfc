@@ -465,16 +465,16 @@ component {
             }
         }
 
-        // Invoke '$postEmit' event
+        // Invoke 'postEmit' event
         this.$invoke(
-            methodName = "$postEmit",
+            methodName = "postEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
 
-        // Invoke '$postEmit[EventName]' event
+        // Invoke 'postEmit[EventName]' event
         this.$invoke(
-            methodName = "$postEmit" & arguments.eventName,
+            methodName = "postEmit" & arguments.eventName,
             parameters = arguments.parameters
         );
     }
