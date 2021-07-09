@@ -140,7 +140,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             describe( "$getChecksum", function(){
                 it( "returns the expected checksum", function(){
-                    componentObj.$( "$getState", { "test" : "checksum" } );
+                    componentObj.$( "getState", { "test" : "checksum" } );
                     expect( componentObj.$getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
                 } );
             } );
@@ -428,13 +428,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$getState", function(){
+            describe( "getState", function(){
                 it( "returns empty struct by default", function(){
-                    expect( componentObj.$getState() ).toBe( {} );
+                    expect( componentObj.getState() ).toBe( {} );
                 } );
 
                 it( "returns the data property values", function(){
-                    var state = componentObj.$getState();
+                    var state = componentObj.getState();
 
                     componentObj.$property(
                         propertyName = "data",
@@ -442,7 +442,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         mock = { "count" : 1 }
                     );
 
-                    expect( componentObj.$getState()[ "count" ] ).toBe( 1 );
+                    expect( componentObj.getState()[ "count" ] ).toBe( 1 );
                 } );
 
                 it( "ignores custom functions that are not getters", function(){
@@ -452,7 +452,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         }
                     );
 
-                    var state = componentObj.$getState();
+                    var state = componentObj.getState();
 
                     expect( structKeyExists( state, "count" ) ).toBeFalse();
                 } );

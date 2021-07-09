@@ -122,7 +122,7 @@ component {
                 "children" : [],
                 "errors" : [],
                 "htmlHash" : arguments.renderingHash,
-                "data" : this.$getState(),
+                "data" : this.getState(),
                 "dataMeta" : [],
                 "checksum" : this.$getChecksum(),
                 "mountedState" : variables.$getMountedState()
@@ -149,7 +149,7 @@ component {
             },
             "serverMemo" : {
                 "htmlHash" : "71146cf2",
-                "data" : this.$getState(),
+                "data" : this.getState(),
                 "checksum" : this.$getChecksum(),
                 "mountedState" : variables.$getMountedState()
             }
@@ -187,7 +187,7 @@ component {
      * @return String
      */
     function $getChecksum(){
-        return hash( serializeJSON( this.$getState() ) );
+        return hash( serializeJSON( this.getState() ) );
     }
 
     /**
@@ -195,7 +195,7 @@ component {
      *
      * @return Struct
      */
-    function $getState(){
+    function getState(){
         /**
          * Get our data properties for our current state.
          */
@@ -239,7 +239,7 @@ component {
      */
     function renderView(){
         // Pass the properties of the cbwire component as variables to the view
-        arguments.args = this.$getState();
+        arguments.args = this.getState();
 
         // Render our view using coldbox rendering
         var rendering = variables.$renderer.renderView( argumentCollection = arguments );
@@ -280,7 +280,7 @@ component {
         }
 
         // Capture the mounted state
-        variables.mountedState = duplicate( this.$getState() );
+        variables.mountedState = duplicate( this.getState() );
 
         return this;
     }
@@ -632,7 +632,7 @@ component {
             return "";
         }
 
-        var currentState = this.$getState();
+        var currentState = this.getState();
 
         // Handle array of property names
         if ( isArray( variables.$queryString ) ){
