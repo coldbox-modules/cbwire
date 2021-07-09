@@ -90,9 +90,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$getMeta", function(){
+            describe( "getMeta", function(){
                 it( "should return the meta", function(){
-                    expect( componentObj.$getMeta().name ).toBe( "cbwire.models.Component" );
+                    expect( componentObj.getMeta().name ).toBe( "cbwire.models.Component" );
                 } );
 
                 it( "should cache the results", function(){
@@ -102,8 +102,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         mock = "some meta"
                     );
 
-                    expect( componentObj.$getMeta() ).toBe( "some meta" );
-                    expect( componentObj.$getMeta() ).toBe( "some meta" );
+                    expect( componentObj.getMeta() ).toBe( "some meta" );
+                    expect( componentObj.getMeta() ).toBe( "some meta" );
                 } );
 
                 it( "should return cached results if they exists", function(){
@@ -112,7 +112,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "variables",
                         mock = "some meta"
                     );
-                    expect( componentObj.$getMeta() ).toBe( "some meta" );
+                    expect( componentObj.getMeta() ).toBe( "some meta" );
                 } );
             } );
 

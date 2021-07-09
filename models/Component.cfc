@@ -112,7 +112,7 @@ component {
         return {
             "fingerprint" : {
                 "id" : this.getID(),
-                "name" : this.$getMeta().name,
+                "name" : this.getMeta().name,
                 "locale" : "en",
                 "path" : this.$getPath(),
                 "method" : "GET"
@@ -164,7 +164,7 @@ component {
     function renderIt(){
         throw(
             type = "RenderMethodNotFound",
-            message = "Couldn't find a renderIt() method defined on the component '#this.$getMeta().name#'."
+            message = "Couldn't find a renderIt() method defined on the component '#this.getMeta().name#'."
         );
     }
 
@@ -382,7 +382,7 @@ component {
      *
      * @return Struct
      */
-    function $getMeta(){
+    function getMeta(){
         if ( !structKeyExists( variables, "$meta" ) ){
             variables.$meta = getMetadata( this );
         }
