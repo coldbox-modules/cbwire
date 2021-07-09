@@ -133,15 +133,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "returns the component checksum in the serverMemo", function(){
-                    componentObj.$( "$getChecksum", "test" );
+                    componentObj.$( "getChecksum", "test" );
                     expect( componentObj.getInitialData().serverMemo.checksum ).toBe( "test" );
                 } );
             } );
 
-            describe( "$getChecksum", function(){
+            describe( "getChecksum", function(){
                 it( "returns the expected checksum", function(){
                     componentObj.$( "getState", { "test" : "checksum" } );
-                    expect( componentObj.$getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
+                    expect( componentObj.getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
                 } );
             } );
 

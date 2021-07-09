@@ -124,7 +124,7 @@ component {
                 "htmlHash" : arguments.renderingHash,
                 "data" : this.getState(),
                 "dataMeta" : [],
-                "checksum" : this.$getChecksum(),
+                "checksum" : this.getChecksum(),
                 "mountedState" : variables.$getMountedState()
             }
         };
@@ -150,7 +150,7 @@ component {
             "serverMemo" : {
                 "htmlHash" : "71146cf2",
                 "data" : this.getState(),
-                "checksum" : this.$getChecksum(),
+                "checksum" : this.getChecksum(),
                 "mountedState" : variables.$getMountedState()
             }
         }
@@ -186,7 +186,7 @@ component {
      *
      * @return String
      */
-    function $getChecksum(){
+    function getChecksum(){
         return hash( serializeJSON( this.getState() ) );
     }
 
