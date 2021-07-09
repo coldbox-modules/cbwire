@@ -117,9 +117,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
 
-            describe( "$getInitialData", function(){
+            describe( "getInitialData", function(){
                 it( "returns a struct", function(){
-                    expect( componentObj.$getInitialData() ).toBeStruct();
+                    expect( componentObj.getInitialData() ).toBeStruct();
                 } );
 
                 it( "should include listeners defined on our component", function(){
@@ -128,13 +128,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "variables",
                         mock = { "postAdded" : "doSomething" }
                     );
-                    expect( componentObj.$getInitialData().effects.listeners ).toBeArray();
-                    expect( componentObj.$getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
+                    expect( componentObj.getInitialData().effects.listeners ).toBeArray();
+                    expect( componentObj.getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
                 } );
 
                 it( "returns the component checksum in the serverMemo", function(){
                     componentObj.$( "$getChecksum", "test" );
-                    expect( componentObj.$getInitialData().serverMemo.checksum ).toBe( "test" );
+                    expect( componentObj.getInitialData().serverMemo.checksum ).toBe( "test" );
                 } );
             } );
 

@@ -108,7 +108,7 @@ component {
      *
      * @return Struct
      */
-    function $getInitialData( renderingHash = "" ){
+    function getInitialData( renderingHash = "" ){
         return {
             "fingerprint" : {
                 "id" : this.$getID(),
@@ -687,7 +687,7 @@ component {
             // Initial rendering
             renderingResult = rendering.replaceNoCase(
                 outerElement,
-                outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.$getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+                outerElement & " wire:id=""#this.$getId()#"" wire:initial-data=""#serializeJSON( this.getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
                 "once"
             );
         } else{
