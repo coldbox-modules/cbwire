@@ -216,7 +216,7 @@ component {
      * @methodName String | The method name we are checking.
      * @return Boolean
      */
-    function $hasMethod( required methodName ){
+    function hasMethod( required methodName ){
         return structKeyExists( this, arguments.methodName );
     }
 
@@ -460,7 +460,7 @@ component {
         if ( structKeyExists( listeners, eventName ) ){
             var listener = listeners[ eventName ];
 
-            if ( len( arguments.eventName ) && this.$hasMethod( listener ) ){
+            if ( len( arguments.eventName ) && this.hasMethod( listener ) ){
                 return this.invokeEvent( listener );
             }
         }
