@@ -125,7 +125,7 @@ component {
                 "data" : this.getState(),
                 "dataMeta" : [],
                 "checksum" : this.getChecksum(),
-                "mountedState" : variables.$getMountedState()
+                "mountedState" : variables.getMountedState()
             }
         };
     }
@@ -151,7 +151,7 @@ component {
                 "htmlHash" : "71146cf2",
                 "data" : this.getState(),
                 "checksum" : this.getChecksum(),
-                "mountedState" : variables.$getMountedState()
+                "mountedState" : variables.getMountedState()
             }
         }
     }
@@ -596,7 +596,7 @@ component {
             } );
         } else{
             // Reset individual property
-            this.$set( arguments.property, variables.$getMountedState()[ arguments.property ] );
+            this.$set( arguments.property, variables.getMountedState()[ arguments.property ] );
         }
     }
 
@@ -605,7 +605,7 @@ component {
      *
      * @return Struct
      */
-    private function $getMountedState(){
+    private function getMountedState(){
         if ( structKeyExists( variables, "mountedState" ) ){
             return variables.mountedState;
         }
