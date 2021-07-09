@@ -299,12 +299,12 @@ component {
      */
     function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
-        this.$invoke( methodName = "$preUpdate" & arguments.propertyName, propertyName = arguments.value );
+        this.invokeEvent( methodName = "$preUpdate" & arguments.propertyName, propertyName = arguments.value );
 
         variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
         // Invoke '$postUpdate[prop]' event
-        this.$invoke( methodName = "$postUpdate" & arguments.propertyName, propertyName = arguments.value );
+        this.invokeEvent( methodName = "$postUpdate" & arguments.propertyName, propertyName = arguments.value );
     }
 
     /**
@@ -400,7 +400,7 @@ component {
      *
      * @return Any
      */
-    function $invoke( required methodName ){
+    function invokeEvent( required methodName ){
         return invoke(
             this,
             arguments.methodName,
@@ -417,7 +417,7 @@ component {
      */
     function $refresh(){
         // Invoke '$postRefresh' event
-        this.$invoke( "$postRefresh" );
+        this.invokeEvent( "$postRefresh" );
     }
 
     /**
@@ -433,14 +433,14 @@ component {
         trackEmit = true
     ){
         // Invoke '$preEmit' event
-        this.$invoke(
+        this.invokeEvent(
             methodName = "$preEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
 
         // Invoke '$preEmit[EventName]' event
-        this.$invoke(
+        this.invokeEvent(
             methodName = "$preEmit" & arguments.eventName,
             parameters = arguments.parameters
         );
@@ -461,19 +461,19 @@ component {
             var listener = listeners[ eventName ];
 
             if ( len( arguments.eventName ) && this.$hasMethod( listener ) ){
-                return this.$invoke( listener );
+                return this.invokeEvent( listener );
             }
         }
 
         // Invoke 'postEmit' event
-        this.$invoke(
+        this.invokeEvent(
             methodName = "postEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
 
         // Invoke 'postEmit[EventName]' event
-        this.$invoke(
+        this.invokeEvent(
             methodName = "postEmit" & arguments.eventName,
             parameters = arguments.parameters
         );

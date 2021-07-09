@@ -184,7 +184,7 @@ component singleton {
      */
     function applyUpdates( comp ){
         // Fire our preUpdate lifecycle event.
-        arguments.comp.$invoke( "preUpdate" );
+        arguments.comp.invokeEvent( "preUpdate" );
 
         // Update the state of our component with each of our updates
         this.getUpdates()
@@ -193,7 +193,7 @@ component singleton {
             } );
 
         // Fire our postUpdate lifecycle event.
-        arguments.comp.$invoke( "preUpdate" );
+        arguments.comp.invokeEvent( "preUpdate" );
     }
 
     /**
@@ -205,7 +205,7 @@ component singleton {
      */
     function hydrateComponent( comp ){
         // Invoke '$preHydrate' event
-        arguments.comp.$invoke( "$preHydrate" );
+        arguments.comp.invokeEvent( "$preHydrate" );
 
         if ( this.hasMountedState() ){
             arguments.comp.$setMountedState( this.getMountedState() );
@@ -217,12 +217,12 @@ component singleton {
                 .data
                 .each( function( key, value ){
                     // Call the setter method
-                    comp.$invoke( "set" & arguments.key, arguments.value );
+                    comp.invokeEvent( "set" & arguments.key, arguments.value );
                 } );
         }
 
         // Invoke '$postHydrate' event
-        arguments.comp.$invoke( "$postHydrate" );
+        arguments.comp.invokeEvent( "$postHydrate" );
 
         // Check if our request contains updates, and if so apply them.
         if ( this.hasUpdates() ){
