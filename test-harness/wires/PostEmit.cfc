@@ -3,7 +3,7 @@ component extends="cbwire.models.Component" {
     variables.data = { "message" : "" };
 
     function emitEvent(){
-        this.$emit( "SomeEvent" );
+        this.emit( "SomeEvent" );
     }
 
     function $postEmit( eventName, parameters ){

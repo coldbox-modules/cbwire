@@ -210,46 +210,46 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "tracks emits", function(){
-                    componentObj.$emit( "someEvent" );
-                    componentObj.$emitSelf( "someOtherEvent" );
+                    componentObj.emit( "someEvent" );
+                    componentObj.emitSelf( "someOtherEvent" );
                     expect( arrayLen( componentObj.$getEmits() ) ).toBe( 2 );
                 } );
             } );
 
-            describe( "$emit", function(){
+            describe( "emit", function(){
                 it( "invokes a $preEmit method on the component if it's defined", function(){
                     componentObj.$( "$preEmit", true );
-                    componentObj.$emit( "SomeEvent" );
+                    componentObj.emit( "SomeEvent" );
                     expect( componentObj.$once( "$preEmit" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$preEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
                 } );
 
                 it( "invokes a $postEmit method on the component if it's defined", function(){
                     componentObj.$( "$postEmit", true );
-                    componentObj.$emit( "SomeEvent" );
+                    componentObj.emit( "SomeEvent" );
                     expect( componentObj.$once( "$postEmit" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$postEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
                 } );
 
                 it( "invokes a $preEmit[EventName] method on the component if it's defined", function(){
                     componentObj.$( "$preEmitBTTF", true );
-                    componentObj.$emit( "BTTF", [ "gigawatt" ] );
+                    componentObj.emit( "BTTF", [ "gigawatt" ] );
                     expect( componentObj.$once( "$preEmitBTTF" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$preEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
                 } );
 
                 it( "invokes a $postEmit[EventName] method on the component if it's defined", function(){
                     componentObj.$( "$postEmitBTTF", true );
-                    componentObj.$emit( "BTTF", [ "gigawatt" ] );
+                    componentObj.emit( "BTTF", [ "gigawatt" ] );
                     expect( componentObj.$once( "$postEmitBTTF" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "$postEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
                 } );
 
             } );
 
-            describe( "$emitSelf", function(){
+            describe( "emitSelf", function(){
                 it( "tracks the expected values", function(){
-                    componentObj.$emitSelf(
+                    componentObj.emitSelf(
                         "test",
                         [
                             "how",
@@ -279,9 +279,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$emitUp", function(){
+            describe( "emitUp", function(){
                 it( "tracks the expected values", function(){
-                    componentObj.$emitUp( "test", [ "hello", "world" ] );
+                    componentObj.emitUp( "test", [ "hello", "world" ] );
                     expect( componentObj.$getEmits()[ 1 ] ).toBe( {
                         "event" : "test",
                         "params" : [ "hello", "world" ],
@@ -290,10 +290,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$emitTo", function(){
+            describe( "emitTo", function(){
                 it( "tracks the expected values", function(){
-                    componentObj.$emitTo( "event1", "component1" );
-                    componentObj.$emitTo(
+                    componentObj.emitTo( "event1", "component1" );
+                    componentObj.emitTo(
                         "event2",
                         "component2",
                         [ "hello", "world" ]
@@ -330,8 +330,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
                 it( "returns emitted events", function(){
                     componentObj.$( "$renderIt", "" );
-                    componentObj.$emit( "event1" );
-                    componentObj.$emitSelf( eventName = "event2", parameters = { hello: "world" } );
+                    componentObj.emit( "event1" );
+                    componentObj.emitSelf( eventName = "event2", parameters = { hello: "world" } );
                     expect( componentObj.$getMemento().effects.emits ).toBeArray();
                     expect( arrayLen( componentObj.$getMemento().effects.emits ) ).toBe( 2 );
                     expect( componentObj.$getMemento().effects.emits[ 1 ] ).toBe( {

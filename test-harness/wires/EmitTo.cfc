@@ -1,7 +1,7 @@
 component extends="cbwire.models.Component" {
 
     function someAction(){
-        this.$emitTo( "wires.FireEvent2", "someEvent" );
+        this.emitTo( "wires.FireEvent2", "someEvent" );
     }
 
     function $renderIt(){

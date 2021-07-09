@@ -5,7 +5,7 @@ component extends="cbwire.models.Component" {
     variables.$listeners = { "someEvent" : "someListener" };
 
     function someAction(){
-        this.$emit( "someEvent" );
+        this.emit( "someEvent" );
     }
 
     function someListener(){

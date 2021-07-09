@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
     }
 
     function someAction(){
-        this.$emit( "someOtherEvent", [ "grant", "allen", "copley" ] );
+        this.emit( "someOtherEvent", [ "grant", "allen", "copley" ] );
     }
 
     function $renderIt(){

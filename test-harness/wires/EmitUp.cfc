@@ -20,12 +20,12 @@ component extends="cbwire.models.Component" {
     }
 
     function emitViaAction(){
-        this.$emitUp( "emitUpFired" );
+        this.emitUp( "emitUpFired" );
     }
 
     function postAddedListener(){
         variables.data.message = "postAddedListener() fired!";
-        this.$emitUp( "emitUpFired" );
+        this.emitUp( "emitUpFired" );
     }
 
     function $renderIt(){

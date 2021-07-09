@@ -53,7 +53,7 @@ component {
      */
     function init(){
         variables.$isInitialRendering = true;
-        variables.$emits = [];
+        variables.emits = [];
         return this;
     }
 
@@ -351,7 +351,7 @@ component {
      * @return Array
      */
     function $getEmits(){
-        return variables.$emits;
+        return variables.emits;
     }
 
     /**
@@ -427,7 +427,7 @@ component {
      * @parameters Struct | The params passed with the emitter.
      * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
      */
-    function $emit(
+    function emit(
         required eventName,
         parameters = {},
         trackEmit = true
@@ -489,7 +489,7 @@ component {
 	 *
 	 * @return Void
 	 */
-    function $emitSelf( required eventName, parameters = {} ){
+    function emitSelf( required eventName, parameters = {} ){
         var emitter = createObject( "component", "cbwire.models.emit.EmitSelf" ).init(
             arguments.eventName,
             arguments.parameters
@@ -508,7 +508,7 @@ component {
      *
      * @return Void
      */
-    function $emitUp( required eventName, parameters = {} ){
+    function emitUp( required eventName, parameters = {} ){
         var emitter = createObject( "component", "cbwire.models.emit.EmitUp" ).init(
             arguments.eventName,
             arguments.parameters
@@ -528,7 +528,7 @@ component {
      *
      * @return Void
      */
-    function $emitTo(
+    function emitTo(
         required eventName,
         required componentName,
         parameters = []
@@ -656,7 +656,7 @@ component {
      */
     private function $trackEmit( required emitter ){
         var result = emitter.getResult();
-        variables.$emits.append( result );
+        variables.emits.append( result );
     }
 
     /**
