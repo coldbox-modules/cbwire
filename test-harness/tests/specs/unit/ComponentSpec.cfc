@@ -153,7 +153,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$renderView", function(){
+            describe( "renderView", function(){
                 beforeEach( function(){
                     componentObj.$property(
                         propertyName = "$renderer",
@@ -167,7 +167,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "provides rendering", function(){
-                    expect( componentObj.$renderView( "someView" ) ).toInclude( "<div" );
+                    expect( componentObj.renderView( "someView" ) ).toInclude( "<div" );
                 } );
 
                 it( "should support various outer element tags", function(){
@@ -183,7 +183,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                                 }
                             }
                         );
-                        expect( componentObj.$renderView( "someView" ) ).toInclude( "<#arguments.element# wire:id=" );
+                        expect( componentObj.renderView( "someView" ) ).toInclude( "<#arguments.element# wire:id=" );
                     } );
                 } );
 
@@ -198,7 +198,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         }
                     );
                     expect( function(){
-                        componentObj.$renderView( "someView" )
+                        componentObj.renderView( "someView" )
                     } ).toThrow( type = "OuterElementNotFound" );
                 } );
             } );

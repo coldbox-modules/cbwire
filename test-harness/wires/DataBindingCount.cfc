@@ -10,7 +10,7 @@ component
     }
 
     function renderIt(){
-        return this.$renderView( "_wires/dataBindingCount" );
+        return this.renderView( "_wires/dataBindingCount" );
     }
 
 }

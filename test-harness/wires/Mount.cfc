@@ -12,7 +12,7 @@ component
     }
 
     function renderIt(){
-        return this.$renderView( "_wires/mount" );
+        return this.renderView( "_wires/mount" );
     }
 
 }

@@ -237,7 +237,7 @@ component {
      *
      * @return String
      */
-    function $renderView(){
+    function renderView(){
         // Pass the properties of the cbwire component as variables to the view
         arguments.args = this.$getState();
 
