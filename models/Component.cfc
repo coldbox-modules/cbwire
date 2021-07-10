@@ -383,10 +383,10 @@ component {
      * @return Struct
      */
     function getMeta(){
-        if ( !structKeyExists( variables, "$meta" ) ){
-            variables.$meta = getMetadata( this );
+        if ( !structKeyExists( variables, "meta" ) ){
+            variables.meta = getMetadata( this );
         }
-        return variables.$meta;
+        return variables.meta;
     }
 
 

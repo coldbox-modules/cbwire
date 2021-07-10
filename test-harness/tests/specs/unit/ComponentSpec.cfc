@@ -97,7 +97,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 it( "should cache the results", function(){
                     componentObj.$property(
-                        propertyName = "$meta",
+                        propertyName = "meta",
                         propertyScope = "variables",
                         mock = "some meta"
                     );
@@ -108,7 +108,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 it( "should return cached results if they exists", function(){
                     componentObj.$property(
-                        propertyName = "$meta",
+                        propertyName = "meta",
                         propertyScope = "variables",
                         mock = "some meta"
                     );
