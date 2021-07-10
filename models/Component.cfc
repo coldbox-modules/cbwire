@@ -588,11 +588,11 @@ component {
      *
      * @return Void
      */
-    function $reset( property ){
+    function reset( property ){
         if ( isArray( arguments.property ) ){
             // Reset each property in our array individually
             arguments.property.each( function( prop ){
-                this.$reset( prop );
+                this.reset( prop );
             } );
         } else{
             // Reset individual property
