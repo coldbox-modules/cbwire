@@ -114,7 +114,7 @@ component {
                 "id" : this.getID(),
                 "name" : this.getMeta().name,
                 "locale" : "en",
-                "path" : this.$getPath(),
+                "path" : this.getPath(),
                 "method" : "GET"
             },
             "effects" : { "listeners" : variables.getListenerNames() },
@@ -144,7 +144,7 @@ component {
                 "dirty" : [
                     "count" // need to fix
                 ],
-                "path" : this.$getPath(),
+                "path" : this.getPath(),
                 "emits" : this.getEmits()
             },
             "serverMemo" : {
@@ -316,7 +316,7 @@ component {
      *
      * @return String
      */
-    function $getPath(){
+    function getPath(){
         var queryStringValues = variables.$getQueryStringValues();
 
         if ( len( queryStringValues ) ){

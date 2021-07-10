@@ -36,9 +36,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$getPath", function(){
+            describe( "getPath", function(){
                 it( "returns empty string by default", function(){
-                    expect( componentObj.$getPath() ).toBe( "" );
+                    expect( componentObj.getPath() ).toBe( "" );
                 } );
 
                 it( "includes properties we've defined in our component as variables.$queryString", function(){
@@ -54,7 +54,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         mock = { "count" : 2 }
                     );
 
-                    expect( componentObj.$getPath() ).toInclude( "?count=2" );
+                    expect( componentObj.getPath() ).toInclude( "?count=2" );
                 } );
 
                 it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
@@ -71,7 +71,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         mock = { "count" : 2 }
                     );
 
-                    expect( componentObj.$getPath() ).toBe( "http://localhost?count=2" );
+                    expect( componentObj.getPath() ).toBe( "http://localhost?count=2" );
                 } );
             } );
 
