@@ -452,7 +452,7 @@ component {
                 arguments.parameters
             );
 
-            variables.$trackEmit( emitter );
+            variables.trackEmit( emitter );
         }
 
         var listeners = this.getListeners();
@@ -496,7 +496,7 @@ component {
         );
 
         // Capture the emit as we will need to notify the UI in our response
-        variables.$trackEmit( emitter );
+        variables.trackEmit( emitter );
     }
 
     /**
@@ -515,7 +515,7 @@ component {
         );
 
         // Capture the emit as we will need to notify the UI in our response
-        variables.$trackEmit( emitter );
+        variables.trackEmit( emitter );
     }
 
     /**
@@ -540,7 +540,7 @@ component {
         );
 
         // Capture the emit as we will need to notify the UI in our response
-        variables.$trackEmit( emitter );
+        variables.trackEmit( emitter );
     }
 
     /**
@@ -654,7 +654,7 @@ component {
      * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
      * @return Array;
      */
-    private function $trackEmit( required emitter ){
+    private function trackEmit( required emitter ){
         var result = emitter.getResult();
         variables.emits.append( result );
     }
