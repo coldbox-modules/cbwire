@@ -208,18 +208,19 @@ component accessors="true" singleton {
     }
 
     /**
-     * Hydrates the provided component with state from our request.
+     * Hydrates the incoming component with state from our request.
      *
-     * @comp cbwire.models.Component | Component we are updating.
-     *
-     * @return Void
+     * @return Component
      */
-    function hydrateComponent( comp ){
+    function hydrate(){
+
+        var comp = variables.getComponent();
+
         // Invoke '$preHydrate' event
-        arguments.comp.invokeEvent( "$preHydrate" );
+        comp.invokeEvent( "$preHydrate" );
 
         if ( this.hasMountedState() ){
-            arguments.comp.setMountedState( this.getMountedState() );
+            comp.setMountedState( this.getMountedState() );
         }
 
         // Check if our request contains a server memo, and if so update our component state.
@@ -233,12 +234,14 @@ component accessors="true" singleton {
         }
 
         // Invoke '$postHydrate' event
-        arguments.comp.invokeEvent( "$postHydrate" );
+        comp.invokeEvent( "$postHydrate" );
 
         // Check if our request contains updates, and if so apply them.
         if ( this.hasUpdates() ){
-            this.applyUpdates( arguments.comp );
+            this.applyUpdates( comp );
         }
+
+        return comp;
     }
 
     /**

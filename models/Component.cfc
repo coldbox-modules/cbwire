@@ -228,7 +228,7 @@ component {
      */
     function hydrate(){
         variables.$isInitialRendering = false;
-        variables.$wireRequest.hydrateComponent( this );
+        variables.$wireRequest.hydrate( this );
         return this;
     }
 

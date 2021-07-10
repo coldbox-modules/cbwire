@@ -12,7 +12,6 @@ component {
         return variables.wirebox
             .getInstance( "cbwire.models.WireRequest" )
             .withComponent( arguments.rc.wireComponent )
-            .getComponent()
             .hydrate()
             .getMemento();
     }

@@ -23,7 +23,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             beforeEach( function( currentSpec ){
                 setup();
                 event = getRequestContext();
-                wireRequest = getInstance( name = "cbwire.models.WireRequest", initArguments = { "event" : event } );
+                wireRequest = prepareMock( getInstance( name = "cbwire.models.WireRequest", initArguments = { "event" : event } ) );
             } );
 
             it( "can be instantiated", function(){
@@ -37,13 +37,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( wireRequest.hasUpdates() ).toBeTrue();
             } );
 
-            describe( "hydrateComponent", function(){
+            describe( "hydrate", function(){
                 it( "fires '$preHydrate' event", function(){
                     var comp = prepareMock(
                         getInstance( name = "cbwire.models.Component", initArguments = { "wireRequest" : wireRequest } )
                     );
                     comp.$( "$preHydrate", true );
-                    wireRequest.hydrateComponent( comp );
+                    wireRequest.$( "getComponent", comp );
+                    wireRequest.hydrate();
                     expect( comp.$once( "$preHydrate" ) ).toBeTrue();
                 } );
 
@@ -53,7 +54,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     );
                     comp.$( "$preHydrate", true );
                     comp.$( "$postHydrate", true );
-                    wireRequest.hydrateComponent( comp );
+                    wireRequest.$( "getComponent", comp );
+                    wireRequest.hydrate();
                     expect( comp.$once( "$preHydrate" ) ).toBeTrue();
                     expect( comp.$once( "$postHydrate" ) ).toBeTrue();
                 } );
