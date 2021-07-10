@@ -628,15 +628,15 @@ component {
      */
     private function getQueryStringValues(){
         // Default with an empty array
-        if ( !structKeyExists( variables, "$queryString" ) ){
+        if ( !structKeyExists( variables, "queryString" ) ){
             return "";
         }
 
         var currentState = this.getState();
 
         // Handle array of property names
-        if ( isArray( variables.$queryString ) ){
-            var result = variables.$queryString.reduce( function( agg, prop ){
+        if ( isArray( variables.queryString ) ){
+            var result = variables.queryString.reduce( function( agg, prop ){
                 agg &= prop & "=" & currentState[ prop ];
                 return agg;
             }, "" );
