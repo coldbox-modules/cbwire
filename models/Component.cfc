@@ -290,7 +290,7 @@ component {
      * if it exists, and otherwise setting directly to our variables
      * scope.
      *
-     * Fires '$preUpdate[prop]' and '$postUpdate[prop]' events on the cbwire component.
+     * Fires '$preUpdate[prop]' and 'postUpdate[prop]' events on the cbwire component.
      *
      * @propertyName String | Name of the property we are setting
      * @value Any | Value of the property we are settting
@@ -303,8 +303,8 @@ component {
 
         variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
-        // Invoke '$postUpdate[prop]' event
-        this.invokeEvent( methodName = "$postUpdate" & arguments.propertyName, propertyName = arguments.value );
+        // Invoke 'postUpdate[prop]' event
+        this.invokeEvent( methodName = "postUpdate" & arguments.propertyName, propertyName = arguments.value );
     }
 
     /**

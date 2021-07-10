@@ -398,10 +398,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "fires 'postUpdate[prop] event", function(){
-                    componentObj.$( "$postUpdateName", true );
+                    componentObj.$( "postUpdateName", true );
                     componentObj.$set( propertyName = "name", value = "test" );
-                    expect( componentObj.$once( "$postUpdateName" ) ).toBeTrue();
-                    expect( componentObj.$callLog()[ "$postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
+                    expect( componentObj.$once( "postUpdateName" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
                 } );
 
                 it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
