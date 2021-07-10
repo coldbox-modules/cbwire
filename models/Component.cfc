@@ -415,7 +415,7 @@ component {
      *
      * @return Void
      */
-    function $refresh(){
+    function refresh(){
         // Invoke '$postRefresh' event
         this.invokeEvent( "$postRefresh" );
     }
