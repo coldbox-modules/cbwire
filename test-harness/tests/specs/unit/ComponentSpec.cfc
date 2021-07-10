@@ -312,10 +312,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             describe( "refresh", function(){
-                it( "fires '$postRefresh' event", function(){
-                    componentObj.$( "$postRefresh", true );
+                it( "fires 'postRefresh' event", function(){
+                    componentObj.$( "postRefresh", true );
                     componentObj.refresh();
-                    expect( componentObj.$once( "$postRefresh" ) ).toBeTrue();
+                    expect( componentObj.$once( "postRefresh" ) ).toBeTrue();
                 } );
             } );
 

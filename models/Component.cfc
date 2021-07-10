@@ -409,15 +409,15 @@ component {
     }
 
     /**
-     * Invokes a $postRefresh event and currently nothing else.
+     * Invokes a postRefresh event and currently nothing else.
      * This is used with cbwire's polling functionality which
      * refreshes the component.
      *
      * @return Void
      */
     function refresh(){
-        // Invoke '$postRefresh' event
-        this.invokeEvent( "$postRefresh" );
+        // Invoke 'postRefresh' event
+        this.invokeEvent( "postRefresh" );
     }
 
     /**
