@@ -170,15 +170,15 @@ component {
 
     /**
      * Invokes renderIt() on the cbwire component and caches the rendered
-     * results into variables.$rendering.
+     * results into variables.rendering.
      *
      * @return String
      */
     function getRendering(){
-        if ( !structKeyExists( variables, "$rendering" ) ){
-            variables.$rendering = this.renderIt();
+        if ( !structKeyExists( variables, "rendering" ) ){
+            variables.rendering = this.renderIt();
         }
-        return variables.$rendering;
+        return variables.rendering;
     }
 
     /**

@@ -352,9 +352,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.getRendering() ).toBe( "got here" );
                 } );
 
-                it( "returns the cached results in variables.$rendering", function(){
+                it( "returns the cached results in variables.rendering", function(){
                     componentObj.$property(
-                        propertyName = "$rendering",
+                        propertyName = "rendering",
                         propertyScope = "variables",
                         mock = "got here too"
                     );
