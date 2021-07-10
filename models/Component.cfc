@@ -317,7 +317,7 @@ component {
      * @return String
      */
     function getPath(){
-        var queryStringValues = variables.$getQueryStringValues();
+        var queryStringValues = variables.getQueryStringValues();
 
         if ( len( queryStringValues ) ){
             var referer = variables.getHTTPReferer();
@@ -626,7 +626,7 @@ component {
      *
      * @return String
      */
-    private function $getQueryStringValues(){
+    private function getQueryStringValues(){
         // Default with an empty array
         if ( !structKeyExists( variables, "$queryString" ) ){
             return "";
