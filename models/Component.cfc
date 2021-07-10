@@ -252,7 +252,7 @@ component {
      * Fires when the cbwire component is initially created.
      * Looks to see if a mount() method is defined on our component and if so, invokes it.
      *
-     * This method is given the $_ prefix to avoid collision with the mount method
+     * This method is given the $ prefix to avoid collision with the mount method
      * that can be optionally defined on a cbwire component.
      *
      * @parameters Struct of params to bind into the component
