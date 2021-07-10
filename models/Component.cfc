@@ -221,18 +221,6 @@ component {
     }
 
     /**
-     * This hydrates (re-populates) our component state with
-     * values provided by the incoming wire object.
-     *
-     * @return Component
-     */
-    function hydrate(){
-        variables.$isInitialRendering = false;
-        variables.$wireRequest.hydrate( this );
-        return this;
-    }
-
-    /**
      * Renders our component's view and returns the rendering.
      *
      * @return String
