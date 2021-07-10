@@ -75,9 +75,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "$getListeners", function(){
+            describe( "getListeners", function(){
                 it( "should return empty struct by default", function(){
-                    expect( componentObj.$getListeners() ).toBe( {} );
+                    expect( componentObj.getListeners() ).toBe( {} );
                 } );
 
                 it( "should return listeners defined on the component", function(){
@@ -86,7 +86,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "variables",
                         mock = { "someEvent" : "someMethod" }
                     );
-                    expect( componentObj.$getListeners() ).toBe( { "someEvent" : "someMethod" } );
+                    expect( componentObj.getListeners() ).toBe( { "someEvent" : "someMethod" } );
                 } );
             } );
 

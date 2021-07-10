@@ -369,7 +369,7 @@ component {
      *
      * @return Struct
      */
-    function $getListeners(){
+    function getListeners(){
         if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ){
             return variables.listeners;
         }
@@ -455,7 +455,7 @@ component {
             variables.$trackEmit( emitter );
         }
 
-        var listeners = this.$getListeners();
+        var listeners = this.getListeners();
 
         if ( structKeyExists( listeners, eventName ) ){
             var listener = listeners[ eventName ];
@@ -665,7 +665,7 @@ component {
      * @return Array
      */
     private function getListenerNames(){
-        return structKeyList( this.$getListeners() ).listToArray();
+        return structKeyList( this.getListeners() ).listToArray();
     }
 
     /**

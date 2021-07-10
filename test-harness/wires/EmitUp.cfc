@@ -5,7 +5,7 @@ component extends="cbwire.models.Component" {
         "message" : ""
     };
 
-    function $getListeners(){
+    function getListeners(){
         if ( variables.data.isChild ){
             return {};
         }
