@@ -245,7 +245,7 @@ component {
         var rendering = variables.$renderer.renderView( argumentCollection = arguments );
 
         // Add properties to top element to make cbwire actually work.
-        return variables.$applyWiringToOuterElement( rendering );
+        return variables.applyWiringToOuterElement( rendering );
     }
 
     /**
@@ -673,7 +673,7 @@ component {
      *
      * @rendering String | The view rendering.
      */
-    private function $applyWiringToOuterElement( required rendering ){
+    private function applyWiringToOuterElement( required rendering ){
         var renderingResult = "";
 
         // Provide a hash of our rendering which is used by Livewire JS.
