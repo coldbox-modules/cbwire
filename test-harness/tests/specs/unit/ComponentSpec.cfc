@@ -58,7 +58,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
-                    componentObj.$( "$getHTTPReferer", "http://localhost?count=1" );
+                    componentObj.$( "getHTTPReferer", "http://localhost?count=1" );
                     componentObj.$property(
                         propertyName = "$queryString",
                         propertyScope = "variables",

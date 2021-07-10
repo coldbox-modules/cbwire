@@ -320,7 +320,7 @@ component {
         var queryStringValues = variables.$getQueryStringValues();
 
         if ( len( queryStringValues ) ){
-            var referer = variables.$getHTTPReferer();
+            var referer = variables.getHTTPReferer();
 
             // Strip away any queryString parameters from the referer so
             // we don't duplicate them when we append the queryStringValues below.
@@ -680,7 +680,7 @@ component {
         var renderingHash = hash( arguments.rendering );
 
         // Determine our outer element.
-        var outerElement = variables.$getOuterElement( arguments.rendering );
+        var outerElement = variables.getOuterElement( arguments.rendering );
 
         // Add properties to top element to make cbwire actually work.
         if ( variables.$isInitialRendering ){
@@ -708,7 +708,7 @@ component {
      *
      * @rendering String | The view rendering.
      */
-    private function $getOuterElement( required rendering ){
+    private function getOuterElement( required rendering ){
         var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
 
         if ( arrayLen( matches ) ){
@@ -723,7 +723,7 @@ component {
      *
      * @return String
      */
-    private function $getHTTPReferer(){
+    private function getHTTPReferer(){
         return cgi.HTTP_REFERER;
     }
 
