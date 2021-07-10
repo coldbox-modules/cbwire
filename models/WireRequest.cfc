@@ -171,7 +171,7 @@ component singleton {
      */
     function renderIt( componentName, parameters = {} ){
         return withComponent( arguments.componentName )
-            ._mount( arguments.parameters )
+            .$mount( arguments.parameters )
             .renderIt();
     }
 
