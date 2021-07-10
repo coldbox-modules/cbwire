@@ -1,7 +1,13 @@
 /**
  * Represents a subsequent, incoming cbwire XHR Request from the browser.
  */
-component singleton {
+component accessors="true" singleton {
+
+
+    /**
+     * Hold a reference to the cbwire component we are updating.
+     */
+    property name="component";
 
     /**
      * Injected ColdBox controller which we will use to access our app and module settings
@@ -153,11 +159,15 @@ component singleton {
 
         if ( find( "@", arguments.componentName ) ){
             // This is a module reference, find in our module
-            return getModuleComponent( arguments.componentName );
+            var comp = getModuleComponent( arguments.componentName );
         } else{
             // Look in our root folder for our cbwire component
-            return getRootComponent( arguments.componentName );
+            var comp = getRootComponent( arguments.componentName );
         }
+
+        variables.setComponent( comp );
+
+        return this;
     }
 
     /**
@@ -171,6 +181,7 @@ component singleton {
      */
     function renderIt( componentName, parameters = {} ){
         return withComponent( arguments.componentName )
+            .getComponent()
             .$mount( arguments.parameters )
             .renderIt();
     }
