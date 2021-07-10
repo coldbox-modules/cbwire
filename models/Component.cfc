@@ -432,16 +432,16 @@ component {
         parameters = {},
         trackEmit = true
     ){
-        // Invoke '$preEmit' event
+        // Invoke 'preEmit' event
         this.invokeEvent(
-            methodName = "$preEmit",
+            methodName = "preEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
 
-        // Invoke '$preEmit[EventName]' event
+        // Invoke 'preEmit[EventName]' event
         this.invokeEvent(
-            methodName = "$preEmit" & arguments.eventName,
+            methodName = "preEmit" & arguments.eventName,
             parameters = arguments.parameters
         );
 

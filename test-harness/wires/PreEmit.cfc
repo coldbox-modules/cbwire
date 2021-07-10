@@ -6,8 +6,8 @@ component extends="cbwire.models.Component" {
         this.emit( "SomeEvent" );
     }
 
-    function $preEmit( eventName, parameters ){
-        variables.data.message = "Called $preEmit for event '#arguments.eventName#'!";
+    function preEmit( eventName, parameters ){
+        variables.data.message = "Called preEmit for event '#arguments.eventName#'!";
     }
 
     function renderIt(){
