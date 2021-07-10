@@ -341,7 +341,7 @@ component {
      * @state Struct
      * @return Void
      */
-    function $setMountedState( required state ){
+    function setMountedState( required state ){
         variables.mountedState = arguments.state;
     }
 
@@ -611,14 +611,6 @@ component {
         }
         return {};
     }
-
-    /**
-     * Redirects/relocates using ColdBox relocation
-     */
-    // private function $relocate(){
-    //     return $renderer.relocate( argumentCollection = arguments );
-    // }
-
 
     /**
      * Check if there are properties to be included in our query string

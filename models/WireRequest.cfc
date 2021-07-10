@@ -208,7 +208,7 @@ component singleton {
         arguments.comp.invokeEvent( "$preHydrate" );
 
         if ( this.hasMountedState() ){
-            arguments.comp.$setMountedState( this.getMountedState() );
+            arguments.comp.setMountedState( this.getMountedState() );
         }
 
         // Check if our request contains a server memo, and if so update our component state.
