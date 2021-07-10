@@ -391,10 +391,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
 
                 it( "fires 'preUpdate[prop] event", function(){
-                    componentObj.$( "$preUpdateName", true );
+                    componentObj.$( "preUpdateName", true );
                     componentObj.$set( propertyName = "name", value = "test" );
-                    expect( componentObj.$once( "$preUpdateName" ) ).toBeTrue();
-                    expect( componentObj.$callLog()[ "$preUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
+                    expect( componentObj.$once( "preUpdateName" ) ).toBeTrue();
+                    expect( componentObj.$callLog()[ "preUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
                 } );
 
                 it( "fires 'postUpdate[prop] event", function(){

@@ -299,7 +299,7 @@ component {
      */
     function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
-        this.invokeEvent( methodName = "$preUpdate" & arguments.propertyName, propertyName = arguments.value );
+        this.invokeEvent( methodName = "preUpdate" & arguments.propertyName, propertyName = arguments.value );
 
         variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
