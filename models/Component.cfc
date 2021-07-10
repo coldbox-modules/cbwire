@@ -44,7 +44,7 @@ component {
      * This should be overidden in the child component with
      * computed properties.
      */
-    this.$computed = {};
+    variables.$computed = {};
 
     /**
      * Our beautiful, simple constructor.
@@ -201,8 +201,8 @@ component {
          */
         var state = variables.data;
 
-        if ( structKeyExists( this, "$computed" ) ){
-            this.$computed.each( function( key, value ){
+        if ( structKeyExists( variables, "$computed" ) ){
+            variables.$computed.each( function( key, value ){
                 state[ key ] = value;
             } );
         }

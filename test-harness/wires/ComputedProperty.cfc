@@ -7,7 +7,7 @@ component extends="cbwire.models.Component" {
     };
 
     // Computed properties
-    this.$computed = {
+    variables.$computed = {
         "myTimestamp" : function(){
             return variables.data.timestamp;
         }
