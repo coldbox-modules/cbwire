@@ -259,7 +259,7 @@ component {
      *
      * @return Component
      */
-    function _mount( parameters = {} ){
+    function $mount( parameters = {} ){
         if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ){
             this[ "mount" ](
                 parameters = arguments.parameters,
