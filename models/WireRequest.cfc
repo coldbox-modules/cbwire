@@ -195,7 +195,7 @@ component accessors="true" singleton {
      */
     function applyUpdates( comp ){
         // Fire our preUpdate lifecycle event.
-        arguments.comp.invokeEvent( "preUpdate" );
+        arguments.comp.invokeMethod( "preUpdate" );
 
         // Update the state of our component with each of our updates
         this.getUpdates()
@@ -204,7 +204,7 @@ component accessors="true" singleton {
             } );
 
         // Fire our postUpdate lifecycle event.
-        arguments.comp.invokeEvent( "preUpdate" );
+        arguments.comp.invokeMethod( "preUpdate" );
     }
 
     /**
@@ -217,7 +217,7 @@ component accessors="true" singleton {
         var comp = variables.getComponent();
 
         // Invoke '$preHydrate' event
-        comp.invokeEvent( "$preHydrate" );
+        comp.invokeMethod( "$preHydrate" );
 
         if ( this.hasMountedState() ){
             comp.setMountedState( this.getMountedState() );
@@ -229,20 +229,49 @@ component accessors="true" singleton {
                 .data
                 .each( function( key, value ){
                     // Call the setter method
-                    comp.invokeEvent( "set" & arguments.key, arguments.value );
+                    comp.invokeMethod( methodName="set" & arguments.key, value=arguments.value );
                 } );
         }
 
         // Invoke '$postHydrate' event
-        comp.invokeEvent( "$postHydrate" );
+        comp.invokeMethod( "$postHydrate" );
 
         // Check if our request contains updates, and if so apply them.
         if ( this.hasUpdates() ){
             this.applyUpdates( comp );
         }
 
-        return comp;
+        return this;
     }
+
+    /**
+     * Returns the memento for our component which holds the current
+     * state of our component. This is returned on subsequent XHR requests
+     * from cbwire.
+     *
+     * @return Struct
+     */
+    function getMemento(){
+
+        var comp = getComponent();
+
+        return {
+            "effects" : {
+                "html" : comp.getRendering(),
+                "dirty" : [
+                    "count" // need to fix
+                ],
+                "path" : comp.getPath(),
+                "emits" : comp.getEmits()
+            },
+            "serverMemo" : {
+                "htmlHash" : "71146cf2",
+                "data" : comp.getState(),
+                "checksum" : comp.getChecksum(),
+                "mountedState" : this.getMountedState()
+            }
+        }
+    }    
 
     /**
      * Returns a cbwire component using the root "HelloWorld" convention.

@@ -319,7 +319,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } );
             } );
 
-            describe( "getMemento", function(){
+            xdescribe( "getMemento", function(){
                 it( "returns a struct", function(){
                     componentObj.$( "renderIt", "" );
                     expect( componentObj.getMemento() ).toBeStruct();
@@ -332,13 +332,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     componentObj.$( "renderIt", "" );
                     componentObj.emit( "event1" );
                     componentObj.emitSelf( eventName = "event2", parameters = { hello: "world" } );
-                    expect( componentObj.getMemento().effects.emits ).toBeArray();
-                    expect( arrayLen( componentObj.getMemento().effects.emits ) ).toBe( 2 );
-                    expect( componentObj.getMemento().effects.emits[ 1 ] ).toBe( {
+                    wireRequest.$( "getComponent", componentObj );
+
+                    var memento = wireRequest.getMemento();
+                    expect( memento.effects.emits ).toBeArray();
+
+                    expect( arrayLen( memento.effects.emits ) ).toBe( 2 );
+                    expect( memento.effects.emits[ 1 ] ).toBe( {
                         "event" : "event1",
                         "params" : {}
                     } );
-                    expect( componentObj.getMemento().effects.emits[ 2 ] ).toBe( {
+                    expect( memento.effects.emits[ 2 ] ).toBe( {
                         "event" : "event2",
                         "params" : { hello: "world" },
                         "selfOnly" : true

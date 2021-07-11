@@ -131,32 +131,6 @@ component {
     }
 
     /**
-     * Returns the memento for our component which holds the current
-     * state of our component. This is returned on subsequent XHR requests
-     * from cbwire.
-     *
-     * @return Struct
-     */
-    function getMemento(){
-        return {
-            "effects" : {
-                "html" : this.getRendering(),
-                "dirty" : [
-                    "count" // need to fix
-                ],
-                "path" : this.getPath(),
-                "emits" : this.getEmits()
-            },
-            "serverMemo" : {
-                "htmlHash" : "71146cf2",
-                "data" : this.getState(),
-                "checksum" : this.getChecksum(),
-                "mountedState" : variables.getMountedState()
-            }
-        }
-    }
-
-    /**
      * Throws an error if renderIt() is not defined on our child class.
      *
      * @return Void
@@ -287,12 +261,12 @@ component {
      */
     function $set( propertyName, value ){
         // Invoke '$preUpdate[prop]' event
-        this.invokeEvent( methodName = "preUpdate" & arguments.propertyName, propertyName = arguments.value );
+        this.invokeMethod( methodName = "preUpdate" & arguments.propertyName, propertyName = arguments.value );
 
         variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
         // Invoke 'postUpdate[prop]' event
-        this.invokeEvent( methodName = "postUpdate" & arguments.propertyName, propertyName = arguments.value );
+        this.invokeMethod( methodName = "postUpdate" & arguments.propertyName, propertyName = arguments.value );
     }
 
     /**
@@ -388,11 +362,16 @@ component {
      *
      * @return Any
      */
-    function invokeEvent( required methodName ){
+    function invokeMethod( required methodName ){
+
+        var parsedArguments = duplicate( arguments );
+
+        structDelete( parsedArguments, "methodName" );
+
         return invoke(
             this,
             arguments.methodName,
-            arguments
+            parsedArguments
         );
     }
 
@@ -405,7 +384,7 @@ component {
      */
     function refresh(){
         // Invoke 'postRefresh' event
-        this.invokeEvent( "postRefresh" );
+        this.invokeMethod( "postRefresh" );
     }
 
     /**
@@ -421,14 +400,14 @@ component {
         trackEmit = true
     ){
         // Invoke 'preEmit' event
-        this.invokeEvent(
+        this.invokeMethod(
             methodName = "preEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
 
         // Invoke 'preEmit[EventName]' event
-        this.invokeEvent(
+        this.invokeMethod(
             methodName = "preEmit" & arguments.eventName,
             parameters = arguments.parameters
         );
@@ -449,19 +428,19 @@ component {
             var listener = listeners[ eventName ];
 
             if ( len( arguments.eventName ) && this.hasMethod( listener ) ){
-                return this.invokeEvent( listener );
+                return this.invokeMethod( listener );
             }
         }
 
         // Invoke 'postEmit' event
-        this.invokeEvent(
+        this.invokeMethod(
             methodName = "postEmit",
             eventName = arguments.eventName,
             parameters = arguments.parameters
         );
 
         // Invoke 'postEmit[EventName]' event
-        this.invokeEvent(
+        this.invokeMethod(
             methodName = "postEmit" & arguments.eventName,
             parameters = arguments.parameters
         );
@@ -559,7 +538,12 @@ component {
             var dataPropertyExists = structKeyExists( variables.data, dataPropertyName );
 
             if ( dataPropertyExists ){
-                this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
+                // Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
+                if ( structKeyExists( arguments.missingMethodArguments, "value" ) ){
+                    this.$set( dataPropertyName, arguments.missingMethodArguments.value );
+                } else {
+                    this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
+                }
             } else if (
                 structKeyExists( variables.$settings, "throwOnMissingSetterMethod" ) && variables.$settings.throwOnMissingSetterMethod == true
             ){

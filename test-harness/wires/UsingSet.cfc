@@ -3,9 +3,9 @@ component
     accessors="true"
 {
 
-    property
-        name="name"
-        default="Marty";
+    variables.data = {
+        "name": "Marty"
+    };
 
     function renderIt(){
         return this.renderView( "_wires/usingSet" );

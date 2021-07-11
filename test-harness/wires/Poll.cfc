@@ -1,8 +1,8 @@
 component extends="cbwire.models.Component" {
 
-    property
-        name="timestamp"
-        default="#now()#";
+    variables.data = {
+        "timestamp": now()
+    };
 
     function getTimestamp(){
         return now() & "what!";
