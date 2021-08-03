@@ -112,6 +112,11 @@ component
      */
     function getUpdates(){
         return this.getCollection()[ "updates" ].map( function( update ){
+
+            var casedType = arguments.update.type;
+
+            casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
+
             return variables.wirebox.getInstance(
                 name = "cbwire.models.updates.#arguments.update.type#",
                 initArguments = { "update" : arguments.update }
