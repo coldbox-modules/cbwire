@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "lucee@5", "adobe@2018" ]
+        cfengine: [ "adobe@2018" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
