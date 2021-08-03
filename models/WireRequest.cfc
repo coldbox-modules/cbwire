@@ -6,7 +6,7 @@ component accessors="true" singleton {
 	/**
 	 * Hold a reference to the cbwire component we are updating.
 	 */
-	property name="component";
+	property name="wireComponent" type="Component";
 
 	/**
 	 * Injected ColdBox controller which we will use to access our app and module settings
@@ -165,7 +165,7 @@ component accessors="true" singleton {
 			var comp = getRootComponent( arguments.componentName );
 		}
 
-		variables.setComponent( comp );
+		variables.setWireComponent( comp );
 
 		return this;
 	}
@@ -181,7 +181,7 @@ component accessors="true" singleton {
 	 */
 	function renderIt( componentName, parameters = {} ){
 		return withComponent( arguments.componentName )
-			.getComponent()
+			.getWireComponent()
 			.$mount( arguments.parameters )
 			.renderIt();
 	}
@@ -213,7 +213,7 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function hydrate(){
-		var comp = variables.getComponent();
+		var comp = this.getWireComponent();
 
 		// Invoke '$preHydrate' event
 		comp.invokeMethod( "$preHydrate" );
@@ -254,7 +254,7 @@ component accessors="true" singleton {
 	 * @return Struct
 	 */
 	function getMemento(){
-		var comp = getComponent();
+		var comp = getWireComponent();
 
 		return {
 			"effects" : {

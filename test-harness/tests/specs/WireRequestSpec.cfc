@@ -51,7 +51,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						)
 					);
 					comp.$( "$preHydrate", true );
-					wireRequest.$( "getComponent", comp );
+					wireRequest.$( "getWireComponent", comp, false );
 					wireRequest.hydrate();
 					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
 				} );
@@ -65,7 +65,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 					comp.$( "$preHydrate", true );
 					comp.$( "$postHydrate", true );
-					wireRequest.$( "getComponent", comp );
+					wireRequest.$( "getWireComponent", comp, false );
 					wireRequest.hydrate();
 					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
 					expect( comp.$once( "$postHydrate" ) ).toBeTrue();
