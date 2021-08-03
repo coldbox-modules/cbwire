@@ -84,12 +84,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
-                var event = post( "/livewire/message/wires.DataBinding", {
-                    "serverMemo": {
-                        "data": {},
-                        "mountedState": {}
+                var event = post(
+                    "/livewire/message/wires.DataBinding",
+                    {
+                        "serverMemo" : {
+                            "data" : {},
+                            "mountedState" : {}
+                        }
                     }
-                } );
+                );
                 var content = event.getRenderedContent();
                 var parsedContent = deserializeJSON( content );
 

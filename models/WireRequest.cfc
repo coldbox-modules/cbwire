@@ -1,8 +1,10 @@
 /**
  * Represents a subsequent, incoming cbwire XHR Request from the browser.
  */
-component accessors="true" singleton {
-
+component
+    accessors="true"
+    singleton
+{
 
     /**
      * Hold a reference to the cbwire component we are updating.
@@ -213,7 +215,6 @@ component accessors="true" singleton {
      * @return Component
      */
     function hydrate(){
-
         var comp = variables.getComponent();
 
         // Invoke '$preHydrate' event
@@ -229,7 +230,7 @@ component accessors="true" singleton {
                 .data
                 .each( function( key, value ){
                     // Call the setter method
-                    comp.invokeMethod( methodName="set" & arguments.key, value=arguments.value );
+                    comp.invokeMethod( methodName = "set" & arguments.key, value = arguments.value );
                 } );
         }
 
@@ -252,7 +253,6 @@ component accessors="true" singleton {
      * @return Struct
      */
     function getMemento(){
-
         var comp = getComponent();
 
         return {
@@ -271,7 +271,7 @@ component accessors="true" singleton {
                 "mountedState" : this.getMountedState()
             }
         }
-    }    
+    }
 
     /**
      * Returns a cbwire component using the root "HelloWorld" convention.
