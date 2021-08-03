@@ -118,7 +118,7 @@ component
             casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
 
             return variables.wirebox.getInstance(
-                name = "cbwire.models.updates.#arguments.update.type#",
+                name = "cbwire.models.updates.#casedType#",
                 initArguments = { "update" : arguments.update }
             );
         } );
