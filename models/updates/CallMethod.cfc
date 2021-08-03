@@ -6,7 +6,6 @@ component extends="WireUpdate" {
      * @return Void
      */
     function apply( required comp ){
-
         // Handle $set calls.
         if ( variables.getPayloadMethod() == "$set" ){
             invoke(
@@ -42,7 +41,6 @@ component extends="WireUpdate" {
             type = "WireActionNotFound",
             message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
         );
-
     }
 
     /**
@@ -50,7 +48,7 @@ component extends="WireUpdate" {
      * the specific method in the update.
      *
      * @comp cbwire.models.Component | The cbwire component we are checking the callable method on.
-     * 
+     *
      * @return Boolean
      */
     private function hasCallableAction( required comp ){
@@ -76,7 +74,7 @@ component extends="WireUpdate" {
 
     /**
      * Returns the parameters included with the incoming payload.
-     * 
+     *
      * @return Array
      */
     private function getPassedParams(){
@@ -96,7 +94,7 @@ component extends="WireUpdate" {
 
     /**
      * Returns true if the payload includes a method name.
-     * 
+     *
      * @return Boolean
      */
     private function hasPayloadMethod(){
@@ -105,7 +103,7 @@ component extends="WireUpdate" {
 
     /**
      * Returns the method defined in the current payload.
-     * 
+     *
      * @return String
      */
     private function getPayloadMethod(){

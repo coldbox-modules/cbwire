@@ -20,7 +20,7 @@ component {
 
     /**
      * Returns the type of our update.
-     * 
+     *
      * @return String
      */
     function getType(){
@@ -29,9 +29,9 @@ component {
 
     /**
      * Returns true if the update matches the provided type.
-     * 
+     *
      * @checkType String | The type of update to check against.
-     * 
+     *
      * @return Boolean
      */
     function isType( checkType ){
@@ -40,7 +40,7 @@ component {
 
     /**
      * Returns true if the current update includes a payload.
-     * 
+     *
      * @return Boolean
      */
     function hasPayload(){
@@ -49,7 +49,7 @@ component {
 
     /**
      * Returns the cbwire payload sent over during the update.
-     * 
+     *
      * @return Struct
      */
     function getPayload(){

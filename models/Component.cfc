@@ -363,7 +363,6 @@ component {
      * @return Any
      */
     function invokeMethod( required methodName ){
-
         var parsedArguments = duplicate( arguments );
 
         structDelete( parsedArguments, "methodName" );
@@ -407,10 +406,7 @@ component {
         );
 
         // Invoke 'preEmit[EventName]' event
-        this.invokeMethod(
-            methodName = "preEmit" & arguments.eventName,
-            parameters = arguments.parameters
-        );
+        this.invokeMethod( methodName = "preEmit" & arguments.eventName, parameters = arguments.parameters );
 
         // Capture the emit as we will need to notify the UI in our response
         if ( arguments.trackEmit ){
@@ -440,10 +436,7 @@ component {
         );
 
         // Invoke 'postEmit[EventName]' event
-        this.invokeMethod(
-            methodName = "postEmit" & arguments.eventName,
-            parameters = arguments.parameters
-        );
+        this.invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
     }
 
     /**
@@ -541,7 +534,7 @@ component {
                 // Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
                 if ( structKeyExists( arguments.missingMethodArguments, "value" ) ){
                     this.$set( dataPropertyName, arguments.missingMethodArguments.value );
-                } else {
+                } else{
                     this.$set( dataPropertyName, arguments.missingMethodArguments[ 1 ] );
                 }
             } else if (

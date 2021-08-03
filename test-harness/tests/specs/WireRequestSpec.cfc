@@ -23,7 +23,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
             beforeEach( function( currentSpec ){
                 setup();
                 event = getRequestContext();
-                wireRequest = prepareMock( getInstance( name = "cbwire.models.WireRequest", initArguments = { "event" : event } ) );
+                wireRequest = prepareMock(
+                    getInstance( name = "cbwire.models.WireRequest", initArguments = { "event" : event } )
+                );
             } );
 
             it( "can be instantiated", function(){

@@ -244,7 +244,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( componentObj.$once( "postEmitBTTF" ) ).toBeTrue();
                     expect( componentObj.$callLog()[ "postEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
                 } );
-
             } );
 
             describe( "emitSelf", function(){
@@ -331,7 +330,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "returns emitted events", function(){
                     componentObj.$( "renderIt", "" );
                     componentObj.emit( "event1" );
-                    componentObj.emitSelf( eventName = "event2", parameters = { hello: "world" } );
+                    componentObj.emitSelf( eventName = "event2", parameters = { "hello" : "world" } );
                     wireRequest.$( "getComponent", componentObj );
 
                     var memento = wireRequest.getMemento();
@@ -344,7 +343,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     } );
                     expect( memento.effects.emits[ 2 ] ).toBe( {
                         "event" : "event2",
-                        "params" : { hello: "world" },
+                        "params" : { "hello" : "world" },
                         "selfOnly" : true
                     } );
                 } );
@@ -376,8 +375,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         propertyScope = "variables",
                         mock = renderer
                     );
-                    
-                    componentObj.$relocate( uri="/short-circuit" );
+
+                    componentObj.$relocate( uri = "/short-circuit" );
 
                     expect( renderer.$once( "relocate" ) ).toBeTrue();
                     expect( renderer.$callLog().relocate[ 1 ].uri ).toBe( "/short-circuit" );
