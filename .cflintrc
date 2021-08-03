@@ -1,3 +1,4 @@
+
 {
     "rule": [],
     "includes": [
@@ -11,7 +12,6 @@
 		{ "code": "AVOID_USING_CFINSERT_TAG" },
 		{ "code": "AVOID_USING_CFUPDATE_TAG" },
 		{ "code": "ARG_VAR_CONFLICT" },
-		{ "code": "ARG_VAR_MIXED" },
 		{ "code": "ARG_HINT_MISSING" },
 		{ "code": "ARG_HINT_MISSING_SCRIPT" },
 		{ "code" : "ARGUMENT_INVALID_NAME" },
@@ -29,8 +29,6 @@
 		{ "code" : "COMPONENT_IS_TEMPORARY" },
 		{ "code" : "COMPONENT_HAS_PREFIX_OR_POSTFIX" },
 		{ "code": "COMPLEX_BOOLEAN_CHECK" },
-        { "code": "EXCESSIVE_FUNCTION_LENGTH" },
-        { "code": "EXCESSIVE_COMPONENT_LENGTH" },
         { "code": "EXCESSIVE_ARGUMENTS" },
 		{ "code": "EXCESSIVE_FUNCTIONS" },
 		{ "code": "EXPLICIT_BOOLEAN_CHECK" },
@@ -57,6 +55,6 @@
     ],
     "inheritParent": false,
     "parameters": {
-		"TooManyFunctionsChecker.maximum" : 20
+		"TooManyFunctionsChecker.maximum" : 50
 	}
 }
