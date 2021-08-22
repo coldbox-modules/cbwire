@@ -1,6 +1,6 @@
 <cfoutput>
 <!-- Livewire Scripts -->
-<script src="/moduleroot/cbwire/includes/js/livewire.js?id=25f025805c3c370f7e87" data-turbo-eval="false" data-turbolinks-eval="false"></script>
+<script src="/modules/cbwire/includes/js/livewire.js?id=25f025805c3c370f7e87" data-turbo-eval="false" data-turbolinks-eval="false"></script>
 <script data-turbo-eval="false" data-turbolinks-eval="false">
     if (window.livewire) {
 	    console.warn('Livewire: It looks like Livewire\'s ##wireScripts()## JavaScript assets have already been loaded. Make sure you aren\'t loading them twice.')
