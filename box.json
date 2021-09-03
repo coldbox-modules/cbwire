@@ -1,45 +1,45 @@
 {
-    "name": "cbwire",
-    "version": "1.0.0",
-    "location": "http://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbwire/@build.version@/cbwire-@build.version@.zip",
-    "author": "Ortus Solutions <info@ortussolutions.com",
-    "homepage": "https://github.com/coldbox-modules/cbwire",
-    "documentation": "https://cbwire.ortusbooks.com/",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/coldbox-modules/cbwire"
+    "name":"cbwire",
+    "version":"1.1.0",
+    "location":"http://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbwire/@build.version@/cbwire-@build.version@.zip",
+    "author":"Ortus Solutions <info@ortussolutions.com",
+    "homepage":"https://github.com/coldbox-modules/cbwire",
+    "documentation":"https://cbwire.ortusbooks.com/",
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/coldbox-modules/cbwire"
     },
-    "bugs": "https://ortussolutions.atlassian.net/browse/CBWIRE",
-    "shortDescription": "ColdBox + Livewire",
-    "slug": "cbwire",
-    "type": "modules",
-    "keywords": "",
-    "license": [
+    "bugs":"https://ortussolutions.atlassian.net/browse/CBWIRE",
+    "shortDescription":"ColdBox + Livewire",
+    "slug":"cbwire",
+    "type":"modules",
+    "keywords":"",
+    "license":[
         {
-            "type": "Apache2",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "type":"Apache2",
+            "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     ],
-    "contributors": [],
-    "dependencies": {},
-    "devDependencies": {
-        "commandbox-cfformat": "*",
-        "commandbox-docbox": "*"
+    "contributors":[],
+    "dependencies":{},
+    "devDependencies":{
+        "commandbox-cfformat":"*",
+        "commandbox-docbox":"*"
     },
-    "ignore": [
+    "ignore":[
         "**/.*",
         "test-harness"
     ],
-    "scripts": {
-        "setupTemplate": "task run taskFile=build/SetupTemplate.cfc",
-        "build:module": "task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
-        "build:docs": "task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
-        "release": "recipe build/release.boxr",
-        "format": "cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
-        "format:watch": "cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
-        "format:check": "cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc"
+    "scripts":{
+        "setupTemplate":"task run taskFile=build/SetupTemplate.cfc",
+        "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
+        "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
+        "release":"recipe build/release.boxr",
+        "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
+        "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
+        "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc"
     },
-    "testbox": {
-        "runner": "http://localhost:60299/tests/runner.cfm"
+    "testbox":{
+        "runner":"http://localhost:60299/tests/runner.cfm"
     }
 }
