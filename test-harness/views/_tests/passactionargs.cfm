@@ -1,0 +1,1 @@
+<cfoutput>#wire( "PassActionArgs" )#</cfoutput>

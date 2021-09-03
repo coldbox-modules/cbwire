@@ -1,0 +1,117 @@
+name: Pull Requests
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+      - "master"
+      - "development"
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  #############################################
+  # Tests First baby! We fail, no build :(
+  #############################################
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    env:
+      MODULE_ID: cbwire
+    strategy:
+      fail-fast: false
+      matrix:
+        cfengine: [ "lucee@5", "adobe@2018" ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: "11"
+
+      - name: Setup Environment For Testing Process
+        working-directory: ./test-harness
+        run: |
+          # Setup .env
+          touch .env
+          # ENV
+          #printf "DB_HOST=localhost\n" >> test-harness/.env
+          #printf "DB_USER=${{ env.DB_USER }}\n" >> test-harness/.env
+          #printf "DB_PASSWORD=${{ env.DB_PASSWORD }}\n" >> test-harness/.env
+          #printf "DB_CLASS=com.mysql.cj.jdbc.Driver\n" >> test-harness/.env
+          #printf "DB_BUNDLEVERSION=8.0.19\n" >> test-harness/.env
+          #printf "DB_BUNDLENAME=com.mysql.cj\n" >> test-harness/.env
+
+      - name: Setup CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
+
+      - name: Install Dependencies
+        working-directory: ./test-harness
+        run: |
+          box install
+
+      - name: Start ${{ matrix.cfengine }} Server
+        working-directory: ./test-harness
+        run: |
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
+          curl http://127.0.0.1:60299
+
+      - name: Run Tests
+        working-directory: ./test-harness
+        run: |
+          mkdir tests/results
+          box package set testbox.runner="http://localhost:60299/tests/runner.cfm"
+          box testbox run --verbose outputFile=tests/results/test-results outputFormats=json,antjunit
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: test-harness/tests/results/**/*.xml
+          check_name: "${{ matrix.cfengine }} Test Results"
+
+      - name: Failure Debugging Info
+        if: ${{ failure() }}
+        working-directory: ./test-harness
+        run: |
+          box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+
+      - name: Upload Debugging Info To Artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Failure Debugging Info - ${{ matrix.cfengine }}
+          path: |
+            test-harness/.engine/**/logs/*
+            test-harness/.engine/**/WEB-INF/cfusion/logs/*
+
+  format:
+    name: Format
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: "11"
+
+      - name: Set Up CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
+
+      - name: Install CFFormat
+        run: box install commandbox-cfformat
+
+      - name: Run CFFormat
+        run: box run-script format
+
+      - name: Commit Format Changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply cfformat changes
