@@ -155,15 +155,26 @@ component {
 	/**
 	 * Returns the current state of our component.
 	 *
+	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
 	 * @return Struct
 	 */
-	function getState(){
+	function getState( boolean includeComputed = false ){
 		/**
 		 * Get our data properties for our current state.
 		 */
-		var state = variables.data;
+		var state = {};
 
-		if ( structKeyExists( variables, "computed" ) ) {
+		variables.data.each( function( key, value ) {
+			if ( isClosure( arguments.value ) ) {
+				// Render the closure and store in our data properties
+				variables.data[ key ] = arguments.value();
+				state[ arguments.key ] = variables.data[ key ];
+			} else {
+				state[ arguments.key ] = arguments.value;
+			}
+		} );
+
+		if ( arguments.includeComputed && structKeyExists( variables, "computed" ) ) {
 			variables.computed.each( function( key, value ){
 				state[ key ] = value;
 			} );
@@ -189,7 +200,7 @@ component {
 	 */
 	function renderView(){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = this.getState();
+		arguments.args = this.getState( includeComputed=true );
 
 		// Render our view using coldbox rendering
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );

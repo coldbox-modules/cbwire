@@ -267,7 +267,7 @@ component accessors="true" singleton {
 			},
 			"serverMemo" : {
 				"htmlHash"     : "71146cf2",
-				"data"         : comp.getState(),
+				"data"         : comp.getState( false ),
 				"checksum"     : comp.getChecksum(),
 				"mountedState" : this.getMountedState()
 			}
