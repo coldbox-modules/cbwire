@@ -1,6 +1,6 @@
 {
     "name":"cbwire",
-    "version":"1.1.0",
+    "version":"1.0.0-snapshot",
     "location":"http://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbwire/@build.version@/cbwire-@build.version@.zip",
     "author":"Ortus Solutions <info@ortussolutions.com",
     "homepage":"https://github.com/coldbox-modules/cbwire",
