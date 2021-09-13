@@ -473,28 +473,54 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$hydrate", function(){
+				it( "fires '$preHydrate' event", function(){
+					var comp = prepareMock(
+						getInstance(
+							name          = "cbwire.models.Component",
+							initArguments = { "wireRequest" : wireRequest }
+						)
+					);
+					comp.$( "$preHydrate", true );
+					comp.$hydrate( wireRequest );
+					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
+				} );
+
+				it( "fires '$postHydrate' event", function(){
+					var comp = prepareMock(
+						getInstance(
+							name          = "cbwire.models.Component",
+							initArguments = { "wireRequest" : wireRequest }
+						)
+					);
+					comp.$( "$preHydrate", true );
+					comp.$( "$postHydrate", true );
+					comp.$hydrate( wireRequest );
+					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
+					expect( comp.$once( "$postHydrate" ) ).toBeTrue();
+				} );
+			} );
+
 			describe( "hydrate()", function(){
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = wireRequest.getCollection();
 
 					rc[ "serverMemo" ] = { "data" : { "hello" : "world" } };
 					componentObj.$( "setHello", true );
-					wireRequest.$( "getWireComponent", componentObj, false );
-					wireRequest.hydrate();
+					componentObj.$hydrate( wireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
 				} );
 
 				it( "fires 'preHydrate' event", function(){
 					componentObj.$( "$preHydrate", true );
-					wireRequest.$( "getWireComponent", componentObj, false );
-					wireRequest.hydrate();
+					componentObj.$hydrate( wireRequest );
 					expect( componentObj.$once( "$preHydrate" ) ).toBeTrue();
 				} );
 
 				it( "fires 'postHydrate' event", function(){
 					componentObj.$( "$postHydrate", true );
 					wireRequest.$( "getWireComponent", componentObj, false );
-					wireRequest.hydrate();
+					componentObj.$hydrate( wireRequest );
 					expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
 				} );
 
@@ -513,8 +539,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setMessage", true );
-						wireRequest.$( "getWireComponent", componentObj, false );
-						wireRequest.hydrate();
+						componentObj.$hydrate( wireRequest );
 						expect( componentObj.$once( "setMessage" ) ).toBeTrue();
 						expect( componentObj.$callLog().setMessage[ 1 ][ 1 ] ).toBe( "We have input" );
 					} );
@@ -532,25 +557,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "whyAmIAwakeAt3am", true );
-						wireRequest.$( "getWireComponent", componentObj, false );
-						wireRequest.hydrate();
+						componentObj.$hydrate( wireRequest );
 						expect( componentObj.$once( "whyAmIAwakeAt3am" ) ).toBeTrue();
-					} );
-
-					it( "throws error if you try to call action on component that doesn't exist", function(){
-						var rc = wireRequest.getCollection();
-
-						rc[ "updates" ] = [
-							{
-								"type"    : "callMethod",
-								"payload" : { "method" : "whyAmIAwakeAt3am" }
-							}
-						];
-
-						expect( function(){
-							wireRequest.$( "getWireComponent", componentObj, false );
-							wireRequest.hydrate();
-						} ).toThrow( type = "WireActionNotFound" );
 					} );
 
 					it( "passes in params to the method were calling if they are provided", function(){
@@ -567,8 +575,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "resetName" );
-						wireRequest.$( "getWireComponent", componentObj, false );
-						wireRequest.hydrate();
+						componentObj.$hydrate( wireRequest );
 
 						var callLog = componentObj.$callLog()[ "resetName" ][ 1 ];
 
@@ -590,8 +597,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setName", true );
-						wireRequest.$( "getWireComponent", componentObj, false );
-						wireRequest.hydrate();
+						componentObj.$hydrate( wireRequest );
 
 						var passedArgs = componentObj.$callLog()[ "setName" ][ 1 ];
 						expect( componentObj.$once( "setName" ) ).toBeTrue();

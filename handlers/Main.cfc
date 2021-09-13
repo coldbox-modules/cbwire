@@ -11,9 +11,7 @@ component {
     function index( event, rc, prc ){
         return variables.wirebox
             .getInstance( "cbwire.models.WireRequest" )
-            .withComponent( arguments.rc.wireComponent )
-            .hydrate()
-            .getMemento();
+            .handleSubsequentRequest( arguments.rc );
     }
 
 }

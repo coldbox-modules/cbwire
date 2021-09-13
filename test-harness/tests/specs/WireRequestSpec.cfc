@@ -42,36 +42,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( wireRequest.hasUpdates() ).toBeTrue();
 			} );
 
-			describe( "hydrate", function(){
-				it( "fires '$preHydrate' event", function(){
-					var comp = prepareMock(
-						getInstance(
-							name          = "cbwire.models.Component",
-							initArguments = { "wireRequest" : wireRequest }
-						)
-					);
-					comp.$( "$preHydrate", true );
-					wireRequest.$( "getWireComponent", comp, false );
-					wireRequest.hydrate();
-					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
-				} );
-
-				it( "fires '$postHydrate' event", function(){
-					var comp = prepareMock(
-						getInstance(
-							name          = "cbwire.models.Component",
-							initArguments = { "wireRequest" : wireRequest }
-						)
-					);
-					comp.$( "$preHydrate", true );
-					comp.$( "$postHydrate", true );
-					wireRequest.$( "getWireComponent", comp, false );
-					wireRequest.hydrate();
-					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
-					expect( comp.$once( "$postHydrate" ) ).toBeTrue();
-				} );
-			} );
-
 			describe( "getUpdates", function(){
 				it( "can get updates", function(){
 					event.setValue(

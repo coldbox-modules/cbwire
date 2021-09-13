@@ -4,11 +4,6 @@
 component accessors="true" singleton {
 
 	/**
-	 * Hold a reference to the cbwire component we are updating.
-	 */
-	property name="wireComponent" type="Component";
-
-	/**
 	 * Injected ColdBox controller which we will use to access our app and module settings
 	 */
 	property name="controller" inject="coldbox";
@@ -71,6 +66,15 @@ component accessors="true" singleton {
 	 */
 	function getMountedState(){
 		return this.getServerMemo()[ "mountedState" ];
+	}
+
+	/**
+	 * Returns the fingerprint for the request.
+	 * 
+	 * @return Struct
+	 */
+	function getFingerprint(){
+		return this.getCollection()[ "fingerprint" ];
 	}
 
 	/**
@@ -165,9 +169,7 @@ component accessors="true" singleton {
 			var comp = getRootComponent( arguments.componentName );
 		}
 
-		variables.setWireComponent( comp );
-
-		return this;
+		return comp;
 	}
 
 	/**
@@ -181,7 +183,6 @@ component accessors="true" singleton {
 	 */
 	function renderIt( componentName, parameters = {} ){
 		return withComponent( arguments.componentName )
-			.getWireComponent()
 			.$mount( arguments.parameters )
 			.renderIt();
 	}
@@ -191,7 +192,7 @@ component accessors="true" singleton {
 	 *
 	 * @comp cbwire.models.Component
 	 *
-	 * @return Void
+	 * @return Void 
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
@@ -207,71 +208,11 @@ component accessors="true" singleton {
 		arguments.comp.invokeMethod( "preUpdate" );
 	}
 
-	/**
-	 * Hydrates the incoming component with state from our request.
-	 *
-	 * @return Component
-	 */
-	function hydrate(){
-		var comp = this.getWireComponent();
+	function handleSubsequentRequest( struct context ){
+		return this.withComponent( arguments.context.wireComponent )
+			.$hydrate( this )
+			.$getMemento( this.getMountedState() );
 
-		// Invoke '$preHydrate' event
-		comp.invokeMethod( "$preHydrate" );
-
-		if ( this.hasMountedState() ) {
-			comp.setMountedState( this.getMountedState() );
-		}
-
-		// Check if our request contains a server memo, and if so update our component state.
-		if ( this.hasServerMemo() ) {
-			this.getServerMemo()
-				.data
-				.each( function( key, value ){
-					// Call the setter method
-					comp.invokeMethod(
-						methodName = "set" & arguments.key,
-						value      = arguments.value
-					);
-				} );
-		}
-
-		// Invoke '$postHydrate' event
-		comp.invokeMethod( "$postHydrate" );
-
-		// Check if our request contains updates, and if so apply them.
-		if ( this.hasUpdates() ) {
-			this.applyUpdates( comp );
-		}
-
-		return this;
-	}
-
-	/**
-	 * Returns the memento for our component which holds the current
-	 * state of our component. This is returned on subsequent XHR requests
-	 * from cbwire.
-	 *
-	 * @return Struct
-	 */
-	function getMemento(){
-		var comp = getWireComponent();
-
-		return {
-			"effects" : {
-				"html"  : comp.getRendering(),
-				"dirty" : [
-					"count" // need to fix
-				],
-				"path"  : comp.getPath(),
-				"emits" : comp.getEmits()
-			},
-			"serverMemo" : {
-				"htmlHash"     : "71146cf2",
-				"data"         : comp.getState( false ),
-				"checksum"     : comp.getChecksum(),
-				"mountedState" : this.getMountedState()
-			}
-		}
 	}
 
 	/**

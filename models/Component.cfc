@@ -21,7 +21,6 @@ component {
 	// Injected settings.
 	property name="$settings" inject="coldbox:modulesettings:cbwire";
 
-
 	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
@@ -42,8 +41,10 @@ component {
 	 * @return Component
 	 */
 	function init(){
-		variables.$isInitialRendering = true;
+		variables.$isInitialRendering = false;
 		variables.emits               = [];
+		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
+		
 		return this;
 	}
 
@@ -85,7 +86,7 @@ component {
 	 * @return String
 	 */
 	function getID(){
-		return createUUID().replace( "-", "", "all" ).left( 21 );
+		return variables.id;
 	}
 
 	/**
@@ -109,7 +110,7 @@ component {
 			"serverMemo" : {
 				"children"     : [],
 				"errors"       : [],
-				"htmlHash"     : arguments.renderingHash,
+				"htmlHash"     : this.getChecksum(),
 				"data"         : this.getState(),
 				"dataMeta"     : [],
 				"checksum"     : this.getChecksum(),
@@ -221,6 +222,9 @@ component {
 	 * @return Component
 	 */
 	function $mount( parameters = {} ){
+
+		variables.$isInitialRendering = true;
+
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
 			this[ "mount" ](
 				parameters = arguments.parameters,
@@ -244,6 +248,76 @@ component {
 		variables.mountedState = duplicate( this.getState() );
 
 		return this;
+	}
+
+	/**
+	 * Hydrates the incoming component with state from our request.
+	 *
+	 * @wireRequest WireRequest
+	 * 
+	 * @return Component
+	 */
+	function $hydrate( WireRequest wireRequest ){
+
+		if ( wireRequest.hasFingerprint() ){
+			this.$setId( wireRequest.getFingerPrint()["id"] );
+		}
+
+		// Invoke '$preHydrate' event
+		this.invokeMethod( "$preHydrate" );
+
+		if ( wireRequest.hasMountedState() ) {
+			this.setMountedState( wireRequest.getMountedState() );
+		}
+
+		// Check if our request contains a server memo, and if so update our component state.
+		if ( wireRequest.hasServerMemo() ) {
+			wireRequest.getServerMemo()
+				.data
+				.each( function( key, value ){
+					// Call the setter method
+					this.invokeMethod(
+						methodName = "set" & arguments.key,
+						value      = arguments.value
+					);
+				} );
+		}
+
+		// Invoke '$postHydrate' event
+		this.invokeMethod( "$postHydrate" );
+
+		// Check if our request contains updates, and if so apply them.
+		if ( wireRequest.hasUpdates() ) {
+			wireRequest.applyUpdates( this );
+		}
+
+		return this;
+	}
+
+	/**
+	 * Returns the memento for our component which holds the current
+	 * state of our component. This is returned on subsequent XHR requests
+	 * from cbwire.
+	 *
+	 * @return Struct
+	 */
+	function $getMemento( mountedState ){
+		return {
+			"effects" : {
+				"html"  : this.getRendering(),
+				"dirty" : [
+					"count" // need to fix
+				],
+				"path"  : this.getPath(),
+				"emits" : this.getEmits()
+			},
+			"serverMemo" : {
+				"htmlHash"     : "71146cf2",
+				"data"         : this.getState( false ),
+				"checksum"     : this.getChecksum(),
+				"mountedState" : mountedState
+			}
+		}
 	}
 
 	/**
@@ -611,6 +685,17 @@ component {
 				variables.getMountedState()[ arguments.property ]
 			);
 		}
+	}
+
+	/**
+	 * Set the components id.
+	 * 
+	 * @id String | GUID
+	 * 
+	 * @return Void
+	 */
+	function $setId( required id ){
+		variables.id = arguments.id;
 	}
 
 	/**
