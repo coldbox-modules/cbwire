@@ -165,10 +165,10 @@ component {
 		 */
 		var state = {};
 
-		variables.data.each( function( key, value ) {
+		variables.data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
 				// Render the closure and store in our data properties
-				variables.data[ key ] = arguments.value();
+				variables.data[ key ]  = arguments.value();
 				state[ arguments.key ] = variables.data[ key ];
 			} else {
 				state[ arguments.key ] = arguments.value;
@@ -201,7 +201,7 @@ component {
 	 */
 	function renderView(){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = this.getState( includeComputed=true );
+		arguments.args = this.getState( includeComputed = true );
 
 		// Render our view using coldbox rendering
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
@@ -222,7 +222,6 @@ component {
 	 * @return Component
 	 */
 	function $mount( parameters = {} ){
-
 		variables.$isInitialRendering = true;
 
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
@@ -258,8 +257,7 @@ component {
 	 * @return Component
 	 */
 	function $hydrate( WireRequest wireRequest ){
-
-		if ( arguments.wireRequest.hasFingerprint() ){
+		if ( arguments.wireRequest.hasFingerprint() ) {
 			this.$setId( arguments.wireRequest.getFingerPrint()[ "id" ] );
 		}
 
@@ -272,7 +270,8 @@ component {
 
 		// Check if our request contains a server memo, and if so update our component state.
 		if ( arguments.wireRequest.hasServerMemo() ) {
-			arguments.wireRequest.getServerMemo()
+			arguments.wireRequest
+				.getServerMemo()
 				.data
 				.each( function( key, value ){
 					// Call the setter method
@@ -441,7 +440,7 @@ component {
 	 *
 	 * @return Any
 	 */
-	function invokeMethod( required methodName, methodArgs={} ){
+	function invokeMethod( required methodName, methodArgs = {} ){
 		return invoke(
 			this,
 			arguments.methodName,

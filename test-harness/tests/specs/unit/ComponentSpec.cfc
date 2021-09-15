@@ -340,7 +340,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						eventName  = "event2",
 						parameters = { "hello" : "world" }
 					);
-					wireRequest.$( "getWireComponent", componentObj, false );
+					wireRequest.$(
+						"getWireComponent",
+						componentObj,
+						false
+					);
 
 					var memento = wireRequest.getMemento();
 					expect( memento.effects.emits ).toBeArray();
@@ -519,7 +523,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "fires 'postHydrate' event", function(){
 					componentObj.$( "$postHydrate", true );
-					wireRequest.$( "getWireComponent", componentObj, false );
+					wireRequest.$(
+						"getWireComponent",
+						componentObj,
+						false
+					);
 					componentObj.$hydrate( wireRequest );
 					expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
 				} );

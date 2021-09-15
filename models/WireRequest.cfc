@@ -182,9 +182,7 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function renderIt( componentName, parameters = {} ){
-		return withComponent( arguments.componentName )
-			.$mount( arguments.parameters )
-			.renderIt();
+		return withComponent( arguments.componentName ).$mount( arguments.parameters ).renderIt();
 	}
 
 	/**
@@ -209,7 +207,8 @@ component accessors="true" singleton {
 	}
 
 	function handleSubsequentRequest( struct context ){
-		return this.withComponent( arguments.context.wireComponent )
+		return this
+			.withComponent( arguments.context.wireComponent )
 			.$hydrate( this )
 			.$getMemento( this.getMountedState() );
 	}
