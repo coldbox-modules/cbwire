@@ -70,7 +70,7 @@ component accessors="true" singleton {
 
 	/**
 	 * Returns the fingerprint for the request.
-	 * 
+	 *
 	 * @return Struct
 	 */
 	function getFingerprint(){
@@ -110,7 +110,7 @@ component accessors="true" singleton {
 			casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
 
 			return variables.wirebox.getInstance(
-				name          = "cbwire.models.updates.#casedType#",
+				name          = "#casedType#@cbwire",
 				initArguments = { "update" : arguments.update }
 			);
 		} );
@@ -192,7 +192,7 @@ component accessors="true" singleton {
 	 *
 	 * @comp cbwire.models.Component
 	 *
-	 * @return Void 
+	 * @return Void
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
@@ -201,7 +201,7 @@ component accessors="true" singleton {
 		// Update the state of our component with each of our updates
 		this.getUpdates()
 			.each( function( update ){
-				update.apply( comp );
+				arguments.update.apply( comp );
 			} );
 
 		// Fire our postUpdate lifecycle event.
@@ -212,7 +212,6 @@ component accessors="true" singleton {
 		return this.withComponent( arguments.context.wireComponent )
 			.$hydrate( this )
 			.$getMemento( this.getMountedState() );
-
 	}
 
 	/**

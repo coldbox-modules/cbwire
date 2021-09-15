@@ -44,7 +44,7 @@ component {
 		variables.$isInitialRendering = false;
 		variables.emits               = [];
 		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
-		
+
 		return this;
 	}
 
@@ -245,7 +245,7 @@ component {
 		}
 
 		// Capture the mounted state
-		variables.mountedState = duplicate( this.getState() );
+		variables.mountedState = this.getState();
 
 		return this;
 	}
@@ -254,25 +254,25 @@ component {
 	 * Hydrates the incoming component with state from our request.
 	 *
 	 * @wireRequest WireRequest
-	 * 
+	 *
 	 * @return Component
 	 */
 	function $hydrate( WireRequest wireRequest ){
 
-		if ( wireRequest.hasFingerprint() ){
-			this.$setId( wireRequest.getFingerPrint()["id"] );
+		if ( arguments.wireRequest.hasFingerprint() ){
+			this.$setId( arguments.wireRequest.getFingerPrint()[ "id" ] );
 		}
 
 		// Invoke '$preHydrate' event
 		this.invokeMethod( "$preHydrate" );
 
-		if ( wireRequest.hasMountedState() ) {
-			this.setMountedState( wireRequest.getMountedState() );
+		if ( arguments.wireRequest.hasMountedState() ) {
+			this.setMountedState( arguments.wireRequest.getMountedState() );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
-		if ( wireRequest.hasServerMemo() ) {
-			wireRequest.getServerMemo()
+		if ( arguments.wireRequest.hasServerMemo() ) {
+			arguments.wireRequest.getServerMemo()
 				.data
 				.each( function( key, value ){
 					// Call the setter method
@@ -287,8 +287,8 @@ component {
 		this.invokeMethod( "$postHydrate" );
 
 		// Check if our request contains updates, and if so apply them.
-		if ( wireRequest.hasUpdates() ) {
-			wireRequest.applyUpdates( this );
+		if ( arguments.wireRequest.hasUpdates() ) {
+			arguments.wireRequest.applyUpdates( this );
 		}
 
 		return this;
@@ -441,15 +441,13 @@ component {
 	 *
 	 * @return Any
 	 */
-	function invokeMethod( required methodName ){
-		var parsedArguments = duplicate( arguments );
-
-		structDelete( parsedArguments, "methodName" );
-
+	function invokeMethod( required methodName, methodArgs={} ){
 		return invoke(
 			this,
 			arguments.methodName,
-			parsedArguments
+			arguments.filter( function( key, value ){
+				return !arguments.key.findNoCase( "methodName" )
+			} )
 		);
 	}
 
@@ -689,9 +687,9 @@ component {
 
 	/**
 	 * Set the components id.
-	 * 
+	 *
 	 * @id String | GUID
-	 * 
+	 *
 	 * @return Void
 	 */
 	function $setId( required id ){
