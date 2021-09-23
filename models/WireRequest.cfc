@@ -242,13 +242,16 @@ component accessors="true" singleton {
 
 		throw( message = "Need to finish!" );
 	}
-	
-	private function getComponentInstance( required string wirePath ) {
-	    // Check if wire component already mapped?
+
+	private function getComponentInstance( required string wirePath ){
+		// Check if wire component already mapped?
 		if ( !variables.wirebox.getBinder().mappingExists( arguments.wirePath ) ) {
 			// feed this component to wirebox with virtual inheritance just in case, use registerNewInstance so its thread safe
 			var mapping = variables.wirebox
-				.registerNewInstance( name = arguments.wirePath, instancePath = arguments.wirePath )
+				.registerNewInstance(
+					name         = arguments.wirePath,
+					instancePath = arguments.wirePath
+				)
 				.setVirtualInheritance( "Component@cbwire" );
 		}
 		return variables.wirebox.getInstance( arguments.wirePath );
