@@ -223,7 +223,7 @@ component accessors="true" singleton {
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
 		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & "wires";
-		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
+		return getComponentInstance( "#wireRoot#.#arguments.componentName#" );
 	}
 
 	/**
@@ -241,6 +241,17 @@ component accessors="true" singleton {
 		var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
 
 		throw( message = "Need to finish!" );
+	}
+	
+	private function getComponentInstance( required string wirePath ) {
+	    // Check if wire component already mapped?
+		if ( !variables.wirebox.getBinder().mappingExists( arguments.wirePath ) ) {
+			// feed this component to wirebox with virtual inheritance just in case, use registerNewInstance so its thread safe
+			var mapping = variables.wirebox
+				.registerNewInstance( name = arguments.wirePath, instancePath = arguments.wirePath )
+				.setVirtualInheritance( "Component@cbwire" );
+		}
+		return variables.wirebox.getInstance( arguments.wirePath );
 	}
 
 	/**
