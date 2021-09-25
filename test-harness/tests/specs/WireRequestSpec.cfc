@@ -88,6 +88,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				event.setValue( "serverMemo", { "checksum" : "123" } );
 				expect( wireRequest.getServerMemo().checksum ).toBe( "123" );
 			} );
+
+			describe( "getWiresLocation()", function(){
+				it( "returns 'wires' by default", function(){
+					wireRequest.$property( "$settings", "variables", {} );
+					expect( wireRequest.getWiresLocation() ).toBe( "wires" );
+				} );
+				it( "returns the wiresLocation from settings", function(){
+					wireRequest.$property( "$settings", "variables", {
+						wiresLocation = "somewhere"
+					} );
+					expect( wireRequest.getWiresLocation() ).toBe( "somewhere" );
+
+				} );
+			} );
 		} );
 	}
 

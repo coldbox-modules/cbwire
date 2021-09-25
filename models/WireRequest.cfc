@@ -145,17 +145,17 @@ component accessors="true" singleton {
 	 */
 	function withComponent( componentName ){
 		// Determine our component location from the cbwire settings.
-		var componentLocation = variables.getComponentLocation();
+		var wiresLocation = this.getWiresLocation();
 
 		if (
 			reFindNoCase(
-				componentLocation & "\.",
+				wiresLocation & "\.",
 				arguments.componentName
 			)
 		) {
 			arguments.componentName = reReplaceNoCase(
 				arguments.componentName,
-				componentLocation & "\.",
+				wiresLocation & "\.",
 				"",
 				"one"
 			);
@@ -214,6 +214,19 @@ component accessors="true" singleton {
 	}
 
 	/**
+	 * Returns the cbwire wiresLocation setting.
+	 * Defaults to 'wires'
+	 *
+	 * @return String
+	 */
+	function getWiresLocation(){
+		if ( structKeyExists( variables.$settings, "wiresLocation") ){
+			return variables.$settings.wiresLocation;
+		}
+		return "wires";
+	}
+
+	/**
 	 * Returns a cbwire component using the root "HelloWorld" convention.
 	 *
 	 * @componentName String | Name of the cbwire component.
@@ -222,7 +235,8 @@ component accessors="true" singleton {
 	 */
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & "wires";
+		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & this.getWiresLocation();
+
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}
 
@@ -241,15 +255,6 @@ component accessors="true" singleton {
 		var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
 
 		throw( message = "Need to finish!" );
-	}
-
-	/**
-	 * Returns the cbwire component location setting.
-	 *
-	 * @return String
-	 */
-	private function getComponentLocation(){
-		return variables.$settings.componentLocation;
 	}
 
 }
