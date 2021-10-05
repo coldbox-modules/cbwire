@@ -1,10 +1,8 @@
 name: cbwire CI
 
-# Only on Development we build snapshots
 on:
   push:
     branches:
-      - development
       - master
 
 env:
