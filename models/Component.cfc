@@ -44,7 +44,7 @@ component {
 		variables.$isInitialRendering = false;
 		variables.emits               = [];
 		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
-		
+
 		return this;
 	}
 
@@ -165,10 +165,10 @@ component {
 		 */
 		var state = {};
 
-		variables.data.each( function( key, value ) {
+		variables.data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
 				// Render the closure and store in our data properties
-				variables.data[ key ] = arguments.value();
+				variables.data[ key ]  = arguments.value();
 				state[ arguments.key ] = variables.data[ key ];
 			} else {
 				state[ arguments.key ] = arguments.value;
@@ -201,7 +201,7 @@ component {
 	 */
 	function renderView(){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = this.getState( includeComputed=true );
+		arguments.args = this.getState( includeComputed = true );
 
 		// Render our view using coldbox rendering
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
@@ -222,7 +222,6 @@ component {
 	 * @return Component
 	 */
 	function $mount( parameters = {} ){
-
 		variables.$isInitialRendering = true;
 
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
@@ -245,7 +244,7 @@ component {
 		}
 
 		// Capture the mounted state
-		variables.mountedState = duplicate( this.getState() );
+		variables.mountedState = this.getState();
 
 		return this;
 	}
@@ -254,25 +253,25 @@ component {
 	 * Hydrates the incoming component with state from our request.
 	 *
 	 * @wireRequest WireRequest
-	 * 
+	 *
 	 * @return Component
 	 */
 	function $hydrate( WireRequest wireRequest ){
-
-		if ( wireRequest.hasFingerprint() ){
-			this.$setId( wireRequest.getFingerPrint()["id"] );
+		if ( arguments.wireRequest.hasFingerprint() ) {
+			this.$setId( arguments.wireRequest.getFingerPrint()[ "id" ] );
 		}
 
 		// Invoke '$preHydrate' event
 		this.invokeMethod( "$preHydrate" );
 
-		if ( wireRequest.hasMountedState() ) {
-			this.setMountedState( wireRequest.getMountedState() );
+		if ( arguments.wireRequest.hasMountedState() ) {
+			this.setMountedState( arguments.wireRequest.getMountedState() );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
-		if ( wireRequest.hasServerMemo() ) {
-			wireRequest.getServerMemo()
+		if ( arguments.wireRequest.hasServerMemo() ) {
+			arguments.wireRequest
+				.getServerMemo()
 				.data
 				.each( function( key, value ){
 					// Call the setter method
@@ -287,8 +286,8 @@ component {
 		this.invokeMethod( "$postHydrate" );
 
 		// Check if our request contains updates, and if so apply them.
-		if ( wireRequest.hasUpdates() ) {
-			wireRequest.applyUpdates( this );
+		if ( arguments.wireRequest.hasUpdates() ) {
+			arguments.wireRequest.applyUpdates( this );
 		}
 
 		return this;
@@ -441,15 +440,13 @@ component {
 	 *
 	 * @return Any
 	 */
-	function invokeMethod( required methodName ){
-		var parsedArguments = duplicate( arguments );
-
-		structDelete( parsedArguments, "methodName" );
-
+	function invokeMethod( required methodName, methodArgs = {} ){
 		return invoke(
 			this,
 			arguments.methodName,
-			parsedArguments
+			arguments.filter( function( key, value ){
+				return !arguments.key.findNoCase( "methodName" )
+			} )
 		);
 	}
 
@@ -689,9 +686,9 @@ component {
 
 	/**
 	 * Set the components id.
-	 * 
+	 *
 	 * @id String | GUID
-	 * 
+	 *
 	 * @return Void
 	 */
 	function $setId( required id ){

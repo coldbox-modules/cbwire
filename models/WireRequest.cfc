@@ -70,7 +70,7 @@ component accessors="true" singleton {
 
 	/**
 	 * Returns the fingerprint for the request.
-	 * 
+	 *
 	 * @return Struct
 	 */
 	function getFingerprint(){
@@ -110,7 +110,7 @@ component accessors="true" singleton {
 			casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
 
 			return variables.wirebox.getInstance(
-				name          = "cbwire.models.updates.#casedType#",
+				name          = "#casedType#@cbwire",
 				initArguments = { "update" : arguments.update }
 			);
 		} );
@@ -145,17 +145,17 @@ component accessors="true" singleton {
 	 */
 	function withComponent( componentName ){
 		// Determine our component location from the cbwire settings.
-		var componentLocation = variables.getComponentLocation();
+		var wiresLocation = this.getWiresLocation();
 
 		if (
 			reFindNoCase(
-				componentLocation & "\.",
+				wiresLocation & "\.",
 				arguments.componentName
 			)
 		) {
 			arguments.componentName = reReplaceNoCase(
 				arguments.componentName,
-				componentLocation & "\.",
+				wiresLocation & "\.",
 				"",
 				"one"
 			);
@@ -182,9 +182,7 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function renderIt( componentName, parameters = {} ){
-		return withComponent( arguments.componentName )
-			.$mount( arguments.parameters )
-			.renderIt();
+		return withComponent( arguments.componentName ).$mount( arguments.parameters ).renderIt();
 	}
 
 	/**
@@ -192,7 +190,7 @@ component accessors="true" singleton {
 	 *
 	 * @comp cbwire.models.Component
 	 *
-	 * @return Void 
+	 * @return Void
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
@@ -201,7 +199,7 @@ component accessors="true" singleton {
 		// Update the state of our component with each of our updates
 		this.getUpdates()
 			.each( function( update ){
-				update.apply( comp );
+				arguments.update.apply( comp );
 			} );
 
 		// Fire our postUpdate lifecycle event.
@@ -209,10 +207,23 @@ component accessors="true" singleton {
 	}
 
 	function handleSubsequentRequest( struct context ){
-		return this.withComponent( arguments.context.wireComponent )
+		return this
+			.withComponent( arguments.context.wireComponent )
 			.$hydrate( this )
 			.$getMemento( this.getMountedState() );
+	}
 
+	/**
+	 * Returns the cbwire wiresLocation setting.
+	 * Defaults to 'wires'
+	 *
+	 * @return String
+	 */
+	function getWiresLocation(){
+		if ( structKeyExists( variables.$settings, "wiresLocation") ){
+			return variables.$settings.wiresLocation;
+		}
+		return "wires";
 	}
 
 	/**
@@ -224,7 +235,8 @@ component accessors="true" singleton {
 	 */
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & "wires";
+		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & this.getWiresLocation();
+
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}
 
@@ -243,15 +255,6 @@ component accessors="true" singleton {
 		var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
 
 		throw( message = "Need to finish!" );
-	}
-
-	/**
-	 * Returns the cbwire component location setting.
-	 *
-	 * @return String
-	 */
-	private function getComponentLocation(){
-		return variables.$settings.componentLocation;
 	}
 
 }
