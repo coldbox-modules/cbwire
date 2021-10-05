@@ -3,6 +3,7 @@ name: cbwire CI
 on:
   push:
     branches:
+      - development
       - master
 
 env:
