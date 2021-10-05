@@ -1,4 +1,4 @@
-<cfset manifest = deserializeJson( fileRead( expandPath( "../includes/js/manifest.json" ) ) )>
+<cfset manifest = deserializeJson( fileRead( expandPath( "/modules/cbwire/includes/js/manifest.json" ) ) )>
 
 <cfoutput>
 <!-- Livewire Scripts -->
