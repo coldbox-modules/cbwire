@@ -32,6 +32,12 @@ component {
         command( "cp" )
             .params( path="livewire/dist", newpath="includes/js", filter="*.*" )
             .run();
+
+        command( "!git reset --hard")
+            .inWorkingDirectory( livewireDirectory )
+            .run();
+
+        
         
 
     }
