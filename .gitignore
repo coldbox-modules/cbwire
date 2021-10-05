@@ -17,3 +17,5 @@ test-harness/modules/**
 # log files
 logs/**
 
+# node modules
+node_modules/**
