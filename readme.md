@@ -38,7 +38,7 @@ https://cbwire.ortusbooks.com
 
 ## License
 
-MIT
+Apache License 2.0
 
 ## Credits
 
