@@ -35,7 +35,7 @@ component {
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.
 			 */
-			"manifest": this.getLivewireManifest() 
+			"manifest": getLivewireManifest() 
 		};
 
 		routes = [
@@ -49,8 +49,8 @@ component {
 	/**
 	 * Returns Livewire's manifest as a struct.
 	 */
-	function getLivewireManifest(){
-		var path = getCanonicalPath( getDirectoryFromPath( getMetaData( this ).path ) & "includes/js/manifest.json" );
+	function getLivewireManifest(){	
+		var path = getCanonicalPath( variables.modulePath & "/includes/js/manifest.json" );
 		return deserializeJson( fileRead( path ) );
 	}
 
