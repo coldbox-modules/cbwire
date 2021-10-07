@@ -4,6 +4,8 @@
 
 cbwire is a ColdBox module that makes building reactive, dynamic, and modern interfaces delightfully easy without leaving the comfort of CFML.
 
+![image](https://user-images.githubusercontent.com/1197835/136311530-a9647105-09b8-4c49-8ea0-85cb73714de2.png)
+
 ## Short Pitch
 
 Build reactive apps easily using CFML and way less JavaScript! 🎉
