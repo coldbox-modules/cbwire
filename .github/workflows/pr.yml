@@ -98,7 +98,7 @@ jobs:
 
       - uses: Ortus-Solutions/commandbox-action@v1
         with:
-          cmd: box run-script cfformat
+          cmd: run-script cfformat
 
       - name: Commit Format Changes
         uses: stefanzweifel/git-auto-commit-action@v4
