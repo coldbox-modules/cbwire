@@ -220,7 +220,7 @@ component accessors="true" singleton {
 	 * @return String
 	 */
 	function getWiresLocation(){
-		if ( structKeyExists( variables.$settings, "wiresLocation") ){
+		if ( structKeyExists( variables.$settings, "wiresLocation" ) ) {
 			return variables.$settings.wiresLocation;
 		}
 		return "wires";
