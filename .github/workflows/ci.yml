@@ -33,19 +33,6 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - name: Setup Environment For Testing Process
-        working-directory: ./test-harness
-        run: |
-          # Setup .env
-          touch .env
-          # ENV
-          #printf "DB_HOST=localhost\n" >> test-harness/.env
-          #printf "DB_USER=${{ env.DB_USER }}\n" >> test-harness/.env
-          #printf "DB_PASSWORD=${{ env.DB_PASSWORD }}\n" >> test-harness/.env
-          #printf "DB_CLASS=com.mysql.cj.jdbc.Driver\n" >> test-harness/.env
-          #printf "DB_BUNDLEVERSION=8.0.19\n" >> test-harness/.env
-          #printf "DB_BUNDLENAME=com.mysql.cj\n" >> test-harness/.env
-
       - name: Cache CommandBox Dependencies
         uses: actions/cache@v1
         if: ${{ true }}
