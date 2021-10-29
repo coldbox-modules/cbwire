@@ -42,7 +42,7 @@ Apache License 2.0
 
 ## Credits
 
-cbwire wouldn't even exist without **Caleb Porzio** ( creator of Livewire and Alpine.js ) and the PHP community. 
+cbwire wouldn't exist without **Caleb Porzio** ( creator of Livewire and Alpine.js ) and the PHP community. 
 
 cbwire is a port of Livewire's functionality to ColdBox and CFML, with some additional goodies sprinkled in.
 
