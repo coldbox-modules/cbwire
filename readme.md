@@ -16,7 +16,7 @@ Build reactive apps easily using CFML and less JavaScript! 🎉
 
 Building modern CFML apps is complicated. ColdBox makes creating server-side apps easy, but what about the client-side? Front-end JavaScript frameworks like Vue and React are powerful, yet they also introduce complexity and a significant learning curve when creating our apps.
 
-What if you could create applications that look and feel just like your Vue or React web apps but written primarily with CFML. Impossible, you say? Nay, we say!
+What if you could create apps that look and feel like your Vue and React web apps but are written with CFML. Impossible, you say? Nay, we say!
 
 Introducing **cbwire**: Power-up your CFML!
 
