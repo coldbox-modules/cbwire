@@ -206,9 +206,14 @@ component accessors="true" singleton {
 		arguments.comp.invokeMethod( "preUpdate" );
 	}
 
-	function handleSubsequentRequest( struct context ){
+	/**
+	 * Primary handler for incoming cbwire request.
+	 *
+	 * @context Struct
+	 */
+	function handle( struct rc ){
 		return this
-			.withComponent( arguments.context.wireComponent )
+			.withComponent( arguments.rc.wireComponent )
 			.$hydrate( this )
 			.$getMemento( this.getMountedState() );
 	}

@@ -11,7 +11,7 @@ component {
      * URI: /livewire/messages/:component
      */
     function index( event, rc, prc ){
-        return variables.wireRequest.handleSubsequentRequest( arguments.rc );
+        return variables.wireRequest.handle( arguments.rc );
     }
 
 }
