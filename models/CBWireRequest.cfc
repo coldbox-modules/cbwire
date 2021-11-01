@@ -1,5 +1,5 @@
 /**
- * Represents a subsequent, incoming cbwire XHR Request from the browser.
+ * Represents an incoming CBWire request.
  */
 component accessors="true" singleton {
 
@@ -143,7 +143,7 @@ component accessors="true" singleton {
 	 *
 	 * @componentName String | The name of the component.
 	 */
-	function withComponent( componentName ){
+	function getComponentInstance( componentName ){
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = this.getWiresLocation();
 
@@ -182,7 +182,7 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function renderIt( componentName, parameters = {} ){
-		return withComponent( arguments.componentName ).$mount( arguments.parameters ).renderIt();
+		return getComponentInstance( arguments.componentName ).$mount( arguments.parameters ).renderIt();
 	}
 
 	/**
@@ -213,7 +213,7 @@ component accessors="true" singleton {
 	 */
 	function handle( struct rc ){
 		return this
-			.withComponent( arguments.rc.wireComponent )
+			.getComponentInstance( arguments.rc.wireComponent )
 			.$hydrate( this )
 			.$getMemento( this.getMountedState() );
 	}

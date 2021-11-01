@@ -18,7 +18,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				wireRequest  = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
+				wireRequest  = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
 				componentObj = prepareMock(
 					getInstance(
 						name          = "cbwire.models.Component",

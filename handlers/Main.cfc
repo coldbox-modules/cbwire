@@ -1,6 +1,6 @@
 component {
 
-	property name="wireRequest" inject="WireRequest@cbWire";
+	property name="wireRequest" inject="CBWireRequest@cbwire";
 
     /**
      * Primary entry point for subsequent wire requests after

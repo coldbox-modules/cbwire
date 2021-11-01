@@ -17,6 +17,6 @@
     * Renders a wire component.
     */
     function wire() {
-        return getInstance( "WireRequest@cbwire" ).renderIt( argumentCollection=arguments );
+        return getInstance( "CBWireRequest@cbwire" ).renderIt( argumentCollection=arguments );
     }
 </cfscript>

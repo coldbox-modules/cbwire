@@ -13,7 +13,7 @@ component {
 	property name="$wirebox" inject="wirebox";
 
 	// Injected the wire request that's incoming from the browser.
-	property name="$wireRequest" inject="WireRequest@cbwire";
+	property name="$wireRequest" inject="CBWireRequest@cbwire";
 
 	// Injected populator.
 	property name="$populator" inject="wirebox:populator";
@@ -252,11 +252,11 @@ component {
 	/**
 	 * Hydrates the incoming component with state from our request.
 	 *
-	 * @wireRequest WireRequest
+	 * @wireRequest CBWireRequest
 	 *
 	 * @return Component
 	 */
-	function $hydrate( WireRequest wireRequest ){
+	function $hydrate( CBWireRequest wireRequest ){
 		if ( arguments.wireRequest.hasFingerprint() ) {
 			this.$setId( arguments.wireRequest.getFingerPrint()[ "id" ] );
 		}

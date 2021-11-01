@@ -19,13 +19,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function run( testResults, testBox ){
 		// all your suites go here.
-		describe( "WireRequest", function(){
+		describe( "CBWireRequest", function(){
 			beforeEach( function( currentSpec ){
 				setup();
 				event       = getRequestContext();
 				wireRequest = prepareMock(
 					getInstance(
-						name          = "cbwire.models.WireRequest",
+						name          = "cbwire.models.CBWireRequest",
 						initArguments = { "event" : event }
 					)
 				);
