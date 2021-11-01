@@ -3,14 +3,14 @@
     * Returns the styles to be placed in HTML head
     */
     function wireStyles() {
-        return getInstance( "WireHTML@cbwire" ).getStyles();
+        return getInstance( "CBWireHTML@cbwire" ).getStyles();
     }
 
     /**
     * Returns the JS to be placed in HTML body
     */
     function wireScripts() {
-        return getInstance( "WireHTML@cbwire" ).getScripts();
+        return getInstance( "CBWireHTML@cbwire" ).getScripts();
     }
 
     /**
