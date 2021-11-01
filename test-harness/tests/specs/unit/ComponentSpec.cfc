@@ -18,11 +18,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				wireRequest  = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
+				cbwireRequest = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
 				componentObj = prepareMock(
 					getInstance(
 						name          = "cbwire.models.Component",
-						initArguments = { "wireRequest" : wireRequest }
+						initArguments = { "cbwireRequest" : cbwireRequest }
 					)
 				);
 			} );
@@ -340,13 +340,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						eventName  = "event2",
 						parameters = { "hello" : "world" }
 					);
-					wireRequest.$(
+					cbwireRequest.$(
 						"getWireComponent",
 						componentObj,
 						false
 					);
 
-					var memento = wireRequest.getMemento();
+					var memento = cbwireRequest.getMemento();
 					expect( memento.effects.emits ).toBeArray();
 
 					expect( arrayLen( memento.effects.emits ) ).toBe( 2 );
@@ -482,11 +482,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var comp = prepareMock(
 						getInstance(
 							name          = "cbwire.models.Component",
-							initArguments = { "wireRequest" : wireRequest }
+							initArguments = { "cbwireRequest" : cbwireRequest }
 						)
 					);
 					comp.$( "$preHydrate", true );
-					comp.$hydrate( wireRequest );
+					comp.$hydrate( cbwireRequest );
 					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
 				} );
 
@@ -494,12 +494,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var comp = prepareMock(
 						getInstance(
 							name          = "cbwire.models.Component",
-							initArguments = { "wireRequest" : wireRequest }
+							initArguments = { "cbwireRequest" : cbwireRequest }
 						)
 					);
 					comp.$( "$preHydrate", true );
 					comp.$( "$postHydrate", true );
-					comp.$hydrate( wireRequest );
+					comp.$hydrate( cbwireRequest );
 					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
 					expect( comp.$once( "$postHydrate" ) ).toBeTrue();
 				} );
@@ -507,34 +507,34 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "hydrate()", function(){
 				it( "sets properties with values from 'serverMemo' payload", function(){
-					var rc = wireRequest.getCollection();
+					var rc = cbwireRequest.getCollection();
 
 					rc[ "serverMemo" ] = { "data" : { "hello" : "world" } };
 					componentObj.$( "setHello", true );
-					componentObj.$hydrate( wireRequest );
+					componentObj.$hydrate( cbwireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
 				} );
 
 				it( "fires 'preHydrate' event", function(){
 					componentObj.$( "$preHydrate", true );
-					componentObj.$hydrate( wireRequest );
+					componentObj.$hydrate( cbwireRequest );
 					expect( componentObj.$once( "$preHydrate" ) ).toBeTrue();
 				} );
 
 				it( "fires 'postHydrate' event", function(){
 					componentObj.$( "$postHydrate", true );
-					wireRequest.$(
+					cbwireRequest.$(
 						"getWireComponent",
 						componentObj,
 						false
 					);
-					componentObj.$hydrate( wireRequest );
+					componentObj.$hydrate( cbwireRequest );
 					expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
 				} );
 
 				describe( "syncInput", function(){
 					it( "executes a setter method on component object", function(){
-						var rc = wireRequest.getCollection();
+						var rc = cbwireRequest.getCollection();
 
 						rc[ "updates" ] = [
 							{
@@ -547,7 +547,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setMessage", true );
-						componentObj.$hydrate( wireRequest );
+						componentObj.$hydrate( cbwireRequest );
 						expect( componentObj.$once( "setMessage" ) ).toBeTrue();
 						expect( componentObj.$callLog().setMessage[ 1 ][ 1 ] ).toBe( "We have input" );
 					} );
@@ -555,7 +555,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				describe( "callMethod", function(){
 					it( "executes method on component object", function(){
-						var rc = wireRequest.getCollection();
+						var rc = cbwireRequest.getCollection();
 
 						rc[ "updates" ] = [
 							{
@@ -565,12 +565,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "whyAmIAwakeAt3am", true );
-						componentObj.$hydrate( wireRequest );
+						componentObj.$hydrate( cbwireRequest );
 						expect( componentObj.$once( "whyAmIAwakeAt3am" ) ).toBeTrue();
 					} );
 
 					it( "passes in params to the method were calling if they are provided", function(){
-						var rc = wireRequest.getCollection();
+						var rc = cbwireRequest.getCollection();
 
 						rc[ "updates" ] = [
 							{
@@ -583,7 +583,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "resetName" );
-						componentObj.$hydrate( wireRequest );
+						componentObj.$hydrate( cbwireRequest );
 
 						var callLog = componentObj.$callLog()[ "resetName" ][ 1 ];
 
@@ -592,7 +592,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					} );
 
 					it( "uses set", function(){
-						var rc = wireRequest.getCollection();
+						var rc = cbwireRequest.getCollection();
 
 						rc[ "updates" ] = [
 							{
@@ -605,7 +605,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setName", true );
-						componentObj.$hydrate( wireRequest );
+						componentObj.$hydrate( cbwireRequest );
 
 						var passedArgs = componentObj.$callLog()[ "setName" ][ 1 ];
 						expect( componentObj.$once( "setName" ) ).toBeTrue();
@@ -622,7 +622,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "it should pass in the event, rc, and prc into mount()", function(){
-					var rc = wireRequest.getCollection();
+					var rc = cbwireRequest.getCollection();
 
 					rc[ "someRandomVar" ] = "someRandomValue";
 
