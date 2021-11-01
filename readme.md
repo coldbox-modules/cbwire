@@ -10,13 +10,13 @@ cbwire is a ColdBox module that makes building reactive, dynamic, and modern int
 
 ## Short Pitch
 
-Build reactive apps easily using CFML and way less JavaScript! 🎉
+Build reactive apps easily using CFML and less JavaScript! 🎉
 
 ## Longer Pitch
 
-Building modern CFML apps has become a bit complicated. ColdBox makes server-side programming a cinch, but what about our front-end development? Front-end frameworks such as Vue and React have transformed our apps and are undoubtedly powerful. Still, they’ve also introduced some complexity and added a significant learning curve when creating web applications.
+Building modern CFML apps is complicated. ColdBox makes creating server-side apps easy, but what about the client-side? Front-end JavaScript frameworks like Vue and React are powerful, yet they also introduce complexity and a significant learning curve when creating our apps.
 
-What if you could create applications that look and feel just like your Vue or React web apps but written primarily with CFML. Impossible, you say? Nay, we say!
+What if you could create apps that look and feel like your Vue and React web apps but are written with CFML. Impossible, you say? Nay, we say!
 
 Introducing **cbwire**: Power-up your CFML!
 
@@ -42,9 +42,9 @@ Apache License 2.0
 
 ## Credits
 
-cbwire wouldn't even exist if it wasn't for the impressive efforts of **Caleb Porzio** ( creator of Livewire, also Alpine.js ) and the PHP Laravel community. 
+cbwire wouldn't exist without **Caleb Porzio** ( creator of Livewire and Alpine.js ) and the PHP community. 
 
-Caleb created Livewire for use with a popular PHP MVC framework. cbwire is a port of the Livewire functionality to ColdBox and CFML, with some additional goodies sprinkled in.
+cbwire is a port of Livewire's functionality to ColdBox and CFML, with some additional goodies sprinkled in.
 
 The cbwire module for ColdBox is written and maintained by [Grant Copley](https://twitter.com/grantcopley), [Luis Majano](https://twitter.com/lmajano), and [Ortus Solutions](https://www.ortussolutions.com/).
 
@@ -52,4 +52,4 @@ The cbwire module for ColdBox is written and maintained by [Grant Copley](https:
 
 We love PRs!
 
-If cbwire makes you 😎, please consider becoming one of our lovingly esteemed [Patreon supporters](https://www.patreon.com/ortussolutions).
+If cbwire makes you 😎, please consider becoming one of our [Patreon supporters](https://www.patreon.com/ortussolutions).
