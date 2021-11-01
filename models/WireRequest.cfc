@@ -163,7 +163,8 @@ component accessors="true" singleton {
 
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
-			var comp = getModuleComponent( arguments.componentName );
+			var params = listToArray( arguments.componentName, "@" );
+			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
 			var comp = getRootComponent( arguments.componentName );
@@ -247,14 +248,16 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	private function getModuleComponent( required componentName ){
-		throw( message = "Need to finish implementing this" );
+	private function getModuleComponent( required string componentName, required string moduleName ){
 		// Verify the module
-		variables.modulesConfig.keyExists( moduleName ); // else throw exception
+		var modulesConfig = variables.controller.getSetting( "modules" );
+		if ( !modulesConfig.keyExists( moduleName ) ){
+			throw( message = "Could not find #moduleName# module to render wire #componentName#" );
+		}
 		// Instantion Prefix of the module
-		var wireModuleRoot = variables.modulesConfig[ moduleName ].invocationPath & ".wires";
+		var wireModuleRoot = modulesConfig[ moduleName ].invocationPath & "." & getWiresLocation();
 
-		throw( message = "Need to finish!" );
+		return variables.wirebox.getInstance( "#wireModuleRoot#.#arguments.componentName#" );
 	}
 
 }
