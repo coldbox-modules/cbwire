@@ -164,7 +164,7 @@ component accessors="true" singleton {
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
 			var params = listToArray( arguments.componentName, "@" );
-			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
+			var comp   = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
 			var comp = getRootComponent( arguments.componentName );
@@ -198,10 +198,9 @@ component accessors="true" singleton {
 		arguments.comp.invokeMethod( "preUpdate" );
 
 		// Update the state of our component with each of our updates
-		getUpdates()
-			.each( function( update ){
-				arguments.update.apply( comp );
-			} );
+		getUpdates().each( function( update ){
+			arguments.update.apply( comp );
+		} );
 
 		// Fire our postUpdate lifecycle event.
 		arguments.comp.invokeMethod( "preUpdate" );
@@ -253,10 +252,13 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	private function getModuleComponent( required string componentName, required string moduleName ){
+	private function getModuleComponent(
+		required string componentName,
+		required string moduleName
+	){
 		// Verify the module
 		var modulesConfig = variables.controller.getSetting( "modules" );
-		if ( !modulesConfig.keyExists( moduleName ) ){
+		if ( !modulesConfig.keyExists( moduleName ) ) {
 			throw( message = "Could not find #moduleName# module to render wire #componentName#" );
 		}
 		// Instantion Prefix of the module
