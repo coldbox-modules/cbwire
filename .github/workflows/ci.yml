@@ -33,19 +33,6 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - name: Setup Environment For Testing Process
-        working-directory: ./test-harness
-        run: |
-          # Setup .env
-          touch .env
-          # ENV
-          #printf "DB_HOST=localhost\n" >> test-harness/.env
-          #printf "DB_USER=${{ env.DB_USER }}\n" >> test-harness/.env
-          #printf "DB_PASSWORD=${{ env.DB_PASSWORD }}\n" >> test-harness/.env
-          #printf "DB_CLASS=com.mysql.cj.jdbc.Driver\n" >> test-harness/.env
-          #printf "DB_BUNDLEVERSION=8.0.19\n" >> test-harness/.env
-          #printf "DB_BUNDLENAME=com.mysql.cj\n" >> test-harness/.env
-
       - name: Cache CommandBox Dependencies
         uses: actions/cache@v1
         if: ${{ true }}
@@ -122,74 +109,13 @@ jobs:
             test-harness/.engine/**/logs/*
             test-harness/.engine/**/WEB-INF/cfusion/logs/*
 
-  #############################################
-  # Build ContentBox
-  #############################################
-  build:
-    name: Build & Publish
-    needs: tests
+  docs:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Generate Docs
+        uses: Ortus-Solutions/commandbox-action@v1
         with:
-          fetch-depth: 0
-
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "adopt"
-          java-version: "11"
-
-      - name: Cache CommandBox Dependencies
-        uses: actions/cache@v1
-        if: ${{ true }}
-        with:
-          path: ~/.CommandBox/artifacts
-          key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
-          restore-keys: |
-            ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
-
-      - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
-        with:
-          forgeboxAPIKey: ${{ secrets.FORGEBOX_TOKEN }}
-
-      - name: Setup Environment Variables For Build Process
-        id: current_version
-        run: |
-          echo "VERSION=`cat box.json | jq '.version' -r`" >> $GITHUB_ENV
-          box package set version=@build.version@+@build.number@
-          # master or snapshot
-          echo "Github Ref is $GITHUB_REF"
-          echo "BRANCH=master" >> $GITHUB_ENV
-          if [ $GITHUB_REF == 'refs/heads/development' ]
-          then
-            echo "BRANCH=development" >> $GITHUB_ENV
-          fi
-      - name: Build ${{ env.MODULE_ID }}
-        run: |
-          box install commandbox-docbox
-          box task run taskfile=build/Build target=run :version=${{ env.VERSION }} :projectName=${{ env.MODULE_ID }} :buildID=${{ github.run_number }} :branch=${{ env.BRANCH }}
-
-      - name: Upload Build Artifacts
-        if: success()
-        uses: actions/upload-artifact@v2
-        with:
-          name: s3sdk
-          path: |
-            .artifacts/**/*
-
-      - name: Upload Binaries to S3
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read
-        env:
-          AWS_S3_BUCKET: "downloads.ortussolutions.com"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
-          SOURCE_DIR: ".artifacts/${{ env.MODULE_ID }}"
-          DEST_DIR: "ortussolutions/coldbox-modules/${{ env.MODULE_ID }}"
+          cmd: docbox generate mapping=cbWire excludes=test-harness|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbWire
 
       - name: Upload API Docs to S3
         uses: jakejarvis/s3-sync-action@master
@@ -202,11 +128,20 @@ jobs:
           SOURCE_DIR: ".tmp/apidocs"
           DEST_DIR: "coldbox-modules/${{ env.MODULE_ID }}/${{ env.VERSION }}"
 
-      - name: Publish To ForgeBox
-        run: |
-          cd .tmp/${{ env.MODULE_ID }}
-          cat box.json
-          box forgebox publish
+  release:
+    name: Semantic Release
+    if: "!contains(github.event.head_commit.message, '__SEMANTIC RELEASE VERSION UPDATE__')"
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: Ortus-Solutions/semantic-release-action@v1
+        with:
+          githubToken: ${{ secrets.GH_TOKEN }}
+          excludeCommit: ${{ github.event.head_commit.message }}
+          forgeboxToken: ${{ secrets.FORGEBOX_TOKEN }}
+          branch: master
+          plugins: '{ "VerifyConditions": "GitHubActionsConditionsVerifier@commandbox-semantic-release", "FetchLastRelease": "ForgeBoxReleaseFetcher@commandbox-semantic-release", "RetrieveCommits": "JGitCommitsRetriever@commandbox-semantic-release", "ParseCommit": "EmojiLogCommitParser@commandbox-semantic-release", "FilterCommits": "DefaultCommitFilterer@commandbox-semantic-release", "AnalyzeCommits": "DefaultCommitAnalyzer@commandbox-semantic-release", "VerifyRelease": "NullReleaseVerifier@commandbox-semantic-release", "GenerateNotes": "GitHubMarkdownNotesGenerator@commandbox-semantic-release", "UpdateChangelog": "FileAppendChangelogUpdater@commandbox-semantic-release", "CommitArtifacts": "GitHubArtifactsCommitter@commandbox-semantic-release", "PublishRelease": "ForgeBoxReleasePublisher@commandbox-semantic-release", "PublicizeRelease": "GitHubReleasePublicizer@commandbox-semantic-release" }'
 
       - name: Inform Slack
         if: ${{ always() }}

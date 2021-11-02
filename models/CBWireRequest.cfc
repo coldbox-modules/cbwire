@@ -1,5 +1,5 @@
 /**
- * Represents a subsequent, incoming cbwire XHR Request from the browser.
+ * Represents an incoming CBWire request.
  */
 component accessors="true" singleton {
 
@@ -21,7 +21,7 @@ component accessors="true" singleton {
 	/**
 	 * Injected settings.
 	 */
-	property name="$settings" inject="coldbox:modulesettings:cbwire";
+	property name="settings" inject="coldbox:modulesettings:cbwire";
 
 	/**
 	 * Returns the current ColdBox RequestContext event.
@@ -38,7 +38,7 @@ component accessors="true" singleton {
 	 * @return Boolean
 	 */
 	function hasFingerprint(){
-		return structKeyExists( this.getCollection(), "fingerprint" );
+		return structKeyExists( getCollection(), "fingerprint" );
 	}
 
 	/**
@@ -47,7 +47,7 @@ component accessors="true" singleton {
 	 * @return Boolean
 	 */
 	function hasServerMemo(){
-		return structKeyExists( this.getCollection(), "serverMemo" );
+		return structKeyExists( getCollection(), "serverMemo" );
 	}
 
 	/**
@@ -56,7 +56,7 @@ component accessors="true" singleton {
 	 * @return Boolean
 	 */
 	function hasMountedState(){
-		return this.hasServerMemo() && structKeyExists( this.getServerMemo(), "mountedState" );
+		return hasServerMemo() && structKeyExists( getServerMemo(), "mountedState" );
 	}
 
 	/**
@@ -65,7 +65,7 @@ component accessors="true" singleton {
 	 * @return Struct
 	 */
 	function getMountedState(){
-		return this.getServerMemo()[ "mountedState" ];
+		return getServerMemo()[ "mountedState" ];
 	}
 
 	/**
@@ -74,7 +74,7 @@ component accessors="true" singleton {
 	 * @return Struct
 	 */
 	function getFingerprint(){
-		return this.getCollection()[ "fingerprint" ];
+		return getCollection()[ "fingerprint" ];
 	}
 
 	/**
@@ -83,7 +83,7 @@ component accessors="true" singleton {
 	 * @return struct
 	 */
 	function getServerMemo(){
-		return this.getCollection()[ "serverMemo" ];
+		return getCollection()[ "serverMemo" ];
 	}
 
 	/**
@@ -92,7 +92,7 @@ component accessors="true" singleton {
 	 * @return Boolean
 	 */
 	function hasUpdates(){
-		var collection = this.getCollection();
+		var collection = getCollection();
 		return structKeyExists( collection, "updates" ) && isArray( collection.updates ) && arrayLen(
 			collection.updates
 		);
@@ -104,7 +104,7 @@ component accessors="true" singleton {
 	 * @return Array | WireUpdate
 	 */
 	function getUpdates(){
-		return this.getCollection()[ "updates" ].map( function( update ){
+		return getCollection()[ "updates" ].map( function( update ){
 			var casedType = arguments.update.type;
 
 			casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
@@ -143,9 +143,9 @@ component accessors="true" singleton {
 	 *
 	 * @componentName String | The name of the component.
 	 */
-	function withComponent( componentName ){
+	function getComponentInstance( componentName ){
 		// Determine our component location from the cbwire settings.
-		var wiresLocation = this.getWiresLocation();
+		var wiresLocation = getWiresLocation();
 
 		if (
 			reFindNoCase(
@@ -183,7 +183,7 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function renderIt( componentName, parameters = {} ){
-		return withComponent( arguments.componentName ).$mount( arguments.parameters ).renderIt();
+		return getComponentInstance( arguments.componentName ).$mount( arguments.parameters ).renderIt();
 	}
 
 	/**
@@ -198,7 +198,7 @@ component accessors="true" singleton {
 		arguments.comp.invokeMethod( "preUpdate" );
 
 		// Update the state of our component with each of our updates
-		this.getUpdates()
+		getUpdates()
 			.each( function( update ){
 				arguments.update.apply( comp );
 			} );
@@ -207,11 +207,16 @@ component accessors="true" singleton {
 		arguments.comp.invokeMethod( "preUpdate" );
 	}
 
-	function handleSubsequentRequest( struct context ){
+	/**
+	 * Primary handler for incoming cbwire request.
+	 *
+	 * @context Struct
+	 */
+	function handle( struct rc ){
 		return this
-			.withComponent( arguments.context.wireComponent )
+			.getComponentInstance( arguments.rc.wireComponent )
 			.$hydrate( this )
-			.$getMemento( this.getMountedState() );
+			.$getMemento( getMountedState() );
 	}
 
 	/**
@@ -221,8 +226,8 @@ component accessors="true" singleton {
 	 * @return String
 	 */
 	function getWiresLocation(){
-		if ( structKeyExists( variables.$settings, "wiresLocation" ) ) {
-			return variables.$settings.wiresLocation;
+		if ( structKeyExists( variables.settings, "wiresLocation" ) ) {
+			return variables.settings.wiresLocation;
 		}
 		return "wires";
 	}
@@ -236,7 +241,7 @@ component accessors="true" singleton {
 	 */
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & this.getWiresLocation();
+		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}

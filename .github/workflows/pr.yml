@@ -95,6 +95,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
 
       - uses: Ortus-Solutions/commandbox-action@v1
         with:
@@ -104,4 +106,3 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Apply cfformat changes
-          branch: development
