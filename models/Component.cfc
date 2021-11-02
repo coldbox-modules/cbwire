@@ -6,20 +6,26 @@
  */
 component {
 
-	// Injected ColdBox Renderer for rendering operations.
+	// Inject ColdBox Renderer for rendering operations.
 	property name="$renderer" inject="coldbox:renderer";
 
-	// Injected WireBox for dependency injection.
+	// Inject WireBox for dependency injection.
 	property name="$wirebox" inject="wirebox";
 
-	// Injected the wire request that's incoming from the browser.
+	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
 
-	// Injected populator.
+	// Inject populator.
 	property name="$populator" inject="wirebox:populator";
 
-	// Injected settings.
+	// Inject settings.
 	property name="$settings" inject="coldbox:modulesettings:cbwire";
+
+	// Inject LogBox.
+	property name="logBox" inject="logbox";
+
+	// Inject scoped logger.
+	property name="log" inject="logbox:logger:{this}";
 
 	/**
 	 * The default data struct for cbwire components.
@@ -256,21 +262,21 @@ component {
 	 *
 	 * @return Component
 	 */
-	function $hydrate( CBWireRequest wireRequest ){
-		if ( arguments.wireRequest.hasFingerprint() ) {
-			this.$setId( arguments.wireRequest.getFingerPrint()[ "id" ] );
+	function $hydrate( CBWireRequest cbwireRequest ){
+		if ( arguments.cbwireRequest.hasFingerprint() ) {
+			this.$setId( arguments.cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
 		// Invoke '$preHydrate' event
 		this.invokeMethod( "$preHydrate" );
 
-		if ( arguments.wireRequest.hasMountedState() ) {
-			this.setMountedState( arguments.wireRequest.getMountedState() );
+		if ( arguments.cbwireRequest.hasMountedState() ) {
+			this.setMountedState( arguments.cbwireRequest.getMountedState() );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
-		if ( arguments.wireRequest.hasServerMemo() ) {
-			arguments.wireRequest
+		if ( arguments.cbwireRequest.hasServerMemo() ) {
+			arguments.cbwireRequest
 				.getServerMemo()
 				.data
 				.each( function( key, value ){
@@ -286,8 +292,8 @@ component {
 		this.invokeMethod( "$postHydrate" );
 
 		// Check if our request contains updates, and if so apply them.
-		if ( arguments.wireRequest.hasUpdates() ) {
-			arguments.wireRequest.applyUpdates( this );
+		if ( arguments.cbwireRequest.hasUpdates() ) {
+			arguments.cbwireRequest.applyUpdates( this );
 		}
 
 		return this;
@@ -693,6 +699,22 @@ component {
 	 */
 	function $setId( required id ){
 		variables.id = arguments.id;
+	}
+
+	/**
+	 * Returns LogBox instance.
+	 *
+	 * @return LogBox
+	 */
+	function getLogBox(){
+		return variables.logbox;
+	}
+
+	/**
+	 * Returns Logger instance.
+	 */
+	function getLogger(){
+		return variables.log;
 	}
 
 	/**

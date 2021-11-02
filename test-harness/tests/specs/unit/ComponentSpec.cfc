@@ -31,6 +31,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( isObject( componentObj ) ).toBeTrue();
 			} );
 
+			describe( "logbox", function(){
+				it( "has reference to logbox", function(){
+					var logBox = componentObj.getLogBox();
+					expect( logBox ).toBeInstanceOf( "LogBox" );
+				} );
+
+				it( "has reference to logger", function(){
+					var logger = componentObj.getLogger();
+					expect( logger ).toBeInstanceOf( "Logger" );
+				} );
+			} );
+
 			describe( "getId()", function(){
 				it( "returns 21 character guid", function(){
 					var id = componentObj.getID();
