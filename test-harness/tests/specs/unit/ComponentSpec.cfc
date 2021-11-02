@@ -19,7 +19,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			beforeEach( function( currentSpec ){
 				setup();
 				cbwireRequest = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
-				componentObj = prepareMock(
+				componentObj  = prepareMock(
 					getInstance(
 						name          = "cbwire.models.Component",
 						initArguments = { "cbwireRequest" : cbwireRequest }
