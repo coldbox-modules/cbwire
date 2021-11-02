@@ -21,7 +21,7 @@ component accessors="true" singleton {
 	/**
 	 * Injected settings.
 	 */
-	property name="$settings" inject="coldbox:modulesettings:cbwire";
+	property name="settings" inject="coldbox:modulesettings:cbwire";
 
 	/**
 	 * Returns the current ColdBox RequestContext event.
@@ -225,8 +225,8 @@ component accessors="true" singleton {
 	 * @return String
 	 */
 	function getWiresLocation(){
-		if ( structKeyExists( variables.$settings, "wiresLocation" ) ) {
-			return variables.$settings.wiresLocation;
+		if ( structKeyExists( variables.settings, "wiresLocation" ) ) {
+			return variables.settings.wiresLocation;
 		}
 		return "wires";
 	}

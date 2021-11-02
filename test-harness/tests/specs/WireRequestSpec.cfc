@@ -91,12 +91,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getWiresLocation()", function(){
 				it( "returns 'wires' by default", function(){
-					wireRequest.$property( "$settings", "variables", {} );
+					wireRequest.$property( "settings", "variables", {} );
 					expect( wireRequest.getWiresLocation() ).toBe( "wires" );
 				} );
 				it( "returns the wiresLocation from settings", function(){
 					wireRequest.$property(
-						"$settings",
+						"settings",
 						"variables",
 						{ wiresLocation : "somewhere" }
 					);
