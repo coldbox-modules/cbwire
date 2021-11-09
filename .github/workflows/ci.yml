@@ -140,7 +140,7 @@ jobs:
           githubToken: ${{ secrets.GH_TOKEN }}
           excludeCommit: ${{ github.event.head_commit.message }}
           forgeboxToken: ${{ secrets.FORGEBOX_TOKEN }}
-          branch: ${{ GITHUB_REF_NAME }}
+          branch: ${{ github.ref_name }}
           plugins: '{ "VerifyConditions": "GitHubActionsConditionsVerifier@commandbox-semantic-release", "FetchLastRelease": "ForgeBoxReleaseFetcher@commandbox-semantic-release", "RetrieveCommits": "JGitCommitsRetriever@commandbox-semantic-release", "ParseCommit": "EmojiLogCommitParser@commandbox-semantic-release", "FilterCommits": "DefaultCommitFilterer@commandbox-semantic-release", "AnalyzeCommits": "DefaultCommitAnalyzer@commandbox-semantic-release", "VerifyRelease": "NullReleaseVerifier@commandbox-semantic-release", "GenerateNotes": "GitHubMarkdownNotesGenerator@commandbox-semantic-release", "UpdateChangelog": "FileAppendChangelogUpdater@commandbox-semantic-release", "CommitArtifacts": "GitHubArtifactsCommitter@commandbox-semantic-release", "PublishRelease": "ForgeBoxReleasePublisher@commandbox-semantic-release", "PublicizeRelease": "GitHubReleasePublicizer@commandbox-semantic-release" }'
 
       - name: Inform Slack
