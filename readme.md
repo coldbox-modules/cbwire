@@ -10,7 +10,7 @@ cbwire is a ColdBox module that makes building reactive, dynamic, and modern int
 
 ## Short Pitch
 
-Build reactive apps easily using CFML and less JavaScript! 🎉
+Build reactive apps easily using CFML and less JavaScript!
 
 ## Longer Pitch
 
@@ -52,4 +52,4 @@ The cbwire module for ColdBox is written and maintained by [Grant Copley](https:
 
 We love PRs!
 
-If cbwire makes you 😎, please consider becoming a [Patreon supporter](https://www.patreon.com/ortussolutions).
+If cbwire makes you happy, please consider becoming a [Patreon supporter](https://www.patreon.com/ortussolutions).
