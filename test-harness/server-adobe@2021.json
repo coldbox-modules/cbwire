@@ -1,0 +1,19 @@
+{
+    "name":"cbwire-adobe@2021",
+    "app":{
+        "serverHomeDirectory":".engine/adobe2021",
+        "cfengine":"adobe@2021"
+    },
+    "web":{
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "aliases":{
+            "/modules/cbwire":"../"
+        }
+    },
+    "openBrowser":"false"
+}

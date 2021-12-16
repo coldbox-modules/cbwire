@@ -30,7 +30,12 @@ component {
 			 * The default folder name where your cbwire components are stored.
 			 * Defaults to 'wires' folder.
 			 */
-			"componentLocation" : "wires"
+			"componentLocation" : "wires",
+			/**
+			 * Cache Livewire's manifest for the livewire.js path
+			 * with it's hashing as a setting that we can use elsewhere.
+			 */
+			"manifest" : getLivewireManifest()
 		};
 
 		routes = [
@@ -39,6 +44,14 @@ component {
 				"handler" : "Main"
 			}
 		];
+	}
+
+	/**
+	 * Returns Livewire's manifest as a struct.
+	 */
+	function getLivewireManifest(){
+		var path = getCanonicalPath( variables.modulePath & "/includes/js/manifest.json" );
+		return deserializeJSON( fileRead( path ) );
 	}
 
 }

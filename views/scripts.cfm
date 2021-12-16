@@ -1,4 +1,4 @@
-<cfset manifest = deserializeJson( fileRead( expandPath( "/modules/cbwire/includes/js/manifest.json" ) ) )>
+<cfset manifest = getInstance( "coldbox:setting:manifest@cbwire" )>
 
 <cfoutput>
 <!-- Livewire Scripts -->

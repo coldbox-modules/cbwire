@@ -95,21 +95,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Setup Java
-        uses: actions/setup-java@v2
         with:
-          distribution: "adopt"
-          java-version: "11"
+          ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Set Up CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
-
-      - name: Install CFFormat
-        run: box install commandbox-cfformat
-
-      - name: Run CFFormat
-        run: box run-script format
+      - uses: Ortus-Solutions/commandbox-action@v1
+        with:
+          cmd: run-script format
 
       - name: Commit Format Changes
         uses: stefanzweifel/git-auto-commit-action@v4

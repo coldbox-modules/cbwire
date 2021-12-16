@@ -1,0 +1,3 @@
+<cfoutput>
+    #wire( "LogBox" )#
+</cfoutput>

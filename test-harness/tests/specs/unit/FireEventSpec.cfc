@@ -25,7 +25,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						initArguments = { "update" : update }
 					)
 				);
-				wireRequest  = prepareMock( getInstance( "cbwire.models.WireRequest" ) );
+				wireRequest  = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
 				componentObj = prepareMock( getInstance( name = "cbwire.models.Component" ) );
 			} );
 

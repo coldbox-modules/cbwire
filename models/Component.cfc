@@ -6,20 +6,26 @@
  */
 component {
 
-	// Injected ColdBox Renderer for rendering operations.
+	// Inject ColdBox Renderer for rendering operations.
 	property name="$renderer" inject="coldbox:renderer";
 
-	// Injected WireBox for dependency injection.
+	// Inject WireBox for dependency injection.
 	property name="$wirebox" inject="wirebox";
 
-	// Injected the wire request that's incoming from the browser.
-	property name="$wireRequest" inject="WireRequest@cbwire";
+	// Inject the wire request that's incoming from the browser.
+	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
 
-	// Injected populator.
+	// Inject populator.
 	property name="$populator" inject="wirebox:populator";
 
-	// Injected settings.
+	// Inject settings.
 	property name="$settings" inject="coldbox:modulesettings:cbwire";
+
+	// Inject LogBox.
+	property name="logBox" inject="logbox";
+
+	// Inject scoped logger.
+	property name="log" inject="logbox:logger:{this}";
 
 	/**
 	 * The default data struct for cbwire components.
@@ -100,20 +106,20 @@ component {
 	function getInitialData( renderingHash = "" ){
 		return {
 			"fingerprint" : {
-				"id"     : this.getID(),
-				"name"   : this.getMeta().name,
+				"id"     : getID(),
+				"name"   : getMeta().name,
 				"locale" : "en",
-				"path"   : this.getPath(),
+				"path"   : getPath(),
 				"method" : "GET"
 			},
 			"effects"    : { "listeners" : variables.getListenerNames() },
 			"serverMemo" : {
 				"children"     : [],
 				"errors"       : [],
-				"htmlHash"     : this.getChecksum(),
-				"data"         : this.getState(),
+				"htmlHash"     : getChecksum(),
+				"data"         : getState(),
 				"dataMeta"     : [],
-				"checksum"     : this.getChecksum(),
+				"checksum"     : getChecksum(),
 				"mountedState" : variables.getMountedState()
 			}
 		};
@@ -127,7 +133,7 @@ component {
 	function renderIt(){
 		throw(
 			type    = "RenderMethodNotFound",
-			message = "Couldn't find a renderIt() method defined on the component '#this.getMeta().name#'."
+			message = "Couldn't find a renderIt() method defined on the component '#getMeta().name#'."
 		);
 	}
 
@@ -139,7 +145,7 @@ component {
 	 */
 	function getRendering(){
 		if ( !structKeyExists( variables, "rendering" ) ) {
-			variables.rendering = this.renderIt();
+			variables.rendering = renderIt();
 		}
 		return variables.rendering;
 	}
@@ -150,7 +156,7 @@ component {
 	 * @return String
 	 */
 	function getChecksum(){
-		return hash( serializeJSON( this.getState() ) );
+		return hash( serializeJSON( getState() ) );
 	}
 
 	/**
@@ -201,7 +207,7 @@ component {
 	 */
 	function renderView(){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = this.getState( includeComputed = true );
+		arguments.args = getState( includeComputed = true );
 
 		// Render our view using coldbox rendering
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
@@ -224,12 +230,12 @@ component {
 	function $mount( parameters = {} ){
 		variables.$isInitialRendering = true;
 
-		if ( structKeyExists( this, "mount" ) && isCustomFunction( this.mount ) ) {
+		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
 			this[ "mount" ](
 				parameters = arguments.parameters,
-				event      = variables.$wireRequest.getEvent(),
-				rc         = variables.$wireRequest.getCollection(),
-				prc        = variables.$wireRequest.getPrivateCollection()
+				event      = variables.$cbwireRequest.getEvent(),
+				rc         = variables.$cbwireRequest.getCollection(),
+				prc        = variables.$cbwireRequest.getPrivateCollection()
 			);
 		} else {
 			/**
@@ -244,7 +250,7 @@ component {
 		}
 
 		// Capture the mounted state
-		variables.mountedState = this.getState();
+		variables.mountedState = getState();
 
 		return this;
 	}
@@ -252,30 +258,30 @@ component {
 	/**
 	 * Hydrates the incoming component with state from our request.
 	 *
-	 * @wireRequest WireRequest
+	 * @wireRequest CBWireRequest
 	 *
 	 * @return Component
 	 */
-	function $hydrate( WireRequest wireRequest ){
-		if ( arguments.wireRequest.hasFingerprint() ) {
-			this.$setId( arguments.wireRequest.getFingerPrint()[ "id" ] );
+	function $hydrate( CBWireRequest cbwireRequest ){
+		if ( arguments.cbwireRequest.hasFingerprint() ) {
+			$setId( arguments.cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
 		// Invoke '$preHydrate' event
-		this.invokeMethod( "$preHydrate" );
+		invokeMethod( "$preHydrate" );
 
-		if ( arguments.wireRequest.hasMountedState() ) {
-			this.setMountedState( arguments.wireRequest.getMountedState() );
+		if ( arguments.cbwireRequest.hasMountedState() ) {
+			setMountedState( arguments.cbwireRequest.getMountedState() );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
-		if ( arguments.wireRequest.hasServerMemo() ) {
-			arguments.wireRequest
+		if ( arguments.cbwireRequest.hasServerMemo() ) {
+			arguments.cbwireRequest
 				.getServerMemo()
 				.data
 				.each( function( key, value ){
 					// Call the setter method
-					this.invokeMethod(
+					invokeMethod(
 						methodName = "set" & arguments.key,
 						value      = arguments.value
 					);
@@ -283,11 +289,11 @@ component {
 		}
 
 		// Invoke '$postHydrate' event
-		this.invokeMethod( "$postHydrate" );
+		invokeMethod( "$postHydrate" );
 
 		// Check if our request contains updates, and if so apply them.
-		if ( arguments.wireRequest.hasUpdates() ) {
-			arguments.wireRequest.applyUpdates( this );
+		if ( arguments.cbwireRequest.hasUpdates() ) {
+			arguments.cbwireRequest.applyUpdates( this );
 		}
 
 		return this;
@@ -303,17 +309,17 @@ component {
 	function $getMemento( mountedState ){
 		return {
 			"effects" : {
-				"html"  : this.getRendering(),
+				"html"  : getRendering(),
 				"dirty" : [
 					"count" // need to fix
 				],
-				"path"  : this.getPath(),
-				"emits" : this.getEmits()
+				"path"  : getPath(),
+				"emits" : getEmits()
 			},
 			"serverMemo" : {
 				"htmlHash"     : "71146cf2",
-				"data"         : this.getState( false ),
-				"checksum"     : this.getChecksum(),
+				"data"         : getState( false ),
+				"checksum"     : getChecksum(),
 				"mountedState" : mountedState
 			}
 		}
@@ -333,7 +339,7 @@ component {
 	 */
 	function $set( propertyName, value ){
 		// Invoke '$preUpdate[prop]' event
-		this.invokeMethod(
+		invokeMethod(
 			methodName   = "preUpdate" & arguments.propertyName,
 			propertyName = arguments.value
 		);
@@ -341,7 +347,7 @@ component {
 		variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
 		// Invoke 'postUpdate[prop]' event
-		this.invokeMethod(
+		invokeMethod(
 			methodName   = "postUpdate" & arguments.propertyName,
 			propertyName = arguments.value
 		);
@@ -459,7 +465,7 @@ component {
 	 */
 	function refresh(){
 		// Invoke 'postRefresh' event
-		this.invokeMethod( "postRefresh" );
+		invokeMethod( "postRefresh" );
 	}
 
 	/**
@@ -475,14 +481,14 @@ component {
 		trackEmit  = true
 	){
 		// Invoke 'preEmit' event
-		this.invokeMethod(
+		invokeMethod(
 			methodName = "preEmit",
 			eventName  = arguments.eventName,
 			parameters = arguments.parameters
 		);
 
 		// Invoke 'preEmit[EventName]' event
-		this.invokeMethod(
+		invokeMethod(
 			methodName = "preEmit" & arguments.eventName,
 			parameters = arguments.parameters
 		);
@@ -500,25 +506,25 @@ component {
 			variables.trackEmit( emitter );
 		}
 
-		var listeners = this.getListeners();
+		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
 			var listener = listeners[ eventName ];
 
-			if ( len( arguments.eventName ) && this.hasMethod( listener ) ) {
-				return this.invokeMethod( listener );
+			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
+				return invokeMethod( listener );
 			}
 		}
 
 		// Invoke 'postEmit' event
-		this.invokeMethod(
+		invokeMethod(
 			methodName = "postEmit",
 			eventName  = arguments.eventName,
 			parameters = arguments.parameters
 		);
 
 		// Invoke 'postEmit[EventName]' event
-		this.invokeMethod(
+		invokeMethod(
 			methodName = "postEmit" & arguments.eventName,
 			parameters = arguments.parameters
 		);
@@ -637,12 +643,12 @@ component {
 						"value"
 					)
 				) {
-					this.$set(
+					$set(
 						dataPropertyName,
 						arguments.missingMethodArguments.value
 					);
 				} else {
-					this.$set(
+					$set(
 						dataPropertyName,
 						arguments.missingMethodArguments[ 1 ]
 					);
@@ -673,11 +679,11 @@ component {
 		if ( isArray( arguments.property ) ) {
 			// Reset each property in our array individually
 			arguments.property.each( function( prop ){
-				this.reset( prop );
+				reset( prop );
 			} );
 		} else {
 			// Reset individual property
-			this.$set(
+			$set(
 				arguments.property,
 				variables.getMountedState()[ arguments.property ]
 			);
@@ -693,6 +699,22 @@ component {
 	 */
 	function $setId( required id ){
 		variables.id = arguments.id;
+	}
+
+	/**
+	 * Returns LogBox instance.
+	 *
+	 * @return LogBox
+	 */
+	function getLogBox(){
+		return variables.logbox;
+	}
+
+	/**
+	 * Returns Logger instance.
+	 */
+	function getLogger(){
+		return variables.log;
 	}
 
 	/**
@@ -719,7 +741,7 @@ component {
 			return "";
 		}
 
-		var currentState = this.getState();
+		var currentState = getState();
 
 		// Handle array of property names
 		if ( isArray( variables.queryString ) ) {
@@ -752,7 +774,7 @@ component {
 	 * @return Array
 	 */
 	private function getListenerNames(){
-		return structKeyList( this.getListeners() ).listToArray();
+		return structKeyList( getListeners() ).listToArray();
 	}
 
 	/**
@@ -774,14 +796,14 @@ component {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#this.getID()#"" wire:initial-data=""#serializeJSON( this.getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#getID()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
 			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#this.getID()#""",
+				outerElement & " wire:id=""#getID()#""",
 				"once"
 			);
 		}
