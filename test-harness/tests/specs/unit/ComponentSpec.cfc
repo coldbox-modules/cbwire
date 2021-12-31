@@ -164,11 +164,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "renderIt", function(){
-				it( "throw an error if it's not been implemented on the child class", function(){
-					expect( function(){
-						componentObj.renderIt();
-					} ).toThrow( type = "RenderMethodNotFound" );
-				} );
 
 				it( "renders the view defined in variables.renderView within the component", function() {
 					componentObj.$property( 
@@ -180,6 +175,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					componentObj.renderIt();
 					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "some/path" );
 				} );
+
+				it( "implicitly renders the view of the component's name", function() {
+					componentObj.$( "renderView", "");
+					componentObj.renderIt();
+					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "wires/component" );
+				} );
+
 			} );
 
 			describe( "renderView", function(){

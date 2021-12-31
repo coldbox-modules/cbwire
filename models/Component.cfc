@@ -126,7 +126,7 @@ component {
 	}
 
 	/**
-	 * Throws an error if renderIt() is not defined on our child class.
+	 * Renders our component's view.
 	 *
 	 * @return Void
 	 */
@@ -136,10 +136,9 @@ component {
 			return renderView( variables.view );
 		}
 
-		throw(
-			type    = "RenderMethodNotFound",
-			message = "Couldn't find a renderIt() method defined on the component '#getMeta().name#'."
-		);
+		var componentName = lCase( getMetaData( this ).name );
+
+		return renderView( "wires/#listLast( componentName, "." )#" );
 	}
 
 	/**
