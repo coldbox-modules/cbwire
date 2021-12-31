@@ -169,6 +169,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						componentObj.renderIt();
 					} ).toThrow( type = "RenderMethodNotFound" );
 				} );
+
+				it( "renders the view defined in variables.renderView within the component", function() {
+					componentObj.$property( 
+						propertyName = "view",
+						propertyScope = "variables",
+						mock = "some/path"
+					);
+					componentObj.$( "renderView", "");
+					componentObj.renderIt();
+					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "some/path" );
+				} );
 			} );
 
 			describe( "renderView", function(){

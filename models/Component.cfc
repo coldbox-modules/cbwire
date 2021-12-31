@@ -131,6 +131,11 @@ component {
 	 * @return Void
 	 */
 	function renderIt(){
+
+		if ( structKeyExists( variables, "view" ) && isValid( "string", variables.view ) && len( variables.view ) ) {
+			return renderView( variables.view );
+		}
+
 		throw(
 			type    = "RenderMethodNotFound",
 			message = "Couldn't find a renderIt() method defined on the component '#getMeta().name#'."
