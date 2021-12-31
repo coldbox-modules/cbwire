@@ -27,6 +27,9 @@ component {
 	// Inject scoped logger.
 	property name="log" inject="logbox:logger:{this}";
 
+	// Inject ColdBox Flash
+	property name="flash" inject="coldbox:flash";
+
 	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
