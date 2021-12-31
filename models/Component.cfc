@@ -134,12 +134,11 @@ component {
 	 * @return Void
 	 */
 	function renderIt(){
-
 		if ( structKeyExists( variables, "view" ) && isValid( "string", variables.view ) && len( variables.view ) ) {
 			return renderView( variables.view );
 		}
 
-		var componentName = lCase( getMetaData( this ).name );
+		var componentName = lCase( getMetadata( this ).name );
 
 		return renderView( "wires/#listLast( componentName, "." )#" );
 	}

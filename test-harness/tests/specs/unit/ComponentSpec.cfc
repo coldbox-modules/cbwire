@@ -164,24 +164,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "renderIt", function(){
-
-				it( "renders the view defined in variables.renderView within the component", function() {
-					componentObj.$property( 
-						propertyName = "view",
+				it( "renders the view defined in variables.renderView within the component", function(){
+					componentObj.$property(
+						propertyName  = "view",
 						propertyScope = "variables",
-						mock = "some/path"
+						mock          = "some/path"
 					);
-					componentObj.$( "renderView", "");
+					componentObj.$( "renderView", "" );
 					componentObj.renderIt();
-					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "some/path" );
+					expect( componentObj.$callLog()[ "renderView" ][ 1 ][ 1 ] ).toBe( "some/path" );
 				} );
 
-				it( "implicitly renders the view of the component's name", function() {
-					componentObj.$( "renderView", "");
+				it( "implicitly renders the view of the component's name", function(){
+					componentObj.$( "renderView", "" );
 					componentObj.renderIt();
-					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "wires/component" );
+					expect( componentObj.$callLog()[ "renderView" ][ 1 ][ 1 ] ).toBe( "wires/component" );
 				} );
-
 			} );
 
 			describe( "renderView", function(){
