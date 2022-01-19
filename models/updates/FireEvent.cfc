@@ -6,7 +6,7 @@ component extends="WireUpdate" {
 	 * @comp cbwire.models.Component | Component we are updating.
 	 */
 	function apply( required comp ){
-		if ( !arguments.comp.hasListeners() ) {
+		if ( !arguments.comp.$hasListeners() ) {
 			return;
 		}
 

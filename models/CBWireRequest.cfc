@@ -183,7 +183,9 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function renderIt( componentName, parameters = {} ){
-		return getComponentInstance( arguments.componentName ).$mount( arguments.parameters ).renderIt();
+		return getComponentInstance( arguments.componentName )
+			.$mount( arguments.parameters )
+			.$renderIt();
 	}
 
 	/**
@@ -195,7 +197,7 @@ component accessors="true" singleton {
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
-		arguments.comp.invokeMethod( "preUpdate" );
+		arguments.comp.$invokeMethod( "preUpdate" );
 
 		// Update the state of our component with each of our updates
 		getUpdates().each( function( update ){
@@ -203,7 +205,7 @@ component accessors="true" singleton {
 		} );
 
 		// Fire our postUpdate lifecycle event.
-		arguments.comp.invokeMethod( "preUpdate" );
+		arguments.comp.$invokeMethod( "preUpdate" );
 	}
 
 	/**

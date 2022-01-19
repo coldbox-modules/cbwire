@@ -48,11 +48,13 @@ component {
 	 */
 	function init(){
 		variables.$isInitialRendering = false;
-		variables.emits               = [];
-		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
-
+		variables.$noRender	          = false;
+		variables.$emits              = [];
+		variables.$id                 = createUUID().replace( "-", "", "all" ).left( 21 );
 		return this;
 	}
+
+	include "componentPublicMethods.cfm";
 
 	/**
 	 * Relocate user browser requests to other events, URLs, or URIs.
@@ -91,8 +93,8 @@ component {
 	 *
 	 * @return String
 	 */
-	function getID(){
-		return variables.id;
+	function $getID(){
+		return variables.$id;
 	}
 
 	/**
@@ -103,23 +105,25 @@ component {
 	 *
 	 * @return Struct
 	 */
-	function getInitialData( renderingHash = "" ){
+	function $getInitialData( renderingHash = "" ){
 		return {
 			"fingerprint" : {
-				"id"     : getID(),
-				"name"   : getMeta().name,
+				"id"     : $getID(),
+				"name"   : $getMeta().name,
 				"locale" : "en",
-				"path"   : getPath(),
+				"path"   : $getPath(),
 				"method" : "GET"
 			},
-			"effects"    : { "listeners" : variables.getListenerNames() },
+			"effects"    : { 
+				"listeners" : $getListenerNames() 
+			},
 			"serverMemo" : {
 				"children"     : [],
 				"errors"       : [],
-				"htmlHash"     : getChecksum(),
-				"data"         : getState(),
+				"htmlHash"     : $getChecksum(),
+				"data"         : $getState(),
 				"dataMeta"     : [],
-				"checksum"     : getChecksum()
+				"checksum"     : $getChecksum()
 			}
 		};
 	}
@@ -129,7 +133,13 @@ component {
 	 *
 	 * @return Void
 	 */
-	function renderIt(){
+	function $renderIt(){
+
+		// If the user has defined their own renderIt() method on the 
+		// component, let's call that instead
+		if ( structKeyExists( variables, "renderIt" ) ) {
+			return variables.renderIt();
+		}
 
 		if ( structKeyExists( variables, "view" ) && isValid( "string", variables.view ) && len( variables.view ) ) {
 			return renderView( variables.view );
@@ -141,14 +151,14 @@ component {
 	}
 
 	/**
-	 * Invokes renderIt() on the cbwire component and caches the rendered
+	 * Invokes $renderIt() on the cbwire component and caches the rendered
 	 * results into variables.rendering.
 	 *
 	 * @return String
 	 */
-	function getRendering(){
+	function $getRendering(){
 		if ( !structKeyExists( variables, "rendering" ) ) {
-			variables.rendering = renderIt();
+			variables.rendering = $renderIt();
 		}
 		return variables.rendering;
 	}
@@ -158,8 +168,8 @@ component {
 	 *
 	 * @return String
 	 */
-	function getChecksum(){
-		return hash( serializeJSON( getState() ) );
+	function $getChecksum(){
+		return hash( serializeJSON( $getState() ) );
 	}
 
 	/**
@@ -168,7 +178,7 @@ component {
 	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
 	 * @return Struct
 	 */
-	function getState( boolean includeComputed = false ){
+	function $getState( boolean includeComputed = false ){
 		/**
 		 * Get our data properties for our current state.
 		 */
@@ -199,24 +209,8 @@ component {
 	 * @methodName String | The method name we are checking.
 	 * @return Boolean
 	 */
-	function hasMethod( required methodName ){
+	function $hasMethod( required methodName ){
 		return structKeyExists( this, arguments.methodName );
-	}
-
-	/**
-	 * Renders our component's view and returns the rendering.
-	 *
-	 * @return String
-	 */
-	function renderView(){
-		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = getState( includeComputed = true );
-
-		// Render our view using coldbox rendering
-		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
-
-		// Add properties to top element to make cbwire actually work.
-		return variables.applyWiringToOuterElement( rendering );
 	}
 
 	/**
@@ -252,9 +246,6 @@ component {
 			);
 		}
 
-		// Capture the mounted state
-		variables.mountedState = getState();
-
 		return this;
 	}
 
@@ -271,10 +262,10 @@ component {
 		}
 
 		// Invoke '$preHydrate' event
-		invokeMethod( "$preHydrate" );
+		$invokeMethod( "$preHydrate" );
 
 		if ( arguments.cbwireRequest.hasData() ) {
-			setData( arguments.cbwireRequest.getData() );
+			$setData( arguments.cbwireRequest.getData() );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
@@ -284,7 +275,7 @@ component {
 				.data
 				.each( function( key, value ){
 					// Call the setter method
-					invokeMethod(
+					$invokeMethod(
 						methodName = "set" & arguments.key,
 						value      = arguments.value
 					);
@@ -292,7 +283,7 @@ component {
 		}
 
 		// Invoke '$postHydrate' event
-		invokeMethod( "$postHydrate" );
+		$invokeMethod( "$postHydrate" );
 
 		// Check if our request contains updates, and if so apply them.
 		if ( arguments.cbwireRequest.hasUpdates() ) {
@@ -312,17 +303,17 @@ component {
 	function $getMemento( mountedState ){
 		return {
 			"effects" : {
-				"html"  : getRendering(),
+				"html"  : $getRendering(),
 				"dirty" : [
 					"count" // need to fix
 				],
-				"path"  : getPath(),
-				"emits" : getEmits()
+				"path"  : $getPath(),
+				"emits" : $getEmits()
 			},
 			"serverMemo" : {
 				"htmlHash"     : "71146cf2",
-				"data"         : getState( false ),
-				"checksum"     : getChecksum()
+				"data"         : $getState( false ),
+				"checksum"     : $getChecksum()
 			}
 		}
 	}
@@ -341,7 +332,7 @@ component {
 	 */
 	function $set( propertyName, value ){
 		// Invoke '$preUpdate[prop]' event
-		invokeMethod(
+		$invokeMethod(
 			methodName   = "preUpdate" & arguments.propertyName,
 			propertyName = arguments.value
 		);
@@ -349,7 +340,7 @@ component {
 		variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
 		// Invoke 'postUpdate[prop]' event
-		invokeMethod(
+		$invokeMethod(
 			methodName   = "postUpdate" & arguments.propertyName,
 			propertyName = arguments.value
 		);
@@ -364,11 +355,11 @@ component {
 	 *
 	 * @return String
 	 */
-	function getPath(){
-		var queryStringValues = variables.getQueryStringValues();
+	function $getPath(){
+		var queryStringValues = variables.$getQueryStringValues();
 
 		if ( len( queryStringValues ) ) {
-			var referer = variables.getHTTPReferer();
+			var referer = variables.$getHTTPReferer();
 
 			// Strip away any queryString parameters from the referer so
 			// we don't duplicate them when we append the queryStringValues below.
@@ -389,7 +380,7 @@ component {
 	 * @state Struct
 	 * @return Void
 	 */
-	function setData( required state ){
+	function $setData( required state ){
 		variables.$data = arguments.state;
 	}
 
@@ -398,8 +389,8 @@ component {
 	 *
 	 * @return Array
 	 */
-	function getEmits(){
-		return variables.emits;
+	function $getEmits(){
+		return variables.$emits;
 	}
 
 	/**
@@ -407,8 +398,8 @@ component {
 	 *
 	 * @return Boolean
 	 */
-	function hasListeners(){
-		return arrayLen( variables.getListenerNames() );
+	function $hasListeners(){
+		return arrayLen( variables.$getListenerNames() );
 	}
 
 	/**
@@ -417,7 +408,7 @@ component {
 	 *
 	 * @return Struct
 	 */
-	function getListeners(){
+	function $getListeners(){
 		if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ) {
 			return variables.listeners;
 		}
@@ -430,13 +421,12 @@ component {
 	 *
 	 * @return Struct
 	 */
-	function getMeta(){
+	function $getMeta(){
 		if ( !structKeyExists( variables, "meta" ) ) {
 			variables.meta = getMetadata( this );
 		}
 		return variables.meta;
 	}
-
 
 	/**
 	 * Invokes a dynamic method on our component. If the method doesn't exist,
@@ -448,7 +438,7 @@ component {
 	 *
 	 * @return Any
 	 */
-	function invokeMethod( required methodName, methodArgs = {} ){
+	function $invokeMethod( required methodName, methodArgs = {} ){
 		return invoke(
 			this,
 			arguments.methodName,
@@ -456,153 +446,6 @@ component {
 				return !arguments.key.findNoCase( "methodName" )
 			} )
 		);
-	}
-
-	/**
-	 * Invokes a postRefresh event and currently nothing else.
-	 * This is used with cbwire's polling functionality which
-	 * refreshes the component.
-	 *
-	 * @return Void
-	 */
-	function refresh(){
-		// Invoke 'postRefresh' event
-		invokeMethod( "postRefresh" );
-	}
-
-	/**
-	 * Emits a global event from our cbwire component.
-	 *
-	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The params passed with the emitter.
-	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
-	 */
-	function emit(
-		required eventName,
-		parameters = {},
-		trackEmit  = true
-	){
-		// Invoke 'preEmit' event
-		invokeMethod(
-			methodName = "preEmit",
-			eventName  = arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Invoke 'preEmit[EventName]' event
-		invokeMethod(
-			methodName = "preEmit" & arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		if ( arguments.trackEmit ) {
-			var emitter = createObject(
-				"component",
-				"cbwire.models.emit.BaseEmit"
-			).init(
-				arguments.eventName,
-				arguments.parameters
-			);
-
-			variables.trackEmit( emitter );
-		}
-
-		var listeners = getListeners();
-
-		if ( structKeyExists( listeners, eventName ) ) {
-			var listener = listeners[ eventName ];
-
-			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
-				return invokeMethod( listener );
-			}
-		}
-
-		// Invoke 'postEmit' event
-		invokeMethod(
-			methodName = "postEmit",
-			eventName  = arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Invoke 'postEmit[EventName]' event
-		invokeMethod(
-			methodName = "postEmit" & arguments.eventName,
-			parameters = arguments.parameters
-		);
-	}
-
-	/**
-	 * Emits an event that is scoped to just the current cbwire component.
-	 *
-	 * Additional parameters can be passed through.
-
-	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The emitter's params.
-	 *
-	 * @return Void
-	 */
-	function emitSelf( required eventName, parameters = {} ){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitSelf"
-		).init(
-			arguments.eventName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
-	}
-
-	/**
-	 * Emits an event that is scoped to parents and not children or sibling components.
-	 *
-	 * Additional parameters can be passed through.
-	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct  The emitter's params.
-	 *
-	 * @return Void
-	 */
-	function emitUp( required eventName, parameters = {} ){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitUp"
-		).init(
-			arguments.eventName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
-	}
-
-	/**
-	 * Emits an event that is scoped to only a specific compnoent.
-	 *
-	 * Additional parameters can be passed through.
-	 * @eventName String | The name of our event to emit.
-	 * @componentName String | The name of our component to emit to.
-	 * @parameters Array | The emitter's params. Must be an array to preserve order of arguments that are return to cbwire.
-	 *
-	 * @return Void
-	 */
-	function emitTo(
-		required eventName,
-		required componentName,
-		parameters = []
-	){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitTo"
-		).init(
-			arguments.eventName,
-			arguments.componentName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
 	}
 
 	/**
@@ -670,29 +513,6 @@ component {
 	}
 
 	/**
-	 * Resets a property back to it's original state when the component
-	 * was initially hydrated.
-	 *
-	 * This accepts either a single property or an array of properties
-	 *
-	 * @return Void
-	 */
-	function reset( property ){
-		if ( isArray( arguments.property ) ) {
-			// Reset each property in our array individually
-			arguments.property.each( function( prop ){
-				reset( prop );
-			} );
-		} else {
-			// Reset individual property
-			$set(
-				arguments.property,
-				variables.getMountedState()[ arguments.property ]
-			);
-		}
-	}
-
-	/**
 	 * Set the components id.
 	 *
 	 * @id String | GUID
@@ -700,23 +520,7 @@ component {
 	 * @return Void
 	 */
 	function $setId( required id ){
-		variables.id = arguments.id;
-	}
-
-	/**
-	 * Returns LogBox instance.
-	 *
-	 * @return LogBox
-	 */
-	function getLogBox(){
-		return variables.logbox;
-	}
-
-	/**
-	 * Returns Logger instance.
-	 */
-	function getLogger(){
-		return variables.log;
+		variables.$id= arguments.id;
 	}
 
 	/**
@@ -725,13 +529,13 @@ component {
 	 *
 	 * @return String
 	 */
-	private function getQueryStringValues(){
+	function $getQueryStringValues(){
 		// Default with an empty array
 		if ( !structKeyExists( variables, "queryString" ) ) {
 			return "";
 		}
 
-		var currentState = getState();
+		var currentState = $getState();
 
 		// Handle array of property names
 		if ( isArray( variables.queryString ) ) {
@@ -753,9 +557,9 @@ component {
 	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
 	 * @return Array;
 	 */
-	private function trackEmit( required emitter ){
+	function $trackEmit( required emitter ){
 		var result = emitter.getResult();
-		variables.emits.append( result );
+		variables.$emits.append( result );
 	}
 
 	/**
@@ -763,8 +567,8 @@ component {
 	 *
 	 * @return Array
 	 */
-	private function getListenerNames(){
-		return structKeyList( getListeners() ).listToArray();
+	function $getListenerNames(){
+		return structKeyList( $getListeners() ).listToArray();
 	}
 
 	/**
@@ -772,28 +576,28 @@ component {
 	 *
 	 * @rendering String | The view rendering.
 	 */
-	private function applyWiringToOuterElement( required rendering ){
+	function $applyWiringToOuterElement( required rendering ){
 		var renderingResult = "";
 
 		// Provide a hash of our rendering which is used by Livewire JS.
 		var renderingHash = hash( arguments.rendering );
 
 		// Determine our outer element.
-		var outerElement = variables.getOuterElement( arguments.rendering );
+		var outerElement = variables.$getOuterElement( arguments.rendering );
 
 		// Add properties to top element to make cbwire actually work.
 		if ( variables.$isInitialRendering ) {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getID()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#$getID()#"" wire:initial-data=""#serializeJSON( $getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
 			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getID()#""",
+				outerElement & " wire:id=""#$getID()#""",
 				"once"
 			);
 		}
@@ -807,7 +611,7 @@ component {
 	 *
 	 * @rendering String | The view rendering.
 	 */
-	private function getOuterElement( required rendering ){
+	function $getOuterElement( required rendering ){
 		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
 
 		if ( arrayLen( matches ) ) {
@@ -825,7 +629,7 @@ component {
 	 *
 	 * @return String
 	 */
-	private function getHTTPReferer(){
+	function $getHTTPReferer(){
 		return cgi.HTTP_REFERER;
 	}
 
