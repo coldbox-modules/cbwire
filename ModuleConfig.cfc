@@ -44,6 +44,10 @@ component {
 				"handler" : "Main"
 			}
 		];
+
+		interceptors = [
+			{ class="#moduleMapping#.interceptors.DisableBrowserCaching" }
+		];
 	}
 
 	/**
