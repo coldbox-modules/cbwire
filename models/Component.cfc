@@ -119,8 +119,7 @@ component {
 				"htmlHash"     : getChecksum(),
 				"data"         : getState(),
 				"dataMeta"     : [],
-				"checksum"     : getChecksum(),
-				"mountedState" : variables.getMountedState()
+				"checksum"     : getChecksum()
 			}
 		};
 	}
@@ -274,8 +273,8 @@ component {
 		// Invoke '$preHydrate' event
 		invokeMethod( "$preHydrate" );
 
-		if ( arguments.cbwireRequest.hasMountedState() ) {
-			setMountedState( arguments.cbwireRequest.getMountedState() );
+		if ( arguments.cbwireRequest.hasData() ) {
+			setData( arguments.cbwireRequest.getData() );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
@@ -323,8 +322,7 @@ component {
 			"serverMemo" : {
 				"htmlHash"     : "71146cf2",
 				"data"         : getState( false ),
-				"checksum"     : getChecksum(),
-				"mountedState" : mountedState
+				"checksum"     : getChecksum()
 			}
 		}
 	}
@@ -391,8 +389,8 @@ component {
 	 * @state Struct
 	 * @return Void
 	 */
-	function setMountedState( required state ){
-		variables.mountedState = arguments.state;
+	function setData( required state ){
+		variables.$data = arguments.state;
 	}
 
 	/**
@@ -719,18 +717,6 @@ component {
 	 */
 	function getLogger(){
 		return variables.log;
-	}
-
-	/**
-	 * Gets our mounted state.
-	 *
-	 * @return Struct
-	 */
-	private function getMountedState(){
-		if ( structKeyExists( variables, "mountedState" ) ) {
-			return variables.mountedState;
-		}
-		return {};
 	}
 
 	/**

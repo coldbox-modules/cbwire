@@ -51,21 +51,21 @@ component accessors="true" singleton {
 	}
 
 	/**
-	 * Returns true if our server memo contains a mounted state property.
+	 * Returns true if our server memo contains a data property.
 	 *
 	 * @return Boolean
 	 */
-	function hasMountedState(){
-		return hasServerMemo() && structKeyExists( getServerMemo(), "mountedState" );
+	function hasData(){
+		return hasServerMemo() && structKeyExists( getServerMemo(), "data" );
 	}
 
 	/**
-	 * Returns our mounted state
+	 * Returns our data
 	 *
 	 * @return Struct
 	 */
-	function getMountedState(){
-		return getServerMemo()[ "mountedState" ];
+	function getData(){
+		return getServerMemo()[ "data" ];
 	}
 
 	/**
@@ -215,7 +215,7 @@ component accessors="true" singleton {
 		return this
 			.getComponentInstance( arguments.rc.wireComponent )
 			.$hydrate( this )
-			.$getMemento( getMountedState() );
+			.$getMemento( getData() );
 	}
 
 	/**
