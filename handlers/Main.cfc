@@ -1,5 +1,7 @@
 component {
 
+    property name="cbwireManager" inject="CBWireManager@cbwire";
+
 	property name="cbwireRequest" inject="CBWireRequest@cbwire";
 
     /**
@@ -11,7 +13,10 @@ component {
      * URI: /livewire/messages/:component
      */
     function index( event, rc, prc ){
-        return variables.cbwireRequest.handle( arguments.rc );
+
+        var component = cbwireManager.getComponentInstance( rc.wireComponent );
+
+        return variables.cbwireRequest.handle( component );
     }
 
 }

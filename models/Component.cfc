@@ -12,8 +12,8 @@ component {
 	// Inject WireBox for dependency injection.
 	property name="$wirebox" inject="wirebox";
 
-	// Inject the wire request that's incoming from the browser.
-	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
+	// Inject the cbwire manager.
+	property name="$cbwireManager" inject="CBWireManager@cbwire";
 
 	// Inject populator.
 	property name="$populator" inject="wirebox:populator";
@@ -230,9 +230,9 @@ component {
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
 			this[ "mount" ](
 				parameters = arguments.parameters,
-				event      = variables.$cbwireRequest.getEvent(),
-				rc         = variables.$cbwireRequest.getCollection(),
-				prc        = variables.$cbwireRequest.getPrivateCollection()
+				event      = variables.$cbwireManager.getEvent(),
+				rc         = variables.$cbwireManager.getEvent().getCollection(),
+				prc        = variables.$cbwireManager.getEvent().getPrivateCollection()
 			);
 		} else {
 			/**
