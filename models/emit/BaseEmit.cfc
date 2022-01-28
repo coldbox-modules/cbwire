@@ -32,7 +32,7 @@ component {
 	function getResult(){
 		return {
 			"event"  : this.getEventName(),
-			"params" : variables.parameters
+			"params" : [ variables.parameters ]
 		};
 	}
 
