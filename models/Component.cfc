@@ -398,8 +398,8 @@ component {
 	 *
 	 * @return Boolean
 	 */
-	function $hasListeners(){
-		return arrayLen( variables.$getListenerNames() );
+	function hasListeners(){
+		return arrayLen( variables.getListenerNames() );
 	}
 
 	/**
