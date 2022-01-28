@@ -225,9 +225,8 @@ component accessors="true" singleton {
 	 *
 	 * @context Struct
 	 */
-	function handle( struct rc ){
-		return this
-			.getComponentInstance( arguments.rc.wireComponent )
+	function handle( required component ){
+		return arguments.component
 			.$hydrate( this )
 			.$getMemento();
 	}

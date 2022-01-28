@@ -11,6 +11,6 @@ component {
 	function handle( required cbwireComponent, parameters = {} ){
 		return cbwireComponent
 			.$mount( arguments.parameters )
-			.$renderIt();
+			.renderIt();
 	}
 }
