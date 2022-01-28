@@ -41,7 +41,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "calls listener", function(){
-					update[ "payload" ] = { "event" : "someEvent" };
+					update[ "payload" ] = { "event" : "someEvent", params: [] };
 					componentObj.$property(
 						propertyName  = "listeners",
 						propertyScope = "variables",
@@ -49,7 +49,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 					componentObj.$( "someListener", true );
 					fireEventUpdate.apply( componentObj );
-					expect( componentObj.$once( "$someListener" ) ).toBeFalse();
+					expect( componentObj.$once( "someListener" ) ).toBeTrue();
 				} );
 			} );
 		} );

@@ -85,11 +85,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
 				var event = post(
-					"/livewire/message/wires.DataBinding",
-					{ "serverMemo" : { "data" : {} } }
+					route="/livewire/message/wires.DataBinding",
+					params={ "serverMemo" : { "data" : {}, "children": [] } },
+					headers={ "X-Livewire": true }
 				);
-				var content       = event.getRenderedContent();
+				var content = event.getRenderedContent();
 				var parsedContent = deserializeJSON( content );
+
+				debug( parsedContent );
+
 
 				expect( content ).toBeJSON();
 				expect( structKeyExists( parsedContent.serverMemo, "checksum" ) ).toBeTrue();
