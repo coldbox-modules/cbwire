@@ -41,7 +41,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "calls listener", function(){
-					update[ "payload" ] = { "event" : "someEvent", params: [] };
+					update[ "payload" ] = { "event" : "someEvent", params : [] };
 					componentObj.$property(
 						propertyName  = "listeners",
 						propertyScope = "variables",
