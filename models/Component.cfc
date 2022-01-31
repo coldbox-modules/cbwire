@@ -50,8 +50,8 @@ component {
 		variables.$isInitialRendering = false;
 		variables.emits               = [];
 		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
-		variables.$children			  = {};
-		variables.$noRender			  = false;
+		variables.$children           = {};
+		variables.$noRender           = false;
 		return this;
 	}
 
@@ -115,12 +115,15 @@ component {
 			},
 			"effects"    : { "listeners" : variables.getListenerNames() },
 			"serverMemo" : {
-				"children"     : [],
-				"errors"       : [],
-				"htmlHash"     : getChecksum(),
-				"data"         : getState( includeComputed = false, nullEmpty = true ),
-				"dataMeta"     : [],
-				"checksum"     : getChecksum()
+				"children" : [],
+				"errors"   : [],
+				"htmlHash" : getChecksum(),
+				"data"     : getState(
+					includeComputed = false,
+					nullEmpty       = true
+				),
+				"dataMeta" : [],
+				"checksum" : getChecksum()
 			}
 		};
 	}
@@ -131,12 +134,11 @@ component {
 	 * @return Void
 	 */
 	function renderIt(){
-
 		if ( structKeyExists( variables, "view" ) && isValid( "string", variables.view ) && len( variables.view ) ) {
 			return renderView( variables.view );
 		}
 
-		var componentName = lCase( getMetaData( this ).name );
+		var componentName = lCase( getMetadata( this ).name );
 
 		return renderView( "wires/#listLast( componentName, "." )#" );
 	}
@@ -148,11 +150,10 @@ component {
 	 * @return String
 	 */
 	function getRendering(){
-
-		if ( variables.$noRender ){
+		if ( variables.$noRender ) {
 			// We return a proper null here so that it is correctly
 			// returned as null in the subsequent JSON response.
-			return javaCast( "null", 0 );
+			return javacast( "null", 0 );
 		}
 
 		if ( !structKeyExists( variables, "rendering" ) ) {
@@ -160,14 +161,19 @@ component {
 		}
 
 		// Determine children from render
-		var childrenRegexResult = reFindNoCase( "<!-- Livewire Component wire-end:(\w+) -->", variables.rendering, 1, true );
+		var childrenRegexResult = reFindNoCase(
+			"<!-- Livewire Component wire-end:(\w+) -->",
+			variables.rendering,
+			1,
+			true
+		);
 
 		variables.$children = childrenRegexResult.match.reduce( function( agg, regexMatch ){
 			if ( !len( regexMatch ) == 21 || regexMatch == variables.id ) {
 				return agg;
 			}
 
-			agg[ regexMatch ] = { "id": "", "tag": "div" }
+			agg[ regexMatch ] = { "id" : "", "tag" : "div" }
 			return agg;
 		}, {} );
 
@@ -190,7 +196,10 @@ component {
 	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
 	 * @return Struct
 	 */
-	function getState( boolean includeComputed = false, boolean nullEmpty = false ){
+	function getState(
+		boolean includeComputed = false,
+		boolean nullEmpty       = false
+	){
 		/**
 		 * Get our data properties for our current state.
 		 */
@@ -207,9 +216,11 @@ component {
 		} );
 
 		if ( arguments.nullEmpty ) {
-			state = state.map( function( key, value, data ) {
-				if ( isNull( value ) ||
-					( isValid( "String", value ) && !len( value ) ) ){
+			state = state.map( function( key, value, data ){
+				if (
+					isNull( value ) ||
+					( isValid( "String", value ) && !len( value ) )
+				) {
 					return javacast( "null", 0 );
 				}
 				return value;
@@ -243,7 +254,10 @@ component {
 	 */
 	function renderView(){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = getState( includeComputed = true, nullEmpty=false );
+		arguments.args = getState(
+			includeComputed = true,
+			nullEmpty       = false
+		);
 
 		// Render our view using coldbox rendering
 		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
@@ -263,7 +277,7 @@ component {
 	 *
 	 * @return Component
 	 */
-	function $mount( parameters = {}, key="" ){
+	function $mount( parameters = {}, key = "" ){
 		variables.$isInitialRendering = true;
 
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
@@ -317,14 +331,13 @@ component {
 		if ( arguments.cbwireRequest.hasServerMemo() ) {
 			var serverMemo = arguments.cbwireRequest.getServerMemo();
 
-			serverMemo.data
-				.each( function( key, value ){
-					// Call the setter method
-					invokeMethod(
-						methodName = "set" & arguments.key,
-						value      = isNull( arguments.value ) ? "" : arguments.value
-					);
-				} );
+			serverMemo.data.each( function( key, value ){
+				// Call the setter method
+				invokeMethod(
+					methodName = "set" & arguments.key,
+					value      = isNull( arguments.value ) ? "" : arguments.value
+				);
+			} );
 
 			if ( arguments.cbwireRequest.hasChildren() ) {
 				variables.$children = arguments.cbwireRequest.getChildren();
@@ -361,10 +374,13 @@ component {
 				"emits" : getEmits()
 			},
 			"serverMemo" : {
-				"children"     : isArray( variables.$children ) ? [] : variables.$children,
-				"htmlHash"     : "71146cf2",
-				"data"         : getState( includeComputed=false, nullEmpty=true ),
-				"checksum"     : getChecksum()
+				"children" : isArray( variables.$children ) ? [] : variables.$children,
+				"htmlHash" : "71146cf2",
+				"data"     : getState(
+					includeComputed = false,
+					nullEmpty       = true
+				),
+				"checksum" : getChecksum()
 			}
 		}
 	}
@@ -381,8 +397,12 @@ component {
 	 *
 	 * @return Void
 	 */
-	function $set( propertyName, value, invokeUpdateMethods=false ){
-		if ( arguments.invokeUpdateMethods ){
+	function $set(
+		propertyName,
+		value,
+		invokeUpdateMethods = false
+	){
+		if ( arguments.invokeUpdateMethods ) {
 			// Invoke '$preUpdate[prop]' event
 			invokeMethod(
 				methodName   = "preUpdate" & arguments.propertyName,
@@ -392,7 +412,7 @@ component {
 
 		variables.data[ "#arguments.propertyName#" ] = arguments.value;
 
-		if ( arguments.invokeUpdateMethods ){
+		if ( arguments.invokeUpdateMethods ) {
 			// Invoke 'postUpdate[prop]' event
 			invokeMethod(
 				methodName   = "postUpdate" & arguments.propertyName,
@@ -401,7 +421,7 @@ component {
 		}
 	}
 
-	function $getChildren() {
+	function $getChildren(){
 		return variables.$children;
 	}
 
@@ -499,7 +519,6 @@ component {
 	 * @return Any
 	 */
 	function invokeMethod( required methodName ){
-		
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
 		return invoke(
@@ -564,12 +583,11 @@ component {
 		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
-
 			var listener = listeners[ eventName ];
 
 			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
-				return invokeMethod( 
-					methodName = listener,
+				return invokeMethod(
+					methodName            = listener,
 					passThroughParameters = arguments.parameters
 				);
 			}
@@ -740,8 +758,6 @@ component {
 			);
 			reset( dataPropertyName );
 		}
-
-
 	}
 
 	/**
@@ -769,7 +785,7 @@ component {
 
 	/**
 	 * When called, the component is flagged so that no rendering will occur.
-	 * 
+	 *
 	 * @return void
 	 */
 	function noRender(){
@@ -882,7 +898,7 @@ component {
 			);
 		}
 
-		renderingResult &= "#chr(10)#<!-- Livewire Component wire-end:#getId()# -->";
+		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getId()# -->";
 
 		return renderingResult;
 	}

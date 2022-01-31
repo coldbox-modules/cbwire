@@ -166,24 +166,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 
 			describe( "renderIt", function(){
-
-				it( "renders the view defined in variables.renderView within the component", function() {
-					componentObj.$property( 
-						propertyName = "view",
+				it( "renders the view defined in variables.renderView within the component", function(){
+					componentObj.$property(
+						propertyName  = "view",
 						propertyScope = "variables",
-						mock = "some/path"
+						mock          = "some/path"
 					);
-					componentObj.$( "renderView", "");
+					componentObj.$( "renderView", "" );
 					componentObj.renderIt();
-					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "some/path" );
+					expect( componentObj.$callLog()[ "renderView" ][ 1 ][ 1 ] ).toBe( "some/path" );
 				} );
 
-				it( "implicitly renders the view of the component's name", function() {
-					componentObj.$( "renderView", "");
+				it( "implicitly renders the view of the component's name", function(){
+					componentObj.$( "renderView", "" );
 					componentObj.renderIt();
-					expect( componentObj.$callLog()["renderView"][1][1] ).toBe( "wires/component" );
+					expect( componentObj.$callLog()[ "renderView" ][ 1 ][ 1 ] ).toBe( "wires/component" );
 				} );
-
 			} );
 
 			describe( "renderView", function(){
@@ -401,7 +399,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.getRendering() ).toBe( "got here too" );
 				} );
 
-				it( "returns null if noRender() has been called", function() {
+				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();
 					expect( componentObj.getRendering() ).toBeNull();
 				} );
@@ -438,8 +436,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "fires 'preUpdate[prop] event", function(){
 					componentObj.$( "preUpdateName", true );
 					componentObj.$set(
-						propertyName = "name",
-						value = "test",
+						propertyName        = "name",
+						value               = "test",
 						invokeUpdateMethods = true
 					);
 					expect( componentObj.$once( "preUpdateName" ) ).toBeTrue();
@@ -449,10 +447,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "fires 'postUpdate[prop] event", function(){
 					componentObj.$( "postUpdateName", true );
 					componentObj.$set(
-						propertyName = "name",
-						value = "test",
+						propertyName        = "name",
+						value               = "test",
 						invokeUpdateMethods = true
-
 					);
 					expect( componentObj.$once( "postUpdateName" ) ).toBeTrue();
 					expect( componentObj.$callLog()[ "postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
@@ -542,7 +539,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = cbwireRequest.getCollection();
 
-					rc[ "serverMemo" ] = { "data" : { "hello" : "world" }, "children": [] };
+					rc[ "serverMemo" ] = {
+						"data"     : { "hello" : "world" },
+						"children" : []
+					};
 					componentObj.$( "setHello", true );
 					componentObj.$hydrate( cbwireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
