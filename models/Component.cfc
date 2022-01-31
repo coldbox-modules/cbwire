@@ -51,6 +51,7 @@ component {
 		variables.emits               = [];
 		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
 		variables.$children			  = {};
+		variables.$noRender			  = false;
 		return this;
 	}
 
@@ -147,6 +148,13 @@ component {
 	 * @return String
 	 */
 	function getRendering(){
+
+		if ( variables.$noRender ){
+			// We return a proper null here so that it is correctly
+			// returned as null in the subsequent JSON response.
+			return javaCast( "null", 0 );
+		}
+
 		if ( !structKeyExists( variables, "rendering" ) ) {
 			variables.rendering = renderIt();
 		}
@@ -757,6 +765,15 @@ component {
 				variables.mountedState[ arguments.property ]
 			);
 		}
+	}
+
+	/**
+	 * When called, the component is flagged so that no rendering will occur.
+	 * 
+	 * @return void
+	 */
+	function noRender(){
+		variables.$noRender = true;
 	}
 
 	/**
