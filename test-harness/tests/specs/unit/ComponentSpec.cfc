@@ -163,6 +163,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+
+
 			describe( "renderIt", function(){
 
 				it( "renders the view defined in variables.renderView within the component", function() {
@@ -397,6 +399,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = "got here too"
 					);
 					expect( componentObj.getRendering() ).toBe( "got here too" );
+				} );
+
+				it( "returns null if noRender() has been called", function() {
+					componentObj.noRender();
+					expect( componentObj.getRendering() ).toBeNull();
 				} );
 			} );
 
