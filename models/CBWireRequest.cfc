@@ -90,14 +90,16 @@ component accessors="true" singleton {
 	 * Returns true if the server memo contains children
 	 */
 	function hasChildren(){
-		return hasServerMemo() && isStruct( getChildren() ) && len( structKeyList( getCollection()[ "serverMemo"][ "children" ] ) );
+		return hasServerMemo() && isStruct( getChildren() ) && len(
+			structKeyList( getCollection()[ "serverMemo" ][ "children" ] )
+		);
 	}
 
 	/**
 	 * Returns children in server memo
 	 */
 	function getChildren(){
-		return getCollection()[ "serverMemo"][ "children" ];
+		return getCollection()[ "serverMemo" ][ "children" ];
 	}
 
 	/**
@@ -196,7 +198,11 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	function renderIt( componentName, parameters = {}, key="" ){
+	function renderIt(
+		componentName,
+		parameters = {},
+		key        = ""
+	){
 		return getComponentInstance( arguments.componentName ).$mount( arguments.parameters, arguments.key ).renderIt();
 	}
 
@@ -226,9 +232,7 @@ component accessors="true" singleton {
 	 * @context Struct
 	 */
 	function handle( required component ){
-		return arguments.component
-			.$hydrate( this )
-			.$getMemento();
+		return arguments.component.$hydrate( this ).$getMemento();
 	}
 
 	/**

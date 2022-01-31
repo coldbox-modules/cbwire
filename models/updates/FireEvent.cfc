@@ -12,9 +12,9 @@ component extends="WireUpdate" {
 
 		var eventName = this.getPayload()[ "event" ];
 
-		var parameters = this.getPayload()[ "params" ].reduce( function( agg, param ) {
+		var parameters = this.getPayload()[ "params" ].reduce( function( agg, param ){
 			if ( isStruct( param ) ) {
-				param.each( function( key, value ) {
+				param.each( function( key, value ){
 					agg[ key ] = value;
 				} );
 			}
@@ -25,9 +25,9 @@ component extends="WireUpdate" {
 		// be sure and not track the emit because track emits are returned
 		// to the UI again, resulting in an infinite loop.
 		arguments.comp.emit(
-			eventName = eventName,
+			eventName  = eventName,
 			parameters = parameters,
-			trackEmit = false
+			trackEmit  = false
 		);
 	}
 

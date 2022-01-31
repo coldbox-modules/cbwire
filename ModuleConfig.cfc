@@ -47,9 +47,9 @@ component {
 
 		interceptors = [
 			// Security
-			{ class="#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
+			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
 			// Output
-			{ class="#moduleMapping#.interceptors.DisableBrowserCaching" }
+			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
 		];
 	}
 

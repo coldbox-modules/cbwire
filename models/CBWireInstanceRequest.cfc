@@ -1,4 +1,5 @@
 component {
+
 	/**
 	 * Instantiates our cbwire component, mounts it,
 	 * and then calls it's internal renderIt() method.
@@ -8,9 +9,11 @@ component {
 	 *
 	 * @return Component
 	 */
-	function handle( required cbwireComponent, parameters = {} ){
-		return cbwireComponent
-			.$mount( arguments.parameters )
-			.renderIt();
+	function handle(
+		required cbwireComponent,
+		parameters = {}
+	){
+		return cbwireComponent.$mount( arguments.parameters ).renderIt();
 	}
+
 }

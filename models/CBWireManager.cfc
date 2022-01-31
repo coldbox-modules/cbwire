@@ -1,6 +1,6 @@
-component singleton{
+component singleton {
 
-    /**
+	/**
 	 * Injected settings.
 	 */
 	property name="settings" inject="coldbox:modulesettings:cbwire";
@@ -20,7 +20,7 @@ component singleton{
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
-    /**
+	/**
 	 * Returns a cbwire component using the root "HelloWorld" convention.
 	 *
 	 * @componentName String | Name of the cbwire component.
@@ -34,7 +34,7 @@ component singleton{
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}
 
-    /**
+	/**
 	 * Returns the cbwire wiresLocation setting.
 	 * Defaults to 'wires'
 	 *
@@ -47,7 +47,7 @@ component singleton{
 		return "wires";
 	}
 
-    /**
+	/**
 	 * Finds and returns our cbwire component by name, either using
 	 * module syntax Component@Module or root sytax, which looks
 	 * in the root "wires" folder by default.
