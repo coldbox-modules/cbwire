@@ -24,6 +24,9 @@ Introducing **cbwire**: Power-up your CFML!
 * Adobe CF 2018+ or Lucee 5+
 * ColdBox 6+
 
+## Task List Demo
+
+You can see cbwire in action: [https://github.com/grantcopley/cbwire-task-list-demo](https://github.com/grantcopley/cbwire-task-list-demo)
 ## Installation
 
 Install [CommandBox](https://www.ortussolutions.com/products/commandbox), then from your terminal, run:
