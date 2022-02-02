@@ -4,13 +4,12 @@
  * Most internal methods and properties here are namespaced with a "$" to avoid collisions
  * with child components.
  */
-component {
+component extends="coldbox.system.FrameworkSupertype" accessors="true"{
+
+	property name="controller" inject="coldbox";
 
 	// Inject ColdBox Renderer for rendering operations.
 	property name="$renderer" inject="coldbox:renderer";
-
-	// Inject WireBox for dependency injection.
-	property name="$wirebox" inject="wirebox";
 
 	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
@@ -26,6 +25,9 @@ component {
 
 	// Inject scoped logger.
 	property name="log" inject="logbox:logger:{this}";
+
+	// Determines if component should be rendered or not.
+	property name="noRendering" default="false";
 
 	/**
 	 * The default data struct for cbwire components.
@@ -51,7 +53,7 @@ component {
 		variables.emits               = [];
 		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
 		variables.$children           = {};
-		variables.$noRender           = false;
+		setNoRendering( false );
 		return this;
 	}
 
@@ -83,7 +85,7 @@ component {
 		boolean postProcessExempt,
 		numeric statusCode
 	){
-		return variables.$renderer.relocate( argumentCollection = arguments );
+		return getRenderer().relocate( argumentCollection = arguments );
 	}
 
 	/**
@@ -92,7 +94,7 @@ component {
 	 *
 	 * @return String
 	 */
-	function getID(){
+	function getId(){
 		return variables.id;
 	}
 
@@ -107,7 +109,7 @@ component {
 	function getInitialData( renderingHash = "" ){
 		return {
 			"fingerprint" : {
-				"id"     : getID(),
+				"id"     : getId(),
 				"name"   : getMeta().name,
 				"locale" : "en",
 				"path"   : getPath(),
@@ -134,13 +136,8 @@ component {
 	 * @return Void
 	 */
 	function renderIt(){
-		if ( structKeyExists( variables, "view" ) && isValid( "string", variables.view ) && len( variables.view ) ) {
-			return renderView( variables.view );
-		}
-
-		var componentName = lCase( getMetadata( this ).name );
-
-		return renderView( "wires/#listLast( componentName, "." )#" );
+		announce( "onCBWireRenderIt", { component: this } );
+		return getRequestContext().getValue( "_cbwire_rendering" );
 	}
 
 	/**
@@ -149,36 +146,9 @@ component {
 	 *
 	 * @return String
 	 */
-	function getRendering(){
-		if ( variables.$noRender ) {
-			// We return a proper null here so that it is correctly
-			// returned as null in the subsequent JSON response.
-			return javacast( "null", 0 );
-		}
-
-		if ( !structKeyExists( variables, "rendering" ) ) {
-			variables.rendering = renderIt();
-		}
-
-		// Determine children from render
-		var childrenRegexResult = reFindNoCase(
-			"<!-- Livewire Component wire-end:(\w+) -->",
-			variables.rendering,
-			1,
-			true
-		);
-
-		variables.$children = childrenRegexResult.match.reduce( function( agg, regexMatch ){
-			if ( !len( regexMatch ) == 21 || regexMatch == variables.id ) {
-				return agg;
-			}
-
-			agg[ regexMatch ] = { "id" : "", "tag" : "div" }
-			return agg;
-		}, {} );
-
-
-		return variables.rendering;
+	function subsequentRenderIt(){
+		announce( "onCBWireSubsequentRenderIt", { component: this } );
+		return getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 	}
 
 	/**
@@ -247,12 +217,73 @@ component {
 		return structKeyExists( this, arguments.methodName );
 	}
 
+
 	/**
-	 * Renders our component's view and returns the rendering.
+	 * Render out a view
 	 *
-	 * @return String
+	 * @deprecated Use view() instead
+	 *
+	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module The module to render the view from explicitly
+	 * @cache Cached the view output or not, defaults to false
+	 * @cacheTimeout The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider The provider to cache this view in, defaults to 'template'
+	 * @collection A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow The start row to limit the collection rendering with
+	 * @collectionMaxRows The max rows to iterate over the collection rendering with
+	 * @collectionDelim  A string to delimit the collection renderings by
+	 * @prePostExempt If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+	 *
+	 * @return The rendered view
 	 */
 	function renderView(){
+		return view( argumentCollection=arguments );
+	}
+
+	/**
+	 * Render out our component's view
+	 *
+	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module The module to render the view from explicitly
+	 * @cache Cached the view output or not, defaults to false
+	 * @cacheTimeout The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider The provider to cache this view in, defaults to 'template'
+	 * @collection A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow The start row to limit the collection rendering with
+	 * @collectionMaxRows The max rows to iterate over the collection rendering with
+	 * @collectionDelim  A string to delimit the collection renderings by
+	 * @prePostExempt If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+	 *
+	 * @return The rendered view
+	 */
+	function view(
+		view                   = "",
+		struct args            = {},
+		module                 = "",
+		boolean cache          = false,
+		cacheTimeout           = "",
+		cacheLastAccessTimeout = "",
+		cacheSuffix            = "",
+		cacheProvider          = "template",
+		collection,
+		collectionAs               = "",
+		numeric collectionStartRow = "1",
+		numeric collectionMaxRows  = 0,
+		collectionDelim            = "",
+		boolean prePostExempt      = false,
+		name
+	) {
+
 		// Pass the properties of the cbwire component as variables to the view
 		arguments.args = getState(
 			includeComputed = true,
@@ -260,10 +291,10 @@ component {
 		);
 
 		// Render our view using coldbox rendering
-		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
+		var rendering = super.view( argumentCollection = arguments );
 
 		// Add properties to top element to make cbwire actually work.
-		return variables.applyWiringToOuterElement( rendering );
+		return applyWiringToOuterElement( rendering );
 	}
 
 	/**
@@ -279,6 +310,8 @@ component {
 	 */
 	function $mount( parameters = {}, key = "" ){
 		variables.$isInitialRendering = true;
+
+		announce( "onMount", { component: this, parameters: arguments.parameters } );
 
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
 			this[ "mount" ](
@@ -300,8 +333,8 @@ component {
 			);
 		}
 
-		// Capture the mounted state
-		variables.mountedState = getState();
+		// Capture the state before hydration
+		variables.beforeHydrateState = duplicate( getState() );
 
 		return this;
 	}
@@ -318,7 +351,7 @@ component {
 			$setId( arguments.cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
-		variables.mountedState = duplicate( variables.data );
+		variables.beforeHydrateState = duplicate( variables.data );
 
 		// Invoke '$preHydrate' event
 		invokeMethod( "$preHydrate" );
@@ -357,6 +390,43 @@ component {
 	}
 
 	/**
+	 * Returns an array of properties that have changed during the request.
+	 * 
+	 * @return Array
+	 */
+	function $getDirtyProperties(){
+	
+		var currentState = getState();
+
+		var arrayUtil = createObject( "java", "java.util.Arrays" );
+
+		var result = variables.beforeHydrateState.reduce( function( result, key, value, state ){
+			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
+				return result;
+			} else {
+				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
+				afterHydrateValue = createObject( "java", "java.lang.String" ).init( currentState[ key ].toString() ).toCharArray();
+				arrayUtil.sort( beforeHydrateValue );
+				arrayUtil.sort( afterHydrateValue );
+				if ( arrayUtil.equals( beforeHydrateValue, afterHydrateValue ) ) {
+					return result;
+				}
+			}
+
+			// writeDump( beforeHydrateValue );
+			// writeDump( afterHydrateValue );
+			// abort;
+
+			result.append( key );
+
+			return result;
+		}, [] );
+
+
+		return result;
+	}
+
+	/**
 	 * Returns the memento for our component which holds the current
 	 * state of our component. This is returned on subsequent XHR requests
 	 * from cbwire.
@@ -364,12 +434,13 @@ component {
 	 * @return Struct
 	 */
 	function $getMemento(){
+
+		var dirtyProperties = $getDirtyProperties();
+
 		return {
 			"effects" : {
-				"html"  : getRendering(),
-				"dirty" : [
-					"todo" // need to fix
-				],
+				"html"  : arrayLen( dirtyProperties ) ? subsequentRenderIt() : javaCast( "null", 0 ),
+				"dirty" : $getDirtyProperties(),
 				"path"  : getPath(),
 				"emits" : getEmits()
 			},
@@ -695,6 +766,9 @@ component {
 		required missingMethodName,
 		required missingMethodArguments
 	){
+
+		var settings = variables.$settings;
+
 		if (
 			reFindNoCase(
 				"^set.+",
@@ -733,9 +807,9 @@ component {
 				}
 			} else if (
 				structKeyExists(
-					variables.$settings,
+					settings,
 					"throwOnMissingSetterMethod"
-				) && variables.$settings.throwOnMissingSetterMethod == true
+				) && settings.throwOnMissingSetterMethod == true
 			) {
 				throw(
 					type    = "WireSetterNotFound",
@@ -778,7 +852,7 @@ component {
 			// Reset individual property
 			$set(
 				arguments.property,
-				variables.mountedState[ arguments.property ]
+				variables.beforeHydrateState[ arguments.property ]
 			);
 		}
 	}
@@ -789,7 +863,7 @@ component {
 	 * @return void
 	 */
 	function noRender(){
-		variables.$noRender = true;
+		setNoRendering( true );
 	}
 
 	/**
@@ -886,14 +960,14 @@ component {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getID()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#getId()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
 			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getID()#""",
+				outerElement & " wire:id=""#getId()#""",
 				"once"
 			);
 		}

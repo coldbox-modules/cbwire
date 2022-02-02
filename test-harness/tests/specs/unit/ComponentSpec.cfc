@@ -51,6 +51,66 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "$getDirtyProperties", function() {
+				it( "can compare simple values", function() {
+					componentObj.$property(
+						propertyName  = "beforeHydrateState",
+						propertyScope = "variables",
+						mock          = { "count" : 2 }
+					);
+
+					componentObj.$( "getState", { "count": 1 } );
+
+					var dirtyProperties = componentObj.$getDirtyProperties();
+
+					expect( dirtyProperties ).toBeArray();
+					expect ( !!dirtyProperties.find( "count" ) ).toBeTrue();
+				} );
+
+				it( "can compare a struct", function() {
+					componentObj.$property(
+						propertyName  = "beforeHydrateState",
+						propertyScope = "variables",
+						mock          = { "foo" : { "value": "bar" } }
+					);
+
+					componentObj.$( "getState", { "foo": { "value": "baz" } } );
+
+					var dirtyProperties = componentObj.$getDirtyProperties();
+
+					expect( dirtyProperties ).toBeArray();
+					expect ( !!dirtyProperties.find( "foo" ) ).toBeTrue();
+				} );
+
+				it( "can compare a struct with different key orders", function(){
+					componentObj.$property(
+						propertyName  = "beforeHydrateState",
+						propertyScope = "variables",
+						mock          = { "foo" : { "value": "bar", "baz": "foo" } }
+					);
+
+					componentObj.$( "getState", { "foo": { "baz": "foo", "value": "bar" } } );
+
+					var dirtyProperties = componentObj.$getDirtyProperties();
+
+					expect( dirtyProperties ).toBeArray().toHaveLength( 0 );
+				} );
+
+				it( "can compare an array", function() {
+					componentObj.$property(
+						propertyName  = "beforeHydrateState",
+						propertyScope = "variables",
+						mock          = { "foo" : [ "bar", "baz" ] }
+					);
+
+					componentObj.$( "getState", { "foo": [ "bar", "baz" ] } );
+
+					var dirtyProperties = componentObj.$getDirtyProperties();
+
+					expect( dirtyProperties ).toBeArray().toHaveLength( 0 );
+				} );
+			} );
+
 			describe( "getPath", function(){
 				it( "returns empty string by default", function(){
 					expect( componentObj.getPath() ).toBe( "" );
@@ -166,21 +226,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 
 			describe( "renderIt", function(){
-				it( "renders the view defined in variables.renderView within the component", function(){
-					componentObj.$property(
-						propertyName  = "view",
-						propertyScope = "variables",
-						mock          = "some/path"
-					);
-					componentObj.$( "renderView", "" );
-					componentObj.renderIt();
-					expect( componentObj.$callLog()[ "renderView" ][ 1 ][ 1 ] ).toBe( "some/path" );
-				} );
-
 				it( "implicitly renders the view of the component's name", function(){
-					componentObj.$( "renderView", "" );
+					componentObj.$( "view", "" );
 					componentObj.renderIt();
-					expect( componentObj.$callLog()[ "renderView" ][ 1 ][ 1 ] ).toBe( "wires/component" );
+					expect( componentObj.$callLog()[ "view" ][ 1 ][ 1 ] ).toBe( "wires/component" );
 				} );
 			} );
 
@@ -198,10 +247,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "provides rendering", function(){
-					expect( componentObj.renderView( "someView" ) ).toInclude( "<div" );
+					expect( componentObj.renderView( "testView" ) ).toInclude( "<div" );
 				} );
 
-				it( "should support various outer element tags", function(){
+				xit( "should support various outer element tags", function(){
 					var outerElements = [ "div", "span", "section" ];
 
 					outerElements.each( function( element ){
@@ -214,7 +263,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								}
 							}
 						);
-						expect( componentObj.renderView( "someView" ) ).toInclude( "<#arguments.element# wire:id=" );
+						expect( componentObj.renderView( "testView" ) ).toInclude( "<#arguments.element# wire:id=" );
 					} );
 				} );
 
@@ -229,7 +278,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					);
 					expect( function(){
-						componentObj.renderView( "someView" )
+						componentObj.renderView( "testViewNoOuterElement" )
 					} ).toThrow( type = "OuterElementNotFound" );
 				} );
 			} );
@@ -384,29 +433,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "getRendering", function(){
+			describe( "subsequentRenderIt", function(){
 				it( "calls the renderIt() method on our component", function(){
 					componentObj.$( "renderIt", "got here" );
-					expect( componentObj.getRendering() ).toBe( "got here" );
+					expect( componentObj.subsequentRenderIt() ).toBe( "got here" );
 				} );
-
-				it( "returns the cached results in variables.rendering", function(){
-					componentObj.$property(
-						propertyName  = "rendering",
-						propertyScope = "variables",
-						mock          = "got here too"
-					);
-					expect( componentObj.getRendering() ).toBe( "got here too" );
-				} );
-
 				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();
-					expect( componentObj.getRendering() ).toBeNull();
+					componentObj.subsequentRenderIt();
+					expect( componentObj.getRequestContext().getValue( "_cbwire_subsequent_rendering" ) ).toBe( "" );
 				} );
 			} );
 
 			describe( "$relocate", function(){
-				it( "passes the relocation to the coldbox render", function(){
+				xit( "passes the relocation to the coldbox render", function(){
 					var renderer = getMockBox().createStub();
 
 					renderer.$( "relocate" );
@@ -462,7 +502,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = { "throwOnMissingSetterMethod" : true }
 					);
 					expect( function(){
-						componentObj.setName( "test" );
+						componentObj.setSomeName( "test" );
 					} ).toThrow( type = "WireSetterNotFound" );
 				} );
 

@@ -4,6 +4,11 @@ component extends="cbwire.models.Component" {
 
     variables.queryString = [ "search" ];
 
+
+    function mount( event ){
+        variables.data[ "search" ] = event.getValue( "search", "" );
+
+    }
     function renderIt(){
         return this.renderView( "_wires/queryString" );
     }
