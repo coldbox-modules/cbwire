@@ -1,22 +1,14 @@
 component {
-
-    property name="cbwireManager" inject="CBWireManager@cbwire";
-
-	property name="cbwireRequest" inject="CBWireRequest@cbwire";
-
     /**
-     * Primary entry point for cbwire requests after
-     * initial component rendering.
+     * Primary entry point for cbwire subsequent requests.
      *
-     * Currently uses /livewire URI to support LivewireJS.
+     * Currently uses /livewire URI to support Livewire JS.
      *
-     * URI: /livewire/messages/:component
+     * URI: /livewire/messages/:wireComponent
      */
     function index( event, rc, prc ){
-
-        var component = cbwireManager.getComponentInstance( rc.wireComponent );
-
-        return variables.cbwireRequest.handle( component );
+        announce( "onCBWireSubsequentRequest" );
+        return event.getValue( "_cbwire_subsequent_memento" );
     }
 
 }

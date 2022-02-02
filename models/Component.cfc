@@ -8,9 +8,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 
 	property name="controller" inject="coldbox";
 
-	// Inject ColdBox Renderer for rendering operations.
-	property name="$renderer" inject="coldbox:renderer";
-
 	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
 
@@ -29,19 +26,28 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	// Determines if component should be rendered or not.
 	property name="noRendering" default="false";
 
+	// Determines if component is being initially rendered or subsequently rendered	
+	property name="isInitialRendering" default="false";
+
+	/**
+	 * Holds the component's state values before hydration occurs.
+	 * Used to compare what's changed and perform dirty tracking
+	 */
+	property name="beforeHydrationState";
+
 	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
 	 * with data properties.
 	 */
-	variables.data = {};
+	property name="data";
 
 	/**
 	 * The default computed struct for cbwire components.
 	 * This should be overidden in the child component with
 	 * computed properties.
 	 */
-	variables.computed = {};
+	property name="computed";
 
 	/**
 	 * Our beautiful, simple constructor.
@@ -49,7 +55,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Component
 	 */
 	function init(){
-		variables.$isInitialRendering = false;
+		setIsInitialRendering( false );
+		setData( {} );
+		setComputed( {} );
+		setBeforeHydrationState( {} );
 		variables.emits               = [];
 		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
 		variables.$children           = {};
@@ -148,7 +157,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 */
 	function subsequentRenderIt(){
 		announce( "onCBWireSubsequentRenderIt", { component: this } );
-		return getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+		return this;
 	}
 
 	/**
@@ -309,9 +318,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Component
 	 */
 	function $mount( parameters = {}, key = "" ){
-		variables.$isInitialRendering = true;
+		setIsInitialRendering( true );
 
-		announce( "onMount", { component: this, parameters: arguments.parameters } );
+		announce( "onCBWireMount", { component: this, parameters: arguments.parameters } );
 
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
 			this[ "mount" ](
@@ -334,7 +343,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		}
 
 		// Capture the state before hydration
-		variables.beforeHydrateState = duplicate( getState() );
+		setBeforeHydrationState( duplicate( getState() ) );
 
 		return this;
 	}
@@ -346,46 +355,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 *
 	 * @return Component
 	 */
-	function $hydrate( CBWireRequest cbwireRequest ){
-		if ( arguments.cbwireRequest.hasFingerprint() ) {
-			$setId( arguments.cbwireRequest.getFingerPrint()[ "id" ] );
-		}
-
-		variables.beforeHydrateState = duplicate( variables.data );
-
-		// Invoke '$preHydrate' event
-		invokeMethod( "$preHydrate" );
-
-		if ( arguments.cbwireRequest.hasData() ) {
-			setData( arguments.cbwireRequest.getData() );
-		}
-
-		// Check if our request contains a server memo, and if so update our component state.
-		if ( arguments.cbwireRequest.hasServerMemo() ) {
-			var serverMemo = arguments.cbwireRequest.getServerMemo();
-
-			serverMemo.data.each( function( key, value ){
-				// Call the setter method
-				invokeMethod(
-					methodName = "set" & arguments.key,
-					value      = isNull( arguments.value ) ? "" : arguments.value
-				);
-			} );
-
-			if ( arguments.cbwireRequest.hasChildren() ) {
-				variables.$children = arguments.cbwireRequest.getChildren();
-			}
-		}
-
-		// Check if our request contains updates, and if so apply them.
-		if ( arguments.cbwireRequest.hasUpdates() ) {
-			arguments.cbwireRequest.applyUpdates( this );
-		}
-
-		// Invoke '$postHydrate' event
-		invokeMethod( "$postHydrate" );
-
-
+	function $hydrate( event, rc, prc ){
+		announce( "onCBWireHydrate", { component: this } );
 		return this;
 	}
 
@@ -400,7 +371,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 
 		var arrayUtil = createObject( "java", "java.util.Arrays" );
 
-		var result = variables.beforeHydrateState.reduce( function( result, key, value, state ){
+		var result = getBeforeHydrationState().reduce( function( result, key, value, state ){
 			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
 				return result;
 			} else {
@@ -435,11 +406,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 */
 	function $getMemento(){
 
+		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+
 		var dirtyProperties = $getDirtyProperties();
 
 		return {
 			"effects" : {
-				"html"  : arrayLen( dirtyProperties ) ? subsequentRenderIt() : javaCast( "null", 0 ),
+				"html"  : len( rendering ) ? rendering : javaCast( "null", 0 ),
 				"dirty" : $getDirtyProperties(),
 				"path"  : getPath(),
 				"emits" : getEmits()
@@ -852,7 +825,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 			// Reset individual property
 			$set(
 				arguments.property,
-				variables.beforeHydrateState[ arguments.property ]
+				getBeforeHydrationState()[ arguments.property ]
 			);
 		}
 	}
@@ -956,7 +929,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		var outerElement = variables.getOuterElement( arguments.rendering );
 
 		// Add properties to top element to make cbwire actually work.
-		if ( variables.$isInitialRendering ) {
+		if ( getIsInitialRendering() ) {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
