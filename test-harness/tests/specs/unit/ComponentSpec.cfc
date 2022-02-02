@@ -53,11 +53,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getDirtyProperties", function() {
 				it( "can compare simple values", function() {
-					componentObj.$property(
-						propertyName  = "beforeHydrateState",
-						propertyScope = "variables",
-						mock          = { "count" : 2 }
-					);
+					componentObj.setBeforeHydrationState( {
+						"count": 2
+					} );
 
 					componentObj.$( "getState", { "count": 1 } );
 
@@ -68,11 +66,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "can compare a struct", function() {
-					componentObj.$property(
-						propertyName  = "beforeHydrateState",
-						propertyScope = "variables",
-						mock          = { "foo" : { "value": "bar" } }
-					);
+					componentObj.setBeforeHydrationState( { "foo" : { "value": "bar" } } );
 
 					componentObj.$( "getState", { "foo": { "value": "baz" } } );
 
@@ -123,11 +117,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = [ "count" ]
 					);
 
-					componentObj.$property(
-						propertyName  = "data",
-						propertyScope = "variables",
-						mock          = { "count" : 2 }
-					);
+					componentObj.setDataProperties( { "count" : 2 } );
 
 					expect( componentObj.getPath() ).toInclude( "?count=2" );
 				} );
@@ -143,11 +133,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = [ "count" ]
 					);
 
-					componentObj.$property(
-						propertyName  = "data",
-						propertyScope = "variables",
-						mock          = { "count" : 2 }
-					);
+					componentObj.setDataProperties( { "count": 2 } );
 
 					expect( componentObj.getPath() ).toBe( "http://localhost?count=2" );
 				} );
@@ -436,7 +422,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "subsequentRenderIt", function(){
 				it( "calls the renderIt() method on our component", function(){
 					componentObj.$( "renderIt", "got here" );
-					expect( componentObj.subsequentRenderIt() ).toBe( "got here" );
+					componentObj.subsequentRenderIt();
+					expect( componentObj.$once( "renderIt" ) ).toBeTrue();
 				} );
 				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();
@@ -465,12 +452,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$set", function(){
 				it( "sets data property on our component", function(){
-					componentObj.$property(
-						propertyName  = "data",
-						propertyScope = "this",
-						mock          = { "name" : "test" }
-					);
-					expect( componentObj.data[ "name" ] ).toBe( "test" );
+					componentObj.setDataProperties( { "name": "test" } );
+					expect( componentObj.getDataProperties()[ "name" ] ).toBe( "test" );
 				} );
 
 				it( "fires 'preUpdate[prop] event", function(){
@@ -527,11 +510,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "returns the data property values", function(){
 					var state = componentObj.getState();
 
-					componentObj.$property(
-						propertyName  = "data",
-						propertyScope = "variables",
-						mock          = { "count" : 1 }
-					);
+					componentObj.setDataProperties( { "count": 1 } );
 
 					expect( componentObj.getState()[ "count" ] ).toBe( 1 );
 				} );

@@ -36,18 +36,23 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	property name="beforeHydrationState";
 
 	/**
+	 * Component UUID
+	 */
+	property name="id";
+
+	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
 	 * with data properties.
 	 */
-	property name="data";
+	property name="dataProperties";
 
 	/**
 	 * The default computed struct for cbwire components.
 	 * This should be overidden in the child component with
 	 * computed properties.
 	 */
-	property name="computed";
+	property name="computedProperties";
 
 	/**
 	 * Our beautiful, simple constructor.
@@ -55,12 +60,18 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Component
 	 */
 	function init(){
+		if ( isNull ( variables.data ) ){
+			variables.data = {};
+		}
+		if ( isNull( variables.computed ) ){
+			variables.computed = {};
+		}
 		setIsInitialRendering( false );
-		setData( {} );
-		setComputed( {} );
+		setComputedProperties( variables.computed );
 		setBeforeHydrationState( {} );
+		setDataProperties( variables.data );
 		variables.emits               = [];
-		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
+		setID( $generateId() );
 		variables.$children           = {};
 		setNoRendering( false );
 		return this;
@@ -184,11 +195,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		 */
 		var state = {};
 
-		variables.data.each( function( key, value ){
+		var data = getDataProperties();
+
+		data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
 				// Render the closure and store in our data properties
-				variables.data[ key ]  = arguments.value();
-				state[ arguments.key ] = variables.data[ key ];
+				data[ key ]  = arguments.value();
+				state[ arguments.key ] = data[ key ];
 			} else {
 				state[ arguments.key ] = arguments.value;
 			}
@@ -207,8 +220,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		}
 
 
-		if ( arguments.includeComputed && structKeyExists( variables, "computed" ) ) {
-			variables.computed.each( function( key, value ){
+		if ( arguments.includeComputed ) {
+			getComputedProperties().each( function( key, value ){
 				state[ key ] = value;
 			} );
 		}
@@ -384,10 +397,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 				}
 			}
 
-			// writeDump( beforeHydrateValue );
-			// writeDump( afterHydrateValue );
-			// abort;
-
 			result.append( key );
 
 			return result;
@@ -454,7 +463,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 			);
 		}
 
-		variables.data[ "#arguments.propertyName#" ] = arguments.value;
+		var data = getDataProperties();
+
+		data[ "#arguments.propertyName#" ] = arguments.value;
 
 		if ( arguments.invokeUpdateMethods ) {
 			// Invoke 'postUpdate[prop]' event
@@ -495,16 +506,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 
 		// Return empty string by default;
 		return "";
-	}
-
-	/**
-	 * Sets the mounted state for our component for the ability to rollback changes.
-	 *
-	 * @state Struct
-	 * @return Void
-	 */
-	function setData( required state ){
-		variables.$data = arguments.state;
 	}
 
 	/**
@@ -757,7 +758,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 			);
 
 			// Check to see if the data property name is defined in the component.
-			var dataPropertyExists = structKeyExists( variables.data, dataPropertyName );
+			var dataPropertyExists = structKeyExists( getDataProperties(), dataPropertyName );
 
 			if ( dataPropertyExists ) {
 				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
@@ -976,6 +977,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 */
 	private function getHTTPReferer(){
 		return cgi.HTTP_REFERER;
+	}
+
+	function $generateId(){
+		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
 
 }
