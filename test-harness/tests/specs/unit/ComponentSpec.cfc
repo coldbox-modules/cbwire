@@ -515,6 +515,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.getState()[ "count" ] ).toBe( 1 );
 				} );
 
+				it( "renders computed properties to the state", function() {
+					componentObj.setComputedProperties( {
+						"calculator": function() {
+							return 1 + 1;
+						}
+					} );
+
+					var state = componentObj.getState( includeComputed=true );
+
+					expect( state.calculator ).toBe( 2 );
+				} );
+
 				it( "ignores custom functions that are not getters", function(){
 					componentObj.$property(
 						propertyName = "count",

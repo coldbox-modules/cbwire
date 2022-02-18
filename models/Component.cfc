@@ -222,7 +222,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 
 		if ( arguments.includeComputed ) {
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value;
+				state[ key ] = value();
 			} );
 		}
 
