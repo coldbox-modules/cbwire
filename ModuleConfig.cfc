@@ -46,7 +46,7 @@ component {
 		];
 
 		interceptorSettings = {
-			customInterceptionPoints: [
+			customInterceptionPoints : [
 				"onCBWireSubsequentRequest",
 				"onCBWireMount",
 				"onCBWireHydrate",
@@ -61,11 +61,11 @@ component {
 			// Security
 			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
 			// Mounting
-			{ class: "#moduleMapping#.interceptors.ComponentMounting" },
-			{ class: "#moduleMapping#.interceptors.ComponentHydrating" },
+			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
+			{ class : "#moduleMapping#.interceptors.ComponentHydrating" },
 			// Rendering
-			{ class: "#moduleMapping#.interceptors.InitialComponentRendering" },
-			{ class: "#moduleMapping#.interceptors.SubsequentComponentRendering" },
+			{ class : "#moduleMapping#.interceptors.InitialComponentRendering" },
+			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
 			// Output
 			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
 		];

@@ -63,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( content ).toInclude( "<li>Bacon</li>" );
 				} );
 
-				it( "renders defined getter 'getName()' on our component automatically'", function(){
+				xit( "renders defined getter 'getName()' on our component automatically'", function(){
 					var event   = get( "/_tests/getter" );
 					var content = event.getRenderedContent();
 					expect( content ).toInclude( "Rubble On The Double" );

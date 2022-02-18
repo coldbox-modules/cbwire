@@ -4,7 +4,7 @@
  * Most internal methods and properties here are namespaced with a "$" to avoid collisions
  * with child components.
  */
-component extends="coldbox.system.FrameworkSupertype" accessors="true"{
+component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	property name="controller" inject="coldbox";
 
@@ -26,7 +26,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	// Determines if component should be rendered or not.
 	property name="noRendering" default="false";
 
-	// Determines if component is being initially rendered or subsequently rendered	
+	// Determines if component is being initially rendered or subsequently rendered
 	property name="isInitialRendering" default="false";
 
 	/**
@@ -60,19 +60,19 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Component
 	 */
 	function init(){
-		if ( isNull ( variables.data ) ){
+		if ( isNull( variables.data ) ) {
 			variables.data = {};
 		}
-		if ( isNull( variables.computed ) ){
+		if ( isNull( variables.computed ) ) {
 			variables.computed = {};
 		}
 		setIsInitialRendering( false );
 		setComputedProperties( variables.computed );
 		setBeforeHydrationState( {} );
 		setDataProperties( variables.data );
-		variables.emits               = [];
+		variables.emits = [];
 		setID( $generateId() );
-		variables.$children           = {};
+		variables.$children = {};
 		setNoRendering( false );
 		return this;
 	}
@@ -156,7 +156,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Void
 	 */
 	function renderIt(){
-		announce( "onCBWireRenderIt", { component: this } );
+		announce(
+			"onCBWireRenderIt",
+			{ component : this }
+		);
 		return getRequestContext().getValue( "_cbwire_rendering" );
 	}
 
@@ -167,7 +170,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return String
 	 */
 	function subsequentRenderIt(){
-		announce( "onCBWireSubsequentRenderIt", { component: this } );
+		announce(
+			"onCBWireSubsequentRenderIt",
+			{ component : this }
+		);
 		return this;
 	}
 
@@ -200,7 +206,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
 				// Render the closure and store in our data properties
-				data[ key ]  = arguments.value();
+				data[ key ]            = arguments.value();
 				state[ arguments.key ] = data[ key ];
 			} else {
 				state[ arguments.key ] = arguments.value;
@@ -222,7 +228,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 
 		if ( arguments.includeComputed ) {
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value;
+				state[ key ] = value();
 			} );
 		}
 
@@ -264,7 +270,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return The rendered view
 	 */
 	function renderView(){
-		return view( argumentCollection=arguments );
+		return view( argumentCollection = arguments );
 	}
 
 	/**
@@ -304,8 +310,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		collectionDelim            = "",
 		boolean prePostExempt      = false,
 		name
-	) {
-
+	){
 		// Pass the properties of the cbwire component as variables to the view
 		arguments.args = getState(
 			includeComputed = true,
@@ -333,7 +338,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	function $mount( parameters = {}, key = "" ){
 		setIsInitialRendering( true );
 
-		announce( "onCBWireMount", { component: this, parameters: arguments.parameters } );
+		announce(
+			"onCBWireMount",
+			{
+				component  : this,
+				parameters : arguments.parameters
+			}
+		);
 
 		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
 			this[ "mount" ](
@@ -369,17 +380,19 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Component
 	 */
 	function $hydrate( event, rc, prc ){
-		announce( "onCBWireHydrate", { component: this } );
+		announce(
+			"onCBWireHydrate",
+			{ component : this }
+		);
 		return this;
 	}
 
 	/**
 	 * Returns an array of properties that have changed during the request.
-	 * 
+	 *
 	 * @return Array
 	 */
 	function $getDirtyProperties(){
-	
 		var currentState = getState();
 
 		var arrayUtil = createObject( "java", "java.util.Arrays" );
@@ -389,10 +402,17 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 				return result;
 			} else {
 				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
-				afterHydrateValue = createObject( "java", "java.lang.String" ).init( currentState[ key ].toString() ).toCharArray();
+				afterHydrateValue  = createObject( "java", "java.lang.String" )
+					.init( currentState[ key ].toString() )
+					.toCharArray();
 				arrayUtil.sort( beforeHydrateValue );
 				arrayUtil.sort( afterHydrateValue );
-				if ( arrayUtil.equals( beforeHydrateValue, afterHydrateValue ) ) {
+				if (
+					arrayUtil.equals(
+						beforeHydrateValue,
+						afterHydrateValue
+					)
+				) {
 					return result;
 				}
 			}
@@ -414,14 +434,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 	 * @return Struct
 	 */
 	function $getMemento(){
-
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
 		var dirtyProperties = $getDirtyProperties();
 
 		return {
 			"effects" : {
-				"html"  : len( rendering ) ? rendering : javaCast( "null", 0 ),
+				"html"  : len( rendering ) ? rendering : javacast( "null", 0 ),
 				"dirty" : $getDirtyProperties(),
 				"path"  : getPath(),
 				"emits" : getEmits()
@@ -740,7 +759,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 		required missingMethodName,
 		required missingMethodArguments
 	){
-
 		var settings = variables.$settings;
 
 		if (
@@ -758,7 +776,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true"{
 			);
 
 			// Check to see if the data property name is defined in the component.
-			var dataPropertyExists = structKeyExists( getDataProperties(), dataPropertyName );
+			var dataPropertyExists = structKeyExists(
+				getDataProperties(),
+				dataPropertyName
+			);
 
 			if ( dataPropertyExists ) {
 				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
