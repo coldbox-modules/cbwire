@@ -25,10 +25,6 @@ Introducing **cbwire**: Power-up your CFML!
 -   Adobe CF 2018+ or Lucee 5+
 -   ColdBox 6+
 
-## Task List Demo
-
-You can see cbwire in action: [https://github.com/grantcopley/cbwire-task-list-demo](https://github.com/grantcopley/cbwire-task-list-demo)
-
 ## Installation
 
 Install [CommandBox](https://www.ortussolutions.com/products/commandbox), then from your terminal, run:
@@ -41,7 +37,7 @@ box install cbwire@be
 
 We love PRs! Please create a ticket using the [ Issue Tracker](https://github.com/coldbox-modules/cbwire/issues) before submitting a PR.
 
-### Test Harness
+## Test Harness
 
 There is a test harness application included in this repo that is used for testing cbwire's functionality.
 
