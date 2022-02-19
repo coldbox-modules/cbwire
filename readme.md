@@ -14,19 +14,21 @@ Build reactive apps easily using CFML and less JavaScript!
 
 ## Longer Pitch
 
-Building modern CFML apps is complicated. ColdBox makes creating server-side apps easy, but what about the client-side? Front-end JavaScript frameworks like Vue and React are powerful, yet they also introduce complexity and a significant learning curve when creating our apps.
+Building modern CFML apps is a pain. ColdBox makes creating server-side apps easy, but what about the client-side? Front-end JavaScript frameworks like Vue and React are powerful, yet they also introduce complexity and a significant learning curve when creating our apps.
 
 What if you could create apps that look and feel like your Vue and React web apps but are written with CFML. Impossible, you say? Nay, we say!
 
 Introducing **cbwire**: Power-up your CFML!
 
 ## Requirements
-* Adobe CF 2018+ or Lucee 5+
-* ColdBox 6+
+
+-   Adobe CF 2018+ or Lucee 5+
+-   ColdBox 6+
 
 ## Task List Demo
 
 You can see cbwire in action: [https://github.com/grantcopley/cbwire-task-list-demo](https://github.com/grantcopley/cbwire-task-list-demo)
+
 ## Installation
 
 Install [CommandBox](https://www.ortussolutions.com/products/commandbox), then from your terminal, run:
@@ -45,7 +47,7 @@ Apache License 2.0
 
 ## Credits
 
-cbwire wouldn't exist without **Caleb Porzio** ( creator of Livewire and Alpine.js ) and the PHP community. 
+cbwire wouldn't exist without **Caleb Porzio** ( creator of Livewire and Alpine.js ) and the PHP community.
 
 cbwire is a port of Livewire's functionality to ColdBox and CFML, with some additional goodies sprinkled in.
 
@@ -56,3 +58,12 @@ The cbwire module for ColdBox is written and maintained by [Grant Copley](https:
 We love PRs!
 
 If cbwire makes you happy, please consider becoming a [Patreon supporter](https://www.patreon.com/ortussolutions).
+
+## Resources
+
+-   GitHub Repository: https://github.com/coldbox-modules/cbwire
+-   Jira Issue Tracker: https://ortussolutions.atlassian.net/jira/software/c/projects/CBWIRE/boards/109
+-   Task List Demo: https://github.com/grantcopley/cbwire-task-list-demo
+-   Up and Running Screencast: https://cfcasts.com/series/ortus-single-video-series/videos/up-and-running-with-cbwire
+-   Into The Box 2021 Presentation: https://cfcasts.com/series/into-the-box-2021/videos/cbwire-coldbox-+-livewire-grant-copley
+-   Ortus Webinar 2022: https://cfcasts.com/series/ortus-webinars-2022/videos/grant-copley-on-cbwire-+-alpine_js
