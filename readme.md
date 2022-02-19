@@ -39,7 +39,7 @@ box install cbwire@be
 
 ## Contributing
 
-We love PRs! Please create a ticket using the [Jira Issue Tracker](https://ortussolutions.atlassian.net/jira/software/c/projects/CBWIRE/boards/109) before submitting a PR.
+We love PRs! Please create a ticket using the [ Issue Tracker](https://github.com/coldbox-modules/cbwire/issues) before submitting a PR.
 
 ### Test Harness
 
@@ -77,7 +77,7 @@ If cbwire makes you happy, please consider becoming a [Patreon supporter](https:
 
 -   Docmentation: https://cbwire.ortusbooks.com
 -   GitHub Repository: https://github.com/coldbox-modules/cbwire
--   Jira Issue Tracker: https://ortussolutions.atlassian.net/jira/software/c/projects/CBWIRE/boards/109
+-   Issue Tracker: https://github.com/coldbox-modules/cbwire/issues
 -   Task List Demo: https://github.com/grantcopley/cbwire-task-list-demo
 -   Up and Running Screencast: https://cfcasts.com/series/ortus-single-video-series/videos/up-and-running-with-cbwire
 -   Into The Box 2021 Presentation: https://cfcasts.com/series/into-the-box-2021/videos/cbwire-coldbox-+-livewire-grant-copley
