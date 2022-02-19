@@ -37,6 +37,22 @@ Install [CommandBox](https://www.ortussolutions.com/products/commandbox), then f
 box install cbwire@be
 ```
 
+## Contributing
+
+### Test Harness
+
+There is a test harness application included in this repo that is used for testing cbwire's functionality.
+
+To start the test harness:
+
+```
+cd test-harness
+box install
+box server start
+```
+
+This will start the test harness using a random port selected by CommandBox. For example, if the random port selected is 60299, you can run the test suite using http://127.0.0.1:60299/tests.
+
 ## License
 
 Apache License 2.0
