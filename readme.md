@@ -37,10 +37,6 @@ Install [CommandBox](https://www.ortussolutions.com/products/commandbox), then f
 box install cbwire@be
 ```
 
-## Documentation
-
-https://cbwire.ortusbooks.com
-
 ## License
 
 Apache License 2.0
@@ -61,6 +57,7 @@ If cbwire makes you happy, please consider becoming a [Patreon supporter](https:
 
 ## Resources
 
+-   Docmentation: https://cbwire.ortusbooks.com
 -   GitHub Repository: https://github.com/coldbox-modules/cbwire
 -   Jira Issue Tracker: https://ortussolutions.atlassian.net/jira/software/c/projects/CBWIRE/boards/109
 -   Task List Demo: https://github.com/grantcopley/cbwire-task-list-demo
