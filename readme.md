@@ -39,6 +39,8 @@ box install cbwire@be
 
 ## Contributing
 
+We love PRs! Please create a ticket using the [Jira Issue Tracker](https://ortussolutions.atlassian.net/jira/software/c/projects/CBWIRE/boards/109) before submitting a PR.
+
 ### Test Harness
 
 There is a test harness application included in this repo that is used for testing cbwire's functionality.
