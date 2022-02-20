@@ -709,15 +709,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "getters", function() {
-				it( "can access data properties using getter", function() {
+			describe( "getters", function(){
+				it( "can access data properties using getter", function(){
 					componentObj.setDataProperties( { "count" : 1 } );
 					expect( componentObj.getCount() ).toBe( 1 );
 				} );
 
-				it( "can access computed properties using getter", function() {
+				it( "can access computed properties using getter", function(){
 					componentObj.setComputedProperties( {
-						"onePlusTwo": function() {
+						"onePlusTwo" : function(){
 							return 1 + 2;
 						}
 					} );

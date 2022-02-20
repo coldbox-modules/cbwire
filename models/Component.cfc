@@ -766,7 +766,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		var computed = getComputedProperties();
 
-		if ( reFindNoCase( "^get.+", arguments.missingMethodName ) ){
+		if (
+			reFindNoCase(
+				"^get.+",
+				arguments.missingMethodName
+			)
+		) {
 			// Extract data property name from the getter method called.
 			var propertyName = reReplaceNoCase(
 				arguments.missingMethodName,
@@ -776,12 +781,17 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			)
 
 			// Check to see if the data property name is defined on the component.
-			if ( structKeyExists( getDataProperties(), propertyName ) ){
+			if ( structKeyExists( getDataProperties(), propertyName ) ) {
 				return data[ propertyName ];
 			}
 
 			// Check to see if the computed property name is defined in the component.
-			if ( structKeyExists( getComputedProperties(), propertyName ) ) {
+			if (
+				structKeyExists(
+					getComputedProperties(),
+					propertyName
+				)
+			) {
 				return computed[ propertyName ];
 			}
 		}
@@ -1031,14 +1041,15 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 
 	function renderComputedProperties(){
-		if ( !structKeyExists( variables, "computedProperties" ) ){
+		if ( !structKeyExists( variables, "computedProperties" ) ) {
 			return;
 		}
 
 		variables.computedProperties.each( function( key, value ){
-			if ( isCustomFunction( value ) ){
+			if ( isCustomFunction( value ) ) {
 				variables.computedProperties[ key ] = value();
 			}
 		} );
 	}
+
 }
