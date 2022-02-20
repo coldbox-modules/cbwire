@@ -227,8 +227,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 
 		if ( arguments.includeComputed ) {
+			renderComputedProperties();
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value();
+				state[ key ] = value;
 			} );
 		}
 
@@ -761,6 +762,40 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	){
 		var settings = variables.$settings;
 
+		var data = getDataProperties();
+
+		var computed = getComputedProperties();
+
+		if (
+			reFindNoCase(
+				"^get.+",
+				arguments.missingMethodName
+			)
+		) {
+			// Extract data property name from the getter method called.
+			var propertyName = reReplaceNoCase(
+				arguments.missingMethodName,
+				"^get",
+				"",
+				"one"
+			)
+
+			// Check to see if the data property name is defined on the component.
+			if ( structKeyExists( getDataProperties(), propertyName ) ) {
+				return data[ propertyName ];
+			}
+
+			// Check to see if the computed property name is defined in the component.
+			if (
+				structKeyExists(
+					getComputedProperties(),
+					propertyName
+				)
+			) {
+				return computed[ propertyName ];
+			}
+		}
+
 		if (
 			reFindNoCase(
 				"^set.+",
@@ -1002,6 +1037,19 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	function $generateId(){
 		return createUUID().replace( "-", "", "all" ).left( 21 );
+	}
+
+
+	function renderComputedProperties(){
+		if ( !structKeyExists( variables, "computedProperties" ) ) {
+			return;
+		}
+
+		variables.computedProperties.each( function( key, value ){
+			if ( isCustomFunction( value ) ) {
+				variables.computedProperties[ key ] = value();
+			}
+		} );
 	}
 
 }

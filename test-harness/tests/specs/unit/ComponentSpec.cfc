@@ -708,6 +708,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( passedArgs.rc.someRandomVar ).toBe( "someRandomValue" );
 				} );
 			} );
+
+			describe( "getters", function(){
+				it( "can access data properties using getter", function(){
+					componentObj.setDataProperties( { "count" : 1 } );
+					expect( componentObj.getCount() ).toBe( 1 );
+				} );
+
+				it( "can access computed properties using getter", function(){
+					componentObj.setComputedProperties( {
+						"onePlusTwo" : function(){
+							return 1 + 2;
+						}
+					} );
+					componentObj.renderComputedProperties();
+					expect( componentObj.getOnePlusTwo() ).toBe( 3 );
+				} );
+			} );
 		} );
 	}
 
