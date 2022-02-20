@@ -2,10 +2,10 @@ component
     extends="cbwire.models.Component"
 {
 
-    variables.data = { "count" : 0 };
+    data = { "count" : 0 };
 
     function increment(){
-        variables.data.count += 1;
+        data.count += 1;
     }
 
     function renderIt(){

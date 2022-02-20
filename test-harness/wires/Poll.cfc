@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = {
+    data = {
         "timestamp": now()
     };
 

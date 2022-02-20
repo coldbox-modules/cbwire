@@ -1,16 +1,16 @@
 component extends="cbwire.models.Component"{
 
-    variables.data = {
+    data = {
         "calculation": 0
     };
 
-    variables.computed = {
+    computed = {
         "onePlusTwo": function() {
             return 1 + 2;
         }
     }
 
     function doSomething(){
-        variables.data.calculation = this.getOnePlusTwo();
+        data.calculation = this.getOnePlusTwo();
     }
 }

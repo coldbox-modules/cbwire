@@ -1,12 +1,12 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = { "search" : "" };
+    data = { "search" : "" };
 
-    variables.queryString = [ "search" ];
+    queryString = [ "search" ];
 
 
     function mount( event ){
-        variables.data[ "search" ] = event.getValue( "search", "" );
+        data[ "search" ] = event.getValue( "search", "" );
 
     }
     function renderIt(){

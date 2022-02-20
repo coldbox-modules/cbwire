@@ -1,11 +1,11 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = {
+    data = {
         "message": ""
     };
 
     function calledMethod(){
-        variables.data[ "message" ] = "We have called our method!";
+        data[ "message" ] = "We have called our method!";
     }
 
     function renderIt(){

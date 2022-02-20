@@ -3,7 +3,7 @@ component
     accessors="true"
 {
 
-    variables.data = {
+    data = {
         "name": "Marty"
     };
 
