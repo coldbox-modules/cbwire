@@ -59,7 +59,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		return this;
 	}
 
-	function render(){
+	function renderIt(){
 		if ( getIsSubsequentRender() ) {
 			var event           = requestService.getContext();
 			var rc              = event.setContext( getHydrationCollection() );
@@ -105,12 +105,12 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	function assertSee( required needle ){
-		render();
+		renderIt();
 		expect( getRendering() ).toInclude( needle );
 	}
 
 	function assertDontSee( required needle ){
-		render();
+		renderIt();
 		expect( getRendering() ).notToInclude( needle );
 	}
 
@@ -118,7 +118,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		required dataProperty,
 		required value
 	){
-		render();
+		renderIt();
 		expect( data()[ dataProperty ] ).toBe( value );
 	}
 
@@ -126,7 +126,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		required dataProperty,
 		required value
 	){
-		render();
+		renderIt();
 		expect( data()[ dataProperty ] ).notToBe( value );
 	}
 

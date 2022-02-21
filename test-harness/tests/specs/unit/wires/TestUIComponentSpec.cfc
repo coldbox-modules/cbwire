@@ -17,37 +17,37 @@ component extends="cbwire.models.BaseWireTest" {
 	function run( testResults, testBox ){
 		describe( "TestUIComponent.cfc", function(){
 			it( "wires up the component with default template", function(){
-				var result = wire( "TestUIComponent" ).render();
+				var result = wire( "TestUIComponent" ).renderIt();
 				expect( result ).toInclude( "<h1>This is the default template</h1>" );
 			} );
 
 			it( "changes the message", function(){
-				var result = wire( "TestUIComponent" ).set( "message", "Something else" ).render();
+				var result = wire( "TestUIComponent" ).set( "message", "Something else" ).renderIt();
 				expect( result ).toInclude( "<h1>Something else</h1>" );
 			} );
 
 			it( "toggles showing the button", function(){
-				var result = wire( "TestUIComponent" ).toggle( "showButton" ).render();
+				var result = wire( "TestUIComponent" ).toggle( "showButton" ).renderIt();
 				expect( result ).toInclude( "<button>The button</button>" );
 			} );
 
 			it( "calls the 'foo' method", function(){
-				var result = wire( "TestUIComponent" ).call( "foo" ).render();
+				var result = wire( "TestUIComponent" ).call( "foo" ).renderIt();
 				expect( result ).toInclude( "<h1>Foo called</h1>" );
 			} );
 
 			it( "calls the 'foo' method with parameters", function(){
-				var result = wire( "TestUIComponent" ).call( "foo", [ true ] ).render();
+				var result = wire( "TestUIComponent" ).call( "foo", [ true ] ).renderIt();
 				expect( result ).toInclude( "<h1>Foo called with params</h1>" );
 			} );
 
 			it( "emits the 'fooEvent'", function(){
-				var result = wire( "TestUIComponent" ).emit( "fooEvent" ).render();
+				var result = wire( "TestUIComponent" ).emit( "fooEvent" ).renderIt();
 				expect( result ).toInclude( "<h1>Foo event called</h1>" );
 			} );
 
 			it( "emits the 'fooEvent' with parameters", function(){
-				var result = wire( "TestUIComponent" ).emit( "fooEvent", [ "Bar" ] ).render();
+				var result = wire( "TestUIComponent" ).emit( "fooEvent", [ "Bar" ] ).renderIt();
 				expect( result ).toInclude( "<h1>Foo event called by Bar</h1>" );
 			} );
 
