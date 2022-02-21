@@ -1,6 +1,9 @@
 component extends="cbwire.models.Component" {
 
-    data[ "message" ] = "test";
+
+    data = {
+        "message": "test"
+    };
 
     listeners = { "someEvent" : "someListener" };
 
