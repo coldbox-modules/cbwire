@@ -5,7 +5,7 @@
 CBWIRE is a ColdBox module that makes building reactive, dynamic, and modern interfaces delightfully easy without leaving the comfort of CFML.
 
 <div align="center">
-	<img src="https://user-images.githubusercontent.com/1197835/136311530-a9647105-09b8-4c49-8ea0-85cb73714de2.png">
+	<img src="https://raw.githubusercontent.com/coldbox-modules/cbwire/development/logo.png">
 </div>
 
 ## Short Pitch
