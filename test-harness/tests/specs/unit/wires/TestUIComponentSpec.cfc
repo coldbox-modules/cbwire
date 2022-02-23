@@ -22,7 +22,7 @@ component extends="cbwire.models.BaseWireTest" {
 			} );
 
 			it( "changes the message", function(){
-				var result = wire( "TestUIComponent" ).set( "message", "Something else" ).renderIt();
+				var result = wire( "TestUIComponent" ).data( "message", "Something else" ).renderIt();
 				expect( result ).toInclude( "<h1>Something else</h1>" );
 			} );
 
@@ -47,28 +47,28 @@ component extends="cbwire.models.BaseWireTest" {
 			} );
 
 			it( "emits the 'fooEvent' with parameters", function(){
-				var result = wire( "TestUIComponent" ).emit( "fooEvent", [ "Bar" ] ).renderIt();
+				var result = wire( "TestUIComponent" ).emit( "fooEvent", { "name": "Bar" } ).renderIt();
 				expect( result ).toInclude( "<h1>Foo event called by Bar</h1>" );
 			} );
 
-			it( "provides 'assertSee' method", function(){
+			it( "provides 'see' method", function(){
 				var result = wire( "TestUIComponent" )
-					.set( "message", "Something else" )
-					.assertSee( "<h1>Something else</h1>" );
+					.data( "message", "Something else" )
+					.see( "<h1>Something else</h1>" );
 			} );
 
-			it( "provides 'assertDontSee' method", function(){
+			it( "provides 'dontSee' method", function(){
 				var result = wire( "TestUIComponent" )
-					.set( "message", "Something else" )
-					.assertDontSee( "<h1>Nothing else</h1>" );
+					.data( "message", "Something else" )
+					.dontSee( "<h1>Nothing else</h1>" );
 			} );
 
-			it( "provides 'assertSet' method", function(){
-				var result = wire( "TestUIComponent" ).call( "foo" ).assertSet( "message", "Foo called" );
+			it( "provides 'seeData' method", function(){
+				var result = wire( "TestUIComponent" ).call( "foo" ).seeData( "message", "Foo called" );
 			} );
 
-			it( "provides 'assertNotSet' method", function(){
-				var result = wire( "TestUIComponent" ).call( "foo" ).assertNotSet( "message", "Does not exist" );
+			it( "provides 'dontSeeData' method", function(){
+				var result = wire( "TestUIComponent" ).call( "foo" ).dontSeeData( "message", "Does not exist" );
 			} );
 		} );
 	};

@@ -45,14 +45,14 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		return this;
 	}
 
-	function set( required name, required value ){
+	function data( required name, required value ){
 		setIsSubsequentRender( true );
 		getHydrationCollection()[ "serverMemo" ][ "data" ][ name ] = value;
 		return this;
 	}
 
 	function toggle( required name ){
-		var data = data();
+		var data = getDataProperties();
 		if ( structKeyExists( data, name ) && isBoolean( data[ name ] ) ) {
 			data[ name ] = !data[ name ];
 		}
@@ -104,33 +104,33 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		return this;
 	}
 
-	function assertSee( required needle ){
+	function see( required needle ){
 		renderIt();
 		expect( getRendering() ).toInclude( needle );
 	}
 
-	function assertDontSee( required needle ){
+	function dontSee( required needle ){
 		renderIt();
 		expect( getRendering() ).notToInclude( needle );
 	}
 
-	function assertSet(
+	function seeData(
 		required dataProperty,
 		required value
 	){
 		renderIt();
-		expect( data()[ dataProperty ] ).toBe( value );
+		expect( getDataProperties()[ dataProperty ] ).toBe( value );
 	}
 
-	function assertNotSet(
+	function dontSeeData(
 		required dataProperty,
 		required value
 	){
 		renderIt();
-		expect( data()[ dataProperty ] ).notToBe( value );
+		expect( getDataProperties()[ dataProperty ] ).notToBe( value );
 	}
 
-	private function data(){
+	private function getDataProperties(){
 		return getWireInstance().getDataProperties();
 	}
 
