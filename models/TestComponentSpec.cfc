@@ -131,7 +131,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	private function getDataProperties(){
-		return getWireInstance().getDataProperties();
+		return getWireInstance().get$DataProperties();
 	}
 
 	private function getWireInstance(){

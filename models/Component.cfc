@@ -50,7 +50,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * This should be overidden in the child component
 	 * with data properties.
 	 */
-	property name="dataProperties" type="struct" default="{}";
+	property name="$dataProperties";
 
 	/**
 	 * The default computed struct for cbwire components.
@@ -79,7 +79,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		set$IsInitialRendering( false );
 		set$ComputedProperties( variables.computed );
 		set$BeforeHydrationState( {} );
-		setDataProperties( variables.data );
+		set$DataProperties( variables.data );
 		set$Id( $generateId() );
 		set$Emits( [] );
 		variables.$children = {};
@@ -139,13 +139,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			"serverMemo" : {
 				"children" : [],
 				"errors"   : [],
-				"htmlHash" : getChecksum(),
+				"htmlHash" : $getChecksum(),
 				"data"     : getState(
 					includeComputed = false,
 					nullEmpty       = true
 				),
 				"dataMeta" : [],
-				"checksum" : getChecksum()
+				"checksum" : $getChecksum()
 			}
 		};
 	}
@@ -182,7 +182,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return String
 	 */
-	function getChecksum(){
+	function $getChecksum(){
 		return hash( serializeJSON( getState() ) );
 	}
 
@@ -201,7 +201,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		 */
 		var state = {};
 
-		var data = getDataProperties();
+		var data = get$DataProperties();
 
 		data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
@@ -322,7 +322,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		var rendering = super.view( argumentCollection = arguments );
 
 		// Add properties to top element to make cbwire actually work.
-		return applyWiringToOuterElement( rendering );
+		return $applyWiringToOuterElement( rendering );
 	}
 
 	/**
@@ -453,7 +453,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 					includeComputed = false,
 					nullEmpty       = true
 				),
-				"checksum" : getChecksum()
+				"checksum" : $getChecksum()
 			}
 		}
 	}
@@ -483,7 +483,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			);
 		}
 
-		var data = getDataProperties();
+		var data = get$DataProperties();
 
 		data[ "#arguments.propertyName#" ] = arguments.value;
 
@@ -513,7 +513,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		var queryStringValues = variables.getQueryStringValues();
 
 		if ( len( queryStringValues ) ) {
-			var referer = variables.getHTTPReferer();
+			var referer = $getHTTPReferer();
 
 			// Strip away any queryString parameters from the referer so
 			// we don't duplicate them when we append the queryStringValues below.
@@ -753,7 +753,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	){
 		var settings = variables.$settings;
 
-		var data = getDataProperties();
+		var data = get$DataProperties();
 
 		var computed = get$ComputedProperties();
 
@@ -772,7 +772,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			)
 
 			// Check to see if the data property name is defined on the component.
-			if ( structKeyExists( getDataProperties(), propertyName ) ) {
+			if ( structKeyExists( get$DataProperties(), propertyName ) ) {
 				return data[ propertyName ];
 			}
 
@@ -803,7 +803,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 			// Check to see if the data property name is defined in the component.
 			var dataPropertyExists = structKeyExists(
-				getDataProperties(),
+				get$DataProperties(),
 				dataPropertyName
 			);
 
@@ -956,14 +956,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @rendering String | The view rendering.
 	 */
-	private function applyWiringToOuterElement( required rendering ){
+	function $applyWiringToOuterElement( required rendering ){
 		var renderingResult = "";
 
 		// Provide a hash of our rendering which is used by Livewire JS.
 		var renderingHash = hash( arguments.rendering );
 
 		// Determine our outer element.
-		var outerElement = variables.getOuterElement( arguments.rendering );
+		var outerElement = $getOuterElement( arguments.rendering );
 
 		// Add properties to top element to make cbwire actually work.
 		if ( get$IsInitialRendering() ) {
@@ -993,7 +993,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @rendering String | The view rendering.
 	 */
-	private function getOuterElement( required rendering ){
+	function $getOuterElement( required rendering ){
 		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
 
 		if ( arrayLen( matches ) ) {
@@ -1011,14 +1011,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return String
 	 */
-	private function getHTTPReferer(){
+	function $getHTTPReferer(){
 		return cgi.HTTP_REFERER;
 	}
 
 	function $generateId(){
 		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
-
 
 	function $renderComputedProperties(){
 		if ( !structKeyExists( variables, "computed" ) ) {
