@@ -426,15 +426,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "subsequentRenderIt", function(){
+			describe( "$subsequentRenderIt", function(){
 				it( "calls the renderIt() method on our component", function(){
 					componentObj.$( "renderIt", "got here" );
-					componentObj.subsequentRenderIt();
+					componentObj.$subsequentRenderIt();
 					expect( componentObj.$once( "renderIt" ) ).toBeTrue();
 				} );
 				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();
-					componentObj.subsequentRenderIt();
+					componentObj.$subsequentRenderIt();
 					expect( componentObj.getRequestContext().getValue( "_cbwire_subsequent_rendering" ) ).toBe( "" );
 				} );
 			} );
@@ -523,7 +523,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "renders computed properties to the state", function(){
-					componentObj.setComputedProperties( {
+					componentObj.set$ComputedProperties( {
 						"calculator" : function(){
 							return 1 + 1;
 						}
@@ -716,12 +716,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "can access computed properties using getter", function(){
-					componentObj.setComputedProperties( {
+					componentObj.set$ComputedProperties( {
 						"onePlusTwo" : function(){
 							return 1 + 2;
 						}
 					} );
-					componentObj.renderComputedProperties();
+					componentObj.$renderComputedProperties();
 					expect( componentObj.getOnePlusTwo() ).toBe( 3 );
 				} );
 			} );

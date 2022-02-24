@@ -66,7 +66,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var cbwireComponent = getWireInstance();
 			var memento         = cbwireComponent
 				.$hydrate()
-				.subsequentRenderIt()
+				.$subsequentRenderIt()
 				.$getMemento();
 			setRendering( memento[ "effects" ][ "html" ] );
 			return memento[ "effects" ][ "html" ];

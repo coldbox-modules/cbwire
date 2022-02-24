@@ -57,7 +57,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * This should be overidden in the child component with
 	 * computed properties.
 	 */
-	property name="computedProperties";
+	property name="$computedProperties";
 
 	/**
 	 * Track any emitted events during a request lifecycle
@@ -77,7 +77,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			variables.computed = {};
 		}
 		set$IsInitialRendering( false );
-		setComputedProperties( variables.computed );
+		set$ComputedProperties( variables.computed );
 		set$BeforeHydrationState( {} );
 		setDataProperties( variables.data );
 		set$Id( $generateId() );
@@ -169,7 +169,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return String
 	 */
-	function subsequentRenderIt(){
+	function $subsequentRenderIt(){
 		announce(
 			"onCBWireSubsequentRenderIt",
 			{ component : this }
@@ -227,8 +227,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 
 		if ( arguments.includeComputed ) {
-			renderComputedProperties();
-			getComputedProperties().each( function( key, value ){
+			$renderComputedProperties();
+			get$ComputedProperties().each( function( key, value ){
 				state[ key ] = value;
 			} );
 		}
@@ -755,7 +755,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		var data = getDataProperties();
 
-		var computed = getComputedProperties();
+		var computed = get$ComputedProperties();
 
 		if (
 			reFindNoCase(
@@ -779,7 +779,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Check to see if the computed property name is defined in the component.
 			if (
 				structKeyExists(
-					getComputedProperties(),
+					get$ComputedProperties(),
 					propertyName
 				)
 			) {
@@ -885,17 +885,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function noRender(){
 		set$NoRendering( true );
-	}
-
-	/**
-	 * Set the components id.
-	 *
-	 * @id String | GUID
-	 *
-	 * @return Void
-	 */
-	function $setId( required id ){
-		variables.$id = arguments.id;
 	}
 
 	/**
@@ -1031,14 +1020,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 
-	function renderComputedProperties(){
-		if ( !structKeyExists( variables, "computedProperties" ) ) {
+	function $renderComputedProperties(){
+		if ( !structKeyExists( variables, "computed" ) ) {
 			return;
 		}
 
-		variables.computedProperties.each( function( key, value ){
+		get$ComputedProperties().each( function( key, value, computedProperties ){
 			if ( isCustomFunction( value ) ) {
-				variables.computedProperties[ key ] = value();
+				computedProperties[ key ] = value();
 			}
 		} );
 	}
