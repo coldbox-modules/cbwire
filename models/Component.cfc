@@ -6,7 +6,14 @@
  */
 component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
+	// Inject ColdBox, needed by FrameworkSuperType
 	property name="controller" inject="coldbox";
+
+	// Inject LogBox.
+	property name="logBox" inject="logbox";
+
+	// Inject scoped logger.
+	property name="log" inject="logbox:logger:{this}";
 
 	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
@@ -17,35 +24,33 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	// Inject settings.
 	property name="$settings" inject="coldbox:modulesettings:cbwire";
 
-	// Inject LogBox.
-	property name="logBox" inject="logbox";
-
-	// Inject scoped logger.
-	property name="log" inject="logbox:logger:{this}";
-
 	// Determines if component should be rendered or not.
-	property name="noRendering" default="false";
+	property name="$noRendering" default="false";
 
 	// Determines if component is being initially rendered or subsequently rendered
-	property name="isInitialRendering" default="false";
+	property name="$isInitialRendering" default="false";
+
 
 	/**
 	 * Holds the component's state values before hydration occurs.
 	 * Used to compare what's changed and perform dirty tracking
 	 */
-	property name="beforeHydrationState";
+	property name="$beforeHydrationState";
 
 	/**
 	 * Component UUID
+	 * Hold a 21 character UUID to uniquely identify the component HTML during rendering.
+	 * The 21 characters matches Livewire JS native implementation.
+	 *
 	 */
-	property name="id";
+	property name="$id";
 
 	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
 	 * with data properties.
 	 */
-	property name="dataProperties";
+	property name="dataProperties" type="struct" default="{}";
 
 	/**
 	 * The default computed struct for cbwire components.
@@ -53,6 +58,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * computed properties.
 	 */
 	property name="computedProperties";
+
+	/**
+	 * Track any emitted events during a request lifecycle
+	 */
+	property name="$emits";
 
 	/**
 	 * Our beautiful, simple constructor.
@@ -66,14 +76,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		if ( isNull( variables.computed ) ) {
 			variables.computed = {};
 		}
-		setIsInitialRendering( false );
+		set$IsInitialRendering( false );
 		setComputedProperties( variables.computed );
-		setBeforeHydrationState( {} );
+		set$BeforeHydrationState( {} );
 		setDataProperties( variables.data );
-		variables.emits = [];
-		setID( $generateId() );
+		set$Id( $generateId() );
+		set$Emits( [] );
 		variables.$children = {};
-		setNoRendering( false );
+		set$NoRendering( false );
 		return this;
 	}
 
@@ -109,16 +119,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
-	 * The 21 characters matches Livewire JS native implementation.
-	 *
-	 * @return String
-	 */
-	function getId(){
-		return variables.id;
-	}
-
-	/**
 	 * Returns the initial data of our component, which is ultimately serialized
 	 * to json and return in the view as our component is first rendered.
 	 *
@@ -129,7 +129,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function getInitialData( renderingHash = "" ){
 		return {
 			"fingerprint" : {
-				"id"     : getId(),
+				"id"     : get$Id(),
 				"name"   : getMeta().name,
 				"locale" : "en",
 				"path"   : getPath(),
@@ -337,7 +337,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Component
 	 */
 	function $mount( parameters = {}, key = "" ){
-		setIsInitialRendering( true );
+		set$IsInitialRendering( true );
 
 		announce(
 			"onCBWireMount",
@@ -368,7 +368,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		// Capture the state before hydration
-		setBeforeHydrationState( duplicate( getState() ) );
+		set$BeforeHydrationState( duplicate( getState() ) );
 
 		return this;
 	}
@@ -398,7 +398,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		var arrayUtil = createObject( "java", "java.util.Arrays" );
 
-		var result = getBeforeHydrationState().reduce( function( result, key, value, state ){
+		var result = get$BeforeHydrationState().reduce( function( result, key, value, state ){
 			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
 				return result;
 			} else {
@@ -444,7 +444,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				"html"  : len( rendering ) ? rendering : javacast( "null", 0 ),
 				"dirty" : $getDirtyProperties(),
 				"path"  : getPath(),
-				"emits" : getEmits()
+				"emits" : get$Emits()
 			},
 			"serverMemo" : {
 				"children" : isArray( variables.$children ) ? [] : variables.$children,
@@ -526,15 +526,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		// Return empty string by default;
 		return "";
-	}
-
-	/**
-	 * Returns any captured emits that need to be returned
-	 *
-	 * @return Array
-	 */
-	function getEmits(){
-		return variables.emits;
 	}
 
 	/**
@@ -882,7 +873,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Reset individual property
 			$set(
 				arguments.property,
-				getBeforeHydrationState()[ arguments.property ]
+				get$BeforeHydrationState()[ arguments.property ]
 			);
 		}
 	}
@@ -893,7 +884,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return void
 	 */
 	function noRender(){
-		setNoRendering( true );
+		set$NoRendering( true );
 	}
 
 	/**
@@ -904,7 +895,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function $setId( required id ){
-		variables.id = arguments.id;
+		variables.$id = arguments.id;
 	}
 
 	/**
@@ -959,7 +950,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	private function trackEmit( required emitter ){
 		var result = emitter.getResult();
-		variables.emits.append( result );
+		get$Emits().append( result );
 	}
 
 	/**
@@ -986,23 +977,23 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		var outerElement = variables.getOuterElement( arguments.rendering );
 
 		// Add properties to top element to make cbwire actually work.
-		if ( getIsInitialRendering() ) {
+		if ( get$IsInitialRendering() ) {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getId()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#get$Id()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
 			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getId()#""",
+				outerElement & " wire:id=""#get$Id()#""",
 				"once"
 			);
 		}
 
-		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getId()# -->";
+		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#get$Id()# -->";
 
 		return renderingResult;
 	}

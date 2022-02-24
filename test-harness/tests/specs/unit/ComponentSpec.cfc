@@ -45,7 +45,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getID()", function(){
 				it( "returns 21 character guid", function(){
-					var id = componentObj.getID();
+					var id = componentObj.get$Id();
 					expect( len( id ) ).toBe( 21 );
 					expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
 				} );
@@ -53,7 +53,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getDirtyProperties", function(){
 				it( "can compare simple values", function(){
-					componentObj.setBeforeHydrationState( { "count" : 2 } );
+					componentObj.set$BeforeHydrationState( { "count" : 2 } );
 
 					componentObj.$( "getState", { "count" : 1 } );
 
@@ -64,7 +64,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "can compare a struct", function(){
-					componentObj.setBeforeHydrationState( { "foo" : { "value" : "bar" } } );
+					componentObj.set$BeforeHydrationState( { "foo" : { "value" : "bar" } } );
 
 					componentObj.$(
 						"getState",
@@ -278,14 +278,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getEmits", function(){
 				it( "returns an empty array by default", function(){
-					expect( componentObj.getEmits() ).toBeArray();
-					expect( arrayLen( componentObj.getEmits() ) ).toBe( 0 );
+					expect( componentObj.get$Emits() ).toBeArray();
+					expect( arrayLen( componentObj.get$Emits() ) ).toBe( 0 );
 				} );
 
 				it( "tracks emits", function(){
 					componentObj.emit( "someEvent" );
 					componentObj.emitSelf( "someOtherEvent" );
-					expect( arrayLen( componentObj.getEmits() ) ).toBe( 2 );
+					expect( arrayLen( componentObj.get$Emits() ) ).toBe( 2 );
 				} );
 			} );
 
@@ -334,7 +334,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"chuck"
 						]
 					);
-					expect( componentObj.getEmits()[ 1 ] ).toBe( {
+					expect( componentObj.get$Emits()[ 1 ] ).toBe( {
 						"event"  : "test",
 						"params" : [
 							"how",
@@ -354,7 +354,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "emitUp", function(){
 				it( "tracks the expected values", function(){
 					componentObj.emitUp( "test", [ "hello", "world" ] );
-					expect( componentObj.getEmits()[ 1 ] ).toBe( {
+					expect( componentObj.get$Emits()[ 1 ] ).toBe( {
 						"event"         : "test",
 						"params"        : [ "hello", "world" ],
 						"ancestorsOnly" : true
@@ -370,12 +370,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"component2",
 						[ "hello", "world" ]
 					);
-					expect( componentObj.getEmits()[ 1 ] ).toBe( {
+					expect( componentObj.get$Emits()[ 1 ] ).toBe( {
 						"event"  : "event1",
 						"params" : [],
 						"to"     : "component1"
 					} );
-					expect( componentObj.getEmits()[ 2 ] ).toBe( {
+					expect( componentObj.get$Emits()[ 2 ] ).toBe( {
 						"event"  : "event2",
 						"params" : [ "hello", "world" ],
 						"to"     : "component2"

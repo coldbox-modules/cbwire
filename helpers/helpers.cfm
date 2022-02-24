@@ -14,11 +14,18 @@
     }
 
     /**
-    * Renders a wire component.
-    */
-    function wire( required string componentName ) {
-        var cbwireManager = getInstance( "CBWireManager@cbwire" );
-        arguments[ "cbwireComponent" ] = cbwireManager.getComponentInstance( arguments.componentName );
-        return getInstance( "CBWireInstanceRequest@cbwire" ).handle( argumentCollection=arguments );
+	 * Instantiates our cbwire component, mounts it,
+	 * and then calls it's internal renderIt() method.
+	 *
+	 * @componentName String | The name of the component to load.
+	 * @parameters Struct | The parameters you want mounted initially.
+	 *
+	 * @return Component
+	 */
+    function wire( componentName, parameters = {} ) {
+        return getInstance( "CBWireManager@cbwire" )
+                   .getComponentInstance( arguments.componentName )
+                   .$mount( arguments.parameters )
+                   .renderIt();
     }
 </cfscript>

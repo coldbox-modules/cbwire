@@ -65,7 +65,7 @@ component accessors="true" singleton {
 	 * @return Struct
 	 */
 	function getData(){
-		return getServerMemo()[ "data" ];
+		return getServerMemo().data;
 	}
 
 	/**
@@ -74,7 +74,7 @@ component accessors="true" singleton {
 	 * @return Struct
 	 */
 	function getFingerprint(){
-		return getCollection()[ "fingerprint" ];
+		return getCollection().fingerprint;
 	}
 
 	/**
@@ -83,7 +83,7 @@ component accessors="true" singleton {
 	 * @return struct
 	 */
 	function getServerMemo(){
-		return getCollection()[ "serverMemo" ];
+		return getCollection().serverMemo;
 	}
 
 	/**
@@ -91,7 +91,7 @@ component accessors="true" singleton {
 	 */
 	function hasChildren(){
 		return hasServerMemo() && isStruct( getChildren() ) && len(
-			structKeyList( getCollection()[ "serverMemo" ][ "children" ] )
+			structKeyList( getCollection().severMemo.children )
 		);
 	}
 
@@ -99,7 +99,7 @@ component accessors="true" singleton {
 	 * Returns children in server memo
 	 */
 	function getChildren(){
-		return getCollection()[ "serverMemo" ][ "children" ];
+		return getCollection().serverMemo.children;
 	}
 
 	/**

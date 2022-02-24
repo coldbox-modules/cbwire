@@ -6,7 +6,7 @@ component {
 
 		var result = "";
 
-		if ( !component.getNoRendering() ) {
+		if ( !component.get$NoRendering() ) {
 			var result = component.renderIt();
 		}
 
