@@ -26,6 +26,11 @@ component extends="cbwire.models.BaseWireTest" {
 				expect( result ).toInclude( "<h1>Something else</h1>" );
 			} );
 
+			it( "changes the message using a struct", function(){
+				var result = wire( "TestUIComponent" ).data( { "message": "Something else" } ).renderIt();
+				expect( result ).toInclude( "<h1>Something else</h1>" );
+			} );
+
 			it( "toggles showing the button", function(){
 				var result = wire( "TestUIComponent" ).toggle( "showButton" ).renderIt();
 				expect( result ).toInclude( "<button>The button</button>" );
