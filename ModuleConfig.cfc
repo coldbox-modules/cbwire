@@ -66,7 +66,6 @@ component {
 			// Rendering
 			{ class : "#moduleMapping#.interceptors.InitialComponentRendering" },
 			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
-
 			// Output
 			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
 		];
