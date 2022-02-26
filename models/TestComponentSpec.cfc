@@ -47,7 +47,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	function data( required name, value ){
 		setIsSubsequentRender( true );
-		if ( isStruct( name ) ){
+		if ( isStruct( name ) ) {
 			variables.hydrationCollection.serverMemo.data = name;
 		} else {
 			variables.hydrationCollection.serverMemo.data[ name ] = value;
