@@ -6,6 +6,11 @@ component extends="cbwire.models.Component"{
         "showButton": false
     };
 
+    // Computed properties
+    computed = {
+        "counter": function() { return 0; }
+    };
+
     // Listeners
     listeners = {
         "fooEvent": "fooEventCalled"

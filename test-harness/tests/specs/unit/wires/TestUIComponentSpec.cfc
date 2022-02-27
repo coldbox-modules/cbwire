@@ -21,16 +21,25 @@ component extends="cbwire.models.BaseWireTest" {
 				expect( result ).toInclude( "<h1>This is the default template</h1>" );
 			} );
 
-			it( "changes the message", function(){
+			it( "changes data property message", function(){
 				var result = wire( "TestUIComponent" ).data( "message", "Something else" ).renderIt();
 				expect( result ).toInclude( "<h1>Something else</h1>" );
 			} );
 
-			it( "changes the message using a struct", function(){
+			it( "changes data property message using a struct", function(){
 				var result = wire( "TestUIComponent" ).data( { "message" : "Something else" } ).renderIt();
 				expect( result ).toInclude( "<h1>Something else</h1>" );
 			} );
 
+			it( "changes computed property counter", function(){
+				var result = wire( "TestUIComponent" ).computed( "counter", function() { return 1; } ).renderIt();
+				expect( result ).toInclude( "<p>Count 1</p>" );
+			} );
+
+			it( "changes computed property message using a struct", function(){
+				var result = wire( "TestUIComponent" ).computed( { "counter" : function() { return 2; } } ).renderIt();
+				expect( result ).toInclude( "<p>Count 2</p>" );
+			} );
 			it( "toggles showing the button", function(){
 				var result = wire( "TestUIComponent" ).toggle( "showButton" ).renderIt();
 				expect( result ).toInclude( "<button>The button</button>" );

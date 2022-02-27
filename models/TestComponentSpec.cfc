@@ -17,6 +17,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	property name="hydrationCollection";
 
+	property name="computed";
+
 	property name="cbwireInstance";
 
 	property name="rendering";
@@ -24,6 +26,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	function init( componentName, parameters = {} ){
 		setComponentName( arguments.componentName );
 		setParameters( arguments.parameters );
+		setComputed( {} );
 		setHydrationCollection( {
 			"fingerprint" : {
 				"path"   : "",
@@ -48,9 +51,19 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	function data( required name, value ){
 		setIsSubsequentRender( true );
 		if ( isStruct( name ) ) {
-			variables.hydrationCollection.serverMemo.data = name;
+			getHydrationCollection().serverMemo.data = name;
 		} else {
-			variables.hydrationCollection.serverMemo.data[ name ] = value;
+			getHydrationCollection().serverMemo.data[ name ] = value;
+		}
+		return this;
+	}
+
+	function computed( required name, value ){
+		if ( isStruct( name ) ) {
+			setComputed( name );
+		} else {
+			var computed = getComputed();
+			computed[ name ] = value;
 		}
 		return this;
 	}
@@ -68,17 +81,24 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var event           = requestService.getContext();
 			var rc              = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
+			if ( listLen( structKeyList( getComputed() ) ) ){
+				cbwireComponent.set$ComputedProperties( getComputed() );
+			}
 			var memento         = cbwireComponent
 				.$hydrate()
 				.$subsequentRenderIt()
 				.$getMemento();
-			setRendering( memento[ "effects" ][ "html" ] );
-			return memento[ "effects" ][ "html" ];
+			var html = memento[ "effects" ][ "html" ];
+			setRendering( html );
+			return html;
 		} else {
 			var cbwireComponent = getWireInstance();
+			if ( listLen( structKeyList( getComputed() ) ) ){
+				cbwireComponent.set$ComputedProperties( getComputed() );
+			}	
 			var rendering       = cbwireComponent.$mount( getParameters() ).renderIt();
 			setRendering( rendering );
-			return cbwireComponent.$mount( getParameters() ).renderIt();
+			return rendering;
 		}
 	}
 
@@ -136,6 +156,10 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	private function getDataProperties(){
 		return getWireInstance().get$DataProperties();
+	}
+
+	private function getComputedProperties(){
+		return getWireInstance().get$ComputedProperties();
 	}
 
 	private function getWireInstance(){
