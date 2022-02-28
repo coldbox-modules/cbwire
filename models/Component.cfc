@@ -15,6 +15,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	// Inject scoped logger.
 	property name="log" inject="logbox:logger:{this}";
 
+	// Component engine
+	property name="engine";
+
 	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
 
@@ -80,11 +83,15 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		set$ComputedProperties( variables.computed );
 		set$BeforeHydrationState( {} );
 		set$DataProperties( variables.data );
-		set$Id( $generateId() );
 		set$Emits( [] );
 		variables.$children = {};
 		set$NoRendering( false );
 		return this;
+	}
+
+	function onDIComplete(){
+		setEngine( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this } ) );
+		set$Id( getEngine().getId() );
 	}
 
 	/**
@@ -531,15 +538,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns true if listeners are detected on the component.
-	 *
-	 * @return Boolean
-	 */
-	function hasListeners(){
-		return arrayLen( variables.getListenerNames() );
-	}
-
-	/**
 	 * Returns the listeners defined on the component.
 	 * If no listeners are defined, an empty struct is returned.
 	 *
@@ -643,7 +641,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		if ( structKeyExists( listeners, eventName ) ) {
 			var listener = listeners[ eventName ];
 
-			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
+			if ( len( arguments.eventName ) && getEngine().hasMethod( listener ) ) {
 				return invokeMethod(
 					methodName            = listener,
 					passThroughParameters = arguments.parameters
@@ -949,7 +947,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return Array
 	 */
-	private function getListenerNames(){
+	function getListenerNames(){
 		return structKeyList( getListeners() ).listToArray();
 	}
 
@@ -965,7 +963,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		var renderingHash = hash( arguments.rendering );
 
 		// Determine our outer element.
-		var outerElement = $getOuterElement( arguments.rendering );
+		var outerElement = getEngine().getOuterElement( arguments.rendering );
 
 		// Add properties to top element to make cbwire actually work.
 		if ( get$IsInitialRendering() ) {
@@ -990,35 +988,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Determines the outer element within our rendering.
-	 * If an outer element isn't found, an error is thrown.
-	 *
-	 * @rendering String | The view rendering.
-	 */
-	function $getOuterElement( required rendering ){
-		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
-
-		if ( arrayLen( matches ) ) {
-			return matches[ 1 ];
-		}
-
-		throw(
-			type    = "OuterElementNotFound",
-			message = "Unable to find an outer element to bind cbwire to."
-		);
-	}
-
-	/**
 	 * Returns our HTTP referer.
 	 *
 	 * @return String
 	 */
 	function $getHTTPReferer(){
 		return cgi.HTTP_REFERER;
-	}
-
-	function $generateId(){
-		return createUUID().replace( "-", "", "all" ).left( 21 );
 	}
 
 	function $renderComputedProperties(){
