@@ -62,7 +62,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		if ( isStruct( name ) ) {
 			setComputed( name );
 		} else {
-			var computed = getComputed();
+			var computed     = getComputed();
 			computed[ name ] = value;
 		}
 		return this;
@@ -81,10 +81,10 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var event           = requestService.getContext();
 			var rc              = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
-			if ( listLen( structKeyList( getComputed() ) ) ){
+			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.set$ComputedProperties( getComputed() );
 			}
-			var memento         = cbwireComponent
+			var memento = cbwireComponent
 				.$hydrate()
 				.$subsequentRenderIt()
 				.$getMemento();
@@ -93,10 +93,10 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			return html;
 		} else {
 			var cbwireComponent = getWireInstance();
-			if ( listLen( structKeyList( getComputed() ) ) ){
+			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.set$ComputedProperties( getComputed() );
-			}	
-			var rendering       = cbwireComponent.$mount( getParameters() ).renderIt();
+			}
+			var rendering = cbwireComponent.$mount( getParameters() ).renderIt();
 			setRendering( rendering );
 			return rendering;
 		}

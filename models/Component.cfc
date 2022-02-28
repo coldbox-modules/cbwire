@@ -1047,8 +1047,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return cbvalidation.model.result.IValidationResult
 	 */
 	function validate(){
-		arguments.target = isNull( arguments.target ) ? this : arguments.target;
-		var result = getValidationManager().validate( argumentCollection=arguments );
+		arguments.target            = isNull( arguments.target ) ? this : arguments.target;
+		var result                  = getValidationManager().validate( argumentCollection = arguments );
 		variables.$validationResult = result;
 		return result;
 	}
@@ -1070,7 +1070,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function validateOrFail(){
 		arguments.target = isNull( arguments.target ) ? this : arguments.target;
-		return getValidationManager().validateOrFail( argumentCollection=arguments );
+		return getValidationManager().validateOrFail( argumentCollection = arguments );
 	}
 
 	/**
