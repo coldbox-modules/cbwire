@@ -50,6 +50,11 @@ jobs:
         run: |
           echo "VERSION=`box package version`" >> $GITHUB_ENV
 
+      - name: Install Main Dependencies
+        working-directory: ./
+        run: |
+          box install
+
       - name: Install Test Harness Dependencies
         working-directory: ./test-harness
         run: |
