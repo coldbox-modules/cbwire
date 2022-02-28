@@ -41,14 +41,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="$beforeHydrationState";
 
 	/**
-	 * Component UUID
-	 * Hold a 21 character UUID to uniquely identify the component HTML during rendering.
-	 * The 21 characters matches Livewire JS native implementation.
-	 *
-	 */
-	property name="$id";
-
-	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
 	 * with data properties.
@@ -90,8 +82,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	function onDIComplete(){
-		setEngine( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this } ) );
-		set$Id( getEngine().getId() );
+		setEngine( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this, variablesScope: variables } ) );
 	}
 
 	/**
@@ -136,7 +127,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function getInitialData( renderingHash = "" ){
 		return {
 			"fingerprint" : {
-				"id"     : get$Id(),
+				"id"     : getEngine().getId(),
 				"name"   : getMeta().name,
 				"locale" : "en",
 				"path"   : getPath(),
@@ -234,7 +225,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 
 		if ( arguments.includeComputed ) {
-			$renderComputedProperties();
+			getEngine().renderComputedProperties();
 			get$ComputedProperties().each( function( key, value ){
 				state[ key ] = value;
 			} );
@@ -970,19 +961,19 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#get$Id()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#getEngine().getId()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
 			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#get$Id()#""",
+				outerElement & " wire:id=""#getEngine().getId()#""",
 				"once"
 			);
 		}
 
-		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#get$Id()# -->";
+		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getEngine().getId()# -->";
 
 		return renderingResult;
 	}
@@ -994,18 +985,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function $getHTTPReferer(){
 		return cgi.HTTP_REFERER;
-	}
-
-	function $renderComputedProperties(){
-		if ( !structKeyExists( variables, "computed" ) ) {
-			return;
-		}
-
-		get$ComputedProperties().each( function( key, value, computedProperties ){
-			if ( isCustomFunction( value ) ) {
-				computedProperties[ key ] = value();
-			}
-		} );
 	}
 
 	/**

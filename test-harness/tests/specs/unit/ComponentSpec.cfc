@@ -45,7 +45,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getID()", function(){
 				it( "returns 21 character guid", function(){
-					var id = componentObj.get$Id();
+					var id = componentObj.getEngine().getId();
 					expect( len( id ) ).toBe( 21 );
 					expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
 				} );
@@ -721,7 +721,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							return 1 + 2;
 						}
 					} );
-					componentObj.$renderComputedProperties();
+					componentObj.getEngine().renderComputedProperties();
 					expect( componentObj.getOnePlusTwo() ).toBe( 3 );
 				} );
 			} );

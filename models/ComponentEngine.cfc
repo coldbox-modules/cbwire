@@ -1,16 +1,18 @@
 component accessors="true" {
 
-
     /** 
      * The CBWIRE component
      */
     property name="wire";
 
+    property name="variablesScope";
+
     /**
      * A beautiful constructor
      */
-    function init( required wire ) {
+    function init( required wire, required variablesScope ) {
         setWire( arguments.wire );
+        setVariablesScope( arguments.variablesScope );
     }
 
     /**
@@ -59,5 +61,22 @@ component accessors="true" {
 			type    = "OuterElementNotFound",
 			message = "Unable to find an outer element to bind cbwire to."
 		);
+	}
+
+    /**
+     * Loops through the defined computed properties and invokes the functions once.
+     * 
+     * @return void
+     */
+	function renderComputedProperties(){
+		if ( !structKeyExists( getVariablesScope(), "computed" ) ) {
+			return;
+		}
+
+		getWire().get$ComputedProperties().each( function( key, value, computedProperties ){
+			if ( isCustomFunction( value ) ) {
+				computedProperties[ key ] = value();
+			}
+		} );
 	}
 }
