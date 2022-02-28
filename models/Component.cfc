@@ -318,6 +318,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			nullEmpty       = false
 		);
 
+		arguments.args[ "validation" ] = validate( this );
+
 		// Render our view using coldbox rendering
 		var rendering = super.view( argumentCollection = arguments );
 
@@ -1029,6 +1031,53 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				computedProperties[ key ] = value();
 			}
 		} );
+	}
+
+	/**
+	 * Validate an object or structure according to the constraints rules.
+	 *
+	 * @target An object or structure to validate
+	 * @fields The fields to validate on the target. By default, it validates on all fields
+	 * @constraints A structure of constraint rules or the name of the shared constraint rules to use for validation
+	 * @locale The i18n locale to use for validation messages
+	 * @excludeFields The fields to exclude from the validation
+	 * @includeFields The fields to include in the validation
+	 * @profiles If passed, a list of profile names to use for validation constraints
+	 *
+	 * @return cbvalidation.model.result.IValidationResult
+	 */
+	function validate(){
+		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		var result = getValidationManager().validate( argumentCollection=arguments );
+		variables.$validationResult = result;
+		return result;
+	}
+
+	/**
+	 * Validate an object or structure according to the constraints rules and throw an exception if the validation fails.
+	 * The validation errors will be contained in the `extendedInfo` of the exception in JSON format
+	 *
+	 * @target An object or structure to validate
+	 * @fields The fields to validate on the target. By default, it validates on all fields
+	 * @constraints A structure of constraint rules or the name of the shared constraint rules to use for validation
+	 * @locale The i18n locale to use for validation messages
+	 * @excludeFields The fields to exclude from the validation
+	 * @includeFields The fields to include in the validation
+	 * @profiles If passed, a list of profile names to use for validation constraints
+	 *
+	 * @return The validated object or the structure fields that where validated
+	 * @throws ValidationException
+	 */
+	function validateOrFail(){
+		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		return getValidationManager().validateOrFail( argumentCollection=arguments );
+	}
+
+	/**
+	 * Retrieve the application's configured Validation Manager
+	 */
+	function getValidationManager(){
+		return getInstance( "ValidationManager@cbvalidation" );
 	}
 
 }

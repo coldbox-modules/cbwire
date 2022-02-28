@@ -725,6 +725,68 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.getOnePlusTwo() ).toBe( 3 );
 				} );
 			} );
+
+			describe( "validate()", function() {
+				it( "provides a validation for 'this.constraints' defined on the component", function() {
+					componentObj.$property(
+							propertyName  = "constraints",
+							propertyScope = "this",
+							mock          = { "firstname" : { required: true } }
+						);
+					var result = componentObj.validate();
+					expect( result ).toBeInstanceOf( "ValidationResult" );
+					expect( result.hasErrors() ).toBeTrue();
+					expect( result.getErrors( "firstname" )[ 1 ].getMessage() ).toBe( "The 'firstname' value is required" );
+				} );
+
+				it( "provides validations that can be passed in", function() {
+					var result = componentObj.validate( 
+						target={},
+						constraints={
+							"firstname" : { required: true }
+						}
+					);
+					expect( result ).toBeInstanceOf( "ValidationResult" );
+					expect( result.hasErrors() ).toBeTrue();
+					expect( result.getErrors( "firstname" )[ 1 ].getMessage() ).toBe( "The 'firstname' value is required" );
+				} );
+			} );
+
+			describe( "validateOrFail", function(){
+
+				it( "throws error when 'this.constraints' is defined but does not validate", function() {
+
+					componentObj.$property(
+							propertyName  = "constraints",
+							propertyScope = "this",
+							mock          = { "firstname" : { required: true } }
+						);
+
+					expect( function() {
+						componentObj.validateOrFail();
+					} ).toThrow( "ValidationException" );
+				} );
+
+				it( "doesn't throws error when 'this.constraints' is defined and validation passes", function() {
+
+					componentObj.$property(
+							propertyName  = "constraints",
+							propertyScope = "this",
+							mock          = { "firstname" : { required: true } }
+						);
+
+					expect( function() {
+						componentObj.validateOrFail(
+							target={
+								"firstname": "test"
+							},
+							constraints={
+								"firstname" : { required: true }
+							}
+						);
+					} ).notToThrow( "ValidationException" );
+				} );
+			} );
 		} );
 	}
 
