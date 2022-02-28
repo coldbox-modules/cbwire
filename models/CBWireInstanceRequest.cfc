@@ -13,7 +13,7 @@ component {
 		required cbwireComponent,
 		parameters = {}
 	){
-		return cbwireComponent.$mount( arguments.parameters ).renderIt();
+		return cbwireComponent.getEngine().mount( arguments.parameters ).renderIt();
 	}
 
 }

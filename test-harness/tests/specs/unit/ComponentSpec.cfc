@@ -51,13 +51,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "$getDirtyProperties", function(){
+			describe( "getDirtyProperties", function(){
 				it( "can compare simple values", function(){
 					componentObj.set$BeforeHydrationState( { "count" : 2 } );
 
 					componentObj.$( "getState", { "count" : 1 } );
 
-					var dirtyProperties = componentObj.$getDirtyProperties();
+					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
 
 					expect( dirtyProperties ).toBeArray();
 					expect( !!dirtyProperties.find( "count" ) ).toBeTrue();
@@ -71,7 +71,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						{ "foo" : { "value" : "baz" } }
 					);
 
-					var dirtyProperties = componentObj.$getDirtyProperties();
+					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
 
 					expect( dirtyProperties ).toBeArray();
 					expect( !!dirtyProperties.find( "foo" ) ).toBeTrue();
@@ -89,7 +89,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						{ "foo" : { "baz" : "foo", "value" : "bar" } }
 					);
 
-					var dirtyProperties = componentObj.$getDirtyProperties();
+					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
 
 					expect( dirtyProperties ).toBeArray().toHaveLength( 0 );
 				} );
@@ -106,7 +106,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						{ "foo" : [ "bar", "baz" ] }
 					);
 
-					var dirtyProperties = componentObj.$getDirtyProperties();
+					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
 
 					expect( dirtyProperties ).toBeArray().toHaveLength( 0 );
 				} );
@@ -688,7 +688,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "mount()", function(){
 				it( "it calls mount() if it's defined on component", function(){
 					componentObj.$( "mount", "sup?" );
-					componentObj.$mount();
+					componentObj.getEngine().mount();
 					expect( componentObj.$once( "mount" ) ).toBeTrue();
 				} );
 
@@ -698,7 +698,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					rc[ "someRandomVar" ] = "someRandomValue";
 
 					componentObj.$( "mount" );
-					componentObj.$mount();
+					componentObj.getEngine().mount();
 
 					var passedArgs = componentObj.$callLog().mount[ 1 ];
 

@@ -1,13 +1,32 @@
-component accessors="true" {
+component extends="coldbox.system.FrameworkSupertype" accessors="true" {
+
+
+	/**
+	 * Inject ColdBox, needed by FrameworkSuperType
+	 */
+	property name="controller" inject="coldbox";
 
     /** 
      * The CBWIRE component
      */
     property name="wire";
 
+	/**
+	 * The component's variables scope
+	 */
     property name="variablesScope";
 
-    /**
+	/**
+	 * WireBox's populator object
+	 */
+	property name="populator" inject="wirebox:populator";
+
+	/**
+	 * Inject the wire request that's incoming from the browser.
+	 */
+	property name="cbwireRequest" inject="CBWireRequest@cbwire";
+
+	/**
      * A beautiful constructor
      */
     function init( required wire, required variablesScope ) {
@@ -79,4 +98,93 @@ component accessors="true" {
 			}
 		} );
 	}
+
+	/**
+	 * Returns an array of properties that have changed during the request.
+	 *
+	 * @return Array
+	 */
+	function getDirtyProperties(){
+		var currentState = getWire().getState();
+
+		var arrayUtil = createObject( "java", "java.util.Arrays" );
+
+		var result = getWire().get$BeforeHydrationState().reduce( function( result, key, value, state ){
+			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
+				return result;
+			} else {
+				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
+				afterHydrateValue  = createObject( "java", "java.lang.String" )
+					.init( currentState[ key ].toString() )
+					.toCharArray();
+
+				arrayUtil.sort( beforeHydrateValue );
+				arrayUtil.sort( afterHydrateValue );
+
+				if (
+					arrayUtil.equals(
+						beforeHydrateValue,
+						afterHydrateValue
+					)
+				) {
+					return result;
+				}
+			}
+
+			result.append( key );
+
+			return result;
+		}, [] );
+
+		return result;
+	}
+
+	/**
+	 * Fires when the cbwire component is initially created.
+	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
+	 *
+	 * This method is given the $ prefix to avoid collision with the mount method
+	 * that can be optionally defined on a cbwire component.
+	 *
+	 * @parameters Struct of params to bind into the component
+	 *
+	 * @return Component
+	 */
+	function mount( parameters = {}, key = "" ){
+		getWire().set$IsInitialRendering( true );
+
+		announce(
+			"onCBWireMount",
+			{
+				component  : getWire(),
+				parameters : arguments.parameters
+			}
+		);
+
+		if ( structKeyExists( getWire(), "mount" ) ) {
+			getWire().mount(
+				parameters = arguments.parameters,
+				key        = arguments.key,
+				event      = getCBWireRequest().getEvent(),
+				rc         = getCBWireRequest().getCollection(),
+				prc        = getCBWireRequest().getPrivateCollection()
+			);
+		} else {
+			/**
+			 * Use setter population to populate our component.
+			 */
+			getPopulator().populateFromStruct(
+				target       : getWire(),
+				trustedSetter: true,
+				memento      : arguments.parameters,
+				excludes     : ""
+			);
+		}
+
+		// Capture the state before hydration
+		getWire().set$BeforeHydrationState( duplicate( getWire().getState() ) );
+
+		return getWire();
+	}
+
 }

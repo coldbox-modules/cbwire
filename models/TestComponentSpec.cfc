@@ -96,7 +96,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.set$ComputedProperties( getComputed() );
 			}
-			var rendering = cbwireComponent.$mount( getParameters() ).renderIt();
+			var rendering = cbwireComponent.getEngine().mount( getParameters() ).renderIt();
 			setRendering( rendering );
 			return rendering;
 		}

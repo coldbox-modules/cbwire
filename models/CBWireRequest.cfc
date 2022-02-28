@@ -203,7 +203,7 @@ component accessors="true" singleton {
 		parameters = {},
 		key        = ""
 	){
-		return getComponentInstance( arguments.componentName ).$mount( arguments.parameters, arguments.key ).renderIt();
+		return getComponentInstance( arguments.componentName ).getEngine().mount( arguments.parameters, arguments.key ).renderIt();
 	}
 
 	/**

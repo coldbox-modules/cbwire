@@ -21,9 +21,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
 
-	// Inject populator.
-	property name="$populator" inject="wirebox:populator";
-
 	// Inject settings.
 	property name="$settings" inject="coldbox:modulesettings:cbwire";
 
@@ -326,54 +323,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Fires when the cbwire component is initially created.
-	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
-	 *
-	 * This method is given the $ prefix to avoid collision with the mount method
-	 * that can be optionally defined on a cbwire component.
-	 *
-	 * @parameters Struct of params to bind into the component
-	 *
-	 * @return Component
-	 */
-	function $mount( parameters = {}, key = "" ){
-		set$IsInitialRendering( true );
-
-		announce(
-			"onCBWireMount",
-			{
-				component  : this,
-				parameters : arguments.parameters
-			}
-		);
-
-		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
-			this[ "mount" ](
-				parameters = arguments.parameters,
-				key        = arguments.key,
-				event      = variables.$cbwireRequest.getEvent(),
-				rc         = variables.$cbwireRequest.getCollection(),
-				prc        = variables.$cbwireRequest.getPrivateCollection()
-			);
-		} else {
-			/**
-			 * Use setter population to populate our component.
-			 */
-			variables.$populator.populateFromStruct(
-				target       : this,
-				trustedSetter: true,
-				memento      : arguments.parameters,
-				excludes     : ""
-			);
-		}
-
-		// Capture the state before hydration
-		set$BeforeHydrationState( duplicate( getState() ) );
-
-		return this;
-	}
-
-	/**
 	 * Hydrates the incoming component with state from our request.
 	 *
 	 * @wireRequest CBWireRequest
@@ -389,45 +338,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns an array of properties that have changed during the request.
-	 *
-	 * @return Array
-	 */
-	function $getDirtyProperties(){
-		var currentState = getState();
-
-		var arrayUtil = createObject( "java", "java.util.Arrays" );
-
-		var result = get$BeforeHydrationState().reduce( function( result, key, value, state ){
-			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
-				return result;
-			} else {
-				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
-				afterHydrateValue  = createObject( "java", "java.lang.String" )
-					.init( currentState[ key ].toString() )
-					.toCharArray();
-				arrayUtil.sort( beforeHydrateValue );
-				arrayUtil.sort( afterHydrateValue );
-				if (
-					arrayUtil.equals(
-						beforeHydrateValue,
-						afterHydrateValue
-					)
-				) {
-					return result;
-				}
-			}
-
-			result.append( key );
-
-			return result;
-		}, [] );
-
-
-		return result;
-	}
-
-	/**
 	 * Returns the memento for our component which holds the current
 	 * state of our component. This is returned on subsequent XHR requests
 	 * from cbwire.
@@ -437,12 +347,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function $getMemento(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
-		var dirtyProperties = $getDirtyProperties();
+		var dirtyProperties = getEngine().getDirtyProperties();
 
 		return {
 			"effects" : {
 				"html"  : len( rendering ) ? rendering : javacast( "null", 0 ),
-				"dirty" : $getDirtyProperties(),
+				"dirty" : getEngine().getDirtyProperties(),
 				"path"  : getPath(),
 				"emits" : get$Emits()
 			},
