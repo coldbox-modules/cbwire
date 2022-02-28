@@ -91,7 +91,7 @@ component accessors="true" singleton {
 	 */
 	function hasChildren(){
 		return hasServerMemo() && isStruct( getChildren() ) && len(
-			structKeyList( getCollection().severMemo.children )
+			structKeyList( getCollection().serverMemo.children )
 		);
 	}
 
