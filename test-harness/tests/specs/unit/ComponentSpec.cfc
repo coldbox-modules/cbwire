@@ -18,13 +18,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				cbwireRequest = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
+				cbwireRequest = prepareMock( getInstance( "CBWireRequest@cbwire" ) );
 				componentObj  = prepareMock(
 					getInstance(
-						name          = "cbwire.models.Component",
+						name          = "Component@cbwire",
 						initArguments = { "cbwireRequest" : cbwireRequest }
 					)
 				);
+				variablesScope = {
+					"data": componentObj.get$DataProperties(),
+					"computed": componentObj.get$ComputedProperties()
+				};
+				engine = prepareMock( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: componentObj, variablesScope: variablesScope } ) );
+				componentObj.$( "getEngine", engine );
 			} );
 
 			it( "can instantiate a component", function(){
@@ -53,7 +59,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getDirtyProperties", function(){
 				it( "can compare simple values", function(){
-					componentObj.set$BeforeHydrationState( { "count" : 2 } );
+					componentObj.getEngine().setBeforeHydrationState( { "count" : 2 } );
 
 					componentObj.$( "getState", { "count" : 1 } );
 
@@ -64,7 +70,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "can compare a struct", function(){
-					componentObj.set$BeforeHydrationState( { "foo" : { "value" : "bar" } } );
+					componentObj.getEngine().setBeforeHydrationState( { "foo" : { "value" : "bar" } } );
 
 					componentObj.$(
 						"getState",
@@ -114,7 +120,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getPath", function(){
 				it( "returns empty string by default", function(){
-					expect( componentObj.getPath() ).toBe( "" );
+					expect( componentObj.getEngine().getPath() ).toBe( "" );
 				} );
 
 				it( "includes properties we've defined in our component as variables.queryString", function(){
@@ -126,7 +132,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					componentObj.set$DataProperties( { "count" : 2 } );
 
-					expect( componentObj.getPath() ).toInclude( "?count=2" );
+					expect( componentObj.getEngine().getPath() ).toInclude( "?count=2" );
 				} );
 
 				it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
@@ -142,7 +148,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					componentObj.set$DataProperties( { "count" : 2 } );
 
-					expect( componentObj.getPath() ).toBe( "http://localhost?count=2" );
+					expect( componentObj.getEngine().getPath() ).toBe( "http://localhost?count=2" );
 				} );
 			} );
 
@@ -188,9 +194,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 
-			describe( "$getInitialData", function(){
+			describe( "getInitialData", function(){
 				it( "returns a struct", function(){
-					expect( componentObj.getInitialData() ).toBeStruct();
+					expect( componentObj.getEngine().getInitialData() ).toBeStruct();
 				} );
 
 				it( "should include listeners defined on our component", function(){
@@ -199,20 +205,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						propertyScope = "variables",
 						mock          = { "postAdded" : "doSomething" }
 					);
-					expect( componentObj.getInitialData().effects.listeners ).toBeArray();
-					expect( componentObj.getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
+					expect( componentObj.getEngine().getInitialData().effects.listeners ).toBeArray();
+					expect( componentObj.getEngine().getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
 				} );
 
 				it( "returns the component checksum in the serverMemo", function(){
-					componentObj.$( "$getChecksum", "test" );
-					expect( componentObj.getInitialData().serverMemo.checksum ).toBe( "test" );
+					engine.$( "getChecksum", "test" );
+					expect( componentObj.getEngine().getInitialData().serverMemo.checksum ).toBe( "test" );
 				} );
 			} );
 
 			describe( "$getChecksum", function(){
 				it( "returns the expected checksum", function(){
 					componentObj.$( "getState", { "test" : "checksum" } );
-					expect( componentObj.$getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
+					expect( componentObj.getEngine().getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
 				} );
 			} );
 
@@ -439,7 +445,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "$relocate", function(){
+			describe( "relocate", function(){
 				xit( "passes the relocation to the coldbox render", function(){
 					var renderer = getMockBox().createStub();
 
@@ -450,7 +456,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = renderer
 					);
 
-					componentObj.$relocate( uri = "/short-circuit" );
+					componentObj.relocate( uri = "/short-circuit" );
 
 					expect( renderer.$once( "relocate" ) ).toBeTrue();
 					expect( renderer.$callLog().relocate[ 1 ].uri ).toBe( "/short-circuit" );
@@ -486,11 +492,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
-					componentObj.$property(
-						propertyName  = "$settings",
-						propertyScope = "variables",
-						mock          = { "throwOnMissingSetterMethod" : true }
-					);
+					engine.$( "getSettings", { "throwOnMissingSetterMethod" : true } );
 					expect( function(){
 						componentObj.setSomeName( "test" );
 					} ).toThrow( type = "WireSetterNotFound" );
@@ -556,7 +558,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						)
 					);
 					comp.$( "$preHydrate", true );
-					comp.$hydrate( cbwireRequest );
+					comp.getEngine().hydrate( cbwireRequest );
 					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
 				} );
 
@@ -569,7 +571,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 					comp.$( "$preHydrate", true );
 					comp.$( "$postHydrate", true );
-					comp.$hydrate( cbwireRequest );
+					comp.getEngine().hydrate( cbwireRequest );
 					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
 					expect( comp.$once( "$postHydrate" ) ).toBeTrue();
 				} );
@@ -582,13 +584,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"children" : []
 					};
 					componentObj.$( "setHello", true );
-					componentObj.$hydrate( cbwireRequest );
+					componentObj.getEngine().hydrate( cbwireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
 				} );
 
 				it( "fires 'preHydrate' event", function(){
 					componentObj.$( "$preHydrate", true );
-					componentObj.$hydrate( cbwireRequest );
+					componentObj.getEngine().hydrate( cbwireRequest );
 					expect( componentObj.$once( "$preHydrate" ) ).toBeTrue();
 				} );
 
@@ -599,7 +601,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						componentObj,
 						false
 					);
-					componentObj.$hydrate( cbwireRequest );
+					componentObj.getEngine().hydrate( cbwireRequest );
 					expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
 				} );
 
@@ -618,7 +620,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setMessage", true );
-						componentObj.$hydrate( cbwireRequest );
+						componentObj.getEngine().hydrate( cbwireRequest );
 						expect( componentObj.$once( "setMessage" ) ).toBeTrue();
 						expect( componentObj.$callLog().setMessage[ 1 ][ 1 ] ).toBe( "We have input" );
 					} );
@@ -636,7 +638,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "whyAmIAwakeAt3am", true );
-						componentObj.$hydrate( cbwireRequest );
+						componentObj.getEngine().hydrate( cbwireRequest );
 						expect( componentObj.$once( "whyAmIAwakeAt3am" ) ).toBeTrue();
 					} );
 
@@ -654,7 +656,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "resetName" );
-						componentObj.$hydrate( cbwireRequest );
+						componentObj.getEngine().hydrate( cbwireRequest );
 
 						var callLog = componentObj.$callLog()[ "resetName" ][ 1 ];
 
@@ -676,7 +678,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setName", true );
-						componentObj.$hydrate( cbwireRequest );
+						componentObj.getEngine().hydrate( cbwireRequest );
 
 						var passedArgs = componentObj.$callLog()[ "setName" ][ 1 ];
 						expect( componentObj.$once( "setName" ) ).toBeTrue();

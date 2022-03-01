@@ -20,7 +20,7 @@ component extends="cbwire.models.Component" {
      * Reset our name property
      */
     function resetName(){
-        this.reset( "name" );
+        reset( "name" );
     }
 
 }

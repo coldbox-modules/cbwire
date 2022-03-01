@@ -215,7 +215,7 @@ component accessors="true" singleton {
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
-		arguments.comp.invokeMethod( "preUpdate" );
+		arguments.comp.getEngine().invokeMethod( "preUpdate" );
 
 		// Update the state of our component with each of our updates
 		getUpdates().each( function( update ){
@@ -223,7 +223,7 @@ component accessors="true" singleton {
 		} );
 
 		// Fire our postUpdate lifecycle event.
-		arguments.comp.invokeMethod( "preUpdate" );
+		arguments.comp.getEngine().invokeMethod( "preUpdate" );
 	}
 
 	/**
@@ -232,7 +232,7 @@ component accessors="true" singleton {
 	 * @context Struct
 	 */
 	function handle( required component ){
-		return arguments.component.$hydrate( this ).$getMemento();
+		return arguments.component.getEngine().hydrate( this ).$getMemento();
 	}
 
 	/**

@@ -18,7 +18,7 @@ component extends="WireUpdate" {
 		arguments.comp.emit(
 			eventName  = eventName,
 			parameters = this.getPayload()[ "params" ],
-			trackEmit  = false
+			track  = false
 		);
 	}
 

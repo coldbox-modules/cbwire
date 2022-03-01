@@ -13,7 +13,7 @@ component {
 		variables.beforeHydrateState = duplicate( cbwireComponent.getData() );
 
 		// Invoke '$preHydrate' event
-		cbwireComponent.invokeMethod( "$preHydrate" );
+		cbwireComponent.getEngine().invokeMethod( "$preHydrate" );
 
 		if ( variables.cbwireRequest.hasData() ) {
 			cbwireComponent.setData( variables.cbwireRequest.getData() );
@@ -25,7 +25,7 @@ component {
 
 			serverMemo.data.each( function( key, value ){
 				// Call the setter method
-				cbwireComponent.invokeMethod(
+				cbwireComponent.getEngine().invokeMethod(
 					methodName = "set" & arguments.key,
 					value      = isNull( arguments.value ) ? "" : arguments.value
 				);
@@ -42,6 +42,6 @@ component {
 		}
 
 		// Invoke '$postHydrate' event
-		cbwireComponent.invokeMethod( "$postHydrate" );
+		cbwireComponent.getEngine().invokeMethod( "$postHydrate" );
     }
 }

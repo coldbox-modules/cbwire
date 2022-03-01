@@ -21,21 +21,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	// Inject the wire request that's incoming from the browser.
 	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
 
-	// Inject settings.
-	property name="$settings" inject="coldbox:modulesettings:cbwire";
-
 	// Determines if component should be rendered or not.
 	property name="$noRendering" default="false";
 
 	// Determines if component is being initially rendered or subsequently rendered
 	property name="$isInitialRendering" default="false";
-
-
-	/**
-	 * Holds the component's state values before hydration occurs.
-	 * Used to compare what's changed and perform dirty tracking
-	 */
-	property name="$beforeHydrationState";
 
 	/**
 	 * The default data struct for cbwire components.
@@ -70,7 +60,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 		set$IsInitialRendering( false );
 		set$ComputedProperties( variables.computed );
-		set$BeforeHydrationState( {} );
 		set$DataProperties( variables.data );
 		set$Emits( [] );
 		variables.$children = {};
@@ -80,6 +69,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	function onDIComplete(){
 		setEngine( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this, variablesScope: variables } ) );
+		getEngine().setBeforeHydrationState( {} );
 	}
 
 	/**
@@ -97,7 +87,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @postProcessExempt Do not fire the postProcess interceptors
 	 * @statusCode The status code to use in the relocation
 	 */
-	void function $relocate(
+	void function relocate(
 		event,
 		URL,
 		URI,
@@ -110,39 +100,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		boolean postProcessExempt,
 		numeric statusCode
 	){
-		return getRenderer().relocate( argumentCollection = arguments );
-	}
-
-	/**
-	 * Returns the initial data of our component, which is ultimately serialized
-	 * to json and return in the view as our component is first rendered.
-	 *
-	 * @renderingHash String | Hash of the view rendering. Used to populate serverMemo.htmlHash in struct response.
-	 *
-	 * @return Struct
-	 */
-	function getInitialData( renderingHash = "" ){
-		return {
-			"fingerprint" : {
-				"id"     : getEngine().getId(),
-				"name"   : getMeta().name,
-				"locale" : "en",
-				"path"   : getPath(),
-				"method" : "GET"
-			},
-			"effects"    : { "listeners" : variables.getListenerNames() },
-			"serverMemo" : {
-				"children" : [],
-				"errors"   : [],
-				"htmlHash" : $getChecksum(),
-				"data"     : getState(
-					includeComputed = false,
-					nullEmpty       = true
-				),
-				"dataMeta" : [],
-				"checksum" : $getChecksum()
-			}
-		};
+		return getEngine().relocate( argumentCollection=arguments );
 	}
 
 	/**
@@ -170,15 +128,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			{ component : this }
 		);
 		return this;
-	}
-
-	/**
-	 * Returns the checksum hash of our current state.
-	 *
-	 * @return String
-	 */
-	function $getChecksum(){
-		return hash( serializeJSON( getState() ) );
 	}
 
 	/**
@@ -319,22 +268,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		var rendering = super.view( argumentCollection = arguments );
 
 		// Add properties to top element to make cbwire actually work.
-		return $applyWiringToOuterElement( rendering );
-	}
-
-	/**
-	 * Hydrates the incoming component with state from our request.
-	 *
-	 * @wireRequest CBWireRequest
-	 *
-	 * @return Component
-	 */
-	function $hydrate( event, rc, prc ){
-		announce(
-			"onCBWireHydrate",
-			{ component : this }
-		);
-		return this;
+		return getEngine().applyWiringToOuterElement( rendering );
 	}
 
 	/**
@@ -353,7 +287,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			"effects" : {
 				"html"  : len( rendering ) ? rendering : javacast( "null", 0 ),
 				"dirty" : getEngine().getDirtyProperties(),
-				"path"  : getPath(),
+				"path"  : getEngine().getPath(),
 				"emits" : get$Emits()
 			},
 			"serverMemo" : {
@@ -363,7 +297,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 					includeComputed = false,
 					nullEmpty       = true
 				),
-				"checksum" : $getChecksum()
+				"checksum" : getEngine().getChecksum()
 			}
 		}
 	}
@@ -387,7 +321,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	){
 		if ( arguments.invokeUpdateMethods ) {
 			// Invoke '$preUpdate[prop]' event
-			invokeMethod(
+			getEngine().invokeMethod(
 				methodName   = "preUpdate" & arguments.propertyName,
 				propertyName = arguments.value
 			);
@@ -399,7 +333,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		if ( arguments.invokeUpdateMethods ) {
 			// Invoke 'postUpdate[prop]' event
-			invokeMethod(
+			getEngine().invokeMethod(
 				methodName   = "postUpdate" & arguments.propertyName,
 				propertyName = arguments.value
 			);
@@ -408,34 +342,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	function $getChildren(){
 		return variables.$children;
-	}
-
-	/**
-	 * Returns the URL which is included in the initial data that is rendered
-	 * with the view.
-	 *
-	 * Inspects the cbwire component for properties that should
-	 * be included in the path
-	 *
-	 * @return String
-	 */
-	function getPath(){
-		var queryStringValues = variables.getQueryStringValues();
-
-		if ( len( queryStringValues ) ) {
-			var referer = $getHTTPReferer();
-
-			// Strip away any queryString parameters from the referer so
-			// we don't duplicate them when we append the queryStringValues below.
-			if ( referer contains "?" ) {
-				referer = listGetAt( referer, 1, "?" );
-			}
-
-			return "#referer#?#queryStringValues#";
-		}
-
-		// Return empty string by default;
-		return "";
 	}
 
 	/**
@@ -464,29 +370,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		return variables.meta;
 	}
 
-
-	/**
-	 * Invokes a dynamic method on our component. If the method doesn't exist,
-	 * then it proceeds without error because of onMissingMethod.
-	 *
-	 * Returns whatever the method returns.
-	 *
-	 * Used mainly with lifecycle hooks.
-	 *
-	 * @return Any
-	 */
-	function invokeMethod( required methodName ){
-		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
-
-		return invoke(
-			this,
-			arguments.methodName,
-			params.filter( function( key, value ){
-				return !key.findNoCase( "methodName" )
-			} )
-		);
-	}
-
 	/**
 	 * Invokes a postRefresh event and currently nothing else.
 	 * This is used with cbwire's polling functionality which
@@ -496,7 +379,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function refresh(){
 		// Invoke 'postRefresh' event
-		invokeMethod( "postRefresh" );
+		getEngine().invokeMethod( "postRefresh" );
 	}
 
 	/**
@@ -509,59 +392,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function emit(
 		required eventName,
 		parameters = {},
-		trackEmit  = true
+		track  = true
 	){
-		// Invoke 'preEmit' event
-		invokeMethod(
-			methodName = "preEmit",
-			eventName  = arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Invoke 'preEmit[EventName]' event
-		invokeMethod(
-			methodName = "preEmit" & arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		if ( arguments.trackEmit ) {
-			var emitter = createObject(
-				"component",
-				"cbwire.models.emit.BaseEmit"
-			).init(
-				arguments.eventName,
-				arguments.parameters
-			);
-
-			variables.trackEmit( emitter );
-		}
-
-		var listeners = getListeners();
-
-		if ( structKeyExists( listeners, eventName ) ) {
-			var listener = listeners[ eventName ];
-
-			if ( len( arguments.eventName ) && getEngine().hasMethod( listener ) ) {
-				return invokeMethod(
-					methodName            = listener,
-					passThroughParameters = arguments.parameters
-				);
-			}
-		}
-
-		// Invoke 'postEmit' event
-		invokeMethod(
-			methodName = "postEmit",
-			eventName  = arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Invoke 'postEmit[EventName]' event
-		invokeMethod(
-			methodName = "postEmit" & arguments.eventName,
-			parameters = arguments.parameters
-		);
+		return getEngine().emit( argumentCollection=arguments );
 	}
 
 	/**
@@ -584,7 +417,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		);
 
 		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
+		getEngine().trackEmit( emitter );
 	}
 
 	/**
@@ -597,16 +430,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function emitUp( required eventName, parameters = {} ){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitUp"
-		).init(
-			arguments.eventName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
+		return getEngine().emitUp( argumentCollection=arguments );
 	}
 
 	/**
@@ -624,17 +448,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		required componentName,
 		parameters = []
 	){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitTo"
-		).init(
-			arguments.eventName,
-			arguments.componentName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
+		return getEngine().emitTo( argumentCollection=arguments );
 	}
 
 	/**
@@ -652,7 +466,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		required missingMethodName,
 		required missingMethodArguments
 	){
-		var settings = variables.$settings;
+		var settings = getEngine().getSettings();
 
 		var data = get$DataProperties();
 
@@ -752,30 +566,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				"",
 				"one"
 			);
-			reset( dataPropertyName );
-		}
-	}
-
-	/**
-	 * Resets a property back to it's original state when the component
-	 * was initially hydrated.
-	 *
-	 * This accepts either a single property or an array of properties
-	 *
-	 * @return Void
-	 */
-	function reset( property ){
-		if ( isArray( arguments.property ) ) {
-			// Reset each property in our array individually
-			arguments.property.each( function( prop ){
-				reset( prop );
-			} );
-		} else {
-			// Reset individual property
-			$set(
-				arguments.property,
-				get$BeforeHydrationState()[ arguments.property ]
-			);
+			getEngine().reset( dataPropertyName );
 		}
 	}
 
@@ -805,87 +596,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Check if there are properties to be included in our query string
-	 * and assembles them together in a single string to be used within a URL.
-	 *
-	 * @return String
-	 */
-	private function getQueryStringValues(){
-		// Default with an empty array
-		if ( !structKeyExists( variables, "queryString" ) ) {
-			return "";
-		}
-
-		var currentState = getState();
-
-		// Handle array of property names
-		if ( isArray( variables.queryString ) ) {
-			var result = variables.queryString.reduce( function( agg, prop ){
-				agg &= prop & "=" & currentState[ prop ];
-				return agg;
-			}, "" );
-		} else {
-			var result = "";
-		}
-
-		return result;
-	}
-
-	/**
-	 * Tracks an emit, which is later returned in our API response and used
-	 * by cbwire.
-	 *
-	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
-	 * @return Array;
-	 */
-	private function trackEmit( required emitter ){
-		var result = emitter.getResult();
-		get$Emits().append( result );
-	}
-
-	/**
 	 * Returns the names of the listeners defined on our component.
 	 *
 	 * @return Array
 	 */
 	function getListenerNames(){
 		return structKeyList( getListeners() ).listToArray();
-	}
-
-	/**
-	 * Apply cbwire attribute to the outer element in the provided rendering.
-	 *
-	 * @rendering String | The view rendering.
-	 */
-	function $applyWiringToOuterElement( required rendering ){
-		var renderingResult = "";
-
-		// Provide a hash of our rendering which is used by Livewire JS.
-		var renderingHash = hash( arguments.rendering );
-
-		// Determine our outer element.
-		var outerElement = getEngine().getOuterElement( arguments.rendering );
-
-		// Add properties to top element to make cbwire actually work.
-		if ( get$IsInitialRendering() ) {
-			// Initial rendering
-			renderingResult = rendering.replaceNoCase(
-				outerElement,
-				outerElement & " wire:id=""#getEngine().getId()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
-				"once"
-			);
-		} else {
-			// Subsequent renderings
-			renderingResult = rendering.replaceNoCase(
-				outerElement,
-				outerElement & " wire:id=""#getEngine().getId()#""",
-				"once"
-			);
-		}
-
-		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getEngine().getId()# -->";
-
-		return renderingResult;
 	}
 
 	/**

@@ -85,7 +85,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				cbwireComponent.set$ComputedProperties( getComputed() );
 			}
 			var memento = cbwireComponent
-				.$hydrate()
+				.getEngine()
+				.hydrate()
 				.$subsequentRenderIt()
 				.$getMemento();
 			var html = memento[ "effects" ][ "html" ];
