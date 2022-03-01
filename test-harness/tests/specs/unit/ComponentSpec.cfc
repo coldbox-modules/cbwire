@@ -31,7 +31,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					"computed": componentObj.getEngine().getComputedProperties()
 				} );
 				engine = prepareMock( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: componentObj, variablesScope: variablesScope } ) );
-				componentObj.$( "getEngine", engine );
+				componentObj.setEngine( engine );
 			} );
 
 			it( "can instantiate a component", function(){
@@ -485,7 +485,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
-					engine.$( "getSettings", { "throwOnMissingSetterMethod" : true } );
+					engine.setSettings( { "throwOnMissingSetterMethod" : true } );
 					expect( function(){
 						componentObj.setSomeName( "test" );
 					} ).toThrow( type = "WireSetterNotFound" );
