@@ -25,10 +25,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						initArguments = { "cbwireRequest" : cbwireRequest }
 					)
 				);
-				variablesScope = {
-					"data": componentObj.get$DataProperties(),
-					"computed": componentObj.get$ComputedProperties()
-				};
+				variablesScope = componentObj.getInternals();
+				structAppend( variablesScope, {
+					"data": componentObj.getEngine().getDataProperties(),
+					"computed": componentObj.getEngine().getComputedProperties()
+				} );
 				engine = prepareMock( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: componentObj, variablesScope: variablesScope } ) );
 				componentObj.$( "getEngine", engine );
 			} );
@@ -61,7 +62,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "can compare simple values", function(){
 					componentObj.getEngine().setBeforeHydrationState( { "count" : 2 } );
 
-					componentObj.$( "getState", { "count" : 1 } );
+					engine.$( "getState", { "count" : 1 } );
 
 					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
 
@@ -72,7 +73,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "can compare a struct", function(){
 					componentObj.getEngine().setBeforeHydrationState( { "foo" : { "value" : "bar" } } );
 
-					componentObj.$(
+					engine.$(
 						"getState",
 						{ "foo" : { "value" : "baz" } }
 					);
@@ -90,7 +91,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = { "foo" : { "value" : "bar", "baz" : "foo" } }
 					);
 
-					componentObj.$(
+					engine.$(
 						"getState",
 						{ "foo" : { "baz" : "foo", "value" : "bar" } }
 					);
@@ -107,7 +108,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = { "foo" : [ "bar", "baz" ] }
 					);
 
-					componentObj.$(
+					engine.$(
 						"getState",
 						{ "foo" : [ "bar", "baz" ] }
 					);
@@ -130,14 +131,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = [ "count" ]
 					);
 
-					componentObj.set$DataProperties( { "count" : 2 } );
+					componentObj.getEngine().setDataProperties( { "count" : 2 } );
 
 					expect( componentObj.getEngine().getPath() ).toInclude( "?count=2" );
 				} );
 
 				it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
-					componentObj.$(
-						"$getHTTPReferer",
+					engine.$(
+						"getHTTPReferer",
 						"http://localhost?count=1"
 					);
 					componentObj.$property(
@@ -146,7 +147,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock          = [ "count" ]
 					);
 
-					componentObj.set$DataProperties( { "count" : 2 } );
+					componentObj.getEngine().setDataProperties( { "count" : 2 } );
 
 					expect( componentObj.getEngine().getPath() ).toBe( "http://localhost?count=2" );
 				} );
@@ -154,7 +155,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getListeners", function(){
 				it( "should return empty struct by default", function(){
-					expect( componentObj.getListeners() ).toBe( {} );
+					expect( componentObj.getEngine().getListeners() ).toBe( {} );
 				} );
 
 				it( "should return listeners defined on the component", function(){
@@ -163,33 +164,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						propertyScope = "variables",
 						mock          = { "someEvent" : "someMethod" }
 					);
-					expect( componentObj.getListeners() ).toBe( { "someEvent" : "someMethod" } );
+					expect( componentObj.getEngine().getListeners() ).toBe( { "someEvent" : "someMethod" } );
 				} );
 			} );
 
 			describe( "$getMeta", function(){
 				it( "should return the meta", function(){
-					expect( componentObj.getMeta().name ).toBe( "cbwire.models.Component" );
+					expect( componentObj.getEngine().getMeta().name ).toBe( "cbwire.models.Component" );
 				} );
 
 				it( "should cache the results", function(){
-					componentObj.$property(
+					engine.$property(
 						propertyName  = "meta",
 						propertyScope = "variables",
 						mock          = "some meta"
 					);
 
-					expect( componentObj.getMeta() ).toBe( "some meta" );
-					expect( componentObj.getMeta() ).toBe( "some meta" );
+					expect( componentObj.getEngine().getMeta() ).toBe( "some meta" );
+					expect( componentObj.getEngine().getMeta() ).toBe( "some meta" );
 				} );
 
 				it( "should return cached results if they exists", function(){
-					componentObj.$property(
+					engine.$property(
 						propertyName  = "meta",
 						propertyScope = "variables",
 						mock          = "some meta"
 					);
-					expect( componentObj.getMeta() ).toBe( "some meta" );
+					expect( componentObj.getEngine().getMeta() ).toBe( "some meta" );
 				} );
 			} );
 
@@ -217,7 +218,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getChecksum", function(){
 				it( "returns the expected checksum", function(){
-					componentObj.$( "getState", { "test" : "checksum" } );
+					engine.$( "getState", { "test" : "checksum" } );
 					expect( componentObj.getEngine().getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
 				} );
 			} );
@@ -227,7 +228,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "renderIt", function(){
 				it( "implicitly renders the view of the component's name", function(){
 					componentObj.$( "view", "" );
-					componentObj.renderIt();
+					componentObj.getEngine().renderIt();
 					expect( componentObj.$callLog()[ "view" ][ 1 ][ 1 ] ).toBe( "wires/component" );
 				} );
 			} );
@@ -284,14 +285,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getEmits", function(){
 				it( "returns an empty array by default", function(){
-					expect( componentObj.get$Emits() ).toBeArray();
-					expect( arrayLen( componentObj.get$Emits() ) ).toBe( 0 );
+					expect( componentObj.getEngine().getEmittedEvents() ).toBeArray();
+					expect( arrayLen( componentObj.getEngine().getEmittedEvents() ) ).toBe( 0 );
 				} );
 
 				it( "tracks emits", function(){
 					componentObj.emit( "someEvent" );
 					componentObj.emitSelf( "someOtherEvent" );
-					expect( arrayLen( componentObj.get$Emits() ) ).toBe( 2 );
+					expect( arrayLen( componentObj.getEngine().getEmittedEvents() ) ).toBe( 2 );
 				} );
 			} );
 
@@ -340,7 +341,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"chuck"
 						]
 					);
-					expect( componentObj.get$Emits()[ 1 ] ).toBe( {
+					expect( componentObj.getEngine().getEmittedEvents()[ 1 ] ).toBe( {
 						"event"  : "test",
 						"params" : [
 							"how",
@@ -360,7 +361,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "emitUp", function(){
 				it( "tracks the expected values", function(){
 					componentObj.emitUp( "test", [ "hello", "world" ] );
-					expect( componentObj.get$Emits()[ 1 ] ).toBe( {
+					expect( componentObj.getEngine().getEmittedEvents()[ 1 ] ).toBe( {
 						"event"         : "test",
 						"params"        : [ "hello", "world" ],
 						"ancestorsOnly" : true
@@ -376,24 +377,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"component2",
 						[ "hello", "world" ]
 					);
-					expect( componentObj.get$Emits()[ 1 ] ).toBe( {
+					expect( componentObj.getEngine().getEmittedEvents()[ 1 ] ).toBe( {
 						"event"  : "event1",
 						"params" : [],
 						"to"     : "component1"
 					} );
-					expect( componentObj.get$Emits()[ 2 ] ).toBe( {
+					expect( componentObj.getEngine().getEmittedEvents()[ 2 ] ).toBe( {
 						"event"  : "event2",
 						"params" : [ "hello", "world" ],
 						"to"     : "component2"
 					} );
-				} );
-			} );
-
-			describe( "refresh", function(){
-				it( "fires 'postRefresh' event", function(){
-					componentObj.$( "postRefresh", true );
-					componentObj.refresh();
-					expect( componentObj.$once( "postRefresh" ) ).toBeTrue();
 				} );
 			} );
 
@@ -432,16 +425,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "$subsequentRenderIt", function(){
+			describe( "subsequentRenderIt", function(){
 				it( "calls the renderIt() method on our component", function(){
-					componentObj.$( "renderIt", "got here" );
-					componentObj.$subsequentRenderIt();
-					expect( componentObj.$once( "renderIt" ) ).toBeTrue();
+					engine.$( "renderIt", "got here" );
+					componentObj.getEngine().subsequentRenderIt();
+					expect( engine.$once( "renderIt" ) ).toBeTrue();
 				} );
 				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();
-					componentObj.$subsequentRenderIt();
-					expect( componentObj.getRequestContext().getValue( "_cbwire_subsequent_rendering" ) ).toBe( "" );
+					componentObj.getEngine().subsequentRenderIt();
+					expect( componentObj.getEngine().getRequestContext().getValue( "_cbwire_subsequent_rendering" ) ).toBe( "" );
 				} );
 			} );
 
@@ -465,13 +458,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$set", function(){
 				it( "sets data property on our component", function(){
-					componentObj.set$DataProperties( { "name" : "test" } );
-					expect( componentObj.get$DataProperties()[ "name" ] ).toBe( "test" );
+					componentObj.getEngine().setDataProperties( { "name" : "test" } );
+					expect( componentObj.getEngine().getDataProperties()[ "name" ] ).toBe( "test" );
 				} );
 
 				it( "fires 'preUpdate[prop] event", function(){
 					componentObj.$( "preUpdateName", true );
-					componentObj.$set(
+					componentObj.getEngine().setProperty(
 						propertyName        = "name",
 						value               = "test",
 						invokeUpdateMethods = true
@@ -482,7 +475,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "fires 'postUpdate[prop] event", function(){
 					componentObj.$( "postUpdateName", true );
-					componentObj.$set(
+					componentObj.getEngine().setProperty(
 						propertyName        = "name",
 						value               = "test",
 						invokeUpdateMethods = true
@@ -513,25 +506,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getState", function(){
 				it( "returns empty struct by default", function(){
-					expect( componentObj.getState() ).toBe( {} );
+					expect( componentObj.getEngine().getState() ).toBe( {} );
 				} );
 
 				it( "returns the data property values", function(){
-					var state = componentObj.getState();
+					var state = componentObj.getEngine().getState();
 
-					componentObj.set$DataProperties( { "count" : 1 } );
+					componentObj.getEngine().setDataProperties( { "count" : 1 } );
 
-					expect( componentObj.getState()[ "count" ] ).toBe( 1 );
+					expect( componentObj.getEngine().getState()[ "count" ] ).toBe( 1 );
 				} );
 
 				it( "renders computed properties to the state", function(){
-					componentObj.set$ComputedProperties( {
+					componentObj.getEngine().setComputedProperties( {
 						"calculator" : function(){
 							return 1 + 1;
 						}
 					} );
 
-					var state = componentObj.getState( includeComputed = true );
+					var state = componentObj.getEngine().getState( includeComputed = true );
 
 					expect( state.calculator ).toBe( 2 );
 				} );
@@ -543,7 +536,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					);
 
-					var state = componentObj.getState();
+					var state = componentObj.getEngine().getState();
 
 					expect( structKeyExists( state, "count" ) ).toBeFalse();
 				} );
@@ -713,12 +706,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getters", function(){
 				it( "can access data properties using getter", function(){
-					componentObj.set$DataProperties( { "count" : 1 } );
+					componentObj.getEngine().setDataProperties( { "count" : 1 } );
 					expect( componentObj.getCount() ).toBe( 1 );
 				} );
 
 				it( "can access computed properties using getter", function(){
-					componentObj.set$ComputedProperties( {
+					componentObj.getEngine().setComputedProperties( {
 						"onePlusTwo" : function(){
 							return 1 + 2;
 						}

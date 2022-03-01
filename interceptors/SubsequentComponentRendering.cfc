@@ -6,8 +6,8 @@ component {
 
 		var result = "";
 
-		if ( !component.get$NoRendering() ) {
-			var result = component.renderIt();
+		if ( !component.getEngine().getNoRendering() ) {
+			var result = component.getEngine().renderIt();
 		}
 
 

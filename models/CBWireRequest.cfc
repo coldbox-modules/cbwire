@@ -232,7 +232,7 @@ component accessors="true" singleton {
 	 * @context Struct
 	 */
 	function handle( required component ){
-		return arguments.component.getEngine().hydrate( this ).$getMemento();
+		return arguments.component.getEngine().hydrate( this ).getEngine().getMemento();
 	}
 
 	/**

@@ -4,7 +4,7 @@
  * Most internal methods and properties here are namespaced with a "$" to avoid collisions
  * with child components.
  */
-component extends="coldbox.system.FrameworkSupertype" accessors="true" {
+component accessors="true" {
 
 	// Inject ColdBox, needed by FrameworkSuperType
 	property name="controller" inject="coldbox";
@@ -18,58 +18,42 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	// Component engine
 	property name="engine";
 
-	// Inject the wire request that's incoming from the browser.
-	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
-
-	// Determines if component should be rendered or not.
-	property name="$noRendering" default="false";
-
-	// Determines if component is being initially rendered or subsequently rendered
-	property name="$isInitialRendering" default="false";
-
 	/**
-	 * The default data struct for cbwire components.
-	 * This should be overidden in the child component
-	 * with data properties.
+	 * Invoked when dependency injection complete.
 	 */
-	property name="$dataProperties";
-
-	/**
-	 * The default computed struct for cbwire components.
-	 * This should be overidden in the child component with
-	 * computed properties.
-	 */
-	property name="$computedProperties";
-
-	/**
-	 * Track any emitted events during a request lifecycle
-	 */
-	property name="$emits";
-
-	/**
-	 * Our beautiful, simple constructor.
-	 *
-	 * @return Component
-	 */
-	function init(){
-		if ( isNull( variables.data ) ) {
-			variables.data = {};
-		}
-		if ( isNull( variables.computed ) ) {
-			variables.computed = {};
-		}
-		set$IsInitialRendering( false );
-		set$ComputedProperties( variables.computed );
-		set$DataProperties( variables.data );
-		set$Emits( [] );
+	function onDIComplete(){
 		variables.$children = {};
-		set$NoRendering( false );
-		return this;
+		variables.data = isNull( variables.data ) ? {} : variables.data;
+		variables.computed = isNull( variables.computed ) ? {} : variables.computed;
+
+		/**
+		 * The core functions of cbwire components are separated into ComponentEngine@cbwire.
+		 * There were several reasons for this, the biggest being a clean separation of
+		 * concerns. This was also done to avoid cluttering up the variables scope of the component
+		 * and causing naming collisions with user defined component methods and properties.
+		 */
+		var engine = getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this, variablesScope: variables } );
+		setEngine( engine );
+
+		engine.setBeforeHydrationState( {} );
+		engine.setNoRendering( false );
+		engine.setDataProperties( variables.data );
+		engine.setIsInitialRendering( false );
+		engine.setComputedProperties( variables.computed );
+		engine.setEmittedEvents( [] );
 	}
 
-	function onDIComplete(){
-		setEngine( getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this, variablesScope: variables } ) );
-		getEngine().setBeforeHydrationState( {} );
+	/**
+	 * Get a instance object from WireBox
+	 *
+	 * @name The mapping name or CFC path or DSL to retrieve
+	 * @initArguments The constructor structure of arguments to passthrough when initializing the instance
+	 * @dsl The DSL string to use to retrieve an instance
+	 *
+	 * @return The requested instance
+	 */
+	function getInstance( name, initArguments = {}, dsl ){
+		return getController().getWirebox().getInstance( argumentCollection = arguments );
 	}
 
 	/**
@@ -102,94 +86,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	){
 		return getEngine().relocate( argumentCollection=arguments );
 	}
-
-	/**
-	 * Renders our component's view.
-	 *
-	 * @return Void
-	 */
-	function renderIt(){
-		announce(
-			"onCBWireRenderIt",
-			{ component : this }
-		);
-		return getRequestContext().getValue( "_cbwire_rendering" );
-	}
-
-	/**
-	 * Invokes renderIt() on the cbwire component and caches the rendered
-	 * results into variables.rendering.
-	 *
-	 * @return String
-	 */
-	function $subsequentRenderIt(){
-		announce(
-			"onCBWireSubsequentRenderIt",
-			{ component : this }
-		);
-		return this;
-	}
-
-	/**
-	 * Returns the current state of our component.
-	 *
-	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
-	 * @return Struct
-	 */
-	function getState(
-		boolean includeComputed = false,
-		boolean nullEmpty       = false
-	){
-		/**
-		 * Get our data properties for our current state.
-		 */
-		var state = {};
-
-		var data = get$DataProperties();
-
-		data.each( function( key, value ){
-			if ( isClosure( arguments.value ) ) {
-				// Render the closure and store in our data properties
-				data[ key ]            = arguments.value();
-				state[ arguments.key ] = data[ key ];
-			} else {
-				state[ arguments.key ] = arguments.value;
-			}
-		} );
-
-		if ( arguments.nullEmpty ) {
-			state = state.map( function( key, value, data ){
-				if (
-					isNull( value ) ||
-					( isValid( "String", value ) && !len( value ) )
-				) {
-					return javacast( "null", 0 );
-				}
-				return value;
-			} );
-		}
-
-
-		if ( arguments.includeComputed ) {
-			getEngine().renderComputedProperties();
-			get$ComputedProperties().each( function( key, value ){
-				state[ key ] = value;
-			} );
-		}
-
-		return state;
-	}
-
-	/**
-	 * Returns true if the provided method name can be found on our component.
-	 *
-	 * @methodName String | The method name we are checking.
-	 * @return Boolean
-	 */
-	function hasMethod( required methodName ){
-		return structKeyExists( this, arguments.methodName );
-	}
-
 
 	/**
 	 * Render out a view
@@ -256,130 +152,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		boolean prePostExempt      = false,
 		name
 	){
-		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = getState(
-			includeComputed = true,
-			nullEmpty       = false
-		);
-
-		arguments.args[ "validation" ] = validate( this );
-
-		// Render our view using coldbox rendering
-		var rendering = super.view( argumentCollection = arguments );
-
-		// Add properties to top element to make cbwire actually work.
-		return getEngine().applyWiringToOuterElement( rendering );
-	}
-
-	/**
-	 * Returns the memento for our component which holds the current
-	 * state of our component. This is returned on subsequent XHR requests
-	 * from cbwire.
-	 *
-	 * @return Struct
-	 */
-	function $getMemento(){
-		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
-
-		var dirtyProperties = getEngine().getDirtyProperties();
-
-		return {
-			"effects" : {
-				"html"  : len( rendering ) ? rendering : javacast( "null", 0 ),
-				"dirty" : getEngine().getDirtyProperties(),
-				"path"  : getEngine().getPath(),
-				"emits" : get$Emits()
-			},
-			"serverMemo" : {
-				"children" : isArray( variables.$children ) ? [] : variables.$children,
-				"htmlHash" : "71146cf2",
-				"data"     : getState(
-					includeComputed = false,
-					nullEmpty       = true
-				),
-				"checksum" : getEngine().getChecksum()
-			}
-		}
-	}
-
-	/**
-	 * Sets an individual data property value, first by using a setter
-	 * if it exists, and otherwise setting directly to our variables
-	 * scope.
-	 *
-	 * Fires '$preUpdate[prop]' and 'postUpdate[prop]' events on the cbwire component.
-	 *
-	 * @propertyName String | Name of the property we are setting
-	 * @value Any | Value of the property we are settting
-	 *
-	 * @return Void
-	 */
-	function $set(
-		propertyName,
-		value,
-		invokeUpdateMethods = false
-	){
-		if ( arguments.invokeUpdateMethods ) {
-			// Invoke '$preUpdate[prop]' event
-			getEngine().invokeMethod(
-				methodName   = "preUpdate" & arguments.propertyName,
-				propertyName = arguments.value
-			);
-		}
-
-		var data = get$DataProperties();
-
-		data[ "#arguments.propertyName#" ] = arguments.value;
-
-		if ( arguments.invokeUpdateMethods ) {
-			// Invoke 'postUpdate[prop]' event
-			getEngine().invokeMethod(
-				methodName   = "postUpdate" & arguments.propertyName,
-				propertyName = arguments.value
-			);
-		}
-	}
-
-	function $getChildren(){
-		return variables.$children;
-	}
-
-	/**
-	 * Returns the listeners defined on the component.
-	 * If no listeners are defined, an empty struct is returned.
-	 *
-	 * @return Struct
-	 */
-	function getListeners(){
-		if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ) {
-			return variables.listeners;
-		}
-		return {};
-	}
-
-	/**
-	 * Returns the meta data for this component.
-	 * Ensures that we only run this once.
-	 *
-	 * @return Struct
-	 */
-	function getMeta(){
-		if ( !structKeyExists( variables, "meta" ) ) {
-			variables.meta = getMetadata( this );
-		}
-		return variables.meta;
-	}
-
-	/**
-	 * Invokes a postRefresh event and currently nothing else.
-	 * This is used with cbwire's polling functionality which
-	 * refreshes the component.
-	 *
-	 * @return Void
-	 */
-	function refresh(){
-		// Invoke 'postRefresh' event
-		getEngine().invokeMethod( "postRefresh" );
+		return getEngine().view( argumentCollection=arguments );
 	}
 
 	/**
@@ -387,7 +160,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @eventName String | The name of our event to emit.
 	 * @parameters Struct | The params passed with the emitter.
-	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
+	 * @track Boolean | True if you want to notify the UI that the emit occurred.
+	 * 
+	 * @return void
 	 */
 	function emit(
 		required eventName,
@@ -466,108 +241,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		required missingMethodName,
 		required missingMethodArguments
 	){
-		var settings = getEngine().getSettings();
-
-		var data = get$DataProperties();
-
-		var computed = get$ComputedProperties();
-
-		if (
-			reFindNoCase(
-				"^get.+",
-				arguments.missingMethodName
-			)
-		) {
-			// Extract data property name from the getter method called.
-			var propertyName = reReplaceNoCase(
-				arguments.missingMethodName,
-				"^get",
-				"",
-				"one"
-			)
-
-			// Check to see if the data property name is defined on the component.
-			if ( structKeyExists( get$DataProperties(), propertyName ) ) {
-				return data[ propertyName ];
-			}
-
-			// Check to see if the computed property name is defined in the component.
-			if (
-				structKeyExists(
-					get$ComputedProperties(),
-					propertyName
-				)
-			) {
-				return computed[ propertyName ];
-			}
-		}
-
-		if (
-			reFindNoCase(
-				"^set.+",
-				arguments.missingMethodName
-			)
-		) {
-			// Extract data property name from the setter method called.
-			var dataPropertyName = reReplaceNoCase(
-				arguments.missingMethodName,
-				"^set",
-				"",
-				"one"
-			);
-
-			// Check to see if the data property name is defined in the component.
-			var dataPropertyExists = structKeyExists(
-				get$DataProperties(),
-				dataPropertyName
-			);
-
-			if ( dataPropertyExists ) {
-				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
-				if (
-					structKeyExists(
-						arguments.missingMethodArguments,
-						"value"
-					)
-				) {
-					$set(
-						dataPropertyName,
-						arguments.missingMethodArguments.value
-					);
-				} else {
-					$set(
-						dataPropertyName,
-						arguments.missingMethodArguments[ 1 ],
-						true
-					);
-				}
-			} else if (
-				structKeyExists(
-					settings,
-					"throwOnMissingSetterMethod"
-				) && settings.throwOnMissingSetterMethod == true
-			) {
-				throw(
-					type    = "WireSetterNotFound",
-					message = "The wire property '#dataPropertyName#' was not found."
-				);
-			}
-		}
-
-		if (
-			reFindNoCase(
-				"^reset.+",
-				arguments.missingMethodName
-			)
-		) {
-			var dataPropertyName = reReplaceNoCase(
-				arguments.missingMethodName,
-				"^reset",
-				"",
-				"one"
-			);
-			getEngine().reset( dataPropertyName );
-		}
+		return getEngine().handleMissingMethod( argumentCollection=arguments );
 	}
 
 	/**
@@ -576,7 +250,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return void
 	 */
 	function noRender(){
-		set$NoRendering( true );
+		getEngine().setNoRendering( true );
 	}
 
 	/**
@@ -596,24 +270,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns the names of the listeners defined on our component.
-	 *
-	 * @return Array
-	 */
-	function getListenerNames(){
-		return structKeyList( getListeners() ).listToArray();
-	}
-
-	/**
-	 * Returns our HTTP referer.
-	 *
-	 * @return String
-	 */
-	function $getHTTPReferer(){
-		return cgi.HTTP_REFERER;
-	}
-
-	/**
 	 * Validate an object or structure according to the constraints rules.
 	 *
 	 * @target An object or structure to validate
@@ -629,7 +285,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function validate(){
 		arguments.target            = isNull( arguments.target ) ? this : arguments.target;
 		var result                  = getValidationManager().validate( argumentCollection = arguments );
-		variables.$validationResult = result;
 		return result;
 	}
 
@@ -658,6 +313,24 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function getValidationManager(){
 		return getInstance( "ValidationManager@cbvalidation" );
+	}
+
+	/**
+	 * Renders our component's view.
+	 *
+	 * @return Void
+	 */
+	function renderIt(){
+		return getEngine().renderIt();
+	}
+
+	/**
+	 * Remove once refectoring is done.
+	 * 
+	 * @return struct
+	 */
+	function getInternals(){
+		return variables;
 	}
 
 }

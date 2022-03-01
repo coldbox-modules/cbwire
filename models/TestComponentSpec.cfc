@@ -82,20 +82,22 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var rc              = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent.set$ComputedProperties( getComputed() );
+				cbwireComponent.getEngine().setComputedProperties( getComputed() );
 			}
 			var memento = cbwireComponent
 				.getEngine()
 				.hydrate()
-				.$subsequentRenderIt()
-				.$getMemento();
+				.getEngine()
+				.subsequentRenderIt()
+				.getEngine()
+				.getMemento();
 			var html = memento[ "effects" ][ "html" ];
 			setRendering( html );
 			return html;
 		} else {
 			var cbwireComponent = getWireInstance();
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent.set$ComputedProperties( getComputed() );
+				cbwireComponent.getEngine().setComputedProperties( getComputed() );
 			}
 			var rendering = cbwireComponent.getEngine().mount( getParameters() ).renderIt();
 			setRendering( rendering );
@@ -156,11 +158,11 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	private function getDataProperties(){
-		return getWireInstance().get$DataProperties();
+		return getWireInstance().getEngine().getDataProperties();
 	}
 
 	private function getComputedProperties(){
-		return getWireInstance().get$ComputedProperties();
+		return getWireInstance().getEngine().getComputedProperties();
 	}
 
 	private function getWireInstance(){
