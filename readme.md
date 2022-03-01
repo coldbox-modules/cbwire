@@ -72,6 +72,7 @@ If CBWIRE makes you happy, please consider becoming a [Patreon supporter](https:
 ## Resources
 
 -   Docmentation: https://cbwire.ortusbooks.com
+-   API Docs: https://apidocs.ortussolutions.com/#/coldbox-modules/cbwire/
 -   GitHub Repository: https://github.com/coldbox-modules/cbwire
 -   Issue Tracker: https://github.com/coldbox-modules/cbwire/issues
 -   Task List Demo: https://github.com/grantcopley/cbwire-task-list-demo
