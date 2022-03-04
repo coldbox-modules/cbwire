@@ -18,6 +18,9 @@ component accessors="true" {
 	// Component engine
 	property name="engine";
 
+	// Holds our validation result.
+	property name="validationResult";
+
 	/**
 	 * Invoked when dependency injection complete.
 	 */
@@ -276,8 +279,8 @@ component accessors="true" {
 	 */
 	function validate(){
 		arguments.target = isNull( arguments.target ) ? this : arguments.target;
-		var result = getValidationManager().validate( argumentCollection = arguments );
-		return result;
+		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
+		return getValidationResult();
 	}
 
 	/**

@@ -708,7 +708,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Pass the properties of the cbwire component as variables to the view
 		arguments.args = getState( includeComputed = true, nullEmpty = false );
 
-		arguments.args[ "validation" ] = getWire().validate();
+		// Provide validation results, either validation results we captured from our action or run them now.
+		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 	
 		// Render our view using coldbox rendering
 		var rendering = super.view( argumentCollection = arguments );
