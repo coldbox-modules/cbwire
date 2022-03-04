@@ -709,7 +709,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		arguments.args = getState( includeComputed = true, nullEmpty = false );
 
 		arguments.args[ "validation" ] = getWire().validate();
-
+	
 		// Render our view using coldbox rendering
 		var rendering = super.view( argumentCollection = arguments );
 

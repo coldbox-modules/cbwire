@@ -24,7 +24,11 @@ component extends="WireUpdate" {
 
 		// Handle action calls.
 		if ( variables.hasCallableAction( arguments.comp ) ) {
-			invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
+			try {
+				invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
+			} catch ( ValidationException validateException ) {
+				// Silently stop further action processing on validationOrFail() exceptions.
+			}
 			return;
 		}
 
