@@ -9,6 +9,8 @@ component extends="cbwire.models.Component" {
         "firstname": { required: true }
     };
 
-    function submit() {}
-        
+    function submit() {
+        validateOrFail();
+        data.firstname = "what";
+    }
 }
