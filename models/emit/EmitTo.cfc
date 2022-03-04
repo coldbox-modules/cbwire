@@ -9,14 +9,10 @@ component extends="BaseEmit" {
 	 * @eventName String | The name of our event.
 	 * @parameters Array - The Emitter's parameters.
 	 */
-	function init(
-		required eventName,
-		required componentName,
-		parameters = []
-	){
-		variables.eventName     = arguments.eventName;
+	function init( required eventName, required componentName, parameters = [] ){
+		variables.eventName = arguments.eventName;
 		variables.componentName = arguments.componentName;
-		variables.parameters    = arguments.parameters;
+		variables.parameters = arguments.parameters;
 		return this;
 	}
 
@@ -27,9 +23,9 @@ component extends="BaseEmit" {
 	 */
 	function getResult(){
 		return {
-			"event"  : this.getEventName(),
+			"event" : this.getEventName(),
 			"params" : variables.parameters,
-			"to"     : variables.componentName
+			"to" : variables.componentName
 		};
 	}
 

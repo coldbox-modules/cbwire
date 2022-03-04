@@ -10,10 +10,10 @@ component extends="WireUpdate" {
 	 */
 	function apply( required comp ){
 		variables.$populator.populateFromStruct(
-			target       : arguments.comp,
+			target: arguments.comp,
 			trustedSetter: true,
-			memento      : { "#this.getPayload()[ "name" ]#" : "#this.getPayload()[ "value" ]#" },
-			excludes     : ""
+			memento: { "#this.getPayload()[ "name" ]#" : "#this.getPayload()[ "value" ]#" },
+			excludes: ""
 		);
 	}
 

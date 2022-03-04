@@ -32,7 +32,13 @@ component accessors="true" {
 		 * concerns. This was also done to avoid cluttering up the variables scope of the component
 		 * and causing naming collisions with user defined component methods and properties.
 		 */
-		var engine = getInstance( name="ComponentEngine@cbwire", initArguments={ wire: this, variablesScope: variables } );
+		var engine = getInstance(
+			name = "ComponentEngine@cbwire",
+			initArguments = {
+				wire : this,
+				variablesScope : variables
+			}
+		);
 		setEngine( engine );
 
 		engine.setBeforeHydrationState( {} );
@@ -84,7 +90,7 @@ component accessors="true" {
 		boolean postProcessExempt,
 		numeric statusCode
 	){
-		return getEngine().relocate( argumentCollection=arguments );
+		return getEngine().relocate( argumentCollection = arguments );
 	}
 
 	/**
@@ -136,23 +142,23 @@ component accessors="true" {
 	 * @return The rendered view
 	 */
 	function view(
-		view                   = "",
-		struct args            = {},
-		module                 = "",
-		boolean cache          = false,
-		cacheTimeout           = "",
+		view = "",
+		struct args = {},
+		module = "",
+		boolean cache = false,
+		cacheTimeout = "",
 		cacheLastAccessTimeout = "",
-		cacheSuffix            = "",
-		cacheProvider          = "template",
+		cacheSuffix = "",
+		cacheProvider = "template",
 		collection,
-		collectionAs               = "",
+		collectionAs = "",
 		numeric collectionStartRow = "1",
-		numeric collectionMaxRows  = 0,
-		collectionDelim            = "",
-		boolean prePostExempt      = false,
+		numeric collectionMaxRows = 0,
+		collectionDelim = "",
+		boolean prePostExempt = false,
 		name
 	){
-		return getEngine().view( argumentCollection=arguments );
+		return getEngine().view( argumentCollection = arguments );
 	}
 
 	/**
@@ -161,15 +167,11 @@ component accessors="true" {
 	 * @eventName String | The name of our event to emit.
 	 * @parameters Struct | The params passed with the emitter.
 	 * @track Boolean | True if you want to notify the UI that the emit occurred.
-	 * 
+	 *
 	 * @return void
 	 */
-	function emit(
-		required eventName,
-		parameters = {},
-		track  = true
-	){
-		return getEngine().emit( argumentCollection=arguments );
+	function emit( required eventName, parameters = {}, track = true ){
+		return getEngine().emit( argumentCollection = arguments );
 	}
 
 	/**
@@ -183,10 +185,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitSelf( required eventName, parameters = {} ){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitSelf"
-		).init(
+		var emitter = createObject( "component", "cbwire.models.emit.EmitSelf" ).init(
 			arguments.eventName,
 			arguments.parameters
 		);
@@ -205,7 +204,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitUp( required eventName, parameters = {} ){
-		return getEngine().emitUp( argumentCollection=arguments );
+		return getEngine().emitUp( argumentCollection = arguments );
 	}
 
 	/**
@@ -218,12 +217,8 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function emitTo(
-		required eventName,
-		required componentName,
-		parameters = []
-	){
-		return getEngine().emitTo( argumentCollection=arguments );
+	function emitTo( required eventName, required componentName, parameters = [] ){
+		return getEngine().emitTo( argumentCollection = arguments );
 	}
 
 	/**
@@ -237,11 +232,8 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function onMissingMethod(
-		required missingMethodName,
-		required missingMethodArguments
-	){
-		return getEngine().handleMissingMethod( argumentCollection=arguments );
+	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
+		return getEngine().handleMissingMethod( argumentCollection = arguments );
 	}
 
 	/**
@@ -283,8 +275,8 @@ component accessors="true" {
 	 * @return cbvalidation.model.result.IValidationResult
 	 */
 	function validate(){
-		arguments.target            = isNull( arguments.target ) ? this : arguments.target;
-		var result                  = getValidationManager().validate( argumentCollection = arguments );
+		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		var result = getValidationManager().validate( argumentCollection = arguments );
 		return result;
 	}
 
@@ -326,7 +318,7 @@ component accessors="true" {
 
 	/**
 	 * Remove once refectoring is done.
-	 * 
+	 *
 	 * @return struct
 	 */
 	function getInternals(){

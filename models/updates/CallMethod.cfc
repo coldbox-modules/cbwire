@@ -18,27 +18,19 @@ component extends="WireUpdate" {
 
 		// Handle $refresh calls.
 		if ( variables.getPayloadMethod() == "$refresh" ) {
-			invoke(
-				arguments.comp,
-				"refresh",
-				variables.getPassedParamsAsArguments()
-			);
+			invoke( arguments.comp, "refresh", variables.getPassedParamsAsArguments() );
 			return;
 		}
 
 		// Handle action calls.
 		if ( variables.hasCallableAction( arguments.comp ) ) {
-			invoke(
-				arguments.comp,
-				variables.getPayloadMethod(),
-				variables.getPassedParamsAsArguments()
-			);
+			invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
 			return;
 		}
 
 		// We cannot locate the action, so throw an error.
 		throw(
-			type    = "WireActionNotFound",
+			type = "WireActionNotFound",
 			message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
 		);
 	}

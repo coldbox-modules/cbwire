@@ -29,7 +29,7 @@ component singleton {
 	 */
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
+		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}
@@ -60,24 +60,14 @@ component singleton {
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = getWiresLocation();
 
-		if (
-			reFindNoCase(
-				wiresLocation & "\.",
-				arguments.componentName
-			)
-		) {
-			arguments.componentName = reReplaceNoCase(
-				arguments.componentName,
-				wiresLocation & "\.",
-				"",
-				"one"
-			);
+		if ( reFindNoCase( wiresLocation & "\.", arguments.componentName ) ) {
+			arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
 		}
 
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
 			var params = listToArray( arguments.componentName, "@" );
-			var comp   = getModuleComponent( params[ 1 ], params[ 2 ] );
+			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
 			var comp = getRootComponent( arguments.componentName );

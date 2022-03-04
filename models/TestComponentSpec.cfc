@@ -29,16 +29,16 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		setComputed( {} );
 		setHydrationCollection( {
 			"fingerprint" : {
-				"path"   : "",
+				"path" : "",
 				"locale" : "en",
 				"method" : "GET",
-				"id"     : "some-id",
-				"name"   : arguments.componentName
+				"id" : "some-id",
+				"name" : arguments.componentName
 			},
 			"serverMemo" : {
 				"checksum" : "some-checksum",
-				"errors"   : [],
-				"data"     : {},
+				"errors" : [],
+				"data" : {},
 				"dataMeta" : [],
 				"htmlHash" : "some-htmlHash",
 				"children" : []
@@ -62,7 +62,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		if ( isStruct( name ) ) {
 			setComputed( name );
 		} else {
-			var computed     = getComputed();
+			var computed = getComputed();
 			computed[ name ] = value;
 		}
 		return this;
@@ -78,8 +78,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	function renderIt(){
 		if ( getIsSubsequentRender() ) {
-			var event           = requestService.getContext();
-			var rc              = event.setContext( getHydrationCollection() );
+			var event = requestService.getContext();
+			var rc = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.getEngine().setComputedProperties( getComputed() );
@@ -99,7 +99,10 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.getEngine().setComputedProperties( getComputed() );
 			}
-			var rendering = cbwireComponent.getEngine().mount( getParameters() ).renderIt();
+			var rendering = cbwireComponent
+				.getEngine()
+				.mount( getParameters() )
+				.renderIt();
 			setRendering( rendering );
 			return rendering;
 		}
@@ -108,9 +111,9 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	function call( required action, parameters = [] ){
 		setIsSubsequentRender( true );
 		getHydrationCollection()[ "updates" ].append( {
-			"type"    : "callMethod",
+			"type" : "callMethod",
 			"payload" : {
-				"id"     : "nbk1",
+				"id" : "nbk1",
 				"method" : arguments.action,
 				"params" : arguments.parameters
 			}
@@ -121,10 +124,10 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	function emit( required event, parameters = [] ){
 		setIsSubsequentRender( true );
 		getHydrationCollection()[ "updates" ].append( {
-			"type"    : "fireEvent",
+			"type" : "fireEvent",
 			"payload" : {
-				"id"     : "nbk1",
-				"event"  : arguments.event,
+				"id" : "nbk1",
+				"event" : arguments.event,
 				"params" : arguments.parameters
 			}
 		} );
@@ -141,18 +144,12 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		expect( getRendering() ).notToInclude( needle );
 	}
 
-	function seeData(
-		required dataProperty,
-		required value
-	){
+	function seeData( required dataProperty, required value ){
 		renderIt();
 		expect( getDataProperties()[ dataProperty ] ).toBe( value );
 	}
 
-	function dontSeeData(
-		required dataProperty,
-		required value
-	){
+	function dontSeeData( required dataProperty, required value ){
 		renderIt();
 		expect( getDataProperties()[ dataProperty ] ).notToBe( value );
 	}

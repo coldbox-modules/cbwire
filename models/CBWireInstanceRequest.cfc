@@ -9,11 +9,12 @@ component {
 	 *
 	 * @return Component
 	 */
-	function handle(
-		required cbwireComponent,
-		parameters = {}
-	){
-		return cbwireComponent.getEngine().mount( arguments.parameters ).getEngine().renderIt();
+	function handle( required cbwireComponent, parameters = {} ){
+		return cbwireComponent
+			.getEngine()
+			.mount( arguments.parameters )
+			.getEngine()
+			.renderIt();
 	}
 
 }

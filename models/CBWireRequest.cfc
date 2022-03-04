@@ -126,7 +126,7 @@ component accessors="true" singleton {
 			casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
 
 			return variables.wirebox.getInstance(
-				name          = "#casedType#@cbwire",
+				name = "#casedType#@cbwire",
 				initArguments = { "update" : arguments.update }
 			);
 		} );
@@ -163,24 +163,14 @@ component accessors="true" singleton {
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = getWiresLocation();
 
-		if (
-			reFindNoCase(
-				wiresLocation & "\.",
-				arguments.componentName
-			)
-		) {
-			arguments.componentName = reReplaceNoCase(
-				arguments.componentName,
-				wiresLocation & "\.",
-				"",
-				"one"
-			);
+		if ( reFindNoCase( wiresLocation & "\.", arguments.componentName ) ) {
+			arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
 		}
 
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
 			var params = listToArray( arguments.componentName, "@" );
-			var comp   = getModuleComponent( params[ 1 ], params[ 2 ] );
+			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
 			var comp = getRootComponent( arguments.componentName );
@@ -198,12 +188,11 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	function renderIt(
-		componentName,
-		parameters = {},
-		key        = ""
-	){
-		return getComponentInstance( arguments.componentName ).getEngine().mount( arguments.parameters, arguments.key ).renderIt();
+	function renderIt( componentName, parameters = {}, key = "" ){
+		return getComponentInstance( arguments.componentName )
+			.getEngine()
+			.mount( arguments.parameters, arguments.key )
+			.renderIt();
 	}
 
 	/**
@@ -232,7 +221,11 @@ component accessors="true" singleton {
 	 * @context Struct
 	 */
 	function handle( required component ){
-		return arguments.component.getEngine().hydrate( this ).getEngine().getMemento();
+		return arguments.component
+			.getEngine()
+			.hydrate( this )
+			.getEngine()
+			.getMemento();
 	}
 
 	/**
@@ -257,7 +250,7 @@ component accessors="true" singleton {
 	 */
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
+		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}
@@ -269,10 +262,7 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	private function getModuleComponent(
-		required string componentName,
-		required string moduleName
-	){
+	private function getModuleComponent( required string componentName, required string moduleName ){
 		// Verify the module
 		var modulesConfig = variables.controller.getSetting( "modules" );
 		if ( !modulesConfig.keyExists( moduleName ) ) {

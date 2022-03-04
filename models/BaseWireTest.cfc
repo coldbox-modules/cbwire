@@ -8,7 +8,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	 */
 	function wire( required componentName ){
 		return getInstance(
-			name          = "TestComponentSpec@cbwire",
+			name = "TestComponentSpec@cbwire",
 			initArguments = { componentName : arguments.componentName }
 		);
 	}
