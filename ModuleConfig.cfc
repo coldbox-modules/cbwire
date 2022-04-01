@@ -42,13 +42,13 @@ component {
 			{
 				"pattern" : "message/:wireComponent",
 				"handler" : "Main",
-				"action"  : "index"
+				"action" : "index"
 			},
 			{
 				"pattern" : "upload-file",
 				"handler" : "Main",
-				"action"  : "uploadFile"
-			},
+				"action" : "uploadFile"
+			}
 		];
 
 		interceptorSettings = {
