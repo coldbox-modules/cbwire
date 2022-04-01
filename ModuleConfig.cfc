@@ -40,8 +40,14 @@ component {
 
 		routes = [
 			{
+				"pattern" : "message/upload-file",
+				"handler" : "Main",
+				"action"  : "uploadFile"
+			},
+			{
 				"pattern" : "message/:wireComponent",
-				"handler" : "Main"
+				"handler" : "Main",
+				"action"  : "index"
 			}
 		];
 
