@@ -21,7 +21,6 @@ component extends="WireUpdate" {
 			arguments.comp.getEngine().startUpload( variables.getPassedParamsAsArguments() );
 			return;
 		} else {
-
 			// Handle action calls.
 			if ( variables.hasCallableAction( arguments.comp ) ) {
 				try {
@@ -37,7 +36,6 @@ component extends="WireUpdate" {
 				type = "WireActionNotFound",
 				message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
 			);
-
 		}
 	}
 

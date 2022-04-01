@@ -584,9 +584,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Array
 	 */
 	function getListenerNames(){
-		return structKeyList( getListeners() )
-			.listToArray()
-			.append( "upload.generatedSignedUrl" );
+		return structKeyList( getListeners() ).listToArray().append( "upload.generatedSignedUrl" );
 	}
 
 	/**
@@ -641,26 +639,23 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getMemento(){
-
 		if ( getIsFileUpload() ) {
 			return {
-				"effects": {
-					"html": javaCast( "null", 0 ),
-					"emits": [
+				"effects" : {
+					"html" : javacast( "null", 0 ),
+					"emits" : [
 						{
-							"event": "upload:generatedSignedUrl",
-							"params": [
+							"event" : "upload:generatedSignedUrl",
+							"params" : [
 								"photo",
 								"/livewire/upload-file?expires=1648817149&signature=f7ac1a845425e5d1062a47659c22489a6a38709824ed7dd42a8f5f5a0ad3a38a"
 							],
-							"selfOnly": true
+							"selfOnly" : true
 						}
 					],
-					"dirty": []
+					"dirty" : []
 				},
-				"serverMemo": {
-					"checksum": "2f2c1a8b71bc1fc789d21903f500e39033202b94d2693c3357f59efa0ca05815"
-				}
+				"serverMemo" : { "checksum" : "2f2c1a8b71bc1fc789d21903f500e39033202b94d2693c3357f59efa0ca05815" }
 			};
 		}
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
@@ -739,7 +734,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
-	
+
 		// Render our view using coldbox rendering
 		var rendering = super.view( argumentCollection = arguments );
 
@@ -835,9 +830,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 	}
 
-	function startUpload( required params) {
+	function startUpload( required params ){
 		setIsFileUpload( true );
-		emit( eventName="upload.generatedSignedUrl", parameters = params, track = true );
+		emit( eventName = "upload.generatedSignedUrl", parameters = params, track = true );
 	}
 
 }
