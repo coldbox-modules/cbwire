@@ -14,7 +14,7 @@ component {
     /**
      * Endpoint for file uploads
      * 
-     * URI: /livewire/messages/upload-file
+     * URI: /livewire/upload-file
      */
     function uploadFile( event, rc, prc ) {
         announce( "onCBWireFileUpload" );

@@ -18,8 +18,14 @@ component extends="WireUpdate" {
 			invoke( arguments.comp, "refresh", variables.getPassedParamsAsArguments() );
 			return;
 		} else if ( variables.getPayloadMethod() == "startUpload" ) {
-			arguments.comp.getEngine().startUpload( variables.getPassedParamsAsArguments() );
+			arguments.comp
+				.getEngine()
+				.startUpload( variables.getPassedParamsAsArguments() );
 			return;
+		} else if ( variables.getPayloadMethod() == "finishUpload" ) {
+			arguments.comp
+				.getEngine()
+				.finishUpload();
 		} else {
 
 			// Handle action calls.

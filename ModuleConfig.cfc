@@ -43,7 +43,12 @@ component {
 				"pattern" : "message/:wireComponent",
 				"handler" : "Main",
 				"action"  : "index"
-			}
+			},
+			{
+				"pattern" : "upload-file",
+				"handler" : "Main",
+				"action"  : "uploadFile"
+			},
 		];
 
 		interceptorSettings = {
@@ -52,7 +57,8 @@ component {
 				"onCBWireMount",
 				"onCBWireHydrate",
 				"onCBWireRenderIt",
-				"onCBWireSubsequentRenderIt"
+				"onCBWireSubsequentRenderIt",
+				"onCBWireFileUpload"
 			]
 		};
 
@@ -61,6 +67,8 @@ component {
 			{ class : "#moduleMapping#.interceptors.ProcessIncomingXHRRequest" },
 			// Security
 			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
+			// File upload
+			{ class : "#moduleMapping#.interceptors.FileUpload" },
 			// Mounting
 			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
 			{ class : "#moduleMapping#.interceptors.ComponentHydrating" },

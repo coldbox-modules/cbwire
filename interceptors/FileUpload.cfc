@@ -19,7 +19,7 @@ component {
             "serverMemo": {
                 "checksum": "2f2c1a8b71bc1fc789d21903f500e39033202b94d2693c3357f59efa0ca05815"
             }
-        }
+        };
 
         event.setValue( "_cbwire_file_upload_memento", memento );
     }

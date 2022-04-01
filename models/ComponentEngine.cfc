@@ -840,4 +840,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		emit( eventName="upload.generatedSignedUrl", parameters = params, track = true );
 	}
 
+	function finishUpload() {
+		//
+	}
+
 }
