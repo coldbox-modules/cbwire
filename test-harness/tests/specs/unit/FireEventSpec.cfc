@@ -18,14 +18,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "FireEvent.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				update          = {};
+				update = {};
 				fireEventUpdate = prepareMock(
-					getInstance(
-						name          = "cbwire.models.updates.FireEvent",
-						initArguments = { "update" : update }
-					)
+					getInstance( name = "cbwire.models.updates.FireEvent", initArguments = { "update" : update } )
 				);
-				wireRequest  = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
+				wireRequest = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
 				componentObj = prepareMock( getInstance( name = "cbwire.models.Component" ) );
 			} );
 
@@ -43,9 +40,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "calls listener", function(){
 					update[ "payload" ] = { "event" : "someEvent", params : [] };
 					componentObj.$property(
-						propertyName  = "listeners",
+						propertyName = "listeners",
 						propertyScope = "variables",
-						mock          = { "someEvent" : "someListener" }
+						mock = { "someEvent" : "someListener" }
 					);
 					componentObj.$( "someListener", true );
 					fireEventUpdate.apply( componentObj );
