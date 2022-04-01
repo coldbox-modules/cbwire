@@ -47,6 +47,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="isInitialRendering" default="false";
 
 	/**
+	 * Determines if file upload operation is being performed.
+	 */
+	property name="isFileUpload" default="false";
+
+	/**
 	 * The default data struct for cbwire components.
 	 * This should be overidden in the child component
 	 * with data properties.
@@ -579,7 +584,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Array
 	 */
 	function getListenerNames(){
-		return structKeyList( getListeners() ).listToArray();
+		return structKeyList( getListeners() )
+			.listToArray()
+			.append( "upload.generatedSignedUrl" );
 	}
 
 	/**
@@ -634,6 +641,28 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getMemento(){
+
+		if ( getIsFileUpload() ) {
+			return {
+				"effects": {
+					"html": javaCast( "null", 0 ),
+					"emits": [
+						{
+							"event": "upload:generatedSignedUrl",
+							"params": [
+								"photo",
+								"/livewire/upload-file?expires=1648817149&signature=f7ac1a845425e5d1062a47659c22489a6a38709824ed7dd42a8f5f5a0ad3a38a"
+							],
+							"selfOnly": true
+						}
+					],
+					"dirty": []
+				},
+				"serverMemo": {
+					"checksum": "2f2c1a8b71bc1fc789d21903f500e39033202b94d2693c3357f59efa0ca05815"
+				}
+			};
+		}
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
 		var dirtyProperties = getDirtyProperties();
@@ -804,6 +833,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
 			reset( dataPropertyName );
 		}
+	}
+
+	function startUpload( required params) {
+		setIsFileUpload( true );
+		emit( eventName="upload.generatedSignedUrl", parameters = params, track = true );
 	}
 
 }

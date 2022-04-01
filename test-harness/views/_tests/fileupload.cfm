@@ -1,0 +1,1 @@
+<cfoutput>#wire( "FileUpload" )#</cfoutput>

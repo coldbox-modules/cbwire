@@ -14,29 +14,31 @@ component extends="WireUpdate" {
 				[ variables.getPassedParamsAsArguments()[ 2 ] ]
 			);
 			return;
-		}
-
-		// Handle $refresh calls.
-		if ( variables.getPayloadMethod() == "$refresh" ) {
+		} else if ( variables.getPayloadMethod() == "$refresh" ) {
 			invoke( arguments.comp, "refresh", variables.getPassedParamsAsArguments() );
 			return;
-		}
-
-		// Handle action calls.
-		if ( variables.hasCallableAction( arguments.comp ) ) {
-			try {
-				invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
-			} catch ( ValidationException validateException ) {
-				// Silently stop further action processing on validationOrFail() exceptions.
-			}
+		} else if ( variables.getPayloadMethod() == "startUpload" ) {
+			arguments.comp.getEngine().startUpload( variables.getPassedParamsAsArguments() );
 			return;
-		}
+		} else {
 
-		// We cannot locate the action, so throw an error.
-		throw(
-			type = "WireActionNotFound",
-			message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
-		);
+			// Handle action calls.
+			if ( variables.hasCallableAction( arguments.comp ) ) {
+				try {
+					invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
+				} catch ( ValidationException validateException ) {
+					// Silently stop further action processing on validationOrFail() exceptions.
+				}
+				return;
+			}
+
+			// We cannot locate the action, so throw an error.
+			throw(
+				type = "WireActionNotFound",
+				message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
+			);
+
+		}
 	}
 
 	/**

@@ -11,4 +11,14 @@ component {
         return event.getValue( "_cbwire_subsequent_memento" );
     }
 
+    /**
+     * Endpoint for file uploads
+     * 
+     * URI: /livewire/messages/upload-file
+     */
+    function uploadFile( event, rc, prc ) {
+        announce( "onCBWireFileUpload" );
+        return event.getValue( "_cbwire_file_upload_memento" );
+    }
+
 }
