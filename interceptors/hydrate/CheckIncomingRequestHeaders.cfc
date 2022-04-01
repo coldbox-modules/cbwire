@@ -4,7 +4,7 @@
  */
 component {
 
-    function preProcess( event ) eventPattern="cbwire.*"{
+    function preProcess( event ) eventPattern="cbwire.main.index"{
         if ( event.getHTTPHeader( header="X-Livewire", defaultValue="" ) != "true" ) {
             event.renderData(
                 type = "HTML",
