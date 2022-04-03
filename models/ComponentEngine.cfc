@@ -585,7 +585,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function getListenerNames(){
 		return structKeyList( getListeners() ).listToArray();
-			//append( "upload.generatedSignedUrl" );
+		// append( "upload.generatedSignedUrl" );
 	}
 
 	/**
