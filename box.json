@@ -37,9 +37,9 @@
         "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
         "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
         "release":"recipe build/release.boxr",
-        "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
-        "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
-        "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc"
+        "format":"cfformat run helpers,models,handlers,test-harness/tests/,ModuleConfig.cfc --overwrite",
+        "format:watch":"cfformat watch helpers,models,handlers,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
+        "format:check":"cfformat check helpers,models,handlers,test-harness/tests/,ModuleConfig.cfc"
     },
     "testbox":{
         "runner":"http://localhost:60299/tests/runner.cfm"
