@@ -47,7 +47,7 @@ component {
 			{
 				"pattern" : "upload-file",
 				"handler" : "Main",
-				"action"  : "uploadFile"
+				"action" : "uploadFile"
 			}
 		];
 
