@@ -1,0 +1,1 @@
+<cfoutput>#wire( "NestedComponent1" )#</cfoutput>
