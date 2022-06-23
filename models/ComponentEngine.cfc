@@ -710,7 +710,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
-	
+
 		// Render our view using coldbox rendering
 		var rendering = super.view( argumentCollection = arguments );
 

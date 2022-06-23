@@ -43,53 +43,53 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "renders with wire:id and wire:initial-data attributes added to outer div tag'", function(){
-					var event   = get( "/_tests/dataBinding" );
+					var event = get( "/_tests/dataBinding" );
 					var content = event.getRenderedContent();
 					expect( content ).toInclude( "<div wire:id=" );
 					expect( content ).toInclude( "wire:initial-data=" );
 				} );
 
 				it( "has ability to pass parameters'", function(){
-					var event   = get( "/_tests/passParameters" );
+					var event = get( "/_tests/passParameters" );
 					var content = event.getRenderedContent();
 					expect( content ).toInclude( "<ul>" );
 					expect( content ).toInclude( "<li>Pepperoni</li>" );
 				} );
 
 				it( "has ability to pass parameters that are then passed into our mount() method'", function(){
-					var event   = get( "/_tests/passedParametersProvidedToMount" );
+					var event = get( "/_tests/passedParametersProvidedToMount" );
 					var content = event.getRenderedContent();
 					expect( content ).toInclude( "<ul>" );
 					expect( content ).toInclude( "<li>Bacon</li>" );
 				} );
 
 				xit( "renders defined getter 'getName()' on our component automatically'", function(){
-					var event   = get( "/_tests/getter" );
+					var event = get( "/_tests/getter" );
 					var content = event.getRenderedContent();
 					expect( content ).toInclude( "Rubble On The Double" );
 				} );
 			} );
 
 			it( "wireStyles() renders the wire styles", function(){
-				var event   = get( "/_tests/wireStyles" );
+				var event = get( "/_tests/wireStyles" );
 				var content = event.getRenderedContent();
 				expect( content ).toInclude( "<!-- Livewire Styles -->" );
 				expect( content ).toInclude( "@keyframes livewireautofill { from {} }" );
 			} );
 
 			it( "wireScripts() renders the wire scripts", function(){
-				var event   = get( "/_tests/wireScripts" );
+				var event = get( "/_tests/wireScripts" );
 				var content = event.getRenderedContent();
 				expect( content ).toInclude( "/modules/cbwire/includes/js/livewire.js" );
 			} );
 
 			it( "can handle incoming request payloads to /livewire/message/:componentPath", function(){
 				var event = post(
-					route   = "/livewire/message/wires.DataBinding",
-					params  = { "serverMemo" : { "data" : {}, "children" : [] } },
+					route = "/livewire/message/wires.DataBinding",
+					params = { "serverMemo" : { "data" : {}, "children" : [] } },
 					headers = { "X-Livewire" : true }
 				);
-				var content       = event.getRenderedContent();
+				var content = event.getRenderedContent();
 				var parsedContent = deserializeJSON( content );
 
 				debug( parsedContent );

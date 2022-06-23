@@ -4,7 +4,7 @@
  * responsibility to update the interceptor annotation instantiation path.
  */
 component
-	extends    ="coldbox.system.testing.BaseInterceptorTest"
+	extends="coldbox.system.testing.BaseInterceptorTest"
 	interceptor="cbwire.interceptors.hydrate.CheckIncomingRequestHeaders"
 {
 

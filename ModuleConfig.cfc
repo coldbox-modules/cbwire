@@ -1,9 +1,9 @@
 component {
 
-	this.name         = "cbwire";
-	this.version      = "1.0.0";
-	this.author       = "";
-	this.webUrl       = "https://github.com/coldbox-modules/cbwire";
+	this.name = "cbwire";
+	this.version = "1.0.0";
+	this.author = "";
+	this.webUrl = "https://github.com/coldbox-modules/cbwire";
 	this.dependencies = [];
 
 	/**
@@ -13,10 +13,10 @@ component {
 	this.entryPoint = "livewire";
 
 	this.layoutParentLookup = false;
-	this.viewParentLookup   = false;
-	this.cfmapping          = "cbwire";
-	this.modelNamespace     = "cbwire";
-	this.applicationHelper  = [ "helpers/helpers.cfm" ];
+	this.viewParentLookup = false;
+	this.cfmapping = "cbwire";
+	this.modelNamespace = "cbwire";
+	this.applicationHelper = [ "helpers/helpers.cfm" ];
 
 	function configure(){
 		settings = {
@@ -31,6 +31,10 @@ component {
 			 * Defaults to 'wires' folder.
 			 */
 			"componentLocation" : "wires",
+			/**
+			 * The default root module URI for URLs.
+			 */
+			"moduleRootURI" : "/modules/cbwire",
 			/**
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.

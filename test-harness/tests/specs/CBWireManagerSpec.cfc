@@ -22,12 +22,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "CBWireManager", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				event         = getRequestContext();
+				event = getRequestContext();
 				cbwireManager = prepareMock(
-					getInstance(
-						name          = "cbwire.models.CBWireManager",
-						initArguments = { "event" : event }
-					)
+					getInstance( name = "cbwire.models.CBWireManager", initArguments = { "event" : event } )
 				);
 			} );
 
@@ -37,11 +34,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( cbwireManager.getWiresLocation() ).toBe( "wires" );
 				} );
 				it( "returns the wiresLocation from settings", function(){
-					cbwireManager.$property(
-						"settings",
-						"variables",
-						{ wiresLocation : "somewhere" }
-					);
+					cbwireManager.$property( "settings", "variables", { wiresLocation : "somewhere" } );
 					expect( cbwireManager.getWiresLocation() ).toBe( "somewhere" );
 				} );
 			} );
