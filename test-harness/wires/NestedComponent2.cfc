@@ -7,7 +7,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "_wires/nestedComponent2" );
+        return this.renderView( "wires/nestedComponent2" );
     }
 
 }

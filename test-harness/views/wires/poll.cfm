@@ -1,5 +1,5 @@
 <cfoutput>
     <div wire:poll>
-        Current timestamp: #args.timestamp#
+        Current timestamp: #now()#
     </div>
 </cfoutput>

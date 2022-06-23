@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "_wires/callMethod" );
+        return this.renderView( "wires/callMethod" );
     }
 
 }

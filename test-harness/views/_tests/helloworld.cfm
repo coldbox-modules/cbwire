@@ -1,1 +1,0 @@
-<cfoutput>#wire( "HelloWorld" )#</cfoutput>

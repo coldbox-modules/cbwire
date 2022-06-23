@@ -5,7 +5,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "_wires/loadingAndDisablingButton" );
+        return this.renderView( "wires/loadingAndDisablingButton" );
     }
 
 }

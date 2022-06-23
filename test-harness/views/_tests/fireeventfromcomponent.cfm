@@ -1,1 +1,0 @@
-<cfoutput>#wire( "FireEventFromComponent" )#</cfoutput>

@@ -8,7 +8,7 @@ component
     };
 
     function renderIt(){
-        return this.renderView( "_wires/usingSet" );
+        return this.renderView( "wires/usingSet" );
     }
 
 }

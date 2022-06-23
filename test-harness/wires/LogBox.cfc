@@ -5,7 +5,7 @@ component extends="cbwire.models.Component"{
     }
 
     function renderIt(){
-        return renderView( "_wires/logbox" );
+        return renderView( "wires/logbox" );
     }
 
 }

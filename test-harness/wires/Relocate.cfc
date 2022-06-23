@@ -8,7 +8,7 @@ component
     }
 
     function renderIt(){
-        return renderView( "_wires/relocate" );
+        return renderView( "wires/relocate" );
     }
 
 }

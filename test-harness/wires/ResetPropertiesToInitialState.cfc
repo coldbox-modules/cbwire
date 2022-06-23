@@ -6,7 +6,7 @@ component extends="cbwire.models.Component" {
      * Render our wire object.
      */
     function renderIt(){
-        return this.renderView( "_wires/resetPropertiesToInitialState" );
+        return this.renderView( "wires/resetPropertiesToInitialState" );
     }
 
     /**
