@@ -71,6 +71,12 @@
 			info  : [ "coldbox.system" ]
 		};
 
+		moduleSettings = {
+			cbwire = {
+				"moduleRootURI" : "/moduleroot/cbwire"
+			}
+		};
+
 	}
 
 	/**

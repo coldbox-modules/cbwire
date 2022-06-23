@@ -32,6 +32,10 @@ component {
 			 */
 			"componentLocation" : "wires",
 			/**
+			 * The default root module URI for URLs.
+			 */
+			"moduleRootURI" : "/modules/cbwire",
+			/**
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.
 			 */
