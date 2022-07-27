@@ -1,1 +1,8 @@
-<cfoutput>#wire( "CallMethod")#</cfoutput>
+<cfset wireComponent = "CallMethod">
+
+<cfoutput>
+    #wire( wireComponent )#
+    #renderView( view="/wires/showCode", args={
+        wireComponent: wireComponent
+    } )#
+</cfoutput>

@@ -1,16 +1,15 @@
 component extends="cbwire.models.Component" {
 
-    data[ "message" ] = "";
+    data = {
+        "message"= ""
+    };
 
-    function sayHello(
-        required firstname,
-        required lastname
-    ){
-        this.setMessage( "Well hello " & arguments.firstname & " " & arguments.lastname );
+    function sayHello( required firstname, required lastname ){
+        data.message = "Well hello " & arguments.firstname & " " & arguments.lastname;
     }
 
     function renderIt(){
-        return this.renderView( "wires/passActionArgs" );
+        return renderView( "wires/passActionArgs" );
     }
 
 }

@@ -1,6 +1,6 @@
 <cfoutput>
 <div>
-    <button wire:click="sayHello( 'Where\'s', 'Waldo' )">Say Hello To Waldo</button>
+    <button wire:click="sayHello( $event.target.innerText, 'Goodbye' )">Say Hello To Waldo</button>
     #args.message#
 </div>
 </cfoutput>

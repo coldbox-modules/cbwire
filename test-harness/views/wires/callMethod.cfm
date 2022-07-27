@@ -1,6 +1,8 @@
 <cfoutput>
     <div>
-        #args.message#
-        <button wire:click="calledMethod">Click me to call method</button>
+        <div>
+            <button class="btn btn-primary" wire:click="calledMethod">Call method</button>
+            <span class="ms-4">#args.message#</span>
+        </div>
     </div>
 </cfoutput>
