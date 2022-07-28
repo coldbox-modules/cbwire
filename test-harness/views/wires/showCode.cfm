@@ -1,6 +1,8 @@
 <cfscript>
-    componentCode = fileRead( expandPath( './wires/#args.wireComponent#.cfc' ) );
-    templateCode = fileRead( expandPath( './views/wires/#lCase( args.wireComponent )#.cfm'))
+    componentPath = expandPath( './wires/#args.wireComponent#.cfc' );
+    templatePath = expandPath( './views/wires/#lCase( args.wireComponent )#.cfm')
+    componentCode = fileExists( componentPath ) ? fileRead( componentPath ) : "";
+    templateCode = fileExists( templatePath ) ? fileRead( templatePath ) : "";
 </cfscript>
 
 <cfoutput>
