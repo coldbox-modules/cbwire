@@ -406,24 +406,23 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * Returns the initial data of our component, which is ultimately serialized
 	 * to json and return in the view as our component is first rendered.
 	 *
-	 * @renderingHash String | Hash of the view rendering. Used to populate serverMemo.htmlHash in struct response.
-	 *
 	 * @return Struct
 	 */
-	function getInitialData( renderingHash = "" ){
+	function getInitialData( rendering ){
 		return {
 			"fingerprint" : {
 				"id" : getId(),
 				"name" : getMeta().name,
 				"locale" : "en",
 				"path" : getPath(),
-				"method" : "GET"
+				"method" : "GET",
+				"v": "acj"
 			},
 			"effects" : { "listeners" : getListenerNames() },
 			"serverMemo" : {
 				"children" : [],
 				"errors" : [],
-				"htmlHash" : getChecksum(),
+				"htmlHash": getCRC32Hash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"dataMeta" : [],
 				"checksum" : getChecksum()
@@ -438,6 +437,17 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function getChecksum(){
 		return hash( serializeJSON( getState() ) );
+	}
+
+	/**
+	 * Returns a CRC32 hash of the passed in content.
+	 * 
+	 * @return string
+	 */
+	function getCRC32Hash( content ){
+        var checksum = createObject( "java", "java.util.zip.CRC32" ).init();
+        checksum.update( charsetDecode( content, "utf-8" ) );
+		return createObject( "java", "java.lang.Long" ).toHexString( checksum.getValue() );
 	}
 
 	/**
@@ -471,7 +481,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#getId()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#getId()#"" wire:initial-data=""#serializeJSON( getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
 		} else {
@@ -509,7 +519,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		// Return empty string by default;
-		return "";
+		return getHTTPPath();
 	}
 
 	/**
@@ -580,6 +590,15 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function getHTTPReferer(){
 		return cgi.HTTP_REFERER;
+	}
+
+	/**
+	 * Returns our HTTP path.
+	 *
+	 * @return String
+	 */
+	function getHTTPPath(){
+		return cgi.PATH_INFO;
 	}
 
 	/**
@@ -656,7 +675,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			},
 			"serverMemo" : {
 				"children" : isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children,
-				"htmlHash" : "71146cf2",
+				"htmlHash" : getCRC32Hash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"checksum" : getChecksum()
 			}
@@ -721,10 +740,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
 		// Render our view using coldbox rendering
-		var rendering = super.view( argumentCollection = arguments );
-
-		// Add properties to top element to make cbwire actually work.
-		return applyWiringToOuterElement( rendering );
+		return super.view( argumentCollection = arguments );
 	}
 
 	/**

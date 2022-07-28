@@ -159,9 +159,12 @@ component accessors="true" {
 		numeric collectionMaxRows = 0,
 		collectionDelim = "",
 		boolean prePostExempt = false,
-		name
+		name,
+		boolean applyWiring = true
 	){
-		return getEngine().view( argumentCollection = arguments );
+		var templateRendering = getEngine().view( argumentCollection = arguments );
+		// Add properties to top element to make cbwire actually work.
+		return applyWiring ? getEngine().applyWiringToOuterElement( templateRendering ) : templateRendering;
 	}
 
 	/**
