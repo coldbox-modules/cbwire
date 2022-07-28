@@ -86,8 +86,17 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * Returns a unique ID for the component
 	 */
 	function getId(){
-		if ( !structKeyExists( variables, "id " ) ) {
-			variables.id = createUUID().replace( "-", "", "all" ).left( 21 )
+		if ( !structKeyExists( variables, "id" ) ) {
+			var guidChars = listToArray( createUUID(), "" )
+				.filter( function( char ) {
+					return char != "-";
+				} )
+				.filter( function( char, index ) {
+					return index <= 20;
+				} ).map( function( char ) {
+					return randRange( 0, 1) == 0 ? uCase( char ) : lCase( char );
+				} );
+			variables.id = arrayToList( guidChars, "" );
 		}
 		return variables.id;
 	}
