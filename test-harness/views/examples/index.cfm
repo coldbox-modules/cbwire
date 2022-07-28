@@ -44,7 +44,13 @@
         <a class="btn btn-primary w-100" href="/examples/DirectiveLoading">:loading</a>
     </div>
     <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/DirectiveDirty">:dirty</a>
+    </div>
+    <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/DirectivePoll">:poll</a>
+    </div>
+    <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/DirectiveInit">:init</a>
     </div>
 </div>
 </cfoutput>
