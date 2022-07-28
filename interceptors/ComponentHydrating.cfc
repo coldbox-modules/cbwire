@@ -6,14 +6,16 @@ component {
 
         var cbwireComponent = data.component;
 
+		var engine = cbwireComponent.getEngine();
+
         if ( variables.cbwireRequest.hasFingerprint() ) {
 			cbwireComponent.$setId( variables.cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
-		variables.beforeHydrateState = duplicate( cbwireComponent.getData() );
+		engine.setBeforeHydrationState( duplicate( engine.getState() ) );
 
 		// Invoke '$preHydrate' event
-		cbwireComponent.getEngine().invokeMethod( "$preHydrate" );
+		engine.invokeMethod( "$preHydrate" );
 
 		if ( variables.cbwireRequest.hasData() ) {
 			cbwireComponent.setData( variables.cbwireRequest.getData() );
@@ -25,7 +27,7 @@ component {
 
 			serverMemo.data.each( function( key, value ){
 				// Call the setter method
-				cbwireComponent.getEngine().invokeMethod(
+				engine.invokeMethod(
 					methodName = "set" & arguments.key,
 					value      = isNull( arguments.value ) ? "" : arguments.value
 				);
@@ -42,6 +44,6 @@ component {
 		}
 
 		// Invoke '$postHydrate' event
-		cbwireComponent.getEngine().invokeMethod( "$postHydrate" );
+		engine.invokeMethod( "$postHydrate" );
     }
 }

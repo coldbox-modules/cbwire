@@ -222,7 +222,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		// Capture the state before hydration
-		getWire().set$BeforeHydrationState( duplicate( getState() ) );
+		setBeforeHydrationState( duplicate( getState() ) );
 
 		return getWire();
 	}

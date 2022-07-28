@@ -311,6 +311,17 @@ component accessors="true" {
 	}
 
 	/**
+	 * Resets a property back to it's original state when the component
+	 * was initially hydrated.
+	 *
+	 * This accepts either a single property or an array of properties
+	 *
+	 * @return Void
+	 */
+	function reset( property ) {
+		getEngine().reset( arguments.property );
+	}
+	 /**
 	 * Renders our component's view.
 	 *
 	 * @return Void
