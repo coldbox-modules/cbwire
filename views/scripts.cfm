@@ -33,8 +33,22 @@
         });
     };
 
+    let started = false;
+
+    window.addEventListener('alpine:initializing', function () {
+        if (! started) {
+            window.livewire.start();
+
+            started = true;
+        }
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
-        window.livewire.start();
+        if (! started) {
+            window.livewire.start();
+
+            started = true;
+        }
     });
 </script>
 </cfoutput>
