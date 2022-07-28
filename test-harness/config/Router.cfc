@@ -1,11 +1,9 @@
 ﻿component {
 
 	function configure(){
-		// Resources
-		resources( "roles" );
-
 		// Your Application Routes
-		addRoute( pattern = ":handler/:action?" );
+		route( pattern="/examples/index", target="examples.index" );
+		route( pattern="/examples/:component", target="examples.run" );
 	}
 
 }
