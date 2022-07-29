@@ -71,9 +71,15 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="meta";
 
 	/**
+	 * Holds component id
+	 */
+	property name="id";
+
+	/**
 	 * A beautiful constructor
 	 */
 	function init( required wire, required variablesScope ){
+		setId( generateId() );
 		setWire( arguments.wire );
 		setVariablesScope( arguments.variablesScope );
 		setBeforeHydrationState( {} );
@@ -85,20 +91,17 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	/**
 	 * Returns a unique ID for the component
 	 */
-	function getId(){
-		if ( !structKeyExists( variables, "id" ) ) {
-			var guidChars = listToArray( createUUID(), "" )
-				.filter( function( char ) {
-					return char != "-";
-				} )
-				.filter( function( char, index ) {
-					return index <= 20;
-				} ).map( function( char ) {
-					return randRange( 0, 1) == 0 ? uCase( char ) : lCase( char );
-				} );
-			variables.id = arrayToList( guidChars, "" );
-		}
-		return variables.id;
+	function generateId(){
+		var guidChars = listToArray( createUUID(), "" )
+			.filter( function( char ) {
+				return char != "-";
+			} )
+			.filter( function( char, index ) {
+				return index <= 20;
+			} ).map( function( char ) {
+				return randRange( 0, 1) == 0 ? uCase( char ) : lCase( char );
+			} );
+		return arrayToList( guidChars, "" );
 	}
 
 	/**
@@ -342,12 +345,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function invokeMethod( required methodName ){
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
+		var filteredParams = params.filter( function( key, value ){
+			return key != "methodName";
+		} );
+
 		return invoke(
 			getWire(),
 			arguments.methodName,
-			params.filter( function( key, value ){
-				return !key.findNoCase( "methodName" )
-			} )
+			filteredParams
 		);
 	}
 
@@ -519,7 +524,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		// Return empty string by default;
-		return getHTTPPath();
+		return getHTTPReferer();
 	}
 
 	/**
@@ -589,16 +594,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return String
 	 */
 	function getHTTPReferer(){
-		return cgi.HTTP_REFERER;
-	}
-
-	/**
-	 * Returns our HTTP path.
-	 *
-	 * @return String
-	 */
-	function getHTTPPath(){
-		return cgi.PATH_INFO;
+		return len( cgi.HTTP_REFERER ) ? CGI.HTTP_REFERER : "/";
 	}
 
 	/**

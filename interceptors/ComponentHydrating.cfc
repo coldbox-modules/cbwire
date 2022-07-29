@@ -9,7 +9,7 @@ component {
 		var engine = cbwireComponent.getEngine();
 
         if ( variables.cbwireRequest.hasFingerprint() ) {
-			cbwireComponent.$setId( variables.cbwireRequest.getFingerPrint()[ "id" ] );
+			cbwireComponent.getEngine().setId( variables.cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
 		engine.setBeforeHydrationState( duplicate( engine.getState() ) );
