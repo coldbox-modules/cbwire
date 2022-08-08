@@ -9,12 +9,6 @@ component accessors="true" {
 	// Inject ColdBox, needed by FrameworkSuperType
 	property name="controller" inject="coldbox";
 
-	// Inject LogBox.
-	property name="logBox" inject="logbox";
-
-	// Inject scoped logger.
-	property name="log" inject="logbox:logger:{this}";
-
 	// Component engine
 	property name="engine";
 
@@ -249,22 +243,6 @@ component accessors="true" {
 	 */
 	function noRender(){
 		getEngine().setNoRendering( true );
-	}
-
-	/**
-	 * Returns LogBox instance.
-	 *
-	 * @return LogBox
-	 */
-	function getLogBox(){
-		return variables.logbox;
-	}
-
-	/**
-	 * Returns Logger instance.
-	 */
-	function getLogger(){
-		return variables.log;
 	}
 
 	/**
