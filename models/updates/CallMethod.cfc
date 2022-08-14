@@ -16,13 +16,11 @@ component extends="WireUpdate" {
 			return;
 		}
 
-		// Handle $refresh calls.
 		if ( variables.getPayloadMethod() == "$refresh" ) {
 			invoke( arguments.comp, "refresh", variables.getPassedParamsAsArguments() );
 			return;
 		}
 
-		// Handle action calls.
 		if ( variables.hasCallableAction( arguments.comp ) ) {
 			try {
 				invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
