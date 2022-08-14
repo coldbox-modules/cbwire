@@ -5,11 +5,7 @@ component extends="cbwire.models.Component" {
     };
 
     function callAction(){
-        data[ "message" ] = "We have called our action!";
-    }
-
-    function renderIt(){
-        return this.renderView( "wires/callAction" );
+        data.message = "We have called our action!";
     }
 
 }
