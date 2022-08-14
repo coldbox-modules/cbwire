@@ -10,7 +10,9 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
 	<script src="https://kit.fontawesome.com/7e32a713f5.js" crossorigin="anonymous"></script>
 	<script>hljs.highlightAll();</script>
-
+	<script type="module">
+		import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
+	</script>
 	<style type="text/css">
 		.btn-primary, .btn-primary:focus {
 			border-color: ##fcd34d;
@@ -48,9 +50,15 @@
 		</div>
 	</div>
 	#wireScripts()#
+	<script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false" data-turbo-eval="false"></script>
 	<cfif structKeyExists( prc, "viewJavascript" )>
 		#prc.viewJavascript#
 	</cfif>
+	<script>
+		document.addEventListener("turbo:load", () => {
+			hljs.highlightAll();
+		} );
+	</script>
 </body>
 </html>
 </cfoutput>
