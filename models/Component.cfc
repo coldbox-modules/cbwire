@@ -41,7 +41,6 @@ component accessors="true" {
 		engine.setBeforeHydrationState( {} );
 		engine.setNoRendering( false );
 		engine.setDataProperties( variables.data );
-		engine.setIsInitialRendering( false );
 		engine.setComputedProperties( variables.computed );
 		engine.setEmittedEvents( [] );
 	}
@@ -156,9 +155,10 @@ component accessors="true" {
 		name,
 		boolean applyWiring = true
 	){
-		var templateRendering = getEngine().view( argumentCollection = arguments );
-		// Add properties to top element to make cbwire actually work.
-		return applyWiring ? getEngine().applyWiringToOuterElement( templateRendering ) : templateRendering;
+		var engine = getEngine();
+		var templateRendering = engine.view( argumentCollection = arguments );
+		// Add properties to top element to make Livewire actually work.
+		return applyWiring ? engine.applyWiringToOuterElement( templateRendering ) : templateRendering;
 	}
 
 	/**

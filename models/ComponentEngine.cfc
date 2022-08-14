@@ -44,7 +44,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	/**
 	 * Determines if component is being initially rendered or subsequently rendered.
 	 */
-	property name="isInitialRendering" default="false";
+	property name="isInitialRendering" default="true";
 
 	/**
 	 * The default data struct for cbwire components.
@@ -203,8 +203,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Component
 	 */
 	function mount( parameters = {}, key = "" ){
-		setIsInitialRendering( true );
-
 		announce(
 			"onCBWireMount",
 			{
@@ -413,7 +411,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return Struct
 	 */
-	function getInitialData( rendering ){
+	function getInitialData( rendering = "" ){
 		return {
 			"fingerprint" : {
 				"id" : getId(),
@@ -489,12 +487,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				outerElement & " wire:id=""#getId()#"" wire:initial-data=""#serializeJSON( getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
+			renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getId()# -->";
 		} else {
 			// Subsequent renderings
 			renderingResult = rendering.replaceNoCase( outerElement, outerElement & " wire:id=""#getId()#""", "once" );
 		}
 
-		renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getId()# -->";
 
 		return renderingResult;
 	}

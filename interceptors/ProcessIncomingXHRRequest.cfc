@@ -8,8 +8,10 @@ component {
                         .getEngine()
                         .hydrate( rc )
                         .getEngine()
+                        .setIsInitialRendering( false )
                         .subsequentRenderIt()
                         .getEngine()
+                        .setIsInitialRendering( false )
                         .getMemento();
         event.setValue( "_cbwire_subsequent_memento", memento );
     }
