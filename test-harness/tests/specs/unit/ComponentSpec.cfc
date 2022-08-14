@@ -46,22 +46,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( isObject( componentObj ) ).toBeTrue();
 			} );
 
-			describe( "logbox", function(){
-				it( "has reference to logbox", function(){
-					var logBox = componentObj.getLogBox();
-					expect( logBox ).toBeInstanceOf( "LogBox" );
-				} );
-
-				it( "has reference to logger", function(){
-					var logger = componentObj.getLogger();
-					expect( logger ).toBeInstanceOf( "Logger" );
-				} );
-			} );
-
 			describe( "getID()", function(){
-				it( "returns 21 character guid", function(){
+				it( "returns 20 character guid", function(){
 					var id = componentObj.getEngine().getId();
-					expect( len( id ) ).toBe( 21 );
+					expect( len( id ) ).toBe( 20 );
 					expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
 				} );
 			} );
@@ -119,10 +107,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "getPath", function(){
-				it( "returns empty string by default", function(){
-					expect( componentObj.getEngine().getPath() ).toBe( "" );
-				} );
-
 				it( "includes properties we've defined in our component as variables.queryString", function(){
 					componentObj.$property(
 						propertyName = "queryString",
