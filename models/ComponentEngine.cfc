@@ -89,7 +89,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns a unique ID for the component
+	 * Returns a unique ID for the component.
+	 * 
+	 * @return String
 	 */
 	function generateId(){
 		var guidChars = listToArray( createUUID(), "" )
