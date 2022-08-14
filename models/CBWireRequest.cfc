@@ -216,19 +216,6 @@ component accessors="true" singleton {
 	}
 
 	/**
-	 * Primary handler for incoming cbwire request.
-	 *
-	 * @context Struct
-	 */
-	function handle( required component ){
-		return arguments.component
-			.getEngine()
-			.hydrate( this )
-			.getEngine()
-			.getMemento();
-	}
-
-	/**
 	 * Returns the cbwire wiresLocation setting.
 	 * Defaults to 'wires'
 	 *
