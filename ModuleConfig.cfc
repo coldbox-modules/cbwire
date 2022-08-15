@@ -51,7 +51,7 @@ component {
 
 		interceptorSettings = {
 			customInterceptionPoints : [
-				"onCBWireSubsequentRequest",
+				"onCBWireRequest",
 				"onCBWireMount",
 				"onCBWireHydrate",
 				"onCBWireRenderIt",
@@ -60,8 +60,6 @@ component {
 		};
 
 		interceptors = [
-			// Request
-			{ class : "#moduleMapping#.interceptors.ProcessIncomingXHRRequest" },
 			// Security
 			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
 			// Mounting

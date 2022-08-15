@@ -165,12 +165,12 @@ component accessors="true" {
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The params passed with the emitter.
+	 * @parameters Array | The params passed with the emitter.
 	 * @track Boolean | True if you want to notify the UI that the emit occurred.
 	 *
-	 * @return void
+	* @return void
 	 */
-	function emit( required eventName, parameters = {}, track = true ){
+	function emit( required eventName, parameters = [], track = true ){
 		return getEngine().emit( argumentCollection = arguments );
 	}
 
