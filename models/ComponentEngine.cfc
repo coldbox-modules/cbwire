@@ -260,7 +260,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
 	function emit( required eventName, parameters = [], track = true ){
-
 		// Invoke 'preEmit' event
 		invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = arguments.parameters );
 
@@ -292,7 +291,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		// Invoke 'postEmit[EventName]' event
 		invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
-
 	}
 
 	/**

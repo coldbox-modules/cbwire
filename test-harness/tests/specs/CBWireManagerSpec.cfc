@@ -26,12 +26,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				rc = event.getCollection();
 				rc[ "fingerprint" ] = {
-					"v":"acj",
-					"path":"/",
-					"locale":"en",
-					"name":"wires.TestComponent",
-					"id":"0686d74bD2d2490E8FbA",
-					"method":"GET"
+					"v" : "acj",
+					"path" : "/",
+					"locale" : "en",
+					"name" : "wires.TestComponent",
+					"id" : "0686d74bD2d2490E8FbA",
+					"method" : "GET"
 				};
 
 				event.setValue( "wireComponent", "TestComponent" );
@@ -42,8 +42,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				);
 			} );
 
-			describe( "handleIncomingRequest", function() {
-				it( "returns effects and server memo", function() {
+			describe( "handleIncomingRequest", function(){
+				it( "returns effects and server memo", function(){
 					event.setValue( "wireComponent", "TestComponent" );
 					var result = cbwireManager.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "<div wire:id=" );
@@ -53,26 +53,26 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.serverMemo.data ).toBeStruct();
 				} );
 
-				it( "executes action 'changeTitle'", function() {
+				it( "executes action 'changeTitle'", function(){
 					rc[ "serverMemo" ] = {
-						"children":[],
-						"data": {
-							"title":"CBWIRE rocks!"
-						},
-						"errors":[],
-						"dataMeta":[],
-						"checksum":"BCF81523602F2382F82B9CD8A99410FA",
-						"htmlHash":"ed290ae9"
+						"children" : [],
+						"data" : { "title" : "CBWIRE rocks!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
 					};
-					
-					rc[ "updates" ] = [ {
-						"type":"callMethod",
-						"payload": {
-							"id":"zqs3",
-							"method": "changeTitle",
-							"params":[]
+
+					rc[ "updates" ] = [
+						{
+							"type" : "callMethod",
+							"payload" : {
+								"id" : "zqs3",
+								"method" : "changeTitle",
+								"params" : []
+							}
 						}
-					} ];
+					];
 					var result = cbwireManager.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Slays!" );
 					expect( result.effects.dirty ).toBeArray();
@@ -83,104 +83,108 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.serverMemo.data ).toBeStruct();
 				} );
 
-				it( "resets property using reset()", function() {
+				it( "resets property using reset()", function(){
 					rc[ "serverMemo" ] = {
-						"children":[],
-						"data": {
-							"title":"CBWIRE Slays!"
-						},
-						"errors":[],
-						"dataMeta":[],
-						"checksum":"BCF81523602F2382F82B9CD8A99410FA",
-						"htmlHash":"ed290ae9"
+						"children" : [],
+						"data" : { "title" : "CBWIRE Slays!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
 					};
-					
-					rc[ "updates" ] = [ {
-						"type":"callMethod",
-						"payload": {
-							"id":"zqs3",
-							"method": "resetTitle",
-							"params":[]
+
+					rc[ "updates" ] = [
+						{
+							"type" : "callMethod",
+							"payload" : {
+								"id" : "zqs3",
+								"method" : "resetTitle",
+								"params" : []
+							}
 						}
-					} ];
+					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Rocks!" );
 				} );
 
-				it( "emits event", function() {
+				it( "emits event", function(){
 					rc[ "serverMemo" ] = {
-						"children":[],
-						"data": {
-							"title":"CBWIRE Slays!"
-						},
-						"errors":[],
-						"dataMeta":[],
-						"checksum":"BCF81523602F2382F82B9CD8A99410FA",
-						"htmlHash":"ed290ae9"
-					};	
+						"children" : [],
+						"data" : { "title" : "CBWIRE Slays!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
+					};
 
-					rc[ "updates" ] = [ {
-						"type":"fireEvent",
-						"payload": {
-							"id":"zqs3",
-							"event": "someEvent",
-							"params": []
+					rc[ "updates" ] = [
+						{
+							"type" : "fireEvent",
+							"payload" : {
+								"id" : "zqs3",
+								"event" : "someEvent",
+								"params" : []
+							}
 						}
-					} ];
+					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: Fired some event" );
 				} );
 
-				it( "syncs input", function() {
+				it( "syncs input", function(){
 					rc[ "serverMemo" ] = {
-						"children":[],
-						"data": {
-							"title":"CBWIRE Slays!"
-						},
-						"errors":[],
-						"dataMeta":[],
-						"checksum":"BCF81523602F2382F82B9CD8A99410FA",
-						"htmlHash":"ed290ae9"
+						"children" : [],
+						"data" : { "title" : "CBWIRE Slays!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
 					};
-					
-					rc[ "updates" ] = [ {
-						"type":"syncInput",
-						"payload": {
-							"id":"zqs3",
-							"name": "title",
-							"value": "CBWIRE Slays!"
+
+					rc[ "updates" ] = [
+						{
+							"type" : "syncInput",
+							"payload" : {
+								"id" : "zqs3",
+								"name" : "title",
+								"value" : "CBWIRE Slays!"
+							}
 						}
-					} ];
+					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Slays!" );
 				} );
 
-				it( "can start upload", function() {
+				it( "can start upload", function(){
 					rc[ "serverMemo" ] = {
-						"children":[],
-						"data": {
-							"title":"CBWIRE Slays!"
-						},
-						"errors":[],
-						"dataMeta":[],
-						"checksum":"BCF81523602F2382F82B9CD8A99410FA",
-						"htmlHash":"ed290ae9"
+						"children" : [],
+						"data" : { "title" : "CBWIRE Slays!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
 					};
-					
-					rc[ "updates" ] = [ {
-						"type":"callMethod",
-						"payload": {
-							"id":"zqs3",
-							"method": "startUpload",
-							"params": [
-								"myFile",
-								{ "name": "cbwire.jpg", "size": "39019", "type": "image/jpg" }
-							]
+
+					rc[ "updates" ] = [
+						{
+							"type" : "callMethod",
+							"payload" : {
+								"id" : "zqs3",
+								"method" : "startUpload",
+								"params" : [
+									"myFile",
+									{
+										"name" : "cbwire.jpg",
+										"size" : "39019",
+										"type" : "image/jpg"
+									}
+								]
+							}
 						}
-					} ];
+					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
 					writeDump( result );
@@ -206,4 +210,4 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		} );
 	}
 
-}  
+}

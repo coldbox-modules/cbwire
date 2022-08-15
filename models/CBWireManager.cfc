@@ -85,23 +85,24 @@ component singleton {
 		return variables.requestService.getContext();
 	}
 
-    /**
-     * Primary entry point for cbwire requests.
-     *
-     * Currently uses /livewire URI to support Livewire JS.
-     *
-     * URI: /livewire/messages/:wireComponent
-     */
-	function handleIncomingRequest( event ) {
+	/**
+	 * Primary entry point for cbwire requests.
+	 *
+	 * Currently uses /livewire URI to support Livewire JS.
+	 *
+	 * URI: /livewire/messages/:wireComponent
+	 */
+	function handleIncomingRequest( event ){
 		var wireComponent = event.getValue( "wireComponent" );
-        return getComponentInstance( wireComponent )
-                    .getEngine()
-                    .hydrate( event.getCollection() )
-                    .getEngine()
-                    .setIsInitialRendering( false )
-                    .subsequentRenderIt()
-                    .getEngine()
-                    .setIsInitialRendering( false )
-                    .getMemento();
+		return getComponentInstance( wireComponent )
+			.getEngine()
+			.hydrate( event.getCollection() )
+			.getEngine()
+			.setIsInitialRendering( false )
+			.subsequentRenderIt()
+			.getEngine()
+			.setIsInitialRendering( false )
+			.getMemento();
 	}
+
 }
