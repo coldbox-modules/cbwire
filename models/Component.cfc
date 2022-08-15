@@ -299,10 +299,10 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function reset( property ) {
+	function reset( property ){
 		getEngine().reset( arguments.property );
 	}
-	 /**
+	/**
 	 * Renders our component's view.
 	 *
 	 * @return Void
