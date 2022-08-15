@@ -90,18 +90,19 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	/**
 	 * Returns a unique ID for the component.
-	 * 
+	 *
 	 * @return String
 	 */
 	function generateId(){
 		var guidChars = listToArray( createUUID(), "" )
-			.filter( function( char ) {
+			.filter( function( char ){
 				return char != "-";
 			} )
-			.filter( function( char, index ) {
+			.filter( function( char, index ){
 				return index <= 20;
-			} ).map( function( char ) {
-				return randRange( 0, 1) == 0 ? uCase( char ) : lCase( char );
+			} )
+			.map( function( char ){
+				return randRange( 0, 1 ) == 0 ? uCase( char ) : lCase( char );
 			} );
 		return arrayToList( guidChars, "" );
 	}
@@ -351,11 +352,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			return key != "methodName";
 		} );
 
-		return invoke(
-			getWire(),
-			arguments.methodName,
-			filteredParams
-		);
+		return invoke( getWire(), arguments.methodName, filteredParams );
 	}
 
 	/**
@@ -423,13 +420,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				"locale" : "en",
 				"path" : getPath(),
 				"method" : "GET",
-				"v": "acj"
+				"v" : "acj"
 			},
 			"effects" : { "listeners" : getListenerNames() },
 			"serverMemo" : {
 				"children" : [],
 				"errors" : [],
-				"htmlHash": getCRC32Hash( rendering ),
+				"htmlHash" : getCRC32Hash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"dataMeta" : [],
 				"checksum" : getChecksum()
@@ -448,12 +445,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	/**
 	 * Returns a CRC32 hash of the passed in content.
-	 * 
+	 *
 	 * @return string
 	 */
 	function getCRC32Hash( content ){
-        var checksum = createObject( "java", "java.util.zip.CRC32" ).init();
-        checksum.update( charsetDecode( content, "utf-8" ) );
+		var checksum = createObject( "java", "java.util.zip.CRC32" ).init();
+		checksum.update( charsetDecode( content, "utf-8" ) );
 		return createObject( "java", "java.lang.Long" ).toHexString( checksum.getValue() );
 	}
 
