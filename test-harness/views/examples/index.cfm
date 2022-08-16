@@ -24,7 +24,7 @@
         <a class="btn btn-primary w-100" href="/examples/QueryString?search=some+search">Query String</a>
     </div>
     <div class="col-12 mt-4">
-        <h2>Form Elements</h2>
+        <h2>Forms</h2>
     </div>
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/TextInput">Text Input</a>
@@ -44,6 +44,10 @@
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/SubmitButton">Submit Button</a>
     </div>
+    <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/FormValidation">Validation</a>
+    </div>
+
     <!---
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/FileUpload">File Upload</a>
