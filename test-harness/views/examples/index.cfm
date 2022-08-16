@@ -15,8 +15,13 @@
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/Listeners">Listeners</a>
     </div>
+    <!---
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/NestedComponents">Nested Components</a>
+    </div>
+    --->
+    <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/QueryString?search=some+search">Query String</a>
     </div>
     <div class="col-12 mt-4">
         <h2>Form Elements</h2>
@@ -39,9 +44,11 @@
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/SubmitButton">Submit Button</a>
     </div>
+    <!---
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/FileUpload">File Upload</a>
     </div>
+    --->
     <div class="col-12 mt-4">
         <h2>Template Directives</h2>
     </div>
