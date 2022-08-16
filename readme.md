@@ -33,6 +33,21 @@ Install [CommandBox](https://www.ortussolutions.com/products/commandbox), then f
 box install cbwire@be
 ```
 
+## Examples
+
+Included in this repo is an app where you can experience and see code examples covering all the features of CBWIRE.
+
+Just run the following:
+
+```
+box server start
+```
+
+Then visit:
+
+http://localhost:60299/examples/index
+
+
 ## Contributing
 
 We love PRs! Please create a ticket using the [ Issue Tracker](https://github.com/coldbox-modules/cbwire/issues) before submitting a PR.
