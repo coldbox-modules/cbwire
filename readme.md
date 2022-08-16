@@ -45,7 +45,7 @@ box install && cd .. && server start
 
 Then visit:
 
-http://localhost:60299/examples/index
+http://localhost:60299/
 
 
 ## Contributing
