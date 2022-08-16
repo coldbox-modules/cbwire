@@ -37,10 +37,10 @@ box install cbwire@be
 
 Included in this repo is an app where you can experience and see code examples covering all the features of CBWIRE.
 
-Just run the following:
+Just run the following from the `test-harness` directory:
 
 ```
-box server start
+box install && cd .. && server start
 ```
 
 Then visit:
