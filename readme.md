@@ -40,7 +40,7 @@ Included in this repo is an app where you can experience and see code examples c
 Just run the following from the `test-harness` directory:
 
 ```
-box install && cd .. && server start
+box install && cd .. && box server start
 ```
 
 Then visit:
