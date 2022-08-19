@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
     function addYear() {
         var currentYear = year( now() );
         if ( !find( currentYear, data.conference ) ) {
-            data.conference &= " " & year( now() );
+            data.conference &= " " & currentYear;
         }
     }
 

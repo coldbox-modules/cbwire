@@ -160,41 +160,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns an array of properties that have changed during the request.
-	 *
-	 * @return Array
-	 */
-	function getDirtyProperties(){
-		var currentState = getState();
-
-		var arrayUtil = createObject( "java", "java.util.Arrays" );
-
-		var result = getBeforeHydrationState().reduce( function( result, key, value, state ){
-			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
-				return result;
-			} else {
-				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
-				afterHydrateValue = createObject( "java", "java.lang.String" )
-					.init( currentState[ key ].toString() )
-					.toCharArray();
-
-				arrayUtil.sort( beforeHydrateValue );
-				arrayUtil.sort( afterHydrateValue );
-
-				if ( arrayUtil.equals( beforeHydrateValue, afterHydrateValue ) ) {
-					return result;
-				}
-			}
-
-			result.append( key );
-
-			return result;
-		}, [] );
-
-		return result;
-	}
-
-	/**
 	 * Fires when the cbwire component is initially created.
 	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
 	 *
@@ -259,7 +224,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @parameters Arrays | The params passed with the emitter.
 	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
-	function emit( required eventName, parameters = [], track = true ){
+	function emit( required eventName, array parameters = [], track = true ){
 		// Invoke 'preEmit' event
 		invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = arguments.parameters );
 
@@ -346,11 +311,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function invokeMethod( required methodName ){
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
-		var filteredParams = params.filter( function( key, value ){
-			return key != "methodName";
-		} );
-
-		return invoke( getWire(), arguments.methodName, filteredParams );
+		return invoke(
+			getWire(),
+			arguments.methodName,
+			params
+		);
 	}
 
 	/**
@@ -657,12 +622,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function getMemento(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
-		var dirtyProperties = getDirtyProperties();
-
 		return {
 			"effects" : {
 				"html" : len( rendering ) ? rendering : javacast( "null", 0 ),
-				"dirty" : getDirtyProperties(),
+				"dirty" : [],
 				"path" : getPath(),
 				"emits" : getEmittedEvents()
 			},

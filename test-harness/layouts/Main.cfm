@@ -14,6 +14,16 @@
 		import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
 	</script>
 	<style type="text/css">
+		html {
+			height: 100%;
+		}
+		body {
+			background: url(/includes/images/bg.jpg);
+			background-repeat: no-repeat;
+			background-size: 100% 100%;
+			background-attachment: fixed;
+			min-height: 100%;
+		}
 		.btn-primary, .btn-primary:focus {
 			border-color: ##fcd34d;
 			background-color: ##fcd34d;
@@ -24,8 +34,14 @@
 			background-color: ##eab308;
 		}
 		.code {
-			background-color: ##eeeeee;
 			padding: 10px;
+		}
+		.example {
+			margin-top: 25px;
+			padding: 40px 20px;
+			background-color: ##333333;
+			color: ##ffffff;
+			border: 2px solid ##dddddd;
 		}
 	</style>
 	#wireStyles()#
@@ -34,7 +50,7 @@
 	<div class="container pt-3">
 		<div class="row">
 			<div class="col-6">
-				<h1><a href="/examples/index">CBWIRE Examples</a></h1>
+				<h1><a href="/" class="text-decoration-none">CBWIRE Examples</a></h1>
 			</div>
 			<div class="col-6">
 				<div class="d-flex flex-row-reverse mt-3">
