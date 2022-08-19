@@ -220,10 +220,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The params passed with the emitter.
+	 * @parameters Arrays | The params passed with the emitter.
 	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
-	function emit( required eventName, parameters = {}, track = true ){
+	function emit( required eventName, array parameters = [], track = true ){
 		// Invoke 'preEmit' event
 		invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = arguments.parameters );
 
@@ -310,14 +310,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function invokeMethod( required methodName ){
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
-		var filteredParams = params.filter( function( key, value ){
-			return key != "methodName";
-		} );
-
 		return invoke(
 			getWire(),
 			arguments.methodName,
-			filteredParams
+			params
 		);
 	}
 
