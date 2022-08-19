@@ -23,7 +23,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			it( "can render the main event", function(){
 				var event = get( "/" );
-				expect( event.getRenderedContent() ).toInclude( "Hello World" );
+				expect( event.getRenderedContent() ).toInclude( "CBWIRE Examples" );
 			} );
 
 			describe( "wire()", function(){

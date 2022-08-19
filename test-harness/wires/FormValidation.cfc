@@ -1,15 +1,16 @@
 component extends="cbwire.models.Component" {
 
     this.constraints = {
-        "task": { required: true, type: "email" }
+        "email": { required: true, type: "email" }
     };
 
     data = {
-        "task": ""
+        "email": "",
+        "success": false
     };
 
-    function addTask() {
+    function addEmail() {
         validateOrFail();
-        data.task = "whatever";
+        data.success = true;
     }
 }
