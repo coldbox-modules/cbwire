@@ -54,58 +54,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "getDirtyProperties", function(){
-				it( "can compare simple values", function(){
-					componentObj.getEngine().setBeforeHydrationState( { "count" : 2 } );
-
-					engine.$( "getState", { "count" : 1 } );
-
-					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
-
-					expect( dirtyProperties ).toBeArray();
-					expect( !!dirtyProperties.find( "count" ) ).toBeTrue();
-				} );
-
-				it( "can compare a struct", function(){
-					componentObj.getEngine().setBeforeHydrationState( { "foo" : { "value" : "bar" } } );
-
-					engine.$( "getState", { "foo" : { "value" : "baz" } } );
-
-					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
-
-					expect( dirtyProperties ).toBeArray();
-					expect( !!dirtyProperties.find( "foo" ) ).toBeTrue();
-				} );
-
-				it( "can compare a struct with different key orders", function(){
-					componentObj.$property(
-						propertyName = "beforeHydrateState",
-						propertyScope = "variables",
-						mock = { "foo" : { "value" : "bar", "baz" : "foo" } }
-					);
-
-					engine.$( "getState", { "foo" : { "baz" : "foo", "value" : "bar" } } );
-
-					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
-
-					expect( dirtyProperties ).toBeArray().toHaveLength( 0 );
-				} );
-
-				it( "can compare an array", function(){
-					componentObj.$property(
-						propertyName = "beforeHydrateState",
-						propertyScope = "variables",
-						mock = { "foo" : [ "bar", "baz" ] }
-					);
-
-					engine.$( "getState", { "foo" : [ "bar", "baz" ] } );
-
-					var dirtyProperties = componentObj.getEngine().getDirtyProperties();
-
-					expect( dirtyProperties ).toBeArray().toHaveLength( 0 );
-				} );
-			} );
-
 			describe( "getPath", function(){
 				it( "includes properties we've defined in our component as variables.queryString", function(){
 					componentObj.$property(

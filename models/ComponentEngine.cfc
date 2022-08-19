@@ -159,41 +159,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns an array of properties that have changed during the request.
-	 *
-	 * @return Array
-	 */
-	function getDirtyProperties(){
-		var currentState = getState();
-
-		var arrayUtil = createObject( "java", "java.util.Arrays" );
-
-		var result = getBeforeHydrationState().reduce( function( result, key, value, state ){
-			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
-				return result;
-			} else {
-				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
-				afterHydrateValue = createObject( "java", "java.lang.String" )
-					.init( currentState[ key ].toString() )
-					.toCharArray();
-
-				arrayUtil.sort( beforeHydrateValue );
-				arrayUtil.sort( afterHydrateValue );
-
-				if ( arrayUtil.equals( beforeHydrateValue, afterHydrateValue ) ) {
-					return result;
-				}
-			}
-
-			result.append( key );
-
-			return result;
-		}, [] );
-
-		return result;
-	}
-
-	/**
 	 * Fires when the cbwire component is initially created.
 	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
 	 *
@@ -660,12 +625,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function getMemento(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
-		var dirtyProperties = getDirtyProperties();
-
 		return {
 			"effects" : {
 				"html" : len( rendering ) ? rendering : javacast( "null", 0 ),
-				"dirty" : getDirtyProperties(),
+				"dirty" : [],
 				"path" : getPath(),
 				"emits" : getEmittedEvents()
 			},
