@@ -1,8 +1,9 @@
 <cfoutput>
-    <div>#args.conference# 
-        <div>
-            <a href="##" wire:click.prevent="addYear">Add Year</a>
-            <a href="##" wire:click.prevent="resetForm">Reset</a>
+    <div>
+        Conference: #args.conference# 
+        <div class="mt-4">
+            <a href="##" wire:click.prevent="addYear" class="btn btn-primary">Add Year</a>
+            <a href="##" wire:click.prevent="resetForm" class="btn btn-secondary">Reset</a>
         </div>
     </div>
 </cfoutput>
