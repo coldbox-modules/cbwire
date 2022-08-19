@@ -311,11 +311,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function invokeMethod( required methodName ){
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
-		return invoke(
-			getWire(),
-			arguments.methodName,
-			params
-		);
+		return invoke( getWire(), arguments.methodName, params );
 	}
 
 	/**
