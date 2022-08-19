@@ -10,9 +10,6 @@
         <a class="btn btn-primary w-100" href="/examples/Actions">Actions</a>
     </div>
     <div class="col-3 pt-3">
-        <a class="btn btn-primary w-100" href="/examples/CallAction">Call Action</a>
-    </div>
-    <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/Listeners">Listeners</a>
     </div>
     <!---
