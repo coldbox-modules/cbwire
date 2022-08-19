@@ -7,8 +7,8 @@
         where 'cbwire' exists.
     -->
     <script>
-        cbwire.on( 'sentMessage', function() {
-            alert( 'Annoying pop-up' );
+        cbwire.on( 'success', function( payload ) {
+            alert( 'Message sent at ' + payload[ 0 ] );
         } );
     </script>
 </cfsavecontent>
@@ -19,10 +19,5 @@
             <input wire:model="message" type="text">
             <button type="submit">Send Message</button>
         </form>
-        <cfif args.sent>
-            <div class="mt-4 alert alert-info">
-                Message sent
-            </div>
-        </cfif>
     </div>
 </cfoutput>
