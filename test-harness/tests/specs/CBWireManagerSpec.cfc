@@ -154,7 +154,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
-					
 				} );
 
 				it( "can start upload", function(){
