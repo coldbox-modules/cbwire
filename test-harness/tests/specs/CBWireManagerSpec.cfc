@@ -76,7 +76,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = cbwireManager.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Slays!" );
 					expect( result.effects.dirty ).toBeArray();
-					expect( result.effects.dirty ).toInclude( "title" );
 					expect( result.effects.emits ).toBeArray();
 					expect( result.serverMemo.children ).toBeStruct();
 					expect( result.serverMemo.data.title ).toBe( "CBWIRE Slays!" );
@@ -155,7 +154,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
-					expect( result.effects.html ).toInclude( "Title: CBWIRE Slays!" );
+					
 				} );
 
 				it( "can start upload", function(){
@@ -187,8 +186,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					];
 
 					var result = cbwireManager.handleIncomingRequest( event );
-					writeDump( result );
-					abort;
 					expect( result.effects.emits[ 1 ].event ).toBe( "upload:generatedSignedUrl" )
 					expect( result.effects.emits[ 1 ].params[ 1 ] ).toBe( "myFile" );
 					expect( result.effects.emits[ 1 ].params[ 2 ] ).toInclude( "/livewire/upload-file?expires=" );

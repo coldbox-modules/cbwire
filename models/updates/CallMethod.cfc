@@ -1,12 +1,23 @@
 component extends="WireUpdate" {
 
+	property name="cbwireRequest" inject="CBWireRequest@cbwire";
+
 	/**
 	 * Runs the specified action method within the request payload on the provided component.
 	 *
 	 * @return Void
 	 */
 	function apply( required comp ){
-		// Handle $set calls.
+		if ( variables.getPayloadMethod() == "startUpload" ) {
+			var signature = "someSignature";
+			var signedURL = getBaseURL() & "/livewire/upload-file?expires=never&signature=#signature#";
+			comp.emitSelf( eventName="upload:generatedSignedUrl", parameters=[
+				"myFile",
+				signedURL
+			] );
+			return;
+		}
+
 		if ( variables.getPayloadMethod() == "$set" ) {
 			invoke(
 				arguments.comp,
@@ -102,6 +113,16 @@ component extends="WireUpdate" {
 	 */
 	private function getPayloadMethod(){
 		return this.getPayload()[ "method" ];
+	}
+
+	/**
+	 * Returns the the sites base URL.
+	 * Used for building URLs returned to Livewire.
+	 *
+	 * @return String
+	 */
+	private function getBaseURL() {
+		return cgi.http_port == 80 ? "http://" & cgi.http_host : "https://" & cgi.http_host;
 	}
 
 }
