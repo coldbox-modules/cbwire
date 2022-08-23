@@ -9,7 +9,7 @@
 
     <cfif args.validation.hasErrors( "email" )>
         <cfloop array="#args.validation.getAllErrors( "email" )#" index="error">
-            <div>#error#</div>
+            <div class="alert alert-danger mt-2">#error#</div>
         </cfloop>
     </cfif>
 </div>
