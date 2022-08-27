@@ -92,16 +92,12 @@ component singleton {
 	 *
 	 * URI: /livewire/messages/:wireComponent
 	 */
-	function handleIncomingRequest( event ){
+	function handleIncomingRequest( event, rc, prc ){
 		var wireComponent = event.getValue( "wireComponent" );
 		return getComponentInstance( wireComponent )
 			.getEngine()
-			.hydrate( event.getCollection() )
-			.getEngine()
-			.setIsInitialRendering( false )
+			.hydrate()
 			.subsequentRenderIt()
-			.getEngine()
-			.setIsInitialRendering( false )
 			.getMemento();
 	}
 

@@ -420,9 +420,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return Component
 	 */
-	function hydrate( event, rc, prc ){
+	function hydrate(){
+		setIsInitialRendering( false );
 		announce( "onCBWireHydrate", { component : getWire() } );
-		return getWire();
+		return this;
 	}
 
 	/**
@@ -543,7 +544,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function subsequentRenderIt(){
 		announce( "onCBWireSubsequentRenderIt", { component : getWire() } );
-		return getWire();
+		return this;
 	}
 
 	/**
