@@ -11,10 +11,7 @@ component extends="WireUpdate" {
 		if ( variables.getPayloadMethod() == "startUpload" ) {
 			var signature = "someSignature";
 			var signedURL = getBaseURL() & "/livewire/upload-file?expires=never&signature=#signature#";
-			comp.emitSelf( eventName="upload:generatedSignedUrl", parameters=[
-				"myFile",
-				signedURL
-			] );
+			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ "myFile", signedURL ] );
 			return;
 		}
 
@@ -121,7 +118,7 @@ component extends="WireUpdate" {
 	 *
 	 * @return String
 	 */
-	private function getBaseURL() {
+	private function getBaseURL(){
 		return cgi.http_port == 80 ? "http://" & cgi.http_host : "https://" & cgi.http_host;
 	}
 
