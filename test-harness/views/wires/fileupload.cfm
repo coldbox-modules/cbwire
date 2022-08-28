@@ -1,5 +1,5 @@
 <cfoutput>
     <div>
-        <input wire:model="file" type="file">
+        <input wire:model="myFile" type="file">
     </div>
 </cfoutput>

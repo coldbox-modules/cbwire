@@ -1,7 +1,7 @@
 <cfoutput>
 <div class="row">
     <div class="col-12 mt-4">
-        <h2>Components</h2>
+        <h2>Getting Started</h2>
     </div>
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/DataProperties">Data Properties</a>
@@ -10,15 +10,16 @@
         <a class="btn btn-primary w-100" href="/examples/Actions">Actions</a>
     </div>
     <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/ComputedProperties">Computed Properties</a>
+    </div>
+    <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/DataBinding">Data Binding</a>
+    </div>
+    <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/Listeners">Listeners</a>
     </div>
-    <!---
     <div class="col-3 pt-3">
-        <a class="btn btn-primary w-100" href="/examples/QueryString?search=some+search">Query String</a>
-    </div>
-    --->
-    <div class="col-3 pt-3">
-        <a class="btn btn-primary w-100" href="/examples/QueryString?search=some+search">Query String</a>
+        <a class="btn btn-primary w-100" href="/examples/QueryString">Query String</a>
     </div>
     <div class="col-12 mt-4">
         <h2>Forms</h2>

@@ -9,12 +9,14 @@
         "cbvalidation":"3.3.0+10"
     },
     "devDependencies":{
-        "testbox":"^4.0.0"
+        "testbox":"^4.0.0",
+        "route-visualizer":"^1.4.0+24"
     },
     "installPaths":{
         "coldbox":"coldbox/",
         "testbox":"testbox/",
-        "cbvalidation":"modules/cbvalidation/"
+        "cbvalidation":"modules/cbvalidation/",
+        "route-visualizer":"modules/route-visualizer/"
     },
     "testbox":{
         "runner":"http://localhost:60299/tests/runner.cfm"

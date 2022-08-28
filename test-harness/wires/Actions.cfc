@@ -1,18 +1,20 @@
 component extends="cbwire.models.Component" {
 
+    // Data properties
     data = {
-        "result": "No actions have ran"
+        "conference": "Into The Box"
     };
 
-    function action1() {
-        data.result = "Action ##1 ran!";
+    // Actions
+    function changeConference() {
+        data.conference = "CF Summit";
     }
 
-    function action2() {
-        data.result = "Action ##2 ran!";
+    function addYear( currentYear ) {
+        data.conference &= " " & currentYear;
     }
 
-    function action3( actionName ) {
-        data.result = "#actionName# ran and passed parameters!";
+    function resetConference() {
+        reset( "conference" );
     }
 }

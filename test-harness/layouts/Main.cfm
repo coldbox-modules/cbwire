@@ -16,13 +16,29 @@
 	<style type="text/css">
 		html {
 			height: 100%;
+			background-color: ##333333;
 		}
 		body {
+			
 			background: url(/includes/images/bg.jpg);
 			background-repeat: no-repeat;
-			background-size: 100% 100%;
+			background-size: 100%;
+			background-position: bottom;
 			background-attachment: fixed;
 			min-height: 100%;
+			font-size: 1.2rem;
+		}
+		a {
+			color: ##333333;
+		} 
+		a:hover {
+			color: ##000000;
+		}
+		h2 {
+			color: ##ffffff;
+		}
+		input, textarea {
+			width: 50% !important;
 		}
 		.btn-primary, .btn-primary:focus {
 			border-color: ##fcd34d;
@@ -30,24 +46,25 @@
 			color: ##000000;
 		}
 		.btn-primary:hover {
-			border-color: ##fcd34d;
+			border-color: ##eab308;
 			background-color: ##eab308;
 		}
-		.code {
+		.hljs {
 			padding: 10px;
+			border-radius: 10px;
 		}
 		.example {
-			margin-top: 25px;
 			padding: 40px 20px;
 			background-color: ##333333;
 			color: ##ffffff;
-			border: 2px solid ##dddddd;
+			border: 2px solid ##333333;
+			border-radius: 10px;
 		}
 	</style>
 	#wireStyles()#
 </head>
 <body>
-	<div class="container pt-3">
+	<div class="container pt-3 pb-5">
 		<div class="row">
 			<div class="col-6">
 				<h1><a href="/" class="text-decoration-none">CBWIRE Examples</a></h1>
