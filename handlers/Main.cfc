@@ -13,4 +13,22 @@ component {
         return cbwireManager.handleIncomingRequest( event, rc, prc );
     }
 
+    /**
+     * Endpoint for file uploads
+     * 
+     * URI: /livewire/upload-file
+     */
+    function uploadFile( event, rc, prc ) {
+        return cbwireManager.handleFileUpload( event, rc, prc );
+    }
+
+    /**
+     * Endpoint for previewing file uploads
+     * 
+     * URI: /livewire/previe-file/:uploadUUID
+     */
+    function previewFile( event, rc, prc ) {
+        return cbwireManager.handlePreviewFile( event, rc, prc );
+    }
+
 }

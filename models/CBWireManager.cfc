@@ -101,4 +101,31 @@ component singleton {
 			.getMemento();
 	}
 
+	function handleFileUpload( event, rc, prc ) {
+		var results = fileUploadAll( destination=expandPath( "/" ), onConflict="makeUnique" );
+		var paths = results.map( function( result ) {
+			var id = createUUID();
+			fileWrite( expandPath( "/#id#.json" ), serializeJson( result ) );
+			return id;
+		} );
+		return {
+			"paths": paths
+		};
+	}
+
+	function handlePreviewFile( event, rc, prc ) {
+		var uuid = event.getValue( "uploadUUID", "" );
+		if ( !len( uuid ) ) { return event.noRender(); }
+
+		var metaJSON = deserializeJson( fileRead( expandPath( "./#uuid#.json" ) ) );
+		var contents = fileReadBinary( expandPath( "./#metaJSON.serverFile#" ) );
+		event.sendFile(
+            file = contents,
+			disposition = "inline",
+			extension = metaJSON.serverFileExt,
+			mimeType="#metaJSON.contentType#/#metaJSON.contentSubType#"
+		)
+        .noRender();
+	}
+
 }

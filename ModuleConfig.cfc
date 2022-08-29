@@ -44,6 +44,16 @@ component {
 
 		routes = [
 			{
+				"pattern" : "preview-file/:uploadUUID",
+				"handler" : "Main",
+				"action"  : "previewFile"
+			},
+			{
+				"pattern" : "upload-file",
+				"handler" : "Main",
+				"action"  : "uploadFile"
+			},
+			{
 				"pattern" : "message/:wireComponent",
 				"handler" : "Main"
 			}

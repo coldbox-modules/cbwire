@@ -159,11 +159,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "can start upload", function(){
 					rc[ "serverMemo" ] = {
 						"children" : [],
-						"data" : { "title" : "CBWIRE Slays!" },
 						"errors" : [],
+						"htmlHash": "48e6dd7c",
+						"data" : { 
+							"myFile" : ""
+						},
 						"dataMeta" : [],
-						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
-						"htmlHash" : "ed290ae9"
+						"checksum" : "8dd9b6e1456bd3c73651446497a4b72125ece6dd58c724815eb720c1e7f5e2d2"
 					};
 
 					rc[ "updates" ] = [
@@ -174,11 +176,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								"method" : "startUpload",
 								"params" : [
 									"myFile",
-									{
+									[{
 										"name" : "cbwire.jpg",
 										"size" : "39019",
 										"type" : "image/jpg"
-									}
+									}],
+									false
 								]
 							}
 						}
@@ -188,8 +191,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.effects.emits[ 1 ].event ).toBe( "upload:generatedSignedUrl" )
 					expect( result.effects.emits[ 1 ].params[ 1 ] ).toBe( "myFile" );
 					expect( result.effects.emits[ 1 ].params[ 2 ] ).toInclude( "/livewire/upload-file?expires=" );
-					expect( result.effects.emits[ 1 ].params[ 2 ] ).toInclude( "signature=" );
 					expect( result.effects.emits[ 1 ].selfOnly ).toBeTrue();
+					expect( result.effects.emits[ 1 ].params[ 2 ] ).toInclude( "signature=" );
 				} );
 			} );
 

@@ -76,6 +76,21 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="id";
 
 	/**
+	 * Hold finish upload state
+	 */
+	property name="finishUpload" default="false";
+
+	/**
+	 * Hold dirty properties
+	 */
+	property name="dirtyProperties";
+
+	/**
+	 * Hold rendering overrides
+	 */
+	property name="renderingOverrides";
+
+	/**
 	 * A beautiful constructor
 	 */
 	function init( required wire, required variablesScope ){
@@ -86,6 +101,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		setDataProperties( {} );
 		setComputedProperties( {} );
 		setEmittedEvents( [] );
+		setDirtyProperties( [] );
+		setRenderingOverrides( {} );
 	}
 
 	/**
@@ -610,6 +627,16 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
+	 * Returns the HTML rendering or null
+	 * 
+	 * @return Any
+	 */
+	function getHTML() {
+		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+		return len( rendering ) ? rendering : javacast( "null", 0 );
+	}
+
+	/**
 	 * Returns the memento for our component which holds the current
 	 * state of our component. This is returned on subsequent XHR requests
 	 * from cbwire.
@@ -619,20 +646,25 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function getMemento(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
-		return {
+		var memento = {
 			"effects" : {
-				"html" : len( rendering ) ? rendering : javacast( "null", 0 ),
-				"dirty" : [],
-				"path" : getPath(),
+				"html" : getHTML(),
+				"dirty" : getDirtyProperties(),
 				"emits" : getEmittedEvents()
 			},
 			"serverMemo" : {
-				"children" : isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children,
-				"htmlHash" : getCRC32Hash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"checksum" : getChecksum()
 			}
 		}
+
+		if ( !getFinishUpload() ) {
+			memento.effects[ "path" ]= getPath();
+			memento.serverMemo[ "htmlHash" ] = getCRC32Hash( rendering );
+			memento.serverMemo[ "children" ] = isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children;
+		}
+		
+		return memento;
 	}
 
 	/**
@@ -689,6 +721,18 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Pass the properties of the cbwire component as variables to the view
 		arguments.args = getState( includeComputed = true, nullEmpty = false );
 
+		// Replace any cbwire upload references with a FileUpload object for the view
+		arguments.args.filter( function( key, value ) {
+			return findNoCase( "cbwire-upload:", value );
+		} ).each( function( key, value ) {
+			var uuid = replaceNoCase( value, "cbwire-upload:", "", "once" );
+			var fileUpload = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=getWire(), params=[ key, [ uuid  ] ] } );
+			getRenderingOverrides()[ key ] = fileUpload;
+		});
+
+		// If there are any rendering overrides ( like during file upload ), then merge those in
+		structAppend( arguments.args, getRenderingOverrides(), true );
+
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
@@ -736,6 +780,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function handleMissingMethod( required missingMethodName, required missingMethodArguments ){
+
 		var settings = getSettings();
 
 		var data = getDataProperties();
@@ -758,6 +803,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ) {
+
 			// Extract data property name from the setter method called.
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
 
@@ -782,6 +828,20 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
 			reset( dataPropertyName );
 		}
+	}
+
+	function finishUpload( params ){
+		var fileUpload = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=getWire(), params=params } ); 
+		getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
+		setFinishUpload( true );
+		getDirtyProperties().append( "myFile" );
+		getVariablesScope().data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
+		getWire().emitSelf( eventName="upload:finished", parameters=[
+			"myFile",
+			[
+				"nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif"
+			]
+		]);
 	}
 
 }

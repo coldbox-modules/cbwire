@@ -156,6 +156,7 @@ component accessors="true" {
 		boolean applyWiring = true
 	){
 		var engine = getEngine();
+
 		var templateRendering = engine.view( argumentCollection = arguments );
 		// Add properties to top element to make Livewire actually work.
 		return applyWiring ? engine.applyWiringToOuterElement( templateRendering ) : templateRendering;

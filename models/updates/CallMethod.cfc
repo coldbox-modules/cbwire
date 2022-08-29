@@ -8,9 +8,13 @@ component extends="WireUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
+		if ( variables.getPayloadMethod() == "finishUpload" ) {
+			comp.getEngine().finishUpload( params=getPassedParamsAsArguments() );
+			return;
+		}
 		if ( variables.getPayloadMethod() == "startUpload" ) {
 			var signature = "someSignature";
-			var signedURL = getBaseURL() & "/livewire/upload-file?expires=never&signature=#signature#";
+			var signedURL = "/livewire/upload-file?expires=never&signature=#signature#";
 			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ "myFile", signedURL ] );
 			return;
 		}
@@ -63,15 +67,7 @@ component extends="WireUpdate" {
 	 * @return Struct
 	 */
 	private function getPassedParamsAsArguments(){
-		if ( variables.hasPassedParams() ) {
-			return variables
-				.getPassedParams()
-				.reduce( function( agg, param, index ){
-					arguments.agg[ index ] = param;
-					return arguments.agg;
-				}, {} );
-		}
-		return {};
+		return variables.hasPassedParams() ? variables.getPassedParams() : [];
 	}
 
 	/**
