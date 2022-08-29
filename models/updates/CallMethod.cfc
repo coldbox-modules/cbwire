@@ -9,7 +9,7 @@ component extends="WireUpdate" {
 	 */
 	function apply( required comp ){
 		if ( variables.getPayloadMethod() == "finishUpload" ) {
-			comp.getEngine().finishUpload( params=getPassedParamsAsArguments() );
+			comp.getEngine().finishUpload( params = getPassedParamsAsArguments() );
 			return;
 		}
 		if ( variables.getPayloadMethod() == "startUpload" ) {

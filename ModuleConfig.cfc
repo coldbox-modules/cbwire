@@ -46,12 +46,12 @@ component {
 			{
 				"pattern" : "preview-file/:uploadUUID",
 				"handler" : "Main",
-				"action"  : "previewFile"
+				"action" : "previewFile"
 			},
 			{
 				"pattern" : "upload-file",
 				"handler" : "Main",
-				"action"  : "uploadFile"
+				"action" : "uploadFile"
 			},
 			{
 				"pattern" : "message/:wireComponent",
