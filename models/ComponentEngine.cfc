@@ -628,10 +628,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	/**
 	 * Returns the HTML rendering or null
-	 * 
+	 *
 	 * @return Any
 	 */
-	function getHTML() {
+	function getHTML(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 		return len( rendering ) ? rendering : javacast( "null", 0 );
 	}
@@ -659,11 +659,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		if ( !getFinishUpload() ) {
-			memento.effects[ "path" ]= getPath();
+			memento.effects[ "path" ] = getPath();
 			memento.serverMemo[ "htmlHash" ] = getCRC32Hash( rendering );
 			memento.serverMemo[ "children" ] = isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children;
 		}
-		
+
 		return memento;
 	}
 
@@ -771,7 +771,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function handleMissingMethod( required missingMethodName, required missingMethodArguments ){
-
 		var settings = getSettings();
 
 		var data = getDataProperties();
@@ -794,7 +793,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ) {
-
 			// Extract data property name from the setter method called.
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
 
@@ -822,17 +820,20 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	function finishUpload( params ){
-		var fileUpload = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=getWire(), params=params } ); 
+		var fileUpload = getController()
+			.getWireBox()
+			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : getWire(), params : params } );
 		getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
 		setFinishUpload( true );
 		getDirtyProperties().append( "myFile" );
 		getVariablesScope().data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
-		getWire().emitSelf( eventName="upload:finished", parameters=[
-			"myFile",
-			[
-				"nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif"
+		getWire().emitSelf(
+			eventName = "upload:finished",
+			parameters = [
+				"myFile",
+				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
 			]
-		]);
+		);
 	}
 
 }

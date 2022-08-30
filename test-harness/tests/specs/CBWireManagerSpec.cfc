@@ -160,10 +160,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					rc[ "serverMemo" ] = {
 						"children" : [],
 						"errors" : [],
-						"htmlHash": "48e6dd7c",
-						"data" : { 
-							"myFile" : ""
-						},
+						"htmlHash" : "48e6dd7c",
+						"data" : { "myFile" : "" },
 						"dataMeta" : [],
 						"checksum" : "8dd9b6e1456bd3c73651446497a4b72125ece6dd58c724815eb720c1e7f5e2d2"
 					};
@@ -176,11 +174,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								"method" : "startUpload",
 								"params" : [
 									"myFile",
-									[{
-										"name" : "cbwire.jpg",
-										"size" : "39019",
-										"type" : "image/jpg"
-									}],
+									[
+										{
+											"name" : "cbwire.jpg",
+											"size" : "39019",
+											"type" : "image/jpg"
+										}
+									],
 									false
 								]
 							}
