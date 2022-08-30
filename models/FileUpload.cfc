@@ -70,7 +70,7 @@ component accessors="true" {
 		return getMeta().contentType == "image";
 	}
 
-	function getTemporaryURL(){
+	function getPreviewURL(){
 		return "/livewire/preview-file/#getUUID()#";
 	}
 
