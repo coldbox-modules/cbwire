@@ -40,12 +40,12 @@ component accessors="true" {
 
 	function getMeta(){
 		if ( !structKeyExists( variables, "meta" ) ) {
-            if ( fileExists( getMetaPath() ) ) {
-    			var metaJSON = fileRead( getMetaPath() );
-	    		variables.meta = deserializeJSON( metaJSON );
-            } else {
-                return;
-            }
+			if ( fileExists( getMetaPath() ) ) {
+				var metaJSON = fileRead( getMetaPath() );
+				variables.meta = deserializeJSON( metaJSON );
+			} else {
+				return;
+			}
 		}
 		return variables.meta;
 	}
@@ -58,11 +58,11 @@ component accessors="true" {
 		return getMeta().contentType & "/" & getMeta().contentSubType;
 	}
 
-    function getDataPropertyName() {
-        return getParams()[ 1 ];
-    }
+	function getDataPropertyName(){
+		return getParams()[ 1 ];
+	}
 
-    function getUUID(){
+	function getUUID(){
 		return getParams()[ 2 ][ 1 ];
 	}
 
@@ -76,8 +76,8 @@ component accessors="true" {
 
 	function destroy(){
 		fileDelete( getTemporaryStoragePath() );
-        fileDelete( getMetaPath() );
-        getComp().getEngine().reset( getDataPropertyName() );
+		fileDelete( getMetaPath() );
+		getComp().getEngine().reset( getDataPropertyName() );
 	}
 
 }
