@@ -98,7 +98,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( content ).toBeJSON();
 				expect( structKeyExists( parsedContent.serverMemo, "checksum" ) ).toBeTrue();
 				expect( structKeyExists( parsedContent.serverMemo, "data" ) ).toBeTrue();
-				expect( parsedContent.serverMemo.data.message ).toBe( "We have data binding!" );
+				expect( parsedContent.serverMemo.data.message ).toBe( "Data binding!" );
 			} );
 		} );
 	}

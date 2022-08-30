@@ -81,15 +81,14 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var event = requestService.getContext();
 			var rc = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
+
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.getEngine().setComputedProperties( getComputed() );
 			}
 			var memento = cbwireComponent
 				.getEngine()
 				.hydrate()
-				.getEngine()
 				.subsequentRenderIt()
-				.getEngine()
 				.getMemento();
 			var html = memento[ "effects" ][ "html" ];
 			setRendering( html );

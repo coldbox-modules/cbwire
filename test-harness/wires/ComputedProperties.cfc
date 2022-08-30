@@ -112,7 +112,7 @@ component extends="cbwire.models.Component" {
                 {
                     "firstname": "Zac",
                     "lastname": "Spitzer"
-                },
+                }
             ]
         );
     }

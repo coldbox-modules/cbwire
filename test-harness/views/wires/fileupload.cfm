@@ -16,8 +16,6 @@
                 <cfelse>
                     <div>The file you uploaded is not an image. Preview not available.</div>
                 </cfif>
-                <h2>Meta Information</h2>
-                <cfdump var="#args.myFile.getMeta()#">
             </cfif>
         </div>
         <div>
