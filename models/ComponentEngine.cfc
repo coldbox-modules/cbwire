@@ -721,15 +721,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Pass the properties of the cbwire component as variables to the view
 		arguments.args = getState( includeComputed = true, nullEmpty = false );
 
-		// Replace any cbwire upload references with a FileUpload object for the view
-		arguments.args.filter( function( key, value ) {
-			return findNoCase( "cbwire-upload:", value );
-		} ).each( function( key, value ) {
-			var uuid = replaceNoCase( value, "cbwire-upload:", "", "once" );
-			var fileUpload = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=getWire(), params=[ key, [ uuid  ] ] } );
-			getRenderingOverrides()[ key ] = fileUpload;
-		});
-
 		// If there are any rendering overrides ( like during file upload ), then merge those in
 		structAppend( arguments.args, getRenderingOverrides(), true );
 
