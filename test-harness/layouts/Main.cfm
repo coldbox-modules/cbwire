@@ -37,7 +37,7 @@
 		h2 {
 			color: ##ffffff;
 		}
-		input, textarea {
+		input[type=text], textarea {
 			width: 50% !important;
 		}
 		.btn-primary, .btn-primary:focus {
