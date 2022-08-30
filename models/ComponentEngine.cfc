@@ -402,7 +402,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			"serverMemo" : {
 				"children" : [],
 				"errors" : [],
-				"htmlHash" : getCRC32Hash( rendering ),
+				"htmlHash" : getHTMLHash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"dataMeta" : [],
 				"checksum" : getChecksum()
@@ -420,14 +420,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns a CRC32 hash of the passed in content.
+	 * Returns a SHA-256 hash of the passed in content.
 	 *
 	 * @return string
 	 */
-	function getCRC32Hash( content ){
-		var checksum = createObject( "java", "java.util.zip.CRC32" ).init();
-		checksum.update( charsetDecode( content, "utf-8" ) );
-		return createObject( "java", "java.lang.Long" ).toHexString( checksum.getValue() );
+	function getHTMLHash( content ){
+		return hash( content, "SHA-256" );
 	}
 
 	/**
@@ -664,7 +662,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		if ( !getFinishUpload() ) {
 			memento.effects[ "path" ] = getPath();
-			memento.serverMemo[ "htmlHash" ] = getCRC32Hash( rendering );
+			memento.serverMemo[ "htmlHash" ] = getHTMLHash( rendering );
 			memento.serverMemo[ "children" ] = isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children;
 		}
 
