@@ -10,10 +10,10 @@
 </cfscript>
 
 <cfoutput>
-    <h2 class="pt-4">View Code</h2>
+    <h2 class="pt-4">View / Layout</h2>
     <pre><code class="language-html">#htmlEditFormat( viewCode )#</code></pre>
-    <h2 class="pt-4">Component Code</h2>
+    <h2 class="pt-4">Component</h2>
     <pre><code class="language-JavaScript">#htmlEditFormat( componentCode )#</code></pre>
-    <h2 class="pt-4">Template Code</h2>
+    <h2 class="pt-4">Template</h2>
     <pre><code class="language-html">#htmlEditFormat( templateCode )#</code></pre>
 </cfoutput>
