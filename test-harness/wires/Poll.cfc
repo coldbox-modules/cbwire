@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = {
+    data = {
         "timestamp": now()
     };
 
@@ -9,7 +9,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "_wires/poll" );
+        return this.renderView( "wires/poll" );
     }
 
 }

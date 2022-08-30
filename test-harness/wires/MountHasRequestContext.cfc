@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = { "message" : "Default value" };
+    data = { "message" : "Default value" };
 
     function mount( event, rc, prc ){
         var message = event.paramValue( "message", "Mounted value" );
@@ -8,7 +8,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "_wires/mount" );
+        return this.renderView( "wires/mount" );
     }
 
 }

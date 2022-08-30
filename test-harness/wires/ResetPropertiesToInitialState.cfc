@@ -1,12 +1,12 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = { "name" : "test" };
+    data = { "name" : "test" };
 
     /**
      * Render our wire object.
      */
     function renderIt(){
-        return this.renderView( "_wires/resetPropertiesToInitialState" );
+        return this.renderView( "wires/resetPropertiesToInitialState" );
     }
 
     /**
@@ -20,7 +20,7 @@ component extends="cbwire.models.Component" {
      * Reset our name property
      */
     function resetName(){
-        this.reset( "name" );
+        reset( "name" );
     }
 
 }

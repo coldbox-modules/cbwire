@@ -1,9 +1,9 @@
 component {
 
-	this.name         = "cbwire";
-	this.version      = "1.0.0";
-	this.author       = "";
-	this.webUrl       = "https://github.com/coldbox-modules/cbwire";
+	this.name = "cbwire";
+	this.version = "1.0.0";
+	this.author = "";
+	this.webUrl = "https://github.com/coldbox-modules/cbwire";
 	this.dependencies = [];
 
 	/**
@@ -13,10 +13,10 @@ component {
 	this.entryPoint = "livewire";
 
 	this.layoutParentLookup = false;
-	this.viewParentLookup   = false;
-	this.cfmapping          = "cbwire";
-	this.modelNamespace     = "cbwire";
-	this.applicationHelper  = [ "helpers/helpers.cfm" ];
+	this.viewParentLookup = false;
+	this.cfmapping = "cbwire";
+	this.modelNamespace = "cbwire";
+	this.applicationHelper = [ "helpers/helpers.cfm" ];
 
 	function configure(){
 		settings = {
@@ -32,6 +32,10 @@ component {
 			 */
 			"componentLocation" : "wires",
 			/**
+			 * The default root module URI for URLs.
+			 */
+			"moduleRootURI" : "/modules/cbwire",
+			/**
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.
 			 */
@@ -40,9 +44,42 @@ component {
 
 		routes = [
 			{
+				"pattern" : "preview-file/:uploadUUID",
+				"handler" : "Main",
+				"action" : "previewFile"
+			},
+			{
+				"pattern" : "upload-file",
+				"handler" : "Main",
+				"action" : "uploadFile"
+			},
+			{
 				"pattern" : "message/:wireComponent",
 				"handler" : "Main"
 			}
+		];
+
+		interceptorSettings = {
+			customInterceptionPoints : [
+				"onCBWireRequest",
+				"onCBWireMount",
+				"onCBWireHydrate",
+				"onCBWireRenderIt",
+				"onCBWireSubsequentRenderIt"
+			]
+		};
+
+		interceptors = [
+			// Security
+			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
+			// Mounting
+			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
+			{ class : "#moduleMapping#.interceptors.ComponentHydrating" },
+			// Rendering
+			{ class : "#moduleMapping#.interceptors.InitialComponentRendering" },
+			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
+			// Output
+			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
 		];
 	}
 

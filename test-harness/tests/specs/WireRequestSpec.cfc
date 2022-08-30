@@ -22,12 +22,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "CBWireRequest", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				event       = getRequestContext();
+				event = getRequestContext();
 				wireRequest = prepareMock(
-					getInstance(
-						name          = "cbwire.models.CBWireRequest",
-						initArguments = { "event" : event }
-					)
+					getInstance( name = "cbwire.models.CBWireRequest", initArguments = { "event" : event } )
 				);
 			} );
 
@@ -44,30 +41,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getUpdates", function(){
 				it( "can get updates", function(){
-					event.setValue(
-						"updates",
-						[ { "type" : "callMethod" } ]
-					);
+					event.setValue( "updates", [ { "type" : "callMethod" } ] );
 					expect( wireRequest.getUpdates() ).toBeArray();
 					expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
 					expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "WireUpdate" );
 				} );
 
 				it( "returns type of callmethod", function(){
-					event.setValue(
-						"updates",
-						[ { "type" : "callMethod" } ]
-					);
+					event.setValue( "updates", [ { "type" : "callMethod" } ] );
 					expect( wireRequest.getUpdates() ).toBeArray();
 					expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
 					expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "CallMethod" );
 				} );
 
 				it( "returns type of fireevent", function(){
-					event.setValue(
-						"updates",
-						[ { "type" : "fireEvent" } ]
-					);
+					event.setValue( "updates", [ { "type" : "fireEvent" } ] );
 					expect( wireRequest.getUpdates() ).toBeArray();
 					expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
 					expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "FireEvent" );
@@ -87,21 +75,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "can get serverMemo", function(){
 				event.setValue( "serverMemo", { "checksum" : "123" } );
 				expect( wireRequest.getServerMemo().checksum ).toBe( "123" );
-			} );
-
-			describe( "getWiresLocation()", function(){
-				it( "returns 'wires' by default", function(){
-					wireRequest.$property( "settings", "variables", {} );
-					expect( wireRequest.getWiresLocation() ).toBe( "wires" );
-				} );
-				it( "returns the wiresLocation from settings", function(){
-					wireRequest.$property(
-						"settings",
-						"variables",
-						{ wiresLocation : "somewhere" }
-					);
-					expect( wireRequest.getWiresLocation() ).toBe( "somewhere" );
-				} );
 			} );
 		} );
 	}

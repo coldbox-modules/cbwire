@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
+## [2.0.0] => Upcoming
+
+#### Improvement
+
+- [CBWIRE-25]( https://github.com/coldbox-modules/cbwire/issues/25 ) Reject incoming XHR requests if 'X-Livewire' HTTP Header is not present
+
 ## [1.0.0] => 2021-APR
 
 ### Added

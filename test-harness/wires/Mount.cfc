@@ -1,18 +1,15 @@
-component
-    extends="cbwire.models.Component"
-    accessors="true"
-{
+component extends="cbwire.models.Component" {
 
-    property
-        name="message"
-        default="Default value";
+    data = {
+        "message": "Default value"
+    };
 
     function mount(){
-        setMessage( "Mounted value" );
+        data.message = "Mounted value";
     }
 
     function renderIt(){
-        return this.renderView( "_wires/mount" );
+        return this.renderView( "wires/mount" );
     }
 
 }

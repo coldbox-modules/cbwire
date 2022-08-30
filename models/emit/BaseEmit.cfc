@@ -10,7 +10,7 @@ component {
 	 * @parameters Array - The Emitter's parameters.
 	 */
 	function init( required eventName, parameters = [] ){
-		variables.eventName  = arguments.eventName;
+		variables.eventName = arguments.eventName;
 		variables.parameters = arguments.parameters;
 		return this;
 	}
@@ -31,8 +31,8 @@ component {
 	 */
 	function getResult(){
 		return {
-			"event"  : this.getEventName(),
-			"params" : variables.parameters
+			"event" : this.getEventName(),
+			"params" : isArray( variables.parameters ) ? variables.parameters : [ variables.parameters ]
 		};
 	}
 

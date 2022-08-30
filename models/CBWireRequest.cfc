@@ -51,21 +51,21 @@ component accessors="true" singleton {
 	}
 
 	/**
-	 * Returns true if our server memo contains a mounted state property.
+	 * Returns true if our server memo contains a data property.
 	 *
 	 * @return Boolean
 	 */
-	function hasMountedState(){
-		return hasServerMemo() && structKeyExists( getServerMemo(), "mountedState" );
+	function hasData(){
+		return hasServerMemo() && structKeyExists( getServerMemo(), "data" );
 	}
 
 	/**
-	 * Returns our mounted state
+	 * Returns our data
 	 *
 	 * @return Struct
 	 */
-	function getMountedState(){
-		return getServerMemo()[ "mountedState" ];
+	function getData(){
+		return getServerMemo().data;
 	}
 
 	/**
@@ -74,7 +74,7 @@ component accessors="true" singleton {
 	 * @return Struct
 	 */
 	function getFingerprint(){
-		return getCollection()[ "fingerprint" ];
+		return getCollection().fingerprint;
 	}
 
 	/**
@@ -83,7 +83,23 @@ component accessors="true" singleton {
 	 * @return struct
 	 */
 	function getServerMemo(){
-		return getCollection()[ "serverMemo" ];
+		return getCollection().serverMemo;
+	}
+
+	/**
+	 * Returns true if the server memo contains children
+	 */
+	function hasChildren(){
+		return hasServerMemo() && isStruct( getChildren() ) && len(
+			structKeyList( getCollection().serverMemo.children )
+		);
+	}
+
+	/**
+	 * Returns children in server memo
+	 */
+	function getChildren(){
+		return getCollection().serverMemo.children;
 	}
 
 	/**
@@ -110,7 +126,7 @@ component accessors="true" singleton {
 			casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
 
 			return variables.wirebox.getInstance(
-				name          = "#casedType#@cbwire",
+				name = "#casedType#@cbwire",
 				initArguments = { "update" : arguments.update }
 			);
 		} );
@@ -147,24 +163,14 @@ component accessors="true" singleton {
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = getWiresLocation();
 
-		if (
-			reFindNoCase(
-				wiresLocation & "\.",
-				arguments.componentName
-			)
-		) {
-			arguments.componentName = reReplaceNoCase(
-				arguments.componentName,
-				wiresLocation & "\.",
-				"",
-				"one"
-			);
+		if ( reFindNoCase( wiresLocation & "\.", arguments.componentName ) ) {
+			arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
 		}
 
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
 			var params = listToArray( arguments.componentName, "@" );
-			var comp   = getModuleComponent( params[ 1 ], params[ 2 ] );
+			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
 			var comp = getRootComponent( arguments.componentName );
@@ -182,8 +188,11 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	function renderIt( componentName, parameters = {} ){
-		return getComponentInstance( arguments.componentName ).$mount( arguments.parameters ).renderIt();
+	function renderIt( componentName, parameters = {}, key = "" ){
+		return getComponentInstance( arguments.componentName )
+			.getEngine()
+			.mount( arguments.parameters, arguments.key )
+			.renderIt();
 	}
 
 	/**
@@ -195,7 +204,7 @@ component accessors="true" singleton {
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
-		arguments.comp.invokeMethod( "preUpdate" );
+		arguments.comp.getEngine().invokeMethod( "preUpdate" );
 
 		// Update the state of our component with each of our updates
 		getUpdates().each( function( update ){
@@ -203,19 +212,7 @@ component accessors="true" singleton {
 		} );
 
 		// Fire our postUpdate lifecycle event.
-		arguments.comp.invokeMethod( "preUpdate" );
-	}
-
-	/**
-	 * Primary handler for incoming cbwire request.
-	 *
-	 * @context Struct
-	 */
-	function handle( struct rc ){
-		return this
-			.getComponentInstance( arguments.rc.wireComponent )
-			.$hydrate( this )
-			.$getMemento( getMountedState() );
+		arguments.comp.getEngine().invokeMethod( "preUpdate" );
 	}
 
 	/**
@@ -240,7 +237,7 @@ component accessors="true" singleton {
 	 */
 	private function getRootComponent( required componentName ){
 		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot   = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
+		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 
 		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
 	}
@@ -252,10 +249,7 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	private function getModuleComponent(
-		required string componentName,
-		required string moduleName
-	){
+	private function getModuleComponent( required string componentName, required string moduleName ){
 		// Verify the module
 		var modulesConfig = variables.controller.getSetting( "modules" );
 		if ( !modulesConfig.keyExists( moduleName ) ) {

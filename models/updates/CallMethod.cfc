@@ -1,12 +1,24 @@
 component extends="WireUpdate" {
 
+	property name="cbwireRequest" inject="CBWireRequest@cbwire";
+
 	/**
 	 * Runs the specified action method within the request payload on the provided component.
 	 *
 	 * @return Void
 	 */
 	function apply( required comp ){
-		// Handle $set calls.
+		if ( variables.getPayloadMethod() == "finishUpload" ) {
+			comp.getEngine().finishUpload( params = getPassedParamsAsArguments() );
+			return;
+		}
+		if ( variables.getPayloadMethod() == "startUpload" ) {
+			var signature = "someSignature";
+			var signedURL = "/livewire/upload-file?expires=never&signature=#signature#";
+			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ "myFile", signedURL ] );
+			return;
+		}
+
 		if ( variables.getPayloadMethod() == "$set" ) {
 			invoke(
 				arguments.comp,
@@ -16,29 +28,23 @@ component extends="WireUpdate" {
 			return;
 		}
 
-		// Handle $refresh calls.
 		if ( variables.getPayloadMethod() == "$refresh" ) {
-			invoke(
-				arguments.comp,
-				"refresh",
-				variables.getPassedParamsAsArguments()
-			);
+			invoke( arguments.comp, "refresh", variables.getPassedParamsAsArguments() );
 			return;
 		}
 
-		// Handle action calls.
 		if ( variables.hasCallableAction( arguments.comp ) ) {
-			invoke(
-				arguments.comp,
-				variables.getPayloadMethod(),
-				variables.getPassedParamsAsArguments()
-			);
+			try {
+				invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
+			} catch ( ValidationException validateException ) {
+				// Silently stop further action processing on validationOrFail() exceptions.
+			}
 			return;
 		}
 
 		// We cannot locate the action, so throw an error.
 		throw(
-			type    = "WireActionNotFound",
+			type = "WireActionNotFound",
 			message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
 		);
 	}
@@ -52,7 +58,7 @@ component extends="WireUpdate" {
 	 * @return Boolean
 	 */
 	private function hasCallableAction( required comp ){
-		return variables.hasPayloadMethod() && arguments.comp.hasMethod( variables.getPayloadMethod() );
+		return variables.hasPayloadMethod() && arguments.comp.getEngine().hasMethod( variables.getPayloadMethod() );
 	}
 
 	/**
@@ -61,15 +67,7 @@ component extends="WireUpdate" {
 	 * @return Struct
 	 */
 	private function getPassedParamsAsArguments(){
-		if ( variables.hasPassedParams() ) {
-			return variables
-				.getPassedParams()
-				.reduce( function( agg, param, index ){
-					arguments.agg[ index ] = param;
-					return arguments.agg;
-				}, {} );
-		}
-		return {};
+		return variables.hasPassedParams() ? variables.getPassedParams() : [];
 	}
 
 	/**
@@ -108,6 +106,16 @@ component extends="WireUpdate" {
 	 */
 	private function getPayloadMethod(){
 		return this.getPayload()[ "method" ];
+	}
+
+	/**
+	 * Returns the the sites base URL.
+	 * Used for building URLs returned to Livewire.
+	 *
+	 * @return String
+	 */
+	private function getBaseURL(){
+		return cgi.http_port == 80 ? "http://" & cgi.http_host : "https://" & cgi.http_host;
 	}
 
 }

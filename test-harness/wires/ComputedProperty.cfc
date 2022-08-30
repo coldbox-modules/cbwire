@@ -1,20 +1,20 @@
 component extends="cbwire.models.Component" {
 
     // Data properties
-    variables.data = {
+    data = {
         "timestamp" : now(),
         "myQuery" : ""
     };
 
     // Computed properties
-    variables.computed = {
+    computed = {
         "myTimestamp" : function(){
-            return variables.data.timestamp;
+            return data.timestamp;
         }
     }
 
     function renderIt(){
-        return this.renderView( "_wires/computedProperty" );
+        return this.renderView( "wires/computedProperty" );
     }
 
 }

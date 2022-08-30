@@ -3,12 +3,12 @@ component
     accessors="true"
 {
 
-    variables.data = {
+    data = {
         "name": "Marty"
     };
 
     function renderIt(){
-        return this.renderView( "_wires/usingSet" );
+        return this.renderView( "wires/usingSet" );
     }
 
 }

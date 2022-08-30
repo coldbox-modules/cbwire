@@ -4,9 +4,6 @@
  */
 component {
 
-	// Injected populator.
-	property name="$populator" inject="wirebox:populator";
-
 	/**
 	 * Our beautiful constructor.
 	 *

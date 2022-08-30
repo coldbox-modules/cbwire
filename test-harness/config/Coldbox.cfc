@@ -14,7 +14,7 @@
 			modulesExternalLocation = [],
 
 			//Implicit Events
-			defaultEvent			= "",
+			defaultEvent			= "examples.index",
 			requestStartHandler		= "",
 			requestEndHandler		= "",
 			applicationStartHandler = "",
@@ -69,6 +69,12 @@
 			root  : { levelmax : "DEBUG", appenders : "*" },
 			// Implicit Level Categories
 			info  : [ "coldbox.system" ]
+		};
+
+		moduleSettings = {
+			cbwire = {
+				"moduleRootURI" : "/moduleroot/cbwire"
+			}
 		};
 
 	}

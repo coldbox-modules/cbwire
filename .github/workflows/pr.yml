@@ -49,7 +49,12 @@ jobs:
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.0
 
-      - name: Install Dependencies
+      - name: Install Main Dependencies
+        working-directory: ./
+        run: |
+          box install
+
+      - name: Install Harness Dependencies
         working-directory: ./test-harness
         run: |
           box install

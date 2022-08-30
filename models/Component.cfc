@@ -4,54 +4,58 @@
  * Most internal methods and properties here are namespaced with a "$" to avoid collisions
  * with child components.
  */
-component {
+component accessors="true" {
 
-	// Inject ColdBox Renderer for rendering operations.
-	property name="$renderer" inject="coldbox:renderer";
+	// Inject ColdBox, needed by FrameworkSuperType
+	property name="controller" inject="coldbox";
 
-	// Inject WireBox for dependency injection.
-	property name="$wirebox" inject="wirebox";
+	// Component engine
+	property name="engine";
 
-	// Inject the wire request that's incoming from the browser.
-	property name="$cbwireRequest" inject="CBWireRequest@cbwire";
-
-	// Inject populator.
-	property name="$populator" inject="wirebox:populator";
-
-	// Inject settings.
-	property name="$settings" inject="coldbox:modulesettings:cbwire";
-
-	// Inject LogBox.
-	property name="logBox" inject="logbox";
-
-	// Inject scoped logger.
-	property name="log" inject="logbox:logger:{this}";
+	// Holds our validation result.
+	property name="validationResult";
 
 	/**
-	 * The default data struct for cbwire components.
-	 * This should be overidden in the child component
-	 * with data properties.
+	 * Invoked when dependency injection complete.
 	 */
-	variables.data = {};
+	function onDIComplete(){
+		variables.$children = {};
+		variables.data = isNull( variables.data ) ? {} : variables.data;
+		variables.computed = isNull( variables.computed ) ? {} : variables.computed;
+
+		/**
+		 * The core functions of cbwire components are separated into ComponentEngine@cbwire.
+		 * There were several reasons for this, the biggest being a clean separation of
+		 * concerns. This was also done to avoid cluttering up the variables scope of the component
+		 * and causing naming collisions with user defined component methods and properties.
+		 */
+		var engine = getInstance(
+			name = "ComponentEngine@cbwire",
+			initArguments = {
+				wire : this,
+				variablesScope : variables
+			}
+		);
+		setEngine( engine );
+
+		engine.setBeforeHydrationState( {} );
+		engine.setNoRendering( false );
+		engine.setDataProperties( variables.data );
+		engine.setComputedProperties( variables.computed );
+		engine.setEmittedEvents( [] );
+	}
 
 	/**
-	 * The default computed struct for cbwire components.
-	 * This should be overidden in the child component with
-	 * computed properties.
-	 */
-	variables.computed = {};
-
-	/**
-	 * Our beautiful, simple constructor.
+	 * Get a instance object from WireBox
 	 *
-	 * @return Component
+	 * @name The mapping name or CFC path or DSL to retrieve
+	 * @initArguments The constructor structure of arguments to passthrough when initializing the instance
+	 * @dsl The DSL string to use to retrieve an instance
+	 *
+	 * @return The requested instance
 	 */
-	function init(){
-		variables.$isInitialRendering = false;
-		variables.emits               = [];
-		variables.id                  = createUUID().replace( "-", "", "all" ).left( 21 );
-
-		return this;
+	function getInstance( name, initArguments = {}, dsl ){
+		return getController().getWirebox().getInstance( argumentCollection = arguments );
 	}
 
 	/**
@@ -69,7 +73,7 @@ component {
 	 * @postProcessExempt Do not fire the postProcess interceptors
 	 * @statusCode The status code to use in the relocation
 	 */
-	void function $relocate(
+	void function relocate(
 		event,
 		URL,
 		URI,
@@ -82,452 +86,93 @@ component {
 		boolean postProcessExempt,
 		numeric statusCode
 	){
-		return variables.$renderer.relocate( argumentCollection = arguments );
+		return getEngine().relocate( argumentCollection = arguments );
 	}
 
 	/**
-	 * Returns a 21 character UUID to uniquely identify the component HTML during rendering.
-	 * The 21 characters matches Livewire JS native implementation.
+	 * Render out a view
 	 *
-	 * @return String
-	 */
-	function getID(){
-		return variables.id;
-	}
-
-	/**
-	 * Returns the initial data of our component, which is ultimately serialized
-	 * to json and return in the view as our component is first rendered.
+	 * @deprecated Use view() instead
 	 *
-	 * @renderingHash String | Hash of the view rendering. Used to populate serverMemo.htmlHash in struct response.
+	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module The module to render the view from explicitly
+	 * @cache Cached the view output or not, defaults to false
+	 * @cacheTimeout The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider The provider to cache this view in, defaults to 'template'
+	 * @collection A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow The start row to limit the collection rendering with
+	 * @collectionMaxRows The max rows to iterate over the collection rendering with
+	 * @collectionDelim  A string to delimit the collection renderings by
+	 * @prePostExempt If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
 	 *
-	 * @return Struct
-	 */
-	function getInitialData( renderingHash = "" ){
-		return {
-			"fingerprint" : {
-				"id"     : getID(),
-				"name"   : getMeta().name,
-				"locale" : "en",
-				"path"   : getPath(),
-				"method" : "GET"
-			},
-			"effects"    : { "listeners" : variables.getListenerNames() },
-			"serverMemo" : {
-				"children"     : [],
-				"errors"       : [],
-				"htmlHash"     : getChecksum(),
-				"data"         : getState(),
-				"dataMeta"     : [],
-				"checksum"     : getChecksum(),
-				"mountedState" : variables.getMountedState()
-			}
-		};
-	}
-
-	/**
-	 * Throws an error if renderIt() is not defined on our child class.
-	 *
-	 * @return Void
-	 */
-	function renderIt(){
-		throw(
-			type    = "RenderMethodNotFound",
-			message = "Couldn't find a renderIt() method defined on the component '#getMeta().name#'."
-		);
-	}
-
-	/**
-	 * Invokes renderIt() on the cbwire component and caches the rendered
-	 * results into variables.rendering.
-	 *
-	 * @return String
-	 */
-	function getRendering(){
-		if ( !structKeyExists( variables, "rendering" ) ) {
-			variables.rendering = renderIt();
-		}
-		return variables.rendering;
-	}
-
-	/**
-	 * Returns the checksum hash of our current state.
-	 *
-	 * @return String
-	 */
-	function getChecksum(){
-		return hash( serializeJSON( getState() ) );
-	}
-
-	/**
-	 * Returns the current state of our component.
-	 *
-	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
-	 * @return Struct
-	 */
-	function getState( boolean includeComputed = false ){
-		/**
-		 * Get our data properties for our current state.
-		 */
-		var state = {};
-
-		variables.data.each( function( key, value ){
-			if ( isClosure( arguments.value ) ) {
-				// Render the closure and store in our data properties
-				variables.data[ key ]  = arguments.value();
-				state[ arguments.key ] = variables.data[ key ];
-			} else {
-				state[ arguments.key ] = arguments.value;
-			}
-		} );
-
-		if ( arguments.includeComputed && structKeyExists( variables, "computed" ) ) {
-			variables.computed.each( function( key, value ){
-				state[ key ] = value;
-			} );
-		}
-
-		return state;
-	}
-
-	/**
-	 * Returns true if the provided method name can be found on our component.
-	 *
-	 * @methodName String | The method name we are checking.
-	 * @return Boolean
-	 */
-	function hasMethod( required methodName ){
-		return structKeyExists( this, arguments.methodName );
-	}
-
-	/**
-	 * Renders our component's view and returns the rendering.
-	 *
-	 * @return String
+	 * @return The rendered view
 	 */
 	function renderView(){
-		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = getState( includeComputed = true );
-
-		// Render our view using coldbox rendering
-		var rendering = variables.$renderer.renderView( argumentCollection = arguments );
-
-		// Add properties to top element to make cbwire actually work.
-		return variables.applyWiringToOuterElement( rendering );
+		return view( argumentCollection = arguments );
 	}
 
 	/**
-	 * Fires when the cbwire component is initially created.
-	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
+	 * Render out our component's view
 	 *
-	 * This method is given the $ prefix to avoid collision with the mount method
-	 * that can be optionally defined on a cbwire component.
+	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module The module to render the view from explicitly
+	 * @cache Cached the view output or not, defaults to false
+	 * @cacheTimeout The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider The provider to cache this view in, defaults to 'template'
+	 * @collection A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow The start row to limit the collection rendering with
+	 * @collectionMaxRows The max rows to iterate over the collection rendering with
+	 * @collectionDelim  A string to delimit the collection renderings by
+	 * @prePostExempt If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
 	 *
-	 * @parameters Struct of params to bind into the component
-	 *
-	 * @return Component
+	 * @return The rendered view
 	 */
-	function $mount( parameters = {} ){
-		variables.$isInitialRendering = true;
+	function view(
+		view = "",
+		struct args = {},
+		module = "",
+		boolean cache = false,
+		cacheTimeout = "",
+		cacheLastAccessTimeout = "",
+		cacheSuffix = "",
+		cacheProvider = "template",
+		collection,
+		collectionAs = "",
+		numeric collectionStartRow = "1",
+		numeric collectionMaxRows = 0,
+		collectionDelim = "",
+		boolean prePostExempt = false,
+		name,
+		boolean applyWiring = true
+	){
+		var engine = getEngine();
 
-		if ( structKeyExists( this, "mount" ) && isCustomFunction( mount ) ) {
-			this[ "mount" ](
-				parameters = arguments.parameters,
-				event      = variables.$cbwireRequest.getEvent(),
-				rc         = variables.$cbwireRequest.getCollection(),
-				prc        = variables.$cbwireRequest.getPrivateCollection()
-			);
-		} else {
-			/**
-			 * Use setter population to populate our component.
-			 */
-			variables.$populator.populateFromStruct(
-				target       : this,
-				trustedSetter: true,
-				memento      : arguments.parameters,
-				excludes     : ""
-			);
-		}
-
-		// Capture the mounted state
-		variables.mountedState = getState();
-
-		return this;
-	}
-
-	/**
-	 * Hydrates the incoming component with state from our request.
-	 *
-	 * @wireRequest CBWireRequest
-	 *
-	 * @return Component
-	 */
-	function $hydrate( CBWireRequest cbwireRequest ){
-		if ( arguments.cbwireRequest.hasFingerprint() ) {
-			$setId( arguments.cbwireRequest.getFingerPrint()[ "id" ] );
-		}
-
-		// Invoke '$preHydrate' event
-		invokeMethod( "$preHydrate" );
-
-		if ( arguments.cbwireRequest.hasMountedState() ) {
-			setMountedState( arguments.cbwireRequest.getMountedState() );
-		}
-
-		// Check if our request contains a server memo, and if so update our component state.
-		if ( arguments.cbwireRequest.hasServerMemo() ) {
-			arguments.cbwireRequest
-				.getServerMemo()
-				.data
-				.each( function( key, value ){
-					// Call the setter method
-					invokeMethod(
-						methodName = "set" & arguments.key,
-						value      = arguments.value
-					);
-				} );
-		}
-
-		// Invoke '$postHydrate' event
-		invokeMethod( "$postHydrate" );
-
-		// Check if our request contains updates, and if so apply them.
-		if ( arguments.cbwireRequest.hasUpdates() ) {
-			arguments.cbwireRequest.applyUpdates( this );
-		}
-
-		return this;
-	}
-
-	/**
-	 * Returns the memento for our component which holds the current
-	 * state of our component. This is returned on subsequent XHR requests
-	 * from cbwire.
-	 *
-	 * @return Struct
-	 */
-	function $getMemento( mountedState ){
-		return {
-			"effects" : {
-				"html"  : getRendering(),
-				"dirty" : [
-					"count" // need to fix
-				],
-				"path"  : getPath(),
-				"emits" : getEmits()
-			},
-			"serverMemo" : {
-				"htmlHash"     : "71146cf2",
-				"data"         : getState( false ),
-				"checksum"     : getChecksum(),
-				"mountedState" : mountedState
-			}
-		}
-	}
-
-	/**
-	 * Sets an individual data property value, first by using a setter
-	 * if it exists, and otherwise setting directly to our variables
-	 * scope.
-	 *
-	 * Fires '$preUpdate[prop]' and 'postUpdate[prop]' events on the cbwire component.
-	 *
-	 * @propertyName String | Name of the property we are setting
-	 * @value Any | Value of the property we are settting
-	 *
-	 * @return Void
-	 */
-	function $set( propertyName, value ){
-		// Invoke '$preUpdate[prop]' event
-		invokeMethod(
-			methodName   = "preUpdate" & arguments.propertyName,
-			propertyName = arguments.value
-		);
-
-		variables.data[ "#arguments.propertyName#" ] = arguments.value;
-
-		// Invoke 'postUpdate[prop]' event
-		invokeMethod(
-			methodName   = "postUpdate" & arguments.propertyName,
-			propertyName = arguments.value
-		);
-	}
-
-	/**
-	 * Returns the URL which is included in the initial data that is rendered
-	 * with the view.
-	 *
-	 * Inspects the cbwire component for properties that should
-	 * be included in the path
-	 *
-	 * @return String
-	 */
-	function getPath(){
-		var queryStringValues = variables.getQueryStringValues();
-
-		if ( len( queryStringValues ) ) {
-			var referer = variables.getHTTPReferer();
-
-			// Strip away any queryString parameters from the referer so
-			// we don't duplicate them when we append the queryStringValues below.
-			if ( referer contains "?" ) {
-				referer = listGetAt( referer, 1, "?" );
-			}
-
-			return "#referer#?#queryStringValues#";
-		}
-
-		// Return empty string by default;
-		return "";
-	}
-
-	/**
-	 * Sets the mounted state for our component for the ability to rollback changes.
-	 *
-	 * @state Struct
-	 * @return Void
-	 */
-	function setMountedState( required state ){
-		variables.mountedState = arguments.state;
-	}
-
-	/**
-	 * Returns any captured emits that need to be returned
-	 *
-	 * @return Array
-	 */
-	function getEmits(){
-		return variables.emits;
-	}
-
-	/**
-	 * Returns true if listeners are detected on the component.
-	 *
-	 * @return Boolean
-	 */
-	function hasListeners(){
-		return arrayLen( variables.getListenerNames() );
-	}
-
-	/**
-	 * Returns the listeners defined on the component.
-	 * If no listeners are defined, an empty struct is returned.
-	 *
-	 * @return Struct
-	 */
-	function getListeners(){
-		if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ) {
-			return variables.listeners;
-		}
-		return {};
-	}
-
-	/**
-	 * Returns the meta data for this component.
-	 * Ensures that we only run this once.
-	 *
-	 * @return Struct
-	 */
-	function getMeta(){
-		if ( !structKeyExists( variables, "meta" ) ) {
-			variables.meta = getMetadata( this );
-		}
-		return variables.meta;
-	}
-
-
-	/**
-	 * Invokes a dynamic method on our component. If the method doesn't exist,
-	 * then it proceeds without error because of onMissingMethod.
-	 *
-	 * Returns whatever the method returns.
-	 *
-	 * Used mainly with lifecycle hooks.
-	 *
-	 * @return Any
-	 */
-	function invokeMethod( required methodName, methodArgs = {} ){
-		return invoke(
-			this,
-			arguments.methodName,
-			arguments.filter( function( key, value ){
-				return !arguments.key.findNoCase( "methodName" )
-			} )
-		);
-	}
-
-	/**
-	 * Invokes a postRefresh event and currently nothing else.
-	 * This is used with cbwire's polling functionality which
-	 * refreshes the component.
-	 *
-	 * @return Void
-	 */
-	function refresh(){
-		// Invoke 'postRefresh' event
-		invokeMethod( "postRefresh" );
+		var templateRendering = engine.view( argumentCollection = arguments );
+		// Add properties to top element to make Livewire actually work.
+		return applyWiring ? engine.applyWiringToOuterElement( templateRendering ) : templateRendering;
 	}
 
 	/**
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The params passed with the emitter.
-	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
+	 * @parameters Array | The params passed with the emitter.
+	 * @track Boolean | True if you want to notify the UI that the emit occurred.
+	 *
+	 * @return void
 	 */
-	function emit(
-		required eventName,
-		parameters = {},
-		trackEmit  = true
-	){
-		// Invoke 'preEmit' event
-		invokeMethod(
-			methodName = "preEmit",
-			eventName  = arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Invoke 'preEmit[EventName]' event
-		invokeMethod(
-			methodName = "preEmit" & arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		if ( arguments.trackEmit ) {
-			var emitter = createObject(
-				"component",
-				"cbwire.models.emit.BaseEmit"
-			).init(
-				arguments.eventName,
-				arguments.parameters
-			);
-
-			variables.trackEmit( emitter );
-		}
-
-		var listeners = getListeners();
-
-		if ( structKeyExists( listeners, eventName ) ) {
-			var listener = listeners[ eventName ];
-
-			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
-				return invokeMethod( listener );
-			}
-		}
-
-		// Invoke 'postEmit' event
-		invokeMethod(
-			methodName = "postEmit",
-			eventName  = arguments.eventName,
-			parameters = arguments.parameters
-		);
-
-		// Invoke 'postEmit[EventName]' event
-		invokeMethod(
-			methodName = "postEmit" & arguments.eventName,
-			parameters = arguments.parameters
-		);
+	function emit( required eventName, parameters = [], track = true ){
+		return getEngine().emit( argumentCollection = arguments );
 	}
 
 	/**
@@ -541,16 +186,13 @@ component {
 	 * @return Void
 	 */
 	function emitSelf( required eventName, parameters = {} ){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitSelf"
-		).init(
+		var emitter = createObject( "component", "cbwire.models.emit.EmitSelf" ).init(
 			arguments.eventName,
 			arguments.parameters
 		);
 
 		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
+		getEngine().trackEmit( emitter );
 	}
 
 	/**
@@ -563,16 +205,7 @@ component {
 	 * @return Void
 	 */
 	function emitUp( required eventName, parameters = {} ){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitUp"
-		).init(
-			arguments.eventName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
+		return getEngine().emitUp( argumentCollection = arguments );
 	}
 
 	/**
@@ -585,22 +218,8 @@ component {
 	 *
 	 * @return Void
 	 */
-	function emitTo(
-		required eventName,
-		required componentName,
-		parameters = []
-	){
-		var emitter = createObject(
-			"component",
-			"cbwire.models.emit.EmitTo"
-		).init(
-			arguments.eventName,
-			arguments.componentName,
-			arguments.parameters
-		);
-
-		// Capture the emit as we will need to notify the UI in our response
-		variables.trackEmit( emitter );
+	function emitTo( required eventName, required componentName, parameters = [] ){
+		return getEngine().emitTo( argumentCollection = arguments );
 	}
 
 	/**
@@ -614,57 +233,63 @@ component {
 	 *
 	 * @return Void
 	 */
-	function onMissingMethod(
-		required missingMethodName,
-		required missingMethodArguments
-	){
-		if (
-			reFindNoCase(
-				"^set.+",
-				arguments.missingMethodName
-			)
-		) {
-			// Extract data property name from the setter method called.
-			var dataPropertyName = reReplaceNoCase(
-				arguments.missingMethodName,
-				"^set",
-				"",
-				"one"
-			);
+	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
+		return getEngine().handleMissingMethod( argumentCollection = arguments );
+	}
 
-			// Check to see if the data property name is defined in the component.
-			var dataPropertyExists = structKeyExists( variables.data, dataPropertyName );
+	/**
+	 * When called, the component is flagged so that no rendering will occur.
+	 *
+	 * @return void
+	 */
+	function noRender(){
+		getEngine().setNoRendering( true );
+	}
 
-			if ( dataPropertyExists ) {
-				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
-				if (
-					structKeyExists(
-						arguments.missingMethodArguments,
-						"value"
-					)
-				) {
-					$set(
-						dataPropertyName,
-						arguments.missingMethodArguments.value
-					);
-				} else {
-					$set(
-						dataPropertyName,
-						arguments.missingMethodArguments[ 1 ]
-					);
-				}
-			} else if (
-				structKeyExists(
-					variables.$settings,
-					"throwOnMissingSetterMethod"
-				) && variables.$settings.throwOnMissingSetterMethod == true
-			) {
-				throw(
-					type    = "WireSetterNotFound",
-					message = "The wire property '#dataPropertyName#' was not found."
-				);
-			}
-		}
+	/**
+	 * Validate an object or structure according to the constraints rules.
+	 *
+	 * @target An object or structure to validate
+	 * @fields The fields to validate on the target. By default, it validates on all fields
+	 * @constraints A structure of constraint rules or the name of the shared constraint rules to use for validation
+	 * @locale The i18n locale to use for validation messages
+	 * @excludeFields The fields to exclude from the validation
+	 * @includeFields The fields to include in the validation
+	 * @profiles If passed, a list of profile names to use for validation constraints
+	 *
+	 * @return cbvalidation.model.result.IValidationResult
+	 */
+	function validate(){
+		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
+		return getValidationResult();
+	}
+
+	/**
+	 * Validate an object or structure according to the constraints rules and throw an exception if the validation fails.
+	 * The validation errors will be contained in the `extendedInfo` of the exception in JSON format
+	 *
+	 * @target An object or structure to validate
+	 * @fields The fields to validate on the target. By default, it validates on all fields
+	 * @constraints A structure of constraint rules or the name of the shared constraint rules to use for validation
+	 * @locale The i18n locale to use for validation messages
+	 * @excludeFields The fields to exclude from the validation
+	 * @includeFields The fields to include in the validation
+	 * @profiles If passed, a list of profile names to use for validation constraints
+	 *
+	 * @return The validated object or the structure fields that where validated
+	 * @throws ValidationException
+	 */
+	function validateOrFail(){
+		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		return getValidationManager().validateOrFail( argumentCollection = arguments );
+	}
+
+	/**
+	 * Retrieve the application's configured Validation Manager
+	 */
+	function getValidationManager(){
+		return getInstance( "ValidationManager@cbvalidation" );
 	}
 
 	/**
@@ -676,167 +301,24 @@ component {
 	 * @return Void
 	 */
 	function reset( property ){
-		if ( isArray( arguments.property ) ) {
-			// Reset each property in our array individually
-			arguments.property.each( function( prop ){
-				reset( prop );
-			} );
-		} else {
-			// Reset individual property
-			$set(
-				arguments.property,
-				variables.getMountedState()[ arguments.property ]
-			);
-		}
+		getEngine().reset( arguments.property );
 	}
-
 	/**
-	 * Set the components id.
-	 *
-	 * @id String | GUID
+	 * Renders our component's view.
 	 *
 	 * @return Void
 	 */
-	function $setId( required id ){
-		variables.id = arguments.id;
+	function renderIt(){
+		return getEngine().renderIt();
 	}
 
 	/**
-	 * Returns LogBox instance.
+	 * Remove once refectoring is done.
 	 *
-	 * @return LogBox
+	 * @return struct
 	 */
-	function getLogBox(){
-		return variables.logbox;
-	}
-
-	/**
-	 * Returns Logger instance.
-	 */
-	function getLogger(){
-		return variables.log;
-	}
-
-	/**
-	 * Gets our mounted state.
-	 *
-	 * @return Struct
-	 */
-	private function getMountedState(){
-		if ( structKeyExists( variables, "mountedState" ) ) {
-			return variables.mountedState;
-		}
-		return {};
-	}
-
-	/**
-	 * Check if there are properties to be included in our query string
-	 * and assembles them together in a single string to be used within a URL.
-	 *
-	 * @return String
-	 */
-	private function getQueryStringValues(){
-		// Default with an empty array
-		if ( !structKeyExists( variables, "queryString" ) ) {
-			return "";
-		}
-
-		var currentState = getState();
-
-		// Handle array of property names
-		if ( isArray( variables.queryString ) ) {
-			var result = variables.queryString.reduce( function( agg, prop ){
-				agg &= prop & "=" & currentState[ prop ];
-				return agg;
-			}, "" );
-		} else {
-			var result = "";
-		}
-
-		return result;
-	}
-
-	/**
-	 * Tracks an emit, which is later returned in our API response and used
-	 * by cbwire.
-	 *
-	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
-	 * @return Array;
-	 */
-	private function trackEmit( required emitter ){
-		var result = emitter.getResult();
-		variables.emits.append( result );
-	}
-
-	/**
-	 * Returns the names of the listeners defined on our component.
-	 *
-	 * @return Array
-	 */
-	private function getListenerNames(){
-		return structKeyList( getListeners() ).listToArray();
-	}
-
-	/**
-	 * Apply cbwire attribute to the outer element in the provided rendering.
-	 *
-	 * @rendering String | The view rendering.
-	 */
-	private function applyWiringToOuterElement( required rendering ){
-		var renderingResult = "";
-
-		// Provide a hash of our rendering which is used by Livewire JS.
-		var renderingHash = hash( arguments.rendering );
-
-		// Determine our outer element.
-		var outerElement = variables.getOuterElement( arguments.rendering );
-
-		// Add properties to top element to make cbwire actually work.
-		if ( variables.$isInitialRendering ) {
-			// Initial rendering
-			renderingResult = rendering.replaceNoCase(
-				outerElement,
-				outerElement & " wire:id=""#getID()#"" wire:initial-data=""#serializeJSON( getInitialData( renderingHash = renderingHash ) ).replace( """", "&quot;", "all" )#""",
-				"once"
-			);
-		} else {
-			// Subsequent renderings
-			renderingResult = rendering.replaceNoCase(
-				outerElement,
-				outerElement & " wire:id=""#getID()#""",
-				"once"
-			);
-		}
-
-		return renderingResult;
-	}
-
-	/**
-	 * Determines the outer element within our rendering.
-	 * If an outer element isn't found, an error is thrown.
-	 *
-	 * @rendering String | The view rendering.
-	 */
-	private function getOuterElement( required rendering ){
-		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
-
-		if ( arrayLen( matches ) ) {
-			return matches[ 1 ];
-		}
-
-		throw(
-			type    = "OuterElementNotFound",
-			message = "Unable to find an outer element to bind cbwire to."
-		);
-	}
-
-	/**
-	 * Returns our HTTP referer.
-	 *
-	 * @return String
-	 */
-	private function getHTTPReferer(){
-		return cgi.HTTP_REFERER;
+	function getInternals(){
+		return variables;
 	}
 
 }

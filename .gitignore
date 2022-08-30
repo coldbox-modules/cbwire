@@ -6,6 +6,9 @@
 docbox/**
 dist/**
 
+modules/**
+
+.engine/**
 test-harness/.engine/**
 test-harness/coldbox/**
 test-harness/docbox/**
@@ -19,3 +22,5 @@ logs/**
 
 # node modules
 node_modules/**
+
+livewire/**

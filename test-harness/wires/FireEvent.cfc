@@ -1,11 +1,11 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = { "message" : "test" };
+    data = { "message" : "test" };
 
-    variables.listeners = { "someOtherEvent" : "someListener" };
+    listeners = { "someOtherEvent" : "someListener" };
 
     function someListener(){
-        variables.data.message = "We have fired someListener() from a listener!";
+        data.message = "We have fired someListener() from a listener!";
     }
 
     function someAction(){
@@ -13,7 +13,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "_wires/fireEvent" );
+        return this.renderView( "wires/fireEvent" );
     }
 
 }

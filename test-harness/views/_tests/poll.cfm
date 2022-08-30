@@ -1,1 +1,0 @@
-<cfoutput>#wire( "Poll" )#</cfoutput>

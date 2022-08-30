@@ -1,11 +1,16 @@
 component extends="cbwire.models.Component" {
 
-    variables.data = { "search" : "" };
+    data = { "search" : "" };
 
-    variables.queryString = [ "search" ];
+    queryString = [ "search" ];
 
+
+    function mount( event ){
+        data[ "search" ] = event.getValue( "search", "" );
+
+    }
     function renderIt(){
-        return this.renderView( "_wires/queryString" );
+        return this.renderView( "wires/queryString" );
     }
 
 }
