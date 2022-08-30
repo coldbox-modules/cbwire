@@ -28,17 +28,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "wire()", function(){
 				it( "renders simple 'Hello World'", function(){
-					var event = get( "/examples/helloWorld" );
+					var event = get( "/examples/HelloWorld" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
 				it( "renders 'Hello world' using renderView() and passing args to the view'", function(){
-					var event = get( "/examples/helloWorldWithRenderViewPropertyAndArgs" );
+					var event = get( "/examples/HelloWorldWithRenderViewPropertyAndArgs" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
 				it( "renders 'Hello world' using view() and passing args to the view'", function(){
-					var event = get( "/examples/usingViewtoRender" );
+					var event = get( "/examples/UsingViewtoRender" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
