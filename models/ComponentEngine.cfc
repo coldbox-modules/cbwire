@@ -599,7 +599,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				data[ key ] = arguments.value();
 				state[ arguments.key ] = data[ key ];
 			} else {
-				state[ arguments.key ] = arguments.value;
+				if ( isSimpleValue( arguments.value ) ) {
+					state[ arguments.key ] = arguments.value;
+				} else {
+					state[ arguments.key ] = "";
+				}
 			}
 		} );
 
