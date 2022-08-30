@@ -38,7 +38,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "renders 'Hello world' using view() and passing args to the view'", function(){
-					var event = get( "/examples/UsingViewtoRender" );
+					var event = get( "/examples/UsingRenderView" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
