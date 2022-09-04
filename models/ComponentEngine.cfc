@@ -599,6 +599,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			} else {
 				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) ) {
 					state[ arguments.key ] = arguments.value;
+				} else if ( isInstanceOf( arguments.value, "FileUpload" ) ) {
+					state[ arguments.key] = "cbwire-upload:#arguments.value.getUUID()#";
 				} else {
 					state[ arguments.key ] = "";
 				}

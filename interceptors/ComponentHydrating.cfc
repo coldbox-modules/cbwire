@@ -27,13 +27,17 @@ component {
 
 			serverMemo.data.each( function( key, value ){
 				if ( !isNull( arguments.value ) && isSimpleValue( arguments.value ) && findNoCase( "cbwire-upload:", arguments.value ) ) {
+					var uploadFullReference = duplicate( arguments.value );
 					var uuid = replaceNoCase( arguments.value, "cbwire-upload:", "", "once" );
 					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=cbwireComponent, params=[ key, [ uuid  ] ] } );
+					engine.getDataProperties()[ arguments.key ] = arguments.value;
+					engine.getWire().getInternals().data[ arguments.key ] = arguments.value;
+				} else {
+					engine.invokeMethod(
+						methodName = "set" & arguments.key,
+						value      = isNull( arguments.value ) ? "" : arguments.value
+					);					
 				}
-				engine.invokeMethod(
-					methodName = "set" & arguments.key,
-					value      = isNull( arguments.value ) ? "" : arguments.value
-				);					
 			} );
 
 			if ( variables.cbwireRequest.hasChildren() ) {
