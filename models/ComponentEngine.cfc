@@ -91,6 +91,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="renderingOverrides";
 
 	/**
+	 * Hold redirect URL
+	 */
+	property name="redirectURL";
+
+	/**
 	 * A beautiful constructor
 	 */
 	function init( required wire, required variablesScope ){
@@ -666,6 +671,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			memento.effects[ "path" ] = getPath();
 			memento.serverMemo[ "htmlHash" ] = getHTMLHash( rendering );
 			memento.serverMemo[ "children" ] = isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children;
+		}
+
+		if ( !isNull( getRedirectUrl() ) ) {
+			memento.effects[ "redirect" ] = getRedirectURL();
 		}
 
 		return memento;

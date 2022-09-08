@@ -19,4 +19,8 @@ component extends="cbwire.models.Component" {
     function someListener() {
         data.title = "Fired some event";
     }
+
+    function performRedirect() {
+        relocate( event="main.index" );
+    }
 }
