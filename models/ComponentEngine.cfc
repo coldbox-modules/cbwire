@@ -392,7 +392,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		var fingerprintName = getMeta().name;
 
-		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "once" );
+		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
 
 		return {
 			"fingerprint" : {
