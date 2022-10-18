@@ -602,7 +602,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				data[ key ] = arguments.value();
 				state[ arguments.key ] = data[ key ];
 			} else {
-				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) ) {
+				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value )) {
 					state[ arguments.key ] = arguments.value;
 				} else {
 					state[ arguments.key ] = "";
