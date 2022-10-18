@@ -389,10 +389,15 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
+
+		var fingerprintName = getMeta().name;
+
+		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "once" );
+
 		return {
 			"fingerprint" : {
 				"id" : getId(),
-				"name" : getMeta().name,
+				"name" : fingerprintName,
 				"locale" : "en",
 				"path" : getPath(),
 				"method" : "GET",
