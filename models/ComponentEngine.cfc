@@ -730,7 +730,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
 		// Render our view using coldbox rendering
-		return super.view( argumentCollection = arguments );
+		return super.renderView( argumentCollection = arguments );
 	}
 
 	/**
