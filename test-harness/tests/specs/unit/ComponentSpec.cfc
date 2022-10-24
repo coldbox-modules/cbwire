@@ -430,7 +430,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"calculator" : function(){
 								return 1 + 1;
 							},
-							"propertyWithNoReturnValue": function() {
+							"propertyWithNoReturnValue" : function(){
 								return;
 							}
 						} );
