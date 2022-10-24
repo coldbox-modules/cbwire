@@ -429,6 +429,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						.setComputedProperties( {
 							"calculator" : function(){
 								return 1 + 1;
+							},
+							"propertyWithNoReturnValue" : function(){
+								return;
 							}
 						} );
 

@@ -389,7 +389,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
-
 		var fingerprintName = getMeta().name;
 
 		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
@@ -552,9 +551,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function renderIt(){
-        var cbwireComponent = getWire();
+		var cbwireComponent = getWire();
 		var componentName = lCase( getMetadata( cbwireComponent ).name );
-		return cbwireComponent.view( view="wires/#listLast( componentName, "." )#" );
+		return cbwireComponent.view( view = "wires/#listLast( componentName, "." )#" );
 	}
 
 	/**
@@ -603,7 +602,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				data[ key ] = arguments.value();
 				state[ arguments.key ] = data[ key ];
 			} else {
-				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value )) {
+				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value ) ) {
 					state[ arguments.key ] = arguments.value;
 				} else {
 					state[ arguments.key ] = "";
@@ -627,7 +626,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		if ( arguments.includeComputed ) {
 			renderComputedProperties();
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value;
+				if ( !isNull( value ) ) {
+					state[ key ] = value;
+				}
 			} );
 		}
 
