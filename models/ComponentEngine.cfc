@@ -627,7 +627,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		if ( arguments.includeComputed ) {
 			renderComputedProperties();
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value;
+				if ( !isNull( value ) ) {
+					state[ key ] = value;
+				}
 			} );
 		}
 

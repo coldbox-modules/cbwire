@@ -5,7 +5,10 @@ component extends="cbwire.models.Component" {
         "conference": function() {
             return "Into The Box " & year( now() );
         },
-        "speakers": getSpeakers
+        "speakers": getSpeakers,
+        "nullComputedProperty": function() {
+            return;
+        }
     }
 
     function getSpeakers() {
