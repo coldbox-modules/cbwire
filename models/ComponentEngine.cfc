@@ -552,7 +552,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function renderIt(){
-        var cbwireComponent = getWire();
+		var cbwireComponent = getWire();
 		var componentName = lCase( getMetadata( cbwireComponent ).name );
 		return cbwireComponent.view( view="wires/#listLast( componentName, "." )#" );
 	}
