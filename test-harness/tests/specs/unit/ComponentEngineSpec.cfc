@@ -42,18 +42,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				componentObj.setEngine( engine );
 			} );
 
-            describe( "renderIt()", function() {               
-                it( "can render", function(){
-                    engine.renderIt();
-                    expect( engine.renderIt() ).toInclude( "Component</div>" );
-                } );
+			describe( "renderIt()", function(){
+				it( "can render", function(){
+					engine.renderIt();
+					expect( engine.renderIt() ).toInclude( "Component</div>" );
+				} );
 
-                it( "can render directly from component onRender method", function() {
-                    componentObj.$( "onRender", "<div>some rendering</div>" );
-                    expect( engine.renderIt() ).toInclude( "some rendering" );
-                } );
-            } );
-		
+				it( "can render directly from component onRender method", function(){
+					componentObj.$( "onRender", "<div>some rendering</div>" );
+					expect( engine.renderIt() ).toInclude( "some rendering" );
+				} );
+			} );
 		} );
 	}
 

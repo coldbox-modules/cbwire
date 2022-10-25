@@ -738,12 +738,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method
-			return getWire().onRender( args=arguments.args );
+			return getWire().onRender( args = arguments.args );
 		} else {
 			// Render our view using coldbox rendering
 			return super.renderView( argumentCollection = arguments );
 		}
-
 	}
 
 	/**
