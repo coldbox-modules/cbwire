@@ -13,7 +13,6 @@ component {
 		return cbwireComponent
 			.getEngine()
 			.mount( arguments.parameters )
-			.getEngine()
 			.renderIt();
 	}
 
