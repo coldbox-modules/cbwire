@@ -625,7 +625,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								return 1 + 2;
 							}
 						} );
-					componentObj.getEngine().renderComputedProperties();
+					componentObj.getEngine().renderComputedProperties( componentObj.getInternals().data );
 					expect( componentObj.getOnePlusTwo() ).toBe( 3 );
 				} );
 			} );

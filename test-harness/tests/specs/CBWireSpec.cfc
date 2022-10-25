@@ -32,16 +32,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
-				it( "renders 'Hello world' using renderView() and passing args to the view'", function(){
-					var event = get( "/examples/HelloWorldWithRenderViewPropertyAndArgs" );
-					expect( event.getRenderedContent() ).toInclude( "Hello World" );
-				} );
-
-				it( "renders 'Hello world' using view() and passing args to the view'", function(){
-					var event = get( "/examples/UsingRenderView" );
-					expect( event.getRenderedContent() ).toInclude( "Hello World" );
-				} );
-
 				it( "renders with wire:id and wire:initial-data attributes added to outer div tag'", function(){
 					var event = get( "/examples/dataBinding" );
 					var content = event.getRenderedContent();
