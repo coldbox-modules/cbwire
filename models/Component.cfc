@@ -272,14 +272,6 @@ component accessors="true" {
 	function reset( property ){
 		getEngine().reset( arguments.property );
 	}
-	/**
-	 * Renders our component's view.
-	 *
-	 * @return Void
-	 */
-	function renderIt(){
-		return getEngine().renderIt();
-	}
 
 	/**
 	 * Remove once refectoring is done.

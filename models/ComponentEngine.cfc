@@ -169,14 +169,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return void
 	 */
-	function renderComputedProperties(){
+	function renderComputedProperties( required data ){
 		if ( !structKeyExists( getVariablesScope(), "computed" ) ) {
 			return;
 		}
 
 		getComputedProperties().each( function( key, value, computedProperties ){
 			if ( isCustomFunction( value ) ) {
-				computedProperties[ key ] = value();
+				computedProperties[ key ] = value( data );
 			}
 		} );
 	}
@@ -224,7 +224,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Capture the state before hydration
 		setBeforeHydrationState( duplicate( getState() ) );
 
-		return getWire();
+		return this;
 	}
 
 	/**
@@ -394,10 +394,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
+		var fingerprintName = getMeta().name;
+
+		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
+
 		return {
 			"fingerprint" : {
 				"id" : getId(),
-				"name" : getMeta().name,
+				"name" : fingerprintName,
 				"locale" : "en",
 				"path" : getPath(),
 				"method" : "GET",
@@ -552,8 +556,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function renderIt(){
-		announce( "onCBWireRenderIt", { component : getWire() } );
-		return getRequestContext().getValue( "_cbwire_rendering" );
+		var cbwireComponent = getWire();
+		var componentName = lCase( getMetadata( cbwireComponent ).name );
+		return cbwireComponent.view( view = "wires/#listLast( componentName, "." )#" );
 	}
 
 	/**
@@ -602,7 +607,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				data[ key ] = arguments.value();
 				state[ arguments.key ] = data[ key ];
 			} else {
-				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) ) {
+				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value ) ) {
 					state[ arguments.key ] = arguments.value;
 				} else if ( isInstanceOf( arguments.value, "FileUpload" ) ) {
 					state[ arguments.key] = "cbwire-upload:#arguments.value.getUUID()#";
@@ -626,9 +631,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 
 		if ( arguments.includeComputed ) {
-			renderComputedProperties();
+			renderComputedProperties( data );
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value;
+				if ( !isNull( value ) ) {
+					state[ key ] = value;
+				}
 			} );
 		}
 
@@ -740,8 +747,13 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
-		// Render our view using coldbox rendering
-		return super.view( argumentCollection = arguments );
+		if ( structKeyExists( getWire(), "onRender" ) ) {
+			// Render custom onRender method
+			return getWire().onRender( args = arguments.args );
+		} else {
+			// Render our view using coldbox rendering
+			return super.renderView( argumentCollection = arguments );
+		}
 	}
 
 	/**
