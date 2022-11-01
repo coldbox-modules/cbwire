@@ -26,11 +26,14 @@ component {
 			var serverMemo = variables.cbwireRequest.getServerMemo();
 
 			serverMemo.data.each( function( key, value ){
-				// Call the setter method
+				if ( !isNull( arguments.value ) && isSimpleValue( arguments.value ) && findNoCase( "cbwire-upload:", arguments.value ) ) {
+					var uuid = replaceNoCase( arguments.value, "cbwire-upload:", "", "once" );
+					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=cbwireComponent, params=[ key, [ uuid  ] ] } );
+				}
 				engine.invokeMethod(
 					methodName = "set" & arguments.key,
 					value      = isNull( arguments.value ) ? "" : arguments.value
-				);
+				);					
 			} );
 
 			if ( variables.cbwireRequest.hasChildren() ) {

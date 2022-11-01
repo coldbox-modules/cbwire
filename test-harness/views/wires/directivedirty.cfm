@@ -1,6 +1,7 @@
 <cfoutput>
     <div>
-        <input wire:model.lazy="foo">
-        <span wire:dirty wire:target="foo">Now click away from field...</span>
+        <input wire:model.defer="foo">
+        <button wire:click="save" class="btn btn-primary">Save</button>
+        <div wire:dirty wire:target="foo">There's some stuff not saved yet.</div>
     </div>
 </cfoutput>

@@ -71,7 +71,7 @@ component extends="cbwire.models.BaseWireTest" {
 			} );
 
 			it( "emits the 'fooEvent' with parameters", function(){
-				var result = wire( "TestUIComponent" ).emit( "fooEvent", { "name" : "Bar" } ).renderIt();
+				var result = wire( "TestUIComponent" ).emit( "fooEvent", [ "Bar" ] ).renderIt();
 				expect( result ).toInclude( "<h1>Foo event called by Bar</h1>" );
 			} );
 

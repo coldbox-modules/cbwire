@@ -14,7 +14,7 @@
 			modulesExternalLocation = [],
 
 			//Implicit Events
-			defaultEvent			= "",
+			defaultEvent			= "examples.index",
 			requestStartHandler		= "",
 			requestEndHandler		= "",
 			applicationStartHandler = "",

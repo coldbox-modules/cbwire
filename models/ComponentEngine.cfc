@@ -76,6 +76,21 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="id";
 
 	/**
+	 * Hold finish upload state
+	 */
+	property name="finishUpload" default="false";
+
+	/**
+	 * Hold dirty properties
+	 */
+	property name="dirtyProperties";
+
+	/**
+	 * Hold rendering overrides
+	 */
+	property name="renderingOverrides";
+
+	/**
 	 * A beautiful constructor
 	 */
 	function init( required wire, required variablesScope ){
@@ -86,22 +101,25 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		setDataProperties( {} );
 		setComputedProperties( {} );
 		setEmittedEvents( [] );
+		setDirtyProperties( [] );
+		setRenderingOverrides( {} );
 	}
 
 	/**
 	 * Returns a unique ID for the component.
-	 * 
+	 *
 	 * @return String
 	 */
 	function generateId(){
 		var guidChars = listToArray( createUUID(), "" )
-			.filter( function( char ) {
+			.filter( function( char ){
 				return char != "-";
 			} )
-			.filter( function( char, index ) {
+			.filter( function( char, index ){
 				return index <= 20;
-			} ).map( function( char ) {
-				return randRange( 0, 1) == 0 ? uCase( char ) : lCase( char );
+			} )
+			.map( function( char ){
+				return randRange( 0, 1 ) == 0 ? uCase( char ) : lCase( char );
 			} );
 		return arrayToList( guidChars, "" );
 	}
@@ -146,51 +164,16 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return void
 	 */
-	function renderComputedProperties(){
+	function renderComputedProperties( required data ){
 		if ( !structKeyExists( getVariablesScope(), "computed" ) ) {
 			return;
 		}
 
 		getComputedProperties().each( function( key, value, computedProperties ){
 			if ( isCustomFunction( value ) ) {
-				computedProperties[ key ] = value();
+				computedProperties[ key ] = value( data );
 			}
 		} );
-	}
-
-	/**
-	 * Returns an array of properties that have changed during the request.
-	 *
-	 * @return Array
-	 */
-	function getDirtyProperties(){
-		var currentState = getState();
-
-		var arrayUtil = createObject( "java", "java.util.Arrays" );
-
-		var result = getBeforeHydrationState().reduce( function( result, key, value, state ){
-			if ( isSimpleValue( value ) && value == currentState[ key ] ) {
-				return result;
-			} else {
-				beforeHydrateValue = createObject( "java", "java.lang.String" ).init( value.toString() ).toCharArray();
-				afterHydrateValue = createObject( "java", "java.lang.String" )
-					.init( currentState[ key ].toString() )
-					.toCharArray();
-
-				arrayUtil.sort( beforeHydrateValue );
-				arrayUtil.sort( afterHydrateValue );
-
-				if ( arrayUtil.equals( beforeHydrateValue, afterHydrateValue ) ) {
-					return result;
-				}
-			}
-
-			result.append( key );
-
-			return result;
-		}, [] );
-
-		return result;
 	}
 
 	/**
@@ -236,7 +219,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Capture the state before hydration
 		setBeforeHydrationState( duplicate( getState() ) );
 
-		return getWire();
+		return this;
 	}
 
 	/**
@@ -255,10 +238,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The params passed with the emitter.
+	 * @parameters Arrays | The params passed with the emitter.
 	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
-	function emit( required eventName, parameters = {}, track = true ){
+	function emit( required eventName, array parameters = [], track = true ){
 		// Invoke 'preEmit' event
 		invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = arguments.parameters );
 
@@ -345,15 +328,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function invokeMethod( required methodName ){
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
-		var filteredParams = params.filter( function( key, value ){
-			return key != "methodName";
-		} );
-
-		return invoke(
-			getWire(),
-			arguments.methodName,
-			filteredParams
-		);
+		return invoke( getWire(), arguments.methodName, params );
 	}
 
 	/**
@@ -414,20 +389,24 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
+		var fingerprintName = getMeta().name;
+
+		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
+
 		return {
 			"fingerprint" : {
 				"id" : getId(),
-				"name" : getMeta().name,
+				"name" : fingerprintName,
 				"locale" : "en",
 				"path" : getPath(),
 				"method" : "GET",
-				"v": "acj"
+				"v" : "acj"
 			},
 			"effects" : { "listeners" : getListenerNames() },
 			"serverMemo" : {
 				"children" : [],
 				"errors" : [],
-				"htmlHash": getCRC32Hash( rendering ),
+				"htmlHash" : getHTMLHash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"dataMeta" : [],
 				"checksum" : getChecksum()
@@ -445,14 +424,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns a CRC32 hash of the passed in content.
-	 * 
+	 * Returns a SHA-256 hash of the passed in content.
+	 *
 	 * @return string
 	 */
-	function getCRC32Hash( content ){
-        var checksum = createObject( "java", "java.util.zip.CRC32" ).init();
-        checksum.update( charsetDecode( content, "utf-8" ) );
-		return createObject( "java", "java.lang.Long" ).toHexString( checksum.getValue() );
+	function getHTMLHash( content ){
+		return hash( content, "SHA-256" );
 	}
 
 	/**
@@ -462,9 +439,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return Component
 	 */
-	function hydrate( event, rc, prc ){
+	function hydrate(){
+		setIsInitialRendering( false );
 		announce( "onCBWireHydrate", { component : getWire() } );
-		return getWire();
+		return this;
 	}
 
 	/**
@@ -573,8 +551,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function renderIt(){
-		announce( "onCBWireRenderIt", { component : getWire() } );
-		return getRequestContext().getValue( "_cbwire_rendering" );
+		var cbwireComponent = getWire();
+		var componentName = lCase( getMetadata( cbwireComponent ).name );
+		return cbwireComponent.view( view = "wires/#listLast( componentName, "." )#" );
 	}
 
 	/**
@@ -585,7 +564,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function subsequentRenderIt(){
 		announce( "onCBWireSubsequentRenderIt", { component : getWire() } );
-		return getWire();
+		return this;
 	}
 
 	/**
@@ -623,7 +602,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				data[ key ] = arguments.value();
 				state[ arguments.key ] = data[ key ];
 			} else {
-				state[ arguments.key ] = arguments.value;
+				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value ) ) {
+					state[ arguments.key ] = arguments.value;
+				} else {
+					state[ arguments.key ] = "";
+				}
 			}
 		} );
 
@@ -641,13 +624,25 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 
 		if ( arguments.includeComputed ) {
-			renderComputedProperties();
+			renderComputedProperties( data );
 			getComputedProperties().each( function( key, value ){
-				state[ key ] = value;
+				if ( !isNull( value ) ) {
+					state[ key ] = value;
+				}
 			} );
 		}
 
 		return state;
+	}
+
+	/**
+	 * Returns the HTML rendering or null
+	 *
+	 * @return Any
+	 */
+	function getHTML(){
+		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+		return len( rendering ) ? rendering : javacast( "null", 0 );
 	}
 
 	/**
@@ -660,22 +655,25 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function getMemento(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
-		var dirtyProperties = getDirtyProperties();
-
-		return {
+		var memento = {
 			"effects" : {
-				"html" : len( rendering ) ? rendering : javacast( "null", 0 ),
+				"html" : getHTML(),
 				"dirty" : getDirtyProperties(),
-				"path" : getPath(),
 				"emits" : getEmittedEvents()
 			},
 			"serverMemo" : {
-				"children" : isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children,
-				"htmlHash" : getCRC32Hash( rendering ),
 				"data" : getState( includeComputed = false, nullEmpty = true ),
 				"checksum" : getChecksum()
 			}
 		}
+
+		if ( !getFinishUpload() ) {
+			memento.effects[ "path" ] = getPath();
+			memento.serverMemo[ "htmlHash" ] = getHTMLHash( rendering );
+			memento.serverMemo[ "children" ] = isArray( getVariablesScope().$children ) ? [] : getVariablesScope().$children;
+		}
+
+		return memento;
 	}
 
 	/**
@@ -732,11 +730,19 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Pass the properties of the cbwire component as variables to the view
 		arguments.args = getState( includeComputed = true, nullEmpty = false );
 
+		// If there are any rendering overrides ( like during file upload ), then merge those in
+		structAppend( arguments.args, getRenderingOverrides(), true );
+
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
-		// Render our view using coldbox rendering
-		return super.view( argumentCollection = arguments );
+		if ( structKeyExists( getWire(), "onRender" ) ) {
+			// Render custom onRender method
+			return getWire().onRender( args = arguments.args );
+		} else {
+			// Render our view using coldbox rendering
+			return super.renderView( argumentCollection = arguments );
+		}
 	}
 
 	/**
@@ -825,6 +831,23 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
 			reset( dataPropertyName );
 		}
+	}
+
+	function finishUpload( params ){
+		var fileUpload = getController()
+			.getWireBox()
+			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : getWire(), params : params } );
+		getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
+		setFinishUpload( true );
+		getDirtyProperties().append( "myFile" );
+		getVariablesScope().data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
+		getWire().emitSelf(
+			eventName = "upload:finished",
+			parameters = [
+				"myFile",
+				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
+			]
+		);
 	}
 
 }

@@ -156,6 +156,7 @@ component accessors="true" {
 		boolean applyWiring = true
 	){
 		var engine = getEngine();
+
 		var templateRendering = engine.view( argumentCollection = arguments );
 		// Add properties to top element to make Livewire actually work.
 		return applyWiring ? engine.applyWiringToOuterElement( templateRendering ) : templateRendering;
@@ -165,12 +166,12 @@ component accessors="true" {
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The params passed with the emitter.
+	 * @parameters Array | The params passed with the emitter.
 	 * @track Boolean | True if you want to notify the UI that the emit occurred.
 	 *
 	 * @return void
 	 */
-	function emit( required eventName, parameters = {}, track = true ){
+	function emit( required eventName, parameters = [], track = true ){
 		return getEngine().emit( argumentCollection = arguments );
 	}
 
@@ -299,16 +300,8 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function reset( property ) {
+	function reset( property ){
 		getEngine().reset( arguments.property );
-	}
-	 /**
-	 * Renders our component's view.
-	 *
-	 * @return Void
-	 */
-	function renderIt(){
-		return getEngine().renderIt();
 	}
 
 	/**

@@ -5,7 +5,9 @@
 component {
 
     function preProcess( event ) eventPattern="cbwire.*"{
-        if ( event.getHTTPHeader( header="X-Livewire", defaultValue="" ) != "true" ) {
+        if ( isUploadRequest( event ) ) return;
+
+        if ( missingLivewireHeader( event ) ) {
             event.renderData(
                 type = "HTML",
                 data = "",
@@ -14,5 +16,13 @@ component {
             // Returning true breaks further interceptors execution.
             return true;
         }
+    }
+
+    private function missingLivewireHeader( event ) {
+        return event.getHTTPHeader( header="X-Livewire", defaultValue="" ) != "true";
+    }
+
+    private function isUploadRequest( event ) {
+        return arrayFindNoCase( [ "cbwire:Main.uploadFile", "cbwire:Main.previewFile"], event.getCurrentEvent() );
     }
 }

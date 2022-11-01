@@ -23,22 +23,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			it( "can render the main event", function(){
 				var event = get( "/" );
-				expect( event.getRenderedContent() ).toInclude( "Hello World" );
+				expect( event.getRenderedContent() ).toInclude( "CBWIRE Examples" );
 			} );
 
 			describe( "wire()", function(){
 				it( "renders simple 'Hello World'", function(){
-					var event = get( "/examples/helloWorld" );
-					expect( event.getRenderedContent() ).toInclude( "Hello World" );
-				} );
-
-				it( "renders 'Hello world' using renderView() and passing args to the view'", function(){
-					var event = get( "/examples/helloWorldWithRenderViewPropertyAndArgs" );
-					expect( event.getRenderedContent() ).toInclude( "Hello World" );
-				} );
-
-				it( "renders 'Hello world' using view() and passing args to the view'", function(){
-					var event = get( "/examples/usingViewtoRender" );
+					var event = get( "/examples/HelloWorld" );
 					expect( event.getRenderedContent() ).toInclude( "Hello World" );
 				} );
 
@@ -98,7 +88,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( content ).toBeJSON();
 				expect( structKeyExists( parsedContent.serverMemo, "checksum" ) ).toBeTrue();
 				expect( structKeyExists( parsedContent.serverMemo, "data" ) ).toBeTrue();
-				expect( parsedContent.serverMemo.data.message ).toBe( "We have data binding!" );
+				expect( parsedContent.serverMemo.data.message ).toBe( "Data binding!" );
 			} );
 		} );
 	}

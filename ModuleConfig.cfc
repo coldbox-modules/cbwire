@@ -44,6 +44,16 @@ component {
 
 		routes = [
 			{
+				"pattern" : "preview-file/:uploadUUID",
+				"handler" : "Main",
+				"action" : "previewFile"
+			},
+			{
+				"pattern" : "upload-file",
+				"handler" : "Main",
+				"action" : "uploadFile"
+			},
+			{
 				"pattern" : "message/:wireComponent",
 				"handler" : "Main"
 			}
@@ -51,7 +61,7 @@ component {
 
 		interceptorSettings = {
 			customInterceptionPoints : [
-				"onCBWireSubsequentRequest",
+				"onCBWireRequest",
 				"onCBWireMount",
 				"onCBWireHydrate",
 				"onCBWireRenderIt",
@@ -60,8 +70,6 @@ component {
 		};
 
 		interceptors = [
-			// Request
-			{ class : "#moduleMapping#.interceptors.ProcessIncomingXHRRequest" },
 			// Security
 			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
 			// Mounting

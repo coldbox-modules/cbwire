@@ -1,11 +1,15 @@
 <cfoutput>
 <div>
-    <input wire:model="task" type="text">
-    <button wire:click="addTask">Add Task</button>
+    <input wire:model="email" type="text" placeholder="Enter your email">
+    <button wire:click="addEmail">Add Email</button>
 
-    <cfif args.validation.hasErrors( "task" )>
-        <cfloop array="#args.validation.getAllErrors( "task" )#" index="error">
-            <div>#error#</div>
+    <cfif args.success>
+        <div>Success!</div>
+    </cfif>
+
+    <cfif args.validation.hasErrors( "email" )>
+        <cfloop array="#args.validation.getAllErrors( "email" )#" index="error">
+            <div class="alert alert-danger mt-2">#error#</div>
         </cfloop>
     </cfif>
 </div>
