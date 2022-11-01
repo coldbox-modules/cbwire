@@ -204,6 +204,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				rc = getCBWireRequest().getCollection(),
 				prc = getCBWireRequest().getPrivateCollection()
 			);
+		} else if ( structKeyExists( getWire(), "onMount" ) ) {
+			getWire().onMount(
+				parameters = arguments.parameters,
+				key = arguments.key,
+				event = getCBWireRequest().getEvent(),
+				rc = getCBWireRequest().getCollection(),
+				prc = getCBWireRequest().getPrivateCollection()
+			);
 		} else {
 			/**
 			 * Use setter population to populate our component.

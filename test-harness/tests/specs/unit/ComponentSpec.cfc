@@ -587,6 +587,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "onMount()", function(){
+				it( "it calls onMount() if it's defined on component", function(){
+					componentObj.$( "onMount", "sup?" );
+					componentObj.getEngine().mount();
+					expect( componentObj.$once( "onMount" ) ).toBeTrue();
+				} );
+
+				it( "it should pass in the event, rc, and prc into onMount()", function(){
+					var rc = cbwireRequest.getCollection();
+
+					rc[ "someRandomVar" ] = "someRandomValue";
+
+					componentObj.$( "onMount" );
+					componentObj.getEngine().mount();
+
+					var passedArgs = componentObj.$callLog().onMount[ 1 ];
+
+					expect( passedArgs.event ).toBeInstanceOf( "RequestContext" );
+					expect( passedArgs.prc ).toBeStruct();
+					expect( passedArgs.rc ).toBeStruct();
+					expect( passedArgs.rc.someRandomVar ).toBe( "someRandomValue" );
+				} );
+			} );
+
 			describe( "mount()", function(){
 				it( "it calls mount() if it's defined on component", function(){
 					componentObj.$( "mount", "sup?" );

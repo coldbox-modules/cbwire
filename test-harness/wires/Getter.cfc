@@ -2,7 +2,7 @@ component extends="cbwire.models.Component" {
 
     computed = { "name" : "Rubble on the double" };
 
-    function mount(){
+    function onMount(){
         data.name = "Blah";
     }
 

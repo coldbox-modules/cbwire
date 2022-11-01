@@ -4,7 +4,7 @@ component extends="cbwire.models.Component" {
         "message": "Default value"
     };
 
-    function mount(){
+    function onMount(){
         data.message = "Mounted value";
     }
 
