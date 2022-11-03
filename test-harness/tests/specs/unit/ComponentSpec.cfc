@@ -453,33 +453,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "$hydrate", function(){
-				it( "fires '$preHydrate' event", function(){
-					var comp = prepareMock(
-						getInstance(
-							name = "cbwire.models.Component",
-							initArguments = { "cbwireRequest" : cbwireRequest }
-						)
-					);
-					comp.$( "$preHydrate", true );
-					comp.getEngine().hydrate( cbwireRequest );
-					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
-				} );
-
-				it( "fires '$postHydrate' event", function(){
-					var comp = prepareMock(
-						getInstance(
-							name = "cbwire.models.Component",
-							initArguments = { "cbwireRequest" : cbwireRequest }
-						)
-					);
-					comp.$( "$preHydrate", true );
-					comp.$( "$postHydrate", true );
-					comp.getEngine().hydrate( cbwireRequest );
-					expect( comp.$once( "$preHydrate" ) ).toBeTrue();
-					expect( comp.$once( "$postHydrate" ) ).toBeTrue();
-				} );
-
+			describe( "hydrate", function(){
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = cbwireRequest.getCollection();
 
@@ -490,19 +464,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					componentObj.$( "setHello", true );
 					componentObj.getEngine().hydrate( cbwireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
-				} );
-
-				it( "fires 'preHydrate' event", function(){
-					componentObj.$( "$preHydrate", true );
-					componentObj.getEngine().hydrate( cbwireRequest );
-					expect( componentObj.$once( "$preHydrate" ) ).toBeTrue();
-				} );
-
-				it( "fires 'postHydrate' event", function(){
-					componentObj.$( "$postHydrate", true );
-					cbwireRequest.$( "getWireComponent", componentObj, false );
-					componentObj.getEngine().hydrate( cbwireRequest );
-					expect( componentObj.$once( "$postHydrate" ) ).toBeTrue();
 				} );
 
 				describe( "syncInput", function(){
@@ -632,6 +593,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( passedArgs.prc ).toBeStruct();
 					expect( passedArgs.rc ).toBeStruct();
 					expect( passedArgs.rc.someRandomVar ).toBe( "someRandomValue" );
+				} );
+			} );
+
+			describe( "onHydrate()", function(){
+				it( "it calls onHydrate() if it's defined on component", function(){
+					componentObj.$( "onHydrate", "got this" );
+					componentObj.getEngine().hydrate();
+					expect( componentObj.$once( "onHydrate" ) ).toBeTrue();
 				} );
 			} );
 

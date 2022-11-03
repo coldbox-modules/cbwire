@@ -14,9 +14,6 @@ component {
 
 		engine.setBeforeHydrationState( duplicate( engine.getState() ) );
 
-		// Invoke '$preHydrate' event
-		engine.invokeMethod( "$preHydrate" );
-
 		if ( variables.cbwireRequest.hasData() ) {
 			cbwireComponent.setData( variables.cbwireRequest.getData() );
 		}
@@ -46,7 +43,11 @@ component {
 			variables.cbwireRequest.applyUpdates( cbwireComponent );
 		}
 
-		// Invoke '$postHydrate' event
-		engine.invokeMethod( "$postHydrate" );
+		if ( structKeyExists( cbwireComponent, "onHydrate" ) ) {
+			cbwireComponent.onHydrate(
+				data=engine.getDataProperties(),
+				computed=engine.getComputedProperties()
+			);
+		}
     }
 }
