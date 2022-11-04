@@ -746,11 +746,16 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method
-			return getWire().onRender( args = arguments.args );
+			var result =  getWire().onRender( args = arguments.args );
 		} else {
 			// Render our view using coldbox rendering
-			return super.renderView( argumentCollection = arguments );
+			var result = super.renderView( argumentCollection = arguments );
 		}
+
+		// Replace any instances of @this. with window.livewire.find
+		result = replaceNoCase( result, "@this.", "window.cbwire.find('#getId()#').", "all" );
+
+		return result;
 	}
 
 	/**

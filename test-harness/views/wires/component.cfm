@@ -1,3 +1,8 @@
 <cfoutput>
-    <div>Component</div>
+    <div>
+        Component
+        <script>
+            @this.
+        </script>
+    </div>
 </cfoutput>

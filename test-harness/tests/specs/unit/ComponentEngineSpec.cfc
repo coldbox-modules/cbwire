@@ -45,7 +45,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "renderIt()", function(){
 				it( "can render", function(){
 					engine.renderIt();
-					expect( engine.renderIt() ).toInclude( "Component</div>" );
+					expect( engine.renderIt() ).toInclude( "Component" );
+				} );
+
+				it( "renders @this. as window.cbwire.find(id)", function() {
+					engine.renderIt();
+					expect( engine.renderIt() ).toInclude( "window.cbwire.find('#engine.getId()#')" );
 				} );
 
 				it( "can render directly from component onRender method", function(){
