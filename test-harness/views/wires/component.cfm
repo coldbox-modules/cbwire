@@ -1,8 +1,6 @@
 <cfoutput>
     <div>
         Component
-        <script>
-            @this.
-        </script>
+        #args._id#
     </div>
 </cfoutput>

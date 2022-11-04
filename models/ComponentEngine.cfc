@@ -744,6 +744,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
+		// Include a reference to the component's id
+		arguments.args[ "_id" ] = getId();
+
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method
 			var result =  getWire().onRender( args = arguments.args );
@@ -751,9 +754,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Render our view using coldbox rendering
 			var result = super.renderView( argumentCollection = arguments );
 		}
-
-		// Replace any instances of @this. with window.livewire.find
-		result = replaceNoCase( result, "@this.", "window.cbwire.find('#getId()#').", "all" );
 
 		return result;
 	}
