@@ -51,4 +51,8 @@
         }
     });
 </script>
+
+<cfif structKeyExists( args.settings, "enableTurbo" ) and args.settings.enableTurbo eq true>
+    <script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false" data-turbo-eval="false"></script>
+</cfif>
 </cfoutput>

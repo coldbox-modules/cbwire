@@ -9,12 +9,17 @@ component singleton {
 	property name="renderer" inject="coldbox:renderer";
 
 	/**
+	 * Injected ColdBox settings
+	 */
+	property name="settings" inject="coldbox:moduleSettings:cbwire";
+
+	/**
 	 * Returns the styles to be placed in our HTML head.
 	 *
 	 * @return String
 	 */
 	function getStyles(){
-		return variables.renderer.renderView( view = "styles", module = "cbwire" );
+		return variables.renderer.renderView( view = "styles", module = "cbwire", args={ settings: settings });
 	}
 
 	/**
@@ -23,7 +28,7 @@ component singleton {
 	 * @return String
 	 */
 	function getScripts(){
-		return variables.renderer.renderView( view = "scripts", module = "cbwire" );
+		return variables.renderer.renderView( view = "scripts", module = "cbwire", args={ settings: settings } );
 	}
 
 }
