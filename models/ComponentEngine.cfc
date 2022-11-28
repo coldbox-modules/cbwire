@@ -618,6 +618,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			}
 		} );
 
+		if ( shouldTrimStringValues() ) {
+			state.each( function( key, value ) {
+				if ( isSimpleValue( state[ key ] ) ) {
+					state[ key ] = trim( state[ key ] );
+				}
+			} );
+		}
+
 		if ( arguments.nullEmpty ) {
 			state = state.map( function( key, value, data ){
 				if (
@@ -861,6 +869,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
 			]
 		);
+	}
+
+	private function shouldTrimStringValues() {
+		return structKeyExists( getSettings(), "trimStringValues" ) && getSettings().trimStringValues == true;
 	}
 
 }

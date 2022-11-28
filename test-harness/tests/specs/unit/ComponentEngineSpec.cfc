@@ -42,6 +42,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				componentObj.setEngine( engine );
 			} );
 
+			fdescribe( "getState()", function() {
+				it ( "returns the data properties", function() {
+					engine.setDataProperties( {
+						"name": "Grant"
+					} );
+					expect( engine.getState().name ).toBe( "Grant" );
+				} );
+				it ( "trims string values if the setting is enabled", function() {
+					engine.setSettings( { "trimStringValues": true } );
+					engine.setDataProperties( {	"name": "Grant     "} );
+					expect( engine.getState().name ).toBe( "Grant" );
+				} );
+			} );
+
 			describe( "renderIt()", function(){
 				it( "can render", function(){
 					engine.renderIt();
