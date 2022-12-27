@@ -26,10 +26,10 @@ jobs:
         cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.2.0
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3.9.0
         with:
           distribution: "adopt"
           java-version: "11"
@@ -81,12 +81,12 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          files: test-harness/tests/results/**/*.xml
+          junit_files: test-harness/tests/results/**/*.xml
           check_name: "${{ matrix.cfengine }} Test Results"
 
       - name: Upload Test Results Artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: test-results-${{ matrix.cfengine }}
           path: |
@@ -112,7 +112,7 @@ jobs:
 
       - name: Upload Debugging Info To Artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: Failure Debugging Info - ${{ matrix.cfengine }}
           path: |
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.2.0
 
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.0
@@ -153,7 +153,7 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.2.0
       - uses: Ortus-Solutions/commandbox-action@v1
         env:
           box_config_endpoints_forgebox_APIToken: ${{ secrets.FORGEBOX_TOKEN }}
@@ -166,7 +166,7 @@ jobs:
   #   needs: tests
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v3.2.0
   #     - uses: Ortus-Solutions/semantic-release-action@v1
   #       with:
   #         githubToken: ${{ secrets.GH_TOKEN }}
