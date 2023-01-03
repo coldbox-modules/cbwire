@@ -10,7 +10,7 @@ on:
 jobs:
   tests:
     name: Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DB_USER: root
       DB_PASSWORD: root
@@ -39,10 +39,6 @@ jobs:
           key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
           restore-keys: |
             ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
-
-      - name: Setup env.VERSION
-        run: |
-          echo "VERSION=`box package version`" >> $GITHUB_ENV
 
       - name: Install Main Dependencies
         working-directory: ./
