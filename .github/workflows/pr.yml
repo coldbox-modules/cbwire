@@ -89,21 +89,3 @@ jobs:
           path: |
             test-harness/.engine/**/logs/*
             test-harness/.engine/**/WEB-INF/cfusion/logs/*
-
-  format:
-    name: Format
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3.2.0
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - uses: Ortus-Solutions/commandbox-action@v1
-        with:
-          cmd: run-script format
-
-      - name: Commit Format Changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Apply cfformat changes
