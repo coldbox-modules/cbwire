@@ -14,3 +14,5 @@ jobs:
   # UPDATE TO THE MODULE REPO SO PR'S CAN REUSE IT
   tests:
     uses: ./.github/workflows/tests.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
