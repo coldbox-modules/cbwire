@@ -1,0 +1,96 @@
+name: Test Suites
+
+# We are a reusable Workflow only
+on:
+  workflow_call:
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    env:
+      DB_USER: root
+      DB_PASSWORD: root
+    strategy:
+      fail-fast: false
+      matrix:
+        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3.2.0
+
+      - name: Setup Java
+        uses: actions/setup-java@v3.9.0
+        with:
+          distribution: "temurin"
+          java-version: "11"
+
+      - name: Setup CommandBox CLI
+        uses: Ortus-Solutions/setup-commandbox@main
+
+      - name: Cache CommandBox Dependencies
+        uses: actions/cache@v3
+        if: ${{ true }}
+        with:
+          path: ~/.CommandBox/artifacts
+          key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
+          restore-keys: |
+            ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
+
+      - name: Setup env.VERSION
+        run: |
+          echo "VERSION=`box package version`" >> $GITHUB_ENV
+
+      - name: Install Main Dependencies
+        working-directory: ./
+        run: |
+          box install
+
+      - name: Install Test Harness Dependencies
+        working-directory: ./test-harness
+        run: |
+          box install
+
+      - name: Start ${{ matrix.cfengine }} Server
+        working-directory: ./test-harness
+        run: |
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
+          curl http://127.0.0.1:60299
+
+      - name: Run Tests
+        id: tests
+        working-directory: ./test-harness
+        run: |
+          mkdir tests/results
+          box package set testbox.runner="http://localhost:60299/tests/runner.cfm"
+          box testbox run --verbose outputFile=tests/results/test-results outputFormats=json,antjunit
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          junit_files: test-harness/tests/results/**/*.xml
+          check_name: "${{ matrix.cfengine }} Test Results"
+
+      - name: Upload Test Results Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: test-results-${{ matrix.cfengine }}
+          path: |
+            test-harness/tests/results/**/*
+      - name: Slack Notifications
+        # Only on failures and NOT in pull requests
+        if: ${{ failure() && !startsWith( 'pull_request', github.event_name ) }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: coding
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+          SLACK_ICON_EMOJI: ":bell:"
+          SLACK_MESSAGE: '${{ github.repository }} tests failed :cry:'
+          SLACK_TITLE: ${{ github.repository }} Tests For ${{ matrix.cfengine }} failed
+          SLACK_USERNAME: CI
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

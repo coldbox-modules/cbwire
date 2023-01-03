@@ -44,98 +44,45 @@ jobs:
             ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
 
       - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+        uses: Ortus-Solutions/setup-commandbox@v2.0.0
+        with:
+          forgeboxAPIKey: ${{ secrets.FORGEBOX_TOKEN }}
 
-      - name: Setup env.VERSION
+      - name: Setup Environment Variables For Build Process
+        id: current_version
         run: |
-          echo "VERSION=`box package version`" >> $GITHUB_ENV
-
-      - name: Install Main Dependencies
-        working-directory: ./
-        run: |
-          box install
-
-      - name: Install Test Harness Dependencies
-        working-directory: ./test-harness
-        run: |
-          box install
-
-      - name: Start ${{ matrix.cfengine }} Server
-        working-directory: ./test-harness
-        run: |
-          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
-          # Install Adobe 2021 cfpm modules
-          if [[ "${{ matrix.cfengine }}" == "adobe@2021" ]] ; then
-            box run-script install:2021
+          echo "VERSION=`cat box.json | jq '.version' -r`" >> $GITHUB_ENV
+          box package set version=@build.version@+@build.number@
+          # master or snapshot
+          echo "Github Ref is $GITHUB_REF"
+          echo "BRANCH=master" >> $GITHUB_ENV
+          if [ $GITHUB_REF == 'refs/heads/development' ]
+          then
+            echo "BRANCH=development" >> $GITHUB_ENV
           fi
-          curl http://127.0.0.1:60299
-
-      - name: Run Tests
-        working-directory: ./test-harness
+      - name: Build ${{ env.MODULE_ID }}
         run: |
-          mkdir tests/results
-          box package set testbox.runner="http://localhost:60299/tests/runner.cfm"
-          box testbox run --verbose outputFile=tests/results/test-results outputFormats=json,antjunit
+          box install commandbox-docbox
+          box task run taskfile=build/Build target=run :version=${{ env.VERSION }} :projectName=${{ env.MODULE_ID }} :buildID=${{ github.run_number }} :branch=${{ env.BRANCH }}
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
         with:
-          junit_files: test-harness/tests/results/**/*.xml
-          check_name: "${{ matrix.cfengine }} Test Results"
-
-      - name: Upload Test Results Artifacts
-        if: always()
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: test-results-${{ matrix.cfengine }}
+          name: ${{ env.MODULE_ID }}
           path: |
-            test-harness/tests/results/**/*
+            .artifacts/**/*
 
-      - name: Slack Notification
-        if: failure()
-        uses: rtCamp/action-slack-notify@v2
+      - name: Upload Binaries to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read
         env:
-          SLACK_CHANNEL: coding
-          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
-          SLACK_ICON_EMOJI: ":bell:"
-          SLACK_MESSAGE: '${{ env.MODULE_ID }} tests failed :cry:'
-          SLACK_TITLE: ${{ env.MODULE_ID }} Tests For ${{ matrix.cfengine }} failed
-          SLACK_USERNAME: CI
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Failure Debugging Info
-        if: ${{ failure() }}
-        working-directory: ./test-harness
-        run: |
-          box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
-
-      - name: Upload Debugging Info To Artifacts
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: Failure Debugging Info - ${{ matrix.cfengine }}
-          path: |
-            test-harness/.engine/**/logs/*
-            test-harness/.engine/**/WEB-INF/cfusion/logs/*
-
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3.2.0
-
-      - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
-
-      - name: Generate Docs
-        run: |
-          box install commandbox-docbox --system
-          box "docbox generate mapping=cbwire excludes=test-harness|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbwire"
-
-      - name: Setup env.VERSION
-        run: |
-          echo "VERSION=`box package version`" >> $GITHUB_ENV
+          AWS_S3_BUCKET: "downloads.ortussolutions.com"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
+          SOURCE_DIR: ".artifacts/${{ env.MODULE_ID }}"
+          DEST_DIR: "ortussolutions/coldbox-modules/${{ env.MODULE_ID }}"
 
       - name: Upload API Docs to S3
         uses: jakejarvis/s3-sync-action@master
@@ -148,41 +95,19 @@ jobs:
           SOURCE_DIR: ".tmp/apidocs"
           DEST_DIR: "coldbox-modules/${{ env.MODULE_ID }}/${{ env.VERSION }}"
 
-  publish:
-    name: Simple 'box publish'
-    needs: tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.2.0
-      - uses: Ortus-Solutions/commandbox-action@v1
+      - name: Publish To ForgeBox
+        run: |
+          cd .tmp/${{ env.MODULE_ID }}
+          cat box.json
+          box forgebox publish
+
+      - name: Slack Notification
+        if: ${{ secrets.CUSTOM_WEBHOOK_URL }}
+        uses: rtCamp/action-slack-notify@v2
         env:
-          box_config_endpoints_forgebox_APIToken: ${{ secrets.FORGEBOX_TOKEN }}
-        with:
-          cmd: publish
-
-  # release:
-  #   name: Semantic Release
-  #   if: "!contains(github.event.head_commit.message, '__SEMANTIC RELEASE VERSION UPDATE__')"
-  #   needs: tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3.2.0
-  #     - uses: Ortus-Solutions/semantic-release-action@v1
-  #       with:
-  #         githubToken: ${{ secrets.GH_TOKEN }}
-  #         excludeCommit: ${{ github.event.head_commit.message }}
-  #         forgeboxToken: ${{ secrets.FORGEBOX_TOKEN }}
-  #         branch: ${{ github.ref_name }}
-  #         plugins: '{ "VerifyConditions": "GitHubActionsConditionsVerifier@commandbox-semantic-release", "FetchLastRelease": "ForgeBoxReleaseFetcher@commandbox-semantic-release", "RetrieveCommits": "JGitCommitsRetriever@commandbox-semantic-release", "ParseCommit": "EmojiLogCommitParser@commandbox-semantic-release", "FilterCommits": "DefaultCommitFilterer@commandbox-semantic-release", "AnalyzeCommits": "EmojiLogCommitAnalyzer@commandbox-semantic-release", "VerifyRelease": "NullReleaseVerifier@commandbox-semantic-release", "GenerateNotes": "GitHubMarkdownNotesGenerator@commandbox-semantic-release", "UpdateChangelog": "FileAppendChangelogUpdater@commandbox-semantic-release", "CommitArtifacts": "GitHubArtifactsCommitter@commandbox-semantic-release", "PublishRelease": "ForgeBoxReleasePublisher@commandbox-semantic-release", "PublicizeRelease": "GitHubReleasePublicizer@commandbox-semantic-release" }'
-
-  #     - name: Inform Slack
-  #       if: ${{ always() }}
-  #       uses: rtCamp/action-slack-notify@v2
-  #       env:
-  #         SLACK_CHANNEL: coding
-  #         SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
-  #         SLACK_ICON_EMOJI: ":bell:"
-  #         SLACK_MESSAGE: '${{ env.MODULE_ID }} Built with ${{ job.status }}!'
-  #         SLACK_TITLE: "${{ env.MODULE_ID }} Build"
-  #         SLACK_USERNAME: CI
-  #         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+          SLACK_ICON_EMOJI: ":bell:"
+          SLACK_MESSAGE: '${{ env.MODULE_ID }} Built with ${{ job.status }}!'
+          SLACK_TITLE: "${{ env.MODULE_ID }} Build"
+          SLACK_USERNAME: CI
+          SLACK_WEBHOOK: ${{ secrets.CUSTOM_WEBHOOK_URL }}

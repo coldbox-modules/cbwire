@@ -15,5 +15,8 @@
             "/modules/cbwire":"../"
         }
     },
+    "scripts" : {
+        "onServerInstall":"cfpm install zip,debugger"
+    },
     "openBrowser":"false"
 }

@@ -210,7 +210,8 @@ component {
 				"source"                = "models",
 				"mapping"               = "models",
 				"strategy-projectTitle" = "#arguments.projectName# v#arguments.version#",
-				"strategy-outputDir"    = arguments.outputDir
+				"strategy-outputDir"    = arguments.outputDir,
+				"excludes"              = "coldbox|testbox|models/testing|build|interceptors"
 			)
 			.run();
 
