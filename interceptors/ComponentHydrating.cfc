@@ -38,6 +38,8 @@ component {
 			}
 		}
 
+		engine.renderComputedProperties( engine.getDataProperties() );
+
 		if ( structKeyExists( cbwireComponent, "onHydrate" ) ) {
 			cbwireComponent.onHydrate(
 				data=engine.getDataProperties(),
