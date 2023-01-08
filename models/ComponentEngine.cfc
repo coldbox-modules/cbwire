@@ -356,7 +356,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function reset( property ){
-		if ( isArray( arguments.property ) ) {
+		if ( isNull( arguments.property ) ) {
+			// Reset all properties
+			getDataProperties().each( function( key, value ){
+				reset( key );
+			} );
+		} else if ( isArray( arguments.property ) ) {
 			// Reset each property in our array individually
 			arguments.property.each( function( prop ){
 				reset( prop );

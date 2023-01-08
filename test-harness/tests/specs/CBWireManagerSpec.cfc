@@ -82,7 +82,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.serverMemo.data ).toBeStruct();
 				} );
 
-				it( "resets property using reset()", function(){
+				it( "resets property using reset( propertyname )", function(){
 					rc[ "serverMemo" ] = {
 						"children" : [],
 						"data" : { "title" : "CBWIRE Slays!" },
@@ -98,6 +98,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"payload" : {
 								"id" : "zqs3",
 								"method" : "resetTitle",
+								"params" : []
+							}
+						}
+					];
+
+					var result = cbwireManager.handleIncomingRequest( event );
+					expect( result.effects.html ).toInclude( "Title: CBWIRE Rocks!" );
+				} );
+
+				it( "resets all properties using reset()", function(){
+					rc[ "serverMemo" ] = {
+						"children" : [],
+						"data" : { "title" : "CBWIRE Slays!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
+					};
+
+					rc[ "updates" ] = [
+						{
+							"type" : "callMethod",
+							"payload" : {
+								"id" : "zqs3",
+								"method" : "resetAll",
 								"params" : []
 							}
 						}
