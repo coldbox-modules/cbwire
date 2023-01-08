@@ -454,12 +454,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "hydrate", function(){
-				it( "renders (executes) computed properties on hydrate", function() {
-					componentObj.getEngine().setComputedProperties( {
-						"add2Plus2": function() {
-							return 4;
-						}
-					} );
+				it( "renders (executes) computed properties on hydrate", function(){
+					componentObj
+						.getEngine()
+						.setComputedProperties( {
+							"add2Plus2" : function(){
+								return 4;
+							}
+						} );
 
 					expect( isCustomFunction( componentObj.getEngine().getComputedProperties().add2Plus2 ) ).toBeTrue();
 
