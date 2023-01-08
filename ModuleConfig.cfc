@@ -38,7 +38,7 @@ component {
 			/**
 			 * Determines if Turbo should be enabled
 			 */
-			"enableTurbo": false,
+			"enableTurbo" : false,
 			/**
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.
@@ -47,7 +47,7 @@ component {
 			/**
 			 * Trims string properties if set to true
 			 */
-			"trimStringValues": false
+			"trimStringValues" : false
 		};
 
 		routes = [

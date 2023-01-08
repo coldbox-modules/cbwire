@@ -279,7 +279,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @eventName String | The name of our event to emit.
 	 * @parameters Arrays | The params passed with the emitter.
 	 */
-	function fire( required eventName, array parameters = [] ) {
+	function fire( required eventName, array parameters = [] ){
 		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
@@ -627,7 +627,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		} );
 
 		if ( shouldTrimStringValues() ) {
-			state.each( function( key, value ) {
+			state.each( function( key, value ){
 				if ( isSimpleValue( state[ key ] ) ) {
 					state[ key ] = trim( state[ key ] );
 				}
@@ -765,7 +765,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method
-			var result =  getWire().onRender( args = arguments.args );
+			var result = getWire().onRender( args = arguments.args );
 		} else {
 			// Render our view using coldbox rendering
 			var result = super.renderView( argumentCollection = arguments );
@@ -879,7 +879,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		);
 	}
 
-	private function shouldTrimStringValues() {
+	private function shouldTrimStringValues(){
 		return structKeyExists( getSettings(), "trimStringValues" ) && getSettings().trimStringValues == true;
 	}
 

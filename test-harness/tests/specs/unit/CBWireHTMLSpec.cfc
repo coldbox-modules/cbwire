@@ -18,46 +18,46 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "Component.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-                cbwireHTML = getInstance( "CBWireHTML@cbwire" );
-                moduleSettings = getInstance( "coldbox:moduleSettings:cbwire" );
+				cbwireHTML = getInstance( "CBWireHTML@cbwire" );
+				moduleSettings = getInstance( "coldbox:moduleSettings:cbwire" );
 			} );
 
 			it( "can instantiate a component", function(){
 				expect( isObject( cbwireHTML ) ).toBeTrue();
 			} );
 
-            describe( "getStyles()", function() {
-                it( "renders the styles", function() {
-                    var result = cbwireHTML.getStyles();
-                    expect( result ).toInclude( "@keyframes livewireautofill" );
-                } );
+			describe( "getStyles()", function(){
+				it( "renders the styles", function(){
+					var result = cbwireHTML.getStyles();
+					expect( result ).toInclude( "@keyframes livewireautofill" );
+				} );
 
-                it( "renders turbo drive assets", function() {
-                    moduleSettings[ "enableTurbo" ] = false;
-                    var result = cbwireHTML.getStyles();
-                    expect( result ).notToInclude( "import hotwiredTurbo from" );
-                    moduleSettings[ "enableTurbo" ] = true;
-                    result = cbwireHTML.getStyles();
-                    expect( result ).toInclude( "import hotwiredTurbo from" );
-                } );
-            } );
+				it( "renders turbo drive assets", function(){
+					moduleSettings[ "enableTurbo" ] = false;
+					var result = cbwireHTML.getStyles();
+					expect( result ).notToInclude( "import hotwiredTurbo from" );
+					moduleSettings[ "enableTurbo" ] = true;
+					result = cbwireHTML.getStyles();
+					expect( result ).toInclude( "import hotwiredTurbo from" );
+				} );
+			} );
 
-            describe( "getScripts()", function() {
-                it( "renders the scripts", function() {
-                    var result = cbwireHTML.getScripts();
-                    expect( result ).toInclude( "window.livewire = new Livewire();" );
-                } );
+			describe( "getScripts()", function(){
+				it( "renders the scripts", function(){
+					var result = cbwireHTML.getScripts();
+					expect( result ).toInclude( "window.livewire = new Livewire();" );
+				} );
 
-                it( "renders turbo drive assets", function() {
-                    moduleSettings[ "enableTurbo" ] = false;
-                    var result = cbwireHTML.getScripts();
-                    expect( result ).notToInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
-                    moduleSettings[ "enableTurbo" ] = true;
-                    result = cbwireHTML.getScripts();
-                    expect( result ).toInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
-                } );
-            } );
+				it( "renders turbo drive assets", function(){
+					moduleSettings[ "enableTurbo" ] = false;
+					var result = cbwireHTML.getScripts();
+					expect( result ).notToInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
+					moduleSettings[ "enableTurbo" ] = true;
+					result = cbwireHTML.getScripts();
+					expect( result ).toInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
+				} );
+			} );
+		} );
+	}
 
-        } );
-    }
 }
