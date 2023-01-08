@@ -266,6 +266,20 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			trackEmit( emitter );
 		}
 
+		// Invoke 'postEmit' event
+		invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = arguments.parameters );
+
+		// Invoke 'postEmit[EventName]' event
+		invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
+	}
+
+	/**
+	 * Executes the listeners associated with the provided event.
+	 *
+	 * @eventName String | The name of our event to emit.
+	 * @parameters Arrays | The params passed with the emitter.
+	 */
+	function fire( required eventName, array parameters = [] ) {
 		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
@@ -275,12 +289,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				return invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
 			}
 		}
-
-		// Invoke 'postEmit' event
-		invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = arguments.parameters );
-
-		// Invoke 'postEmit[EventName]' event
-		invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
 	}
 
 	/**
