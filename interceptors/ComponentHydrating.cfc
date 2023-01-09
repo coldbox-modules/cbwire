@@ -31,6 +31,13 @@ component {
 					methodName = "set" & arguments.key,
 					value      = isNull( arguments.value ) ? "" : arguments.value
 				);					
+
+				if ( structKeyExists( cbwireComponent, "onHydrate#arguments.key#" ) ) {
+					invoke( cbwireComponent, "onHydrate#arguments.key#", {
+						data : engine.getDataProperties(),
+						computed : engine.getComputedProperties()
+					} );
+				}
 			} );
 
 			if ( variables.cbwireRequest.hasChildren() ) {
