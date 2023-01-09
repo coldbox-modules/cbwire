@@ -45,14 +45,14 @@ component {
 			}
 		}
 
-		engine.renderComputedProperties( engine.getDataProperties() );
-
 		if ( structKeyExists( cbwireComponent, "onHydrate" ) ) {
 			cbwireComponent.onHydrate(
 				data=engine.getDataProperties(),
 				computed=engine.getComputedProperties()
-			);
+				);
 		}
+
+		engine.renderComputedProperties( engine.getDataProperties() );
 
 		// Check if our request contains updates, and if so apply them.
 		if ( variables.cbwireRequest.hasUpdates() ) {
