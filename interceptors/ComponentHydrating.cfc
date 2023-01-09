@@ -14,9 +14,6 @@ component {
 
 		engine.setBeforeHydrationState( duplicate( engine.getState() ) );
 
-		// Invoke '$preHydrate' event
-		engine.invokeMethod( "$preHydrate" );
-
 		if ( variables.cbwireRequest.hasData() ) {
 			cbwireComponent.setData( variables.cbwireRequest.getData() );
 		}
@@ -30,13 +27,17 @@ component {
 					var uploadFullReference = duplicate( arguments.value );
 					var uuid = replaceNoCase( arguments.value, "cbwire-upload:", "", "once" );
 					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=cbwireComponent, params=[ key, [ uuid  ] ] } );
-					engine.getDataProperties()[ arguments.key ] = arguments.value;
-					engine.getWire().getInternals().data[ arguments.key ] = arguments.value;
-				} else {
-					engine.invokeMethod(
-						methodName = "set" & arguments.key,
-						value      = isNull( arguments.value ) ? "" : arguments.value
-					);					
+				}
+				engine.invokeMethod(
+					methodName = "set" & arguments.key,
+					value      = isNull( arguments.value ) ? "" : arguments.value
+				);					
+
+				if ( structKeyExists( cbwireComponent, "onHydrate#arguments.key#" ) ) {
+					invoke( cbwireComponent, "onHydrate#arguments.key#", {
+						data : engine.getDataProperties(),
+						computed : engine.getComputedProperties()
+					} );
 				}
 			} );
 
@@ -45,12 +46,18 @@ component {
 			}
 		}
 
+		if ( structKeyExists( cbwireComponent, "onHydrate" ) ) {
+			cbwireComponent.onHydrate(
+				data=engine.getDataProperties(),
+				computed=engine.getComputedProperties()
+				);
+		}
+
+		engine.renderComputedProperties( engine.getDataProperties() );
+
 		// Check if our request contains updates, and if so apply them.
 		if ( variables.cbwireRequest.hasUpdates() ) {
 			variables.cbwireRequest.applyUpdates( cbwireComponent );
 		}
-
-		// Invoke '$postHydrate' event
-		engine.invokeMethod( "$postHydrate" );
     }
 }

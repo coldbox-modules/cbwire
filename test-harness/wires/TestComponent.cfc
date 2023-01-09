@@ -16,6 +16,10 @@ component extends="cbwire.models.Component" {
         reset( "title" );
     }
 
+    function resetAll() {
+        reset();
+    }
+
     function someListener() {
         data.title = "Fired some event";
     }

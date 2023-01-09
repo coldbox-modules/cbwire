@@ -209,6 +209,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				rc = getCBWireRequest().getCollection(),
 				prc = getCBWireRequest().getPrivateCollection()
 			);
+		} else if ( structKeyExists( getWire(), "onMount" ) ) {
+			getWire().onMount(
+				parameters = arguments.parameters,
+				key = arguments.key,
+				event = getCBWireRequest().getEvent(),
+				rc = getCBWireRequest().getCollection(),
+				prc = getCBWireRequest().getPrivateCollection()
+			);
 		} else {
 			/**
 			 * Use setter population to populate our component.
@@ -263,6 +271,20 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			trackEmit( emitter );
 		}
 
+		// Invoke 'postEmit' event
+		invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = arguments.parameters );
+
+		// Invoke 'postEmit[EventName]' event
+		invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
+	}
+
+	/**
+	 * Executes the listeners associated with the provided event.
+	 *
+	 * @eventName String | The name of our event to emit.
+	 * @parameters Arrays | The params passed with the emitter.
+	 */
+	function fire( required eventName, array parameters = [] ){
 		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
@@ -272,12 +294,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				return invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
 			}
 		}
-
-		// Invoke 'postEmit' event
-		invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = arguments.parameters );
-
-		// Invoke 'postEmit[EventName]' event
-		invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
 	}
 
 	/**
@@ -345,7 +361,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Void
 	 */
 	function reset( property ){
-		if ( isArray( arguments.property ) ) {
+		if ( isNull( arguments.property ) ) {
+			// Reset all properties
+			getDataProperties().each( function( key, value ){
+				reset( key );
+			} );
+		} else if ( isArray( arguments.property ) ) {
 			// Reset each property in our array individually
 			arguments.property.each( function( prop ){
 				reset( prop );
@@ -617,6 +638,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			}
 		} );
 
+		if ( shouldTrimStringValues() ) {
+			state.each( function( key, value ){
+				if ( isSimpleValue( state[ key ] ) ) {
+					state[ key ] = trim( state[ key ] );
+				}
+			} );
+		}
+
 		if ( arguments.nullEmpty ) {
 			state = state.map( function( key, value, data ){
 				if (
@@ -747,13 +776,18 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		// Provide validation results, either validation results we captured from our action or run them now.
 		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
 
+		// Include a reference to the component's id
+		arguments.args[ "_id" ] = getId();
+
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method
-			return getWire().onRender( args = arguments.args );
+			var result = getWire().onRender( args = arguments.args );
 		} else {
 			// Render our view using coldbox rendering
-			return super.renderView( argumentCollection = arguments );
+			var result = super.renderView( argumentCollection = arguments );
 		}
+
+		return result;
 	}
 
 	/**
@@ -859,6 +893,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
 			]
 		);
+	}
+
+	private function shouldTrimStringValues(){
+		return structKeyExists( getSettings(), "trimStringValues" ) && getSettings().trimStringValues == true;
 	}
 
 }

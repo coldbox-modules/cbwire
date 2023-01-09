@@ -11,11 +11,9 @@ component extends="WireUpdate" {
 		}
 
 		var eventName = this.getPayload()[ "event" ];
+		var params = this.getPayload()[ "params" ];
 
-		// Because this is an emit coming from the UI, we need to
-		// be sure and not track the emit because track emits are returned
-		// to the UI again, resulting in an infinite loop.
-		arguments.comp.emit( eventName = eventName, parameters = this.getPayload()[ "params" ], track = false );
+		arguments.comp.getEngine().fire( eventName = eventName, parameters = params );
 	}
 
 }

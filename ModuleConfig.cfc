@@ -36,10 +36,18 @@ component {
 			 */
 			"moduleRootURI" : "/modules/cbwire",
 			/**
+			 * Determines if Turbo should be enabled
+			 */
+			"enableTurbo" : false,
+			/**
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.
 			 */
-			"manifest" : getLivewireManifest()
+			"manifest" : getLivewireManifest(),
+			/**
+			 * Trims string properties if set to true
+			 */
+			"trimStringValues" : false
 		};
 
 		routes = [

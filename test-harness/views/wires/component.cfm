@@ -1,3 +1,6 @@
 <cfoutput>
-    <div>Component</div>
+    <div>
+        Component
+        #args._id#
+    </div>
 </cfoutput>

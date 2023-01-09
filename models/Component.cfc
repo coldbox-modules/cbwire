@@ -270,7 +270,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function reset( property ){
-		getEngine().reset( arguments.property );
+		getEngine().reset( argumentCollection = arguments );
 	}
 
 	/**

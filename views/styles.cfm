@@ -24,4 +24,10 @@
 
     @keyframes livewireautofill { from {} }
 </style>
+
+<cfif structKeyExists( args.settings, "enableTurbo") and args.settings.enableTurbo eq true>
+    <script type="module">
+		import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
+	</script>
+</cfif>
 </cfoutput>
