@@ -619,6 +619,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "onHydrate[DataProperty]()", function(){
+				it( "it calls onHydrate[DataProperty]]) if it's defined on component", function(){
+					var rc = cbwireRequest.getCollection();
+
+					rc[ "serverMemo" ] = {
+						"data" : { "count" : "2" },
+						"children" : []
+					};
+
+					componentObj.$( "onHydrateCount", "got this" );
+					componentObj.getEngine().hydrate( cbwireRequest );
+					expect( componentObj.$once( "onHydrateCount" ) ).toBeTrue();
+				} );
+			} );
+
 			describe( "getters", function(){
 				it( "can access data properties using getter", function(){
 					componentObj.getEngine().setDataProperties( { "count" : 1 } );
