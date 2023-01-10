@@ -91,6 +91,11 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="renderingOverrides";
 
 	/**
+	 * Holds redirect to
+	 */
+	property name="redirectTo";
+
+	/**
 	 * A beautiful constructor
 	 */
 	function init( required wire, required variablesScope ){
@@ -375,32 +380,156 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	/**
 	 * Relocate user browser requests to other events, URLs, or URIs.
 	 *
-	 * @event The name of the event to run, if not passed, then it will use the default event found in your configuration file
-	 * @URL The full URL you would like to relocate to instead of an event: ex: URL='http://www.google.com'
-	 * @URI The relative URI you would like to relocate to instead of an event: ex: URI='/mypath/awesome/here'
-	 * @queryString The query string or struct to append, if needed. If in SES mode it will be translated to convention name value pairs
-	 * @persist What request collection keys to persist in flash ram
-	 * @persistStruct A structure key-value pairs to persist in flash ram
-	 * @addToken Wether to add the tokens or not. Default is false
-	 * @ssl Whether to relocate in SSL or not
-	 * @baseURL Use this baseURL instead of the index.cfm that is used by default. You can use this for ssl or any full base url you would like to use. Ex: https://mysite.com/index.cfm
-	 * @postProcessExempt Do not fire the postProcess interceptors
-	 * @statusCode The status code to use in the relocation
+	 * @event             The name of the event to relocate to, if not passed, then it will use the default event found in your configuration file.
+	 * @queryString       The query string or a struct to append, if needed. If in SES mode it will be translated to convention name value pairs
+	 * @addToken          Wether to add the tokens or not to the relocation. Default is false
+	 * @persist           What request collection keys to persist in flash RAM automatically for you
+	 * @persistStruct     A structure of key-value pairs to persist in flash RAM automatically for you
+	 * @ssl               Whether to relocate in SSL or not. You need to explicitly say TRUE or FALSE if going out from SSL. If none passed, we look at the even's SES base URL (if in SES mode)
+	 * @baseURL           Use this baseURL instead of the index.cfm that is used by default. You can use this for SSL or any full base url you would like to use. Ex: https://mysite.com/index.cfm
+	 * @postProcessExempt Do not fire the postProcess interceptors, by default it does
+	 * @URL               The full URL you would like to relocate to instead of an event: ex: URL='http://www.google.com'
+	 * @URI               The relative URI you would like to relocate to instead of an event: ex: URI='/mypath/awesome/here'
+	 *
+	 * @return void
 	 */
-	void function relocate(
-		event,
-		URL,
-		URI,
-		queryString,
-		persist,
-		struct persistStruct,
-		boolean addToken,
+	function relocate(
+		event                = "",
+		queryString          = "",
+		boolean addToken     = false,
+		persist              = "",
+		struct persistStruct = structNew()
 		boolean ssl,
-		baseURL,
-		boolean postProcessExempt,
-		numeric statusCode
+		baseURL                   = "",
+		boolean postProcessExempt = false,
+		URL,
+		URI
 	){
-		return getRenderer().relocate( argumentCollection = arguments );
+		// Determine the type of relocation
+		var relocationType  = "SES";
+		var relocationURL   = "";
+		var eventName       = controller.getConfigSettings()[ "EventName" ];
+		var frontController = listLast( CGI.SCRIPT_NAME, "/" );
+		var oRequestContext = controller.getRequestService().getContext();
+		var routeString     = 0;
+
+		// Determine relocation type
+		if ( !isNull( arguments.url ) && len( arguments.url ) ) {
+			relocationType = "URL";
+		}
+		if ( !isNull( arguments.URI ) && len( arguments.URI ) ) {
+			relocationType = "URI";
+		}
+
+		// Cleanup event string to default if not sent in
+		if ( len( trim( arguments.event ) ) eq 0 ) {
+			arguments.event = controller.getSetting( "DefaultEvent" );
+		}
+
+		// Query String Struct to String
+		if ( isStruct( arguments.queryString ) ) {
+			arguments.queryString = arguments.queryString
+				.reduce( function( result, key, value ){
+					arguments.result.append( "#encodeForURL( arguments.key )#=#encodeForURL( arguments.value )#" );
+					return arguments.result;
+				}, [] )
+				.toList( "&" );
+		}
+
+		// Overriding Front Controller via baseURL argument
+		if ( len( trim( arguments.baseURL ) ) ) {
+			frontController = arguments.baseURL;
+		}
+
+		// Relocation Types
+		switch ( relocationType ) {
+			// FULL URL relocations
+			case "URL": {
+				relocationURL = arguments.URL;
+				// Check SSL?
+				if ( !isNull( arguments.ssl ) ) {
+					relocationURL = controller.updateSSL( relocationURL, arguments.ssl );
+				}
+				// Query String?
+				if ( len( trim( arguments.queryString ) ) ) {
+					relocationURL = relocationURL & "?#arguments.queryString#";
+				}
+				break;
+			}
+
+			// URI relative relocations
+			case "URI": {
+				relocationURL = arguments.URI;
+				// Query String?
+				if ( len( trim( arguments.queryString ) ) ) {
+					relocationURL = relocationURL & "?#arguments.queryString#";
+				}
+				break;
+			}
+
+			// Default event relocations
+			default: {
+				// Convert module into proper entry point
+				if ( listLen( arguments.event, ":" ) > 1 ) {
+					var mConfig = controller.getSetting( "modules" );
+					var module  = listFirst( arguments.event, ":" );
+					if ( structKeyExists( mConfig, module ) ) {
+						arguments.event = mConfig[ module ].inheritedEntryPoint & "/" & listRest(
+							arguments.event,
+							":"
+						);
+					}
+				}
+				// Route String start by converting event syntax to / syntax
+				routeString = replace( arguments.event, ".", "/", "all" );
+				// Convert Query String to convention name value-pairs
+				if ( len( trim( arguments.queryString ) ) ) {
+					// If the routestring ends with '/' we do not want to
+					// double append '/'
+					if ( right( routeString, 1 ) NEQ "/" ) {
+						routeString = routeString & "/" & replace( arguments.queryString, "&", "/", "all" );
+					} else {
+						routeString = routeString & replace( arguments.queryString, "&", "/", "all" );
+					}
+					routeString = replace( routeString, "=", "/", "all" );
+				}
+
+				// Get Base relocation URL from context
+				relocationURL = oRequestContext.getSESBaseURL();
+				// if the sesBaseURL is nothing, set it to the setting
+				if ( !len( relocationURL ) ) {
+					relocationURL = controller.getSetting( "sesBaseURL" );
+				}
+				// add the trailing slash if there isnt one
+				if ( right( relocationURL, 1 ) neq "/" ) {
+					relocationURL = relocationURL & "/";
+				}
+				// Check SSL?
+				if ( !isNull( arguments.ssl ) ) {
+					relocationURL = controller.updateSSL( relocationURL, arguments.ssl );
+				}
+
+				// Finalize the URL
+				relocationURL = relocationURL & routeString;
+
+				break;
+			}
+		}
+
+		// persist Flash RAM
+		persistVariables( argumentCollection = arguments );
+
+		// Post Processors
+		if ( NOT arguments.postProcessExempt ) {
+			controller.getInterceptorService().announce( "postProcess" );
+		}
+
+		// Save Flash RAM
+		if ( controller.getConfigSettings().flash.autoSave ) {
+			controller.getRequestService().getFlashScope().saveFlash();
+		}
+
+		setRedirectTo( relocationURL );
 	}
 
 	/**
@@ -688,7 +817,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			"effects" : {
 				"html" : getHTML(),
 				"dirty" : getDirtyProperties(),
-				"emits" : getEmittedEvents()
+				"emits" : getEmittedEvents(),
+				"redirect": !isNull( getRedirectTo() ) ? getRedirectTo() : javaCast( "null", 0 )
 			},
 			"serverMemo" : {
 				"data" : getState( includeComputed = false, nullEmpty = true ),
@@ -886,6 +1016,30 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 	private function shouldTrimStringValues(){
 		return structKeyExists( getSettings(), "trimStringValues" ) && getSettings().trimStringValues == true;
+	}
+
+	/**
+	 * Internal helper to flash persist elements
+	 *
+	 * @persist       What request collection keys to persist in flash RAM automatically for you
+	 * @persistStruct A structure of key-value pairs to persist in flash RAM automatically for you
+	 *
+	 * @return Controller
+	 */
+	private function persistVariables( persist = "", struct persistStruct = {} ){
+		var flash = controller.getRequestService().getFlashScope();
+
+		// persist persistStruct if passed
+		if ( !isNull( arguments.persistStruct ) ) {
+			flash.putAll( map = arguments.persistStruct, saveNow = true );
+		}
+
+		// Persist RC keys if passed.
+		if ( len( trim( arguments.persist ) ) ) {
+			flash.persistRC( include = arguments.persist, saveNow = true );
+		}
+
+		return this;
 	}
 
 }

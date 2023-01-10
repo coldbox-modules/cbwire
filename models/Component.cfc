@@ -71,7 +71,6 @@ component accessors="true" {
 	 * @ssl Whether to relocate in SSL or not
 	 * @baseURL Use this baseURL instead of the index.cfm that is used by default. You can use this for ssl or any full base url you would like to use. Ex: https://mysite.com/index.cfm
 	 * @postProcessExempt Do not fire the postProcess interceptors
-	 * @statusCode The status code to use in the relocation
 	 */
 	void function relocate(
 		event,
@@ -83,8 +82,7 @@ component accessors="true" {
 		boolean addToken,
 		boolean ssl,
 		baseURL,
-		boolean postProcessExempt,
-		numeric statusCode
+		boolean postProcessExempt
 	){
 		return getEngine().relocate( argumentCollection = arguments );
 	}
