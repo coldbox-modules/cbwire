@@ -394,24 +394,24 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return void
 	 */
 	function relocate(
-		event                = "",
-		queryString          = "",
-		boolean addToken     = false,
-		persist              = "",
+		event = "",
+		queryString = "",
+		boolean addToken = false,
+		persist = "",
 		struct persistStruct = structNew()
 		boolean ssl,
-		baseURL                   = "",
+		baseURL = "",
 		boolean postProcessExempt = false,
 		URL,
 		URI
 	){
 		// Determine the type of relocation
-		var relocationType  = "SES";
-		var relocationURL   = "";
-		var eventName       = controller.getConfigSettings()[ "EventName" ];
+		var relocationType = "SES";
+		var relocationURL = "";
+		var eventName = controller.getConfigSettings()[ "EventName" ];
 		var frontController = listLast( CGI.SCRIPT_NAME, "/" );
 		var oRequestContext = controller.getRequestService().getContext();
-		var routeString     = 0;
+		var routeString = 0;
 
 		// Determine relocation type
 		if ( !isNull( arguments.url ) && len( arguments.url ) ) {
@@ -472,12 +472,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				// Convert module into proper entry point
 				if ( listLen( arguments.event, ":" ) > 1 ) {
 					var mConfig = controller.getSetting( "modules" );
-					var module  = listFirst( arguments.event, ":" );
+					var module = listFirst( arguments.event, ":" );
 					if ( structKeyExists( mConfig, module ) ) {
-						arguments.event = mConfig[ module ].inheritedEntryPoint & "/" & listRest(
-							arguments.event,
-							":"
-						);
+						arguments.event = mConfig[ module ].inheritedEntryPoint & "/" & listRest( arguments.event, ":" );
 					}
 				}
 				// Route String start by converting event syntax to / syntax
@@ -526,7 +523,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		// Save Flash RAM
 		if ( controller.getConfigSettings().flash.autoSave ) {
-			controller.getRequestService().getFlashScope().saveFlash();
+			controller
+				.getRequestService()
+				.getFlashScope()
+				.saveFlash();
 		}
 
 		setRedirectTo( relocationURL );
@@ -818,7 +818,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				"html" : getHTML(),
 				"dirty" : getDirtyProperties(),
 				"emits" : getEmittedEvents(),
-				"redirect": !isNull( getRedirectTo() ) ? getRedirectTo() : javaCast( "null", 0 )
+				"redirect" : !isNull( getRedirectTo() ) ? getRedirectTo() : javacast( "null", 0 )
 			},
 			"serverMemo" : {
 				"data" : getState( includeComputed = false, nullEmpty = true ),
