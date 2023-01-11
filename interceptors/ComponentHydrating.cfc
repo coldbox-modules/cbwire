@@ -52,8 +52,6 @@ component {
 				);
 		}
 
-		engine.renderComputedProperties( engine.getDataProperties() );
-
 		// Check if our request contains updates, and if so apply them.
 		if ( variables.cbwireRequest.hasUpdates() ) {
 			variables.cbwireRequest.applyUpdates( cbwireComponent );
