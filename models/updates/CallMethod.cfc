@@ -8,7 +8,6 @@ component extends="WireUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
-
 		var engine = arguments.comp.getEngine();
 
 		engine.renderComputedProperties();

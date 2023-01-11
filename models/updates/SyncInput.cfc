@@ -22,7 +22,6 @@ component extends="WireUpdate" {
 		var engine = comp.getEngine();
 
 		engine.renderComputedProperties();
-
 	}
 
 }
