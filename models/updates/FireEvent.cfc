@@ -6,14 +6,19 @@ component extends="WireUpdate" {
 	 * @comp cbwire.models.Component | Component we are updating.
 	 */
 	function apply( required comp ){
-		if ( !arguments.comp.getEngine().hasListeners() ) {
+		var engine = arguments.comp.getEngine();
+
+		if ( !engine.hasListeners() ) {
 			return;
 		}
 
-		var eventName = this.getPayload()[ "event" ];
-		var params = this.getPayload()[ "params" ];
+		engine.renderComputedProperties();
 
-		arguments.comp.getEngine().fire( eventName = eventName, parameters = params );
+		var payload = this.getPayload();
+		var eventName = payload.event;
+		var params = payload.params;
+
+		engine.fire( eventName = eventName, parameters = params );
 	}
 
 }

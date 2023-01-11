@@ -8,8 +8,12 @@ component extends="WireUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
+		var engine = arguments.comp.getEngine();
+
+		engine.renderComputedProperties();
+
 		if ( variables.getPayloadMethod() == "finishUpload" ) {
-			comp.getEngine().finishUpload( params = getPassedParamsAsArguments() );
+			engine.finishUpload( params = getPassedParamsAsArguments() );
 			return;
 		}
 		if ( variables.getPayloadMethod() == "startUpload" ) {
