@@ -17,6 +17,12 @@ component extends="WireUpdate" {
 			memento: { "#this.getPayload()[ "name" ]#" : "#this.getPayload()[ "value" ]#" },
 			excludes: ""
 		);
+
+		// When syncing input, render our computed properties after the input has synced.
+		var engine = comp.getEngine();
+
+		engine.renderComputedProperties();
+
 	}
 
 }

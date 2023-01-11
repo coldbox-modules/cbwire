@@ -169,7 +169,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 *
 	 * @return void
 	 */
-	function renderComputedProperties( required data ){
+	function renderComputedProperties( data = getDataProperties() ){
 		if ( !structKeyExists( getVariablesScope(), "computed" ) ) {
 			return;
 		}
