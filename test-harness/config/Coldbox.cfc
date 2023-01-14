@@ -73,8 +73,7 @@
 
 		moduleSettings = {
 			cbwire = {
-				"enableTurbo": true,
-				"moduleRootURI" : "/moduleroot/cbwire"
+				"enableTurbo": true
 			}
 		};
 
