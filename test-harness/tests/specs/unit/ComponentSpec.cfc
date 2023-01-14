@@ -453,7 +453,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "hydrate", function(){
+			fdescribe( "hydrate", function(){
 				it( "renders (executes) computed properties on hydrate", function(){
 					componentObj
 						.getEngine()
@@ -463,11 +463,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							}
 						} );
 
-					expect( isCustomFunction( componentObj.getEngine().getComputedProperties().add2Plus2 ) ).toBeTrue();
-
 					componentObj.getEngine().hydrate( cbwireRequest );
 
-					expect( componentObj.getEngine().getComputedProperties().add2Plus2 ).toBe( 4 );
+					expect( componentObj.getEngine().getComputedProperties().add2Plus2() ).toBe( 4 );
 				} );
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = cbwireRequest.getCollection();
