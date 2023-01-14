@@ -465,7 +465,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					componentObj.getEngine().hydrate( cbwireRequest );
 
-					expect( componentObj.getEngine().getComputedProperties().add2Plus2() ).toBe( 4 );
+					expect(
+						componentObj
+							.getEngine()
+							.getComputedProperties()
+							.add2Plus2()
+					).toBe( 4 );
 				} );
 				it( "sets properties with values from 'serverMemo' payload", function(){
 					var rc = cbwireRequest.getCollection();
