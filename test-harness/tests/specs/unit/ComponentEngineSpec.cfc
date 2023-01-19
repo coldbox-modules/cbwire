@@ -71,37 +71,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "renderComputedProperties", function() {
-
-				it( "useComputedPropertiesProxy defaults to false", function() {
+			describe( "renderComputedProperties", function(){
+				it( "useComputedPropertiesProxy defaults to false", function(){
 					expect( engine.getSettings().useComputedPropertiesProxy ).toBeFalse();
 				} );
 
-				it ( "renders the computed properties immediately by default", function() {
+				it( "renders the computed properties immediately by default", function(){
 					engine.setComputedProperties( {
-						"name": function() {
+						"name" : function(){
 							return "Grant"
 						}
 					} );
 
 					engine.renderComputedProperties();
 
-					expect( engine.getComputedProperties().name ).toBe( "Grant" );				
+					expect( engine.getComputedProperties().name ).toBe( "Grant" );
 				} );
 
-				it( "returns functions instead when using computed properties proxy", function() {
-
-					engine.setSettings( {
-						"useComputedPropertiesProxy": true
-					} );
+				it( "returns functions instead when using computed properties proxy", function(){
+					engine.setSettings( { "useComputedPropertiesProxy" : true } );
 
 					engine.setComputedProperties( {
-						"name": function() {
+						"name" : function(){
 							return "Grant"
 						}
 					} );
 
-					expect( engine.getComputedProperties().name() ).toBe( "Grant" );			
+					expect( engine.getComputedProperties().name() ).toBe( "Grant" );
 				} );
 			} );
 		} );

@@ -177,14 +177,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		if ( useComputedPropertiesProxy() ) {
 			computedProperties = getComputedPropertiesProxy();
 		} else {
-
 			getComputedProperties().each( function( key, value, computedProperties ){
 				if ( isCustomFunction( value ) ) {
 					computedProperties[ key ] = value( data );
 				}
 			} );
 		}
-
 	}
 
 	/**
@@ -1052,21 +1050,27 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		return this;
 	}
-	
+
 	/**
 	 * Returns boolean of if a proxy should be used for computed properties.
 	 */
-	function useComputedPropertiesProxy() {
+	function useComputedPropertiesProxy(){
 		return structKeyExists( getSettings(), "useComputedPropertiesProxy" ) && getSettings().useComputedPropertiesProxy == true;
 	}
 
 	/**
 	 * Returns our computed properties proxy
 	 */
-	function getComputedPropertiesProxy() {
-		return getController().getWirebox().getInstance( name="ComputedPropertiesProxy@cbwire", initArguments={
-			computedProperties: getComputedProperties(),
-			wire: getWire()
-		} );
+	function getComputedPropertiesProxy(){
+		return getController()
+			.getWirebox()
+			.getInstance(
+				name = "ComputedPropertiesProxy@cbwire",
+				initArguments = {
+					computedProperties : getComputedProperties(),
+					wire : getWire()
+				}
+			);
 	}
+
 }
