@@ -42,7 +42,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				componentObj.setEngine( engine );
 			} );
 
-			fdescribe( "getState()", function(){
+			describe( "getState()", function(){
 				it( "returns the data properties", function(){
 					engine.setDataProperties( { "name" : "Grant" } );
 					expect( engine.getState().name ).toBe( "Grant" );
@@ -68,6 +68,40 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "can render directly from component onRender method", function(){
 					componentObj.$( "onRender", "<div>some rendering</div>" );
 					expect( engine.renderIt() ).toInclude( "some rendering" );
+				} );
+			} );
+
+			describe( "renderComputedProperties", function() {
+
+				it( "useComputedPropertiesProxy defaults to false", function() {
+					expect( engine.getSettings().useComputedPropertiesProxy ).toBeFalse();
+				} );
+
+				it ( "renders the computed properties immediately by default", function() {
+					engine.setComputedProperties( {
+						"name": function() {
+							return "Grant"
+						}
+					} );
+
+					engine.renderComputedProperties();
+
+					expect( engine.getComputedProperties().name ).toBe( "Grant" );				
+				} );
+
+				it( "returns functions instead when using computed properties proxy", function() {
+
+					engine.setSettings( {
+						"useComputedPropertiesProxy": true
+					} );
+
+					engine.setComputedProperties( {
+						"name": function() {
+							return "Grant"
+						}
+					} );
+
+					expect( engine.getComputedProperties().name() ).toBe( "Grant" );			
 				} );
 			} );
 		} );

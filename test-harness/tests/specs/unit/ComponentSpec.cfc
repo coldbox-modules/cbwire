@@ -453,7 +453,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			fdescribe( "hydrate", function(){
+			describe( "hydrate", function(){
 				it( "renders (executes) computed properties on hydrate", function(){
 					componentObj
 						.getEngine()
