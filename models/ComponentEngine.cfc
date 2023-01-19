@@ -174,11 +174,15 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			return;
 		}
 
-		getComputedProperties().each( function( key, value, computedProperties ){
-			if ( isCustomFunction( value ) ) {
-				computedProperties[ key ] = value( data );
-			}
-		} );
+		if ( useComputedPropertiesProxy() ) {
+			computedProperties = getComputedPropertiesProxy();
+		} else {
+			getComputedProperties().each( function( key, value, computedProperties ){
+				if ( isCustomFunction( value ) ) {
+					computedProperties[ key ] = value( data );
+				}
+			} );
+		}
 	}
 
 	/**
@@ -783,11 +787,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		if ( arguments.includeComputed ) {
 			renderComputedProperties( data );
-			getComputedProperties().each( function( key, value ){
-				if ( !isNull( value ) ) {
-					state[ key ] = value;
-				}
-			} );
+
+			if ( !useComputedPropertiesProxy() ) {
+				getComputedProperties().each( function( key, value ){
+					if ( !isNull( value ) ) {
+						state[ key ] = value;
+					}
+				} );
+			}
 		}
 
 		return state;
@@ -897,6 +904,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 
 		// Include a reference to the component's id
 		arguments.args[ "_id" ] = getId();
+
+		arguments.args[ "computed" ] = getComputedProperties();
 
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method
@@ -1040,6 +1049,28 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		return this;
+	}
+
+	/**
+	 * Returns boolean of if a proxy should be used for computed properties.
+	 */
+	function useComputedPropertiesProxy(){
+		return structKeyExists( getSettings(), "useComputedPropertiesProxy" ) && getSettings().useComputedPropertiesProxy == true;
+	}
+
+	/**
+	 * Returns our computed properties proxy
+	 */
+	function getComputedPropertiesProxy(){
+		return getController()
+			.getWirebox()
+			.getInstance(
+				name = "ComputedPropertiesProxy@cbwire",
+				initArguments = {
+					computedProperties : getComputedProperties(),
+					wire : getWire()
+				}
+			);
 	}
 
 }
