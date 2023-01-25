@@ -14,6 +14,12 @@ component singleton {
 	property name="settings" inject="coldbox:moduleSettings:cbwire";
 
 	/**
+	 * Injected RequestService so that we can access the current ColdBox RequestContext.
+	 */
+	property name="requestService" inject="coldbox:requestService";
+
+
+	/**
 	 * Returns the styles to be placed in our HTML head.
 	 *
 	 * @return String
@@ -29,6 +35,24 @@ component singleton {
 	 */
 	function getScripts(){
 		return variables.renderer.renderView( view = "scripts", module = "cbwire", args = { settings : settings } );
+	}
+
+	/**
+     * Returns a reference to the LivewireJS entangle method
+     * which provides model binding between AlpineJS and CBWIRE.
+     */
+	function entangle() {
+		var lastComponentID = getEvent().getPrivateValue( "cbwire_lastest_rendered_id" );
+		return "window.Livewire.find( '#lastComponentID#' ).entangle('counter') ";
+	}
+
+	/**
+	 * Return our request context.
+	 * 
+	 * @returns RequestContext
+	 */
+	function getEvent() {
+		return variables.requestService.getContext();
 	}
 
 }

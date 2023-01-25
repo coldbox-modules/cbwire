@@ -14,6 +14,14 @@
     }
 
     /**
+     * Returns a reference to the LivewireJS entangle method
+     * which provides model binding between AlpineJS and CBWIRE.
+     */
+    function entangle() {
+        return getInstance( "CBWIREHTML@cbwire" ).entangle( argumentCollection=arguments );
+    }
+
+    /**
 	 * Instantiates our cbwire component, mounts it,
 	 * and then calls it's internal renderIt() method.
 	 *
