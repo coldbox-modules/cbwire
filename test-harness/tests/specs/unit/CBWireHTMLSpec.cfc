@@ -58,12 +58,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "entangle", function() {
-				it ( "includes expected entanglement code", function() {
+			describe( "entangle", function(){
+				it( "includes expected entanglement code", function(){
 					var id = createUUID();
 					cbwireHTML.getEvent().setPrivateValue( "cbwire_lastest_rendered_id", id );
 					var result = cbwireHTML.entangle( "someProperty" );
-					expect( result ).toBe( "window.Livewire.find( '#id#' ).entangle( 'someProperty' )" ) ;
+					expect( result ).toBe( "window.Livewire.find( '#id#' ).entangle( 'someProperty' )" );
 				} );
 			} );
 		} );

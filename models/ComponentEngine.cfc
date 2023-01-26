@@ -906,7 +906,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		arguments.args[ "_id" ] = getId();
 
 		/*
-			Store our latest rendered id in the request scope so that it can be 
+			Store our latest rendered id in the request scope so that it can be
 			read by the entangle() method.
 		*/
 		getCBWireRequest().getEvent().setPrivateValue( "cbwire_lastest_rendered_id", getId() );
