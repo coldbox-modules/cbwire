@@ -80,6 +80,7 @@
 		</div>
 	</div>
 	#wireScripts()#
+	<script src="//unpkg.com/alpinejs" defer></script>
 	<cfif structKeyExists( prc, "viewJavascript" )>
 		#prc.viewJavascript#
 	</cfif>
