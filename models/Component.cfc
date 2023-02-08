@@ -311,4 +311,21 @@ component accessors="true" {
 		return variables;
 	}
 
+	/**
+	 * Returns a reference to the data properties.
+	 * 
+	 * @returns struct
+	 */
+	function getDataProperties() {
+		return getEngine().getDataProperties();
+	}
+
+	/**
+	 * Returns a reference to the computed properties.
+	 * 
+	 * @returns struct
+	 */
+	function getComputedProperties() {
+		return getEngine().getComputedProperties();
+	}
 }
