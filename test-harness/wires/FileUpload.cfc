@@ -1,13 +1,13 @@
 component extends="cbwire.models.Component" {
 
     data = {
-        "myFile": ""
+        "photo": ""
     };
 
     function save() {
         // s3.put( data.myFile.get() );
-        if ( isObject( data.myFile ) ) {
-            data.myFile.destroy();
+        if ( isObject( data.photo ) ) {
+            data.photo.destroy();
         }
     }
 }

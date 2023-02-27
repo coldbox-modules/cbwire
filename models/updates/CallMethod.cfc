@@ -12,34 +12,35 @@ component extends="WireUpdate" {
 
 		engine.renderComputedProperties();
 
-		if ( variables.getPayloadMethod() == "finishUpload" ) {
+		if ( getPayloadMethod() == "finishUpload" ) {
 			engine.finishUpload( params = getPassedParamsAsArguments() );
 			return;
 		}
-		if ( variables.getPayloadMethod() == "startUpload" ) {
+		if ( getPayloadMethod() == "startUpload" ) {
+			var dataProperty = getPassedParamsAsArguments()[ 1 ];
 			var signature = "someSignature";
 			var signedURL = "/livewire/upload-file?expires=never&signature=#signature#";
-			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ "myFile", signedURL ] );
+			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ dataProperty, signedURL ] );
 			return;
 		}
 
-		if ( variables.getPayloadMethod() == "$set" ) {
+		if ( getPayloadMethod() == "$set" ) {
 			invoke(
 				arguments.comp,
-				"set" & variables.getPassedParamsAsArguments()[ 1 ],
-				[ variables.getPassedParamsAsArguments()[ 2 ] ]
+				"set" & getPassedParamsAsArguments()[ 1 ],
+				[ getPassedParamsAsArguments()[ 2 ] ]
 			);
 			return;
 		}
 
-		if ( variables.getPayloadMethod() == "$refresh" ) {
-			invoke( arguments.comp, "refresh", variables.getPassedParamsAsArguments() );
+		if ( getPayloadMethod() == "$refresh" ) {
+			invoke( arguments.comp, "refresh", getPassedParamsAsArguments() );
 			return;
 		}
 
-		if ( variables.hasCallableAction( arguments.comp ) ) {
+		if ( hasCallableAction( arguments.comp ) ) {
 			try {
-				invoke( arguments.comp, variables.getPayloadMethod(), variables.getPassedParamsAsArguments() );
+				invoke( arguments.comp, getPayloadMethod(), getPassedParamsAsArguments() );
 			} catch ( ValidationException validateException ) {
 				// Silently stop further action processing on validationOrFail() exceptions.
 			}
@@ -49,7 +50,7 @@ component extends="WireUpdate" {
 		// We cannot locate the action, so throw an error.
 		throw(
 			type = "WireActionNotFound",
-			message = "Wire action '" & variables.getPayloadMethod() & "' not found on your component."
+			message = "Wire action '" & getPayloadMethod() & "' not found on your component."
 		);
 	}
 
@@ -62,7 +63,7 @@ component extends="WireUpdate" {
 	 * @return Boolean
 	 */
 	private function hasCallableAction( required comp ){
-		return variables.hasPayloadMethod() && arguments.comp.getEngine().hasMethod( variables.getPayloadMethod() );
+		return hasPayloadMethod() && arguments.comp.getEngine().hasMethod( getPayloadMethod() );
 	}
 
 	/**
@@ -71,7 +72,7 @@ component extends="WireUpdate" {
 	 * @return Struct
 	 */
 	private function getPassedParamsAsArguments(){
-		return variables.hasPassedParams() ? variables.getPassedParams() : [];
+		return hasPassedParams() ? getPassedParams() : [];
 	}
 
 	/**
