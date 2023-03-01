@@ -313,28 +313,29 @@ component accessors="true" {
 
 	/**
 	 * Returns a reference to the data properties.
-	 * 
+	 *
 	 * @returns struct
 	 */
-	function getDataProperties() {
+	function getDataProperties(){
 		return getEngine().getDataProperties();
 	}
 
 	/**
 	 * Returns a reference to the computed properties.
-	 * 
+	 *
 	 * @returns struct
 	 */
-	function getComputedProperties() {
+	function getComputedProperties(){
 		return getEngine().getComputedProperties();
 	}
 
 	/**
 	 * Toggles a data property.
-	 * 
+	 *
 	 * @returns void
 	 */
-	function $toggle( dataProperty ) {
+	function $toggle( dataProperty ){
 		return getEngine().toggleDataProperty( arguments.dataProperty );
 	}
+
 }

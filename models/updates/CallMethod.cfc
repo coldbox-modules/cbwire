@@ -25,11 +25,7 @@ component extends="WireUpdate" {
 		}
 
 		if ( getPayloadMethod() == "$set" ) {
-			invoke(
-				arguments.comp,
-				"set" & getPassedParamsAsArguments()[ 1 ],
-				[ getPassedParamsAsArguments()[ 2 ] ]
-			);
+			invoke( arguments.comp, "set" & getPassedParamsAsArguments()[ 1 ], [ getPassedParamsAsArguments()[ 2 ] ] );
 			return;
 		}
 

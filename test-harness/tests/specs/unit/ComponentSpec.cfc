@@ -54,17 +54,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			fdescribe( "getDataProperties()", function() {
-				it( "can call getDataProperties()", function() {
+			fdescribe( "getDataProperties()", function(){
+				it( "can call getDataProperties()", function(){
 					componentObj.getEngine().setDataProperties( { "count" : 2 } );
 					expect( componentObj.getDataProperties() ).toBeStruct();
 					expect( componentObj.getDataProperties().count ).toBe( 2 );
 				} );
 			} );
 
-			fdescribe( "getComputedProperties()", function() {
-				it( "can call getComputedProperties()", function() {
-					componentObj.getEngine().setComputedProperties( { "count" : function() { return 2; } } );
+			fdescribe( "getComputedProperties()", function(){
+				it( "can call getComputedProperties()", function(){
+					componentObj
+						.getEngine()
+						.setComputedProperties( {
+							"count" : function(){
+								return 2;
+							}
+						} );
 					expect( componentObj.getComputedProperties() ).toBeStruct();
 					expect( componentObj.getComputedProperties().count() ).toBe( 2 );
 				} );
