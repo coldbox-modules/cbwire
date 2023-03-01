@@ -328,4 +328,13 @@ component accessors="true" {
 	function getComputedProperties() {
 		return getEngine().getComputedProperties();
 	}
+
+	/**
+	 * Toggles a data property.
+	 * 
+	 * @returns void
+	 */
+	function $toggle( dataProperty ) {
+		return getEngine().toggleDataProperty( arguments.dataProperty );
+	}
 }
