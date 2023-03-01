@@ -49,7 +49,7 @@ component {
 			cbwireComponent.onHydrate(
 				data=engine.getDataProperties(),
 				computed=engine.getComputedProperties()
-				);
+			);
 		}
 
 		// Check if our request contains updates, and if so apply them.
