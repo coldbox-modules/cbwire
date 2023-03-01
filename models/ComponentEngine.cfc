@@ -1079,4 +1079,26 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			);
 	}
 
+	/**
+	 * Toggle a data property
+	 */
+	function toggleDataProperty( dataProperty ) {
+		var dataProperties = getDataProperties();
+	
+		if ( dataProperties.keyExists( dataProperty ) ) {
+			var currentValue = dataProperties [ dataProperty ];
+
+			if ( isBoolean( currentValue ) ) {
+				invoke( getWire(), "set#arguments.dataProperty#", [ booleanFormat( !currentValue ) ] );
+			} else {
+				throw( message = "The data property '#arguments.dataProperty#' must be a boolean value (true/false) for toggling." );
+			}
+
+			return;
+		}
+
+		throw( message = "Cannot find data property '#arguments.dataProperty#' for toggling." );
+
+	}
+
 }
