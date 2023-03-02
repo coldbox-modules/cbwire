@@ -706,8 +706,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function renderIt(){
 		var cbwireComponent = getWire();
-		var componentName = lCase( getMetadata( cbwireComponent ).name );
-		return cbwireComponent.view( view = "wires/#listLast( componentName, "." )#" );
+		return cbwireComponent.view( view = cbwireComponent.getTemplatePath() );
 	}
 
 	/**
@@ -917,6 +916,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Render custom onRender method
 			var result = getWire().onRender( args = arguments.args );
 		} else {
+			if ( structKeyExists( getWire(), "template" ) ) {
+				arguments.view = getWire().template;
+			}
 			// Render our view using coldbox rendering
 			var result = super.renderView( argumentCollection = arguments );
 		}
