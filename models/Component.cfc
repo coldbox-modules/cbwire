@@ -15,6 +15,9 @@ component accessors="true" {
 	// Holds our validation result.
 	property name="validationResult";
 
+	// Holds the template path
+	property name="template";
+
 	/**
 	 * Invoked when dependency injection complete.
 	 */
@@ -327,5 +330,29 @@ component accessors="true" {
 	 */
 	function getComputedProperties() {
 		return getEngine().getComputedProperties();
+	}
+
+	/**
+	 * Returns the template path for the component.
+	 * 
+	 * @returns string
+	 */
+	function getTemplatePath() {
+		if ( structKeyExists( variables, "template" ) ) {
+			return variables.template;
+		}
+
+		var componentName = lCase( getMetadata( this ).name );
+
+		return "wires/#listLast( componentName, "." )#";
+	}
+
+	/**
+	 * Toggles a data property.
+	 * 
+	 * @returns void
+	 */
+	function $toggle( dataProperty ) {
+		return getEngine().toggleDataProperty( arguments.dataProperty );
 	}
 }

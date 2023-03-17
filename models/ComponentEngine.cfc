@@ -706,8 +706,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function renderIt(){
 		var cbwireComponent = getWire();
-		var componentName = lCase( getMetadata( cbwireComponent ).name );
-		return cbwireComponent.view( view = "wires/#listLast( componentName, "." )#" );
+		return cbwireComponent.view( view = cbwireComponent.getTemplatePath() );
 	}
 
 	/**
@@ -917,6 +916,9 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			// Render custom onRender method
 			var result = getWire().onRender( args = arguments.args );
 		} else {
+			if ( structKeyExists( getWire(), "template" ) ) {
+				arguments.view = getWire().template;
+			}
 			// Render our view using coldbox rendering
 			var result = super.renderView( argumentCollection = arguments );
 		}
@@ -1077,6 +1079,28 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 					wire : getWire()
 				}
 			);
+	}
+
+	/**
+	 * Toggle a data property
+	 */
+	function toggleDataProperty( dataProperty ) {
+		var dataProperties = getDataProperties();
+	
+		if ( dataProperties.keyExists( dataProperty ) ) {
+			var currentValue = dataProperties [ dataProperty ];
+
+			if ( isBoolean( currentValue ) ) {
+				invoke( getWire(), "set#arguments.dataProperty#", [ booleanFormat( !currentValue ) ] );
+			} else {
+				throw( message = "The data property '#arguments.dataProperty#' must be a boolean value (true/false) for toggling." );
+			}
+
+			return;
+		}
+
+		throw( message = "Cannot find data property '#arguments.dataProperty#' for toggling." );
+
 	}
 
 }
