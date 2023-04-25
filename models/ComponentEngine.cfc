@@ -543,6 +543,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
+
 		var fingerprintName = getMeta().name;
 
 		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
@@ -561,7 +562,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				"children" : [],
 				"errors" : [],
 				"htmlHash" : getHTMLHash( rendering ),
-				"data" : getState( includeComputed = false, nullEmpty = true ),
+				"data" : getState( includeComputed = false ),
 				"dataMeta" : [],
 				"checksum" : getChecksum()
 			}
@@ -744,7 +745,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
 	 * @return Struct
 	 */
-	function getState( boolean includeComputed = false, boolean nullEmpty = false ){
+	function getState( boolean includeComputed = false ){
 		var state = {};
 
 		var data = getDataProperties();
@@ -757,6 +758,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			} else {
 				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value ) ) {
 					state[ arguments.key ] = arguments.value;
+				} else if ( isNull( arguments.value ) ) {
+					state[ arguments.key ] = javaCast( "null", 0 );
 				} else {
 					state[ arguments.key ] = "";
 				}
@@ -771,18 +774,12 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 			} );
 		}
 
-		if ( arguments.nullEmpty ) {
-			state = state.map( function( key, value, data ){
-				if (
-					isNull( value ) ||
-					( isValid( "String", value ) && !len( value ) )
-				) {
-					return javacast( "null", 0 );
-				}
-				return value;
-			} );
-		}
-
+		state = state.map( function( key, value, data ){
+			if ( isNull( value ) ) {
+				return javaCast( "null", 0 );
+			}
+			return value;
+		} );
 
 		if ( arguments.includeComputed ) {
 			renderComputedProperties( data );
@@ -827,7 +824,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				"redirect" : !isNull( getRedirectTo() ) ? getRedirectTo() : javacast( "null", 0 )
 			},
 			"serverMemo" : {
-				"data" : getState( includeComputed = false, nullEmpty = true ),
+				"data" : getState( includeComputed = false ),
 				"checksum" : getChecksum()
 			}
 		}
@@ -893,7 +890,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		name
 	){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = getState( includeComputed = true, nullEmpty = false );
+		arguments.args = getState( includeComputed = true );
 
 		// If there are any rendering overrides ( like during file upload ), then merge those in
 		structAppend( arguments.args, getRenderingOverrides(), true );
