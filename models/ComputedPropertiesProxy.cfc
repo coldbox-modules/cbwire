@@ -15,6 +15,11 @@ component accessors="true" {
 	property name="wire";
 
 	/**
+	 * Holds a reference to our internal cache.
+	 */
+	property name="cache";
+
+	/**
 	 * Constructor
 	 *
 	 * @returns ComputedPropertiesProxy
@@ -22,6 +27,7 @@ component accessors="true" {
 	function init( required struct computedProperties, required Component wire ){
 		setComputedProperties( arguments.computedProperties );
 		setWire( arguments.wire );
+		setCache( {} );
 		return this;
 	}
 
@@ -34,7 +40,21 @@ component accessors="true" {
 	 * @returns any
 	 */
 	function onMissingMethod( missingMethodName, missingMethodArguments ){
-		return invoke( getComputedProperties(), arguments.missingMethodName, arguments.missingMethodArguments );
+		
+		var shouldUseCache = missingMethodArguments.keyExists( "cache" ) && !missingMethodArguments.cache ? false : true;
+		var cache = getCache();
+		
+		if ( cache.keyExists( missingMethodName ) && shouldUseCache ) {
+			return cache[ missingMethodName ];
+		} else {
+			var result = invoke( getComputedProperties(), arguments.missingMethodName, arguments.missingMethodArguments );
+			
+			if ( shouldUseCache ) {
+				cache[ missingMethodName ] = result;
+			}
+
+			return result;
+		}
 	}
 
 }
