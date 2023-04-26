@@ -21,17 +21,30 @@ component singleton {
 	property name="requestService" inject="coldbox:requestService";
 
 	/**
+	 * Returns the full path to a component.
+	 *
+	 * @componentName String | Name of the cbwire component.
+	 */
+	function getRootComponentPath( required componentName ) {
+		var appMapping = variables.controller.getSetting( "AppMapping" );
+		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
+
+		if ( reFindNoCase( "#appMapping#\.", arguments.componentName ) ) {
+			return arguments.componentName;
+		} else {
+			return "#wireRoot#.#arguments.componentName#";
+		}
+	}
+
+	/**
 	 * Returns a cbwire component using the root "HelloWorld" convention.
 	 *
 	 * @componentName String | Name of the cbwire component.
 	 *
 	 * @return Component
 	 */
-	private function getRootComponent( required componentName ){
-		var appMapping = variables.controller.getSetting( "AppMapping" );
-		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
-
-		return variables.wirebox.getInstance( "#wireRoot#.#arguments.componentName#" );
+	function getRootComponent( required componentName ){
+		return variables.wirebox.getInstance( getRootComponentPath( arguments.componentName ) );
 	}
 
 	/**
@@ -61,7 +74,7 @@ component singleton {
 		var wiresLocation = getWiresLocation();
 
 		if ( reFindNoCase( wiresLocation & "\.", arguments.componentName ) ) {
-			arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
+			//arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
 		}
 
 		if ( find( "@", arguments.componentName ) ) {
