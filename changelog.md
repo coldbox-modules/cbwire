@@ -16,8 +16,11 @@ Automatically cache computed properties in the cache proxy for better performanc
 Update setting 'useComputedPropertiesProxy' to default to true
 
 #### Fixed
+- [CBWIRE-100](https://github.com/coldbox-modules/cbwire/issues/100)
+Fix ability to locate Wires using full path such as appMapping.wires.SomeComponent.
+
 - [CBWIRE-97](https://github.com/coldbox-modules/cbwire/issues/97)
-Empty string and null values are not being properly passed to Livewire
+Empty string and null values are not being properly passed to Livewire.
 
 
 ## [2.0.0] => Upcoming
