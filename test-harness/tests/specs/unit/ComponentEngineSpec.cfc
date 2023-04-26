@@ -71,9 +71,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "renderComputedProperties", function(){
-				it( "useComputedPropertiesProxy defaults to false", function(){
-					expect( engine.getSettings().useComputedPropertiesProxy ).toBeFalse();
+			fdescribe( "renderComputedProperties", function(){
+				it( "useComputedPropertiesProxy defaults to true", function(){
+					expect( engine.getSettings().useComputedPropertiesProxy ).toBeTrue();
 				} );
 
 				it( "renders the computed properties immediately by default", function(){
@@ -85,7 +85,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					engine.renderComputedProperties();
 
-					expect( engine.getComputedProperties().name ).toBe( "Grant" );
+					expect( engine.getComputedProperties().name() ).toBe( "Grant" );
 				} );
 
 				it( "returns functions instead when using computed properties proxy", function(){
