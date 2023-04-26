@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [CBWIRE-98](https://github.com/coldbox-modules/cbwire/issues/98)
 Automatically cache computed properties in the cache proxy for better performance
 
+- [CBWIRE-99](https://github.com/coldbox-modules/cbwire/issues/99)
+Update setting 'useComputedPropertiesProxy' to default to true
+
 #### Fixed
 - [CBWIRE-97](https://github.com/coldbox-modules/cbwire/issues/97)
 Empty string and null values are not being properly passed to Livewire

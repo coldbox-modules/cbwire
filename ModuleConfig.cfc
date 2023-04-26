@@ -47,7 +47,7 @@ component {
 			/**
 			 * Use proxy for Computed Properties
 			 */
-			"useComputedPropertiesProxy" : false
+			"useComputedPropertiesProxy" : true
 		};
 
 		routes = [

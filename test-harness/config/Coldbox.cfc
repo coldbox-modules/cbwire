@@ -74,7 +74,7 @@
 		moduleSettings = {
 			cbwire = {
 				"enableTurbo": true,
-				"useComputedPropertiesProxy": false
+				"useComputedPropertiesProxy": true
 			}
 		};
 
