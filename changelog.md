@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
+## [3.0.0] => Upcoming
+
+#### Added
+- [CBWIRE-98](https://github.com/coldbox-modules/cbwire/issues/98)
+Automatically cache computed properties in the cache proxy for better performance
+
+#### Fixed
+- [CBWIRE-97](https://github.com/coldbox-modules/cbwire/issues/97)
+Empty string and null values are not being properly passed to Livewire
+
 
 ## [2.0.0] => Upcoming
 
