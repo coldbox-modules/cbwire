@@ -45,11 +45,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="meta";
 
 	/**
-	 * Hold finish upload state
-	 */
-	property name="finishUpload" default="false";
-
-	/**
 	 * Hold dirty properties
 	 */
 	property name="dirtyProperties";

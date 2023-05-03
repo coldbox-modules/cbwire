@@ -49,6 +49,7 @@ component accessors="true" {
 		variables._id = _generateId();
 		variables._renderingOverrides = {};
 		variables._computedProperties = {};
+		variables._finishedUpload = false;
 	}
 
 	/**
@@ -850,7 +851,7 @@ component accessors="true" {
 			}
 		}
 
-		if ( !getEngine().getFinishUpload() ) {
+		if ( !variables._finishedUpload ) {
 			memento.effects[ "path" ] = _getPath();
 			memento.serverMemo[ "htmlHash" ] = _getHTMLHash( rendering );
 			memento.serverMemo[ "children" ] = isArray( getEngine().getVariablesScope().$children ) ? [] : getEngine().getVariablesScope().$children;
@@ -1145,7 +1146,7 @@ component accessors="true" {
 			.getWireBox()
 			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : this, params : params } );
 		_getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
-		getEngine().setFinishUpload( true );
+		variables._finishedUpload = true;
 		getEngine().getDirtyProperties().append( "myFile" );
 		getEngine().getVariablesScope().data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
 		emitSelf(
