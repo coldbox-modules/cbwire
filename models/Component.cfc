@@ -52,6 +52,7 @@ component accessors="true" {
 		variables._finishedUpload = false;
 		variables._beforeHydrationState = {};
 		variables._dirtyProperties = [];
+		variables._emittedEvents = [];
 	}
 
 	/**
@@ -80,7 +81,7 @@ component accessors="true" {
 		engine.setNoRendering( false );
 		engine.setDataProperties( variables.data );
 		variables._computedProperties = variables.computed;
-		engine.setEmittedEvents( [] );
+		variables._emittedEvents = [];
 	}
 
 	/**
@@ -595,7 +596,7 @@ component accessors="true" {
 	 */
 	function _trackEmit( required emitter ){
 		var result = emitter.getResult();
-		getEngine().getEmittedEvents().append( result );
+		variables._emittedEvents.append( result );
 	}
 
 	/**
@@ -843,7 +844,7 @@ component accessors="true" {
 			"effects" : {
 				"html" : _getHTML(),
 				"dirty" : variables._dirtyProperties,
-				"emits" : getEngine().getEmittedEvents(),
+				"emits" : variables._emittedEvents,
 				"redirect" : !isNull( get_RedirectTo() ) ? get_RedirectTo() : javacast( "null", 0 )
 			},
 			"serverMemo" : {
@@ -1230,5 +1231,11 @@ component accessors="true" {
 	function _addDirtyProperty( property ) {
 		variables._dirtyProperties.append( arguments.property );
 	}
+
+	function _getEmittedEvents() {
+		return variables._emittedEvents;
+	}
+
+
 
 }

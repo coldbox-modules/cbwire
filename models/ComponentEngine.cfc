@@ -27,12 +27,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	property name="dataProperties";
 
-
-	/**
-	 * Tracks any emitted events during a request lifecycle
-	 */
-	property name="emittedEvents";
-
 	/**
 	 * Holds component metadata.
 	 */
@@ -45,7 +39,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		setWire( arguments.wire );
 		setVariablesScope( arguments.variablesScope );
 		setDataProperties( {} );
-		setEmittedEvents( [] );
 	}
 
 	/**
