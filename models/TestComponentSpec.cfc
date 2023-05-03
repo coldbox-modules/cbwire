@@ -101,7 +101,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			}
 			var rendering = cbwireComponent
 				._mount( getParameters() )
-				.renderIt();
+				.getWire()
+				._renderIt();
 			setRendering( rendering );
 			return rendering;
 		}

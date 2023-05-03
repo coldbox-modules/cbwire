@@ -559,7 +559,7 @@ component accessors="true" {
 	 * 
 	 * @returns string
 	 */
-	function getTemplatePath() {
+	function _getTemplatePath() {
 		if ( structKeyExists( variables, "template" ) ) {
 			return variables.template;
 		}
@@ -1247,5 +1247,14 @@ component accessors="true" {
 
 	function _getNoRendering() {
 		return variables._noRendering;
+	}
+
+	/**
+	 * Renders our component's view.
+	 *
+	 * @return Void
+	 */
+	function _renderIt(){
+		return view( view = _getTemplatePath() );
 	}
 }

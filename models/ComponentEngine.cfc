@@ -18,16 +18,6 @@ component accessors="true" {
 	}
 
 	/**
-	 * Renders our component's view.
-	 *
-	 * @return Void
-	 */
-	function renderIt(){
-		var cbwireComponent = getWire();
-		return cbwireComponent.view( view = cbwireComponent.getTemplatePath() );
-	}
-
-	/**
 	 * Render out our component's view
 	 *
 	 * @view The the view to render, if not passed, then we look in the request context for the current set view.

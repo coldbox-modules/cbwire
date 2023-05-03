@@ -34,6 +34,7 @@
         return getInstance( "CBWireService@cbwire" )
                    .getComponentInstance( arguments.componentName )
                    ._mount( arguments.parameters )
-                   .renderIt();
+                   .getWire()
+                   ._renderIt();
     }
 </cfscript>

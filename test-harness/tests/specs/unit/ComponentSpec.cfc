@@ -164,7 +164,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "renderIt", function(){
 				it( "implicitly renders the view of the component's name", function(){
 					componentObj.$( "view", "" );
-					componentObj.getEngine().renderIt();
+					componentObj._renderIt();
 					expect( componentObj.$callLog()[ "view" ][ 1 ][ 1 ] ).toBe( "wires/component" );
 				} );
 			} );
@@ -352,9 +352,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "_subsequentRenderIt", function(){
 				it( "calls the renderIt() method on our component", function(){
-					engine.$( "renderIt", "got here" );
+					componentObj.$( "_renderIt", "got here" );
 					componentObj._subsequentRenderIt();
-					expect( engine.$once( "renderIt" ) ).toBeTrue();
+					expect( componentObj.$once( "_renderIt" ) ).toBeTrue();
 				} );
 				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();

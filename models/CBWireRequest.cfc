@@ -191,7 +191,8 @@ component accessors="true" singleton {
 	function renderIt( componentName, parameters = {}, key = "" ){
 		return getComponentInstance( arguments.componentName )
 			._mount( arguments.parameters, arguments.key )
-			.renderIt();
+			.getWire()
+			._renderIt();
 	}
 
 	/**
