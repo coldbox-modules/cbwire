@@ -11,11 +11,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="wire";
 
 	/**
-	 * Determines if component should be rendered or not.
-	 */
-	property name="noRendering" default="false";
-
-	/**
 	 * Holds component metadata.
 	 */
 	property name="meta";

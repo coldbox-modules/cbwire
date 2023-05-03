@@ -55,6 +55,7 @@ component accessors="true" {
 		variables._dirtyProperties = [];
 		variables._emittedEvents = [];
 		variables._children = {};
+		variables._noRendering = false;
 	}
 
 	/**
@@ -78,7 +79,7 @@ component accessors="true" {
 		);
 		setEngine( engine );
 
-		engine.setNoRendering( false );
+		variables._noRendering = false;
 		variables._dataProperties = variables.data;
 		variables._computedProperties = variables.computed;
 	}
@@ -483,7 +484,7 @@ component accessors="true" {
 	 * @return void
 	 */
 	function noRender(){
-		getEngine().setNoRendering( true );
+		variables._noRendering = true;
 	}
 
 	/**
@@ -1244,4 +1245,7 @@ component accessors="true" {
 		return structKeyExists( this, arguments.methodName );
 	}
 
+	function _getNoRendering() {
+		return variables._noRendering;
+	}
 }
