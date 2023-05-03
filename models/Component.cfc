@@ -1215,4 +1215,15 @@ component accessors="true" {
 		variables._beforeHydrationState = arguments.value;
 	}
 
+	/**
+	 * Invokes renderIt() on the cbwire component and caches the rendered
+	 * results into variables.rendering.
+	 *
+	 * @return String
+	 */
+	function _subsequentRenderIt(){
+		controller.getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
+		return getEngine();
+	}
+
 }

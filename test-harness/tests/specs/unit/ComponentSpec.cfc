@@ -350,15 +350,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "subsequentRenderIt", function(){
+			describe( "_subsequentRenderIt", function(){
 				it( "calls the renderIt() method on our component", function(){
 					engine.$( "renderIt", "got here" );
-					componentObj.getEngine().subsequentRenderIt();
+					componentObj._subsequentRenderIt();
 					expect( engine.$once( "renderIt" ) ).toBeTrue();
 				} );
 				it( "returns null if noRender() has been called", function(){
 					componentObj.noRender();
-					componentObj.getEngine().subsequentRenderIt();
+					componentObj._subsequentRenderIt();
 					expect(
 						componentObj
 							.getEngine()

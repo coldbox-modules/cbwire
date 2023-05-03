@@ -76,17 +76,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Invokes renderIt() on the cbwire component and caches the rendered
-	 * results into variables.rendering.
-	 *
-	 * @return String
-	 */
-	function subsequentRenderIt(){
-		announce( "onCBWireSubsequentRenderIt", { component : getWire() } );
-		return this;
-	}
-
-	/**
 	 * Render out our component's view
 	 *
 	 * @view The the view to render, if not passed, then we look in the request context for the current set view.

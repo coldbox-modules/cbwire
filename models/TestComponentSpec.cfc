@@ -87,7 +87,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			}
 			var memento = cbwireComponent
 				._hydrate()
-				.subsequentRenderIt()
+				.getWire()
+				._subsequentRenderIt()
 				.getWire()
 				._getMemento();
 			var html = memento[ "effects" ][ "html" ];

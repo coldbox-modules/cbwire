@@ -109,7 +109,8 @@ component singleton {
 		var wireComponent = event.getValue( "wireComponent" );
 		return getComponentInstance( wireComponent )
 			._hydrate()
-			.subsequentRenderIt()
+			.getWire()
+			._subsequentRenderIt()
 			.getWire()
 			._getMemento();
 	}
