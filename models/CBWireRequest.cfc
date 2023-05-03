@@ -241,7 +241,7 @@ component accessors="true" singleton {
 				return previousValue != currentValue;
 			}
 		} ).each( function( dirtyProperty ) {
-			comp.getEngine().addDirtyProperty( dirtyProperty );
+			comp._addDirtyProperty( dirtyProperty );
 		});
 	}
 

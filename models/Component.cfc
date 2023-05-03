@@ -51,6 +51,7 @@ component accessors="true" {
 		variables._computedProperties = {};
 		variables._finishedUpload = false;
 		variables._beforeHydrationState = {};
+		variables._dirtyProperties = [];
 	}
 
 	/**
@@ -841,7 +842,7 @@ component accessors="true" {
 		var memento = {
 			"effects" : {
 				"html" : _getHTML(),
-				"dirty" : getEngine().getDirtyProperties(),
+				"dirty" : variables._dirtyProperties,
 				"emits" : getEngine().getEmittedEvents(),
 				"redirect" : !isNull( get_RedirectTo() ) ? get_RedirectTo() : javacast( "null", 0 )
 			},
@@ -1147,7 +1148,7 @@ component accessors="true" {
 			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : this, params : params } );
 		_getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
 		variables._finishedUpload = true;
-		getEngine().getDirtyProperties().append( "myFile" );
+		variables._dirtyProperties.append( "myFile" );
 		getEngine().getVariablesScope().data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
 		emitSelf(
 			eventName = "upload:finished",
@@ -1224,6 +1225,10 @@ component accessors="true" {
 	function _subsequentRenderIt(){
 		controller.getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
 		return getEngine();
+	}
+
+	function _addDirtyProperty( property ) {
+		variables._dirtyProperties.append( arguments.property );
 	}
 
 }

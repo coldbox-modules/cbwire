@@ -39,12 +39,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="meta";
 
 	/**
-	 * Hold dirty properties
-	 */
-	property name="dirtyProperties";
-
-
-	/**
 	 * A beautiful constructor
 	 */
 	function init( required wire, required variablesScope ){
@@ -52,7 +46,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		setVariablesScope( arguments.variablesScope );
 		setDataProperties( {} );
 		setEmittedEvents( [] );
-		setDirtyProperties( [] );
 	}
 
 	/**
@@ -145,10 +138,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 
 		return result;
-	}
-
-	function addDirtyProperty( property ) {
-		variables.dirtyProperties.append( arguments.property );
 	}
 
 }
