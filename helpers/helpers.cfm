@@ -18,7 +18,7 @@
      * which provides model binding between AlpineJS and CBWIRE.
      */
     function entangle() {
-        return getInstance( "CBWIREHTML@cbwire" ).entangle( argumentCollection=arguments );
+        return getInstance( "CBWireService@cbwire" ).entangle( argumentCollection=arguments );
     }
 
     /**

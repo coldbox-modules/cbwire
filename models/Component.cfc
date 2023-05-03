@@ -18,9 +18,6 @@ component accessors="true" {
 	// Inject the wire request that's incoming from the browser.
 	property name="cbwireRequest" inject="CBWireRequest@cbwire";
 
-	// Component engine
-	property name="engine";
-
 	// Holds our validation result.
 	property name="validationResult";
 
@@ -113,9 +110,9 @@ component accessors="true" {
 		// Determine the type of relocation
 		var relocationType = "SES";
 		var relocationURL = "";
-		var eventName = controller.getConfigSettings()[ "EventName" ];
+		var eventName = getController().getConfigSettings()[ "EventName" ];
 		var frontController = listLast( CGI.SCRIPT_NAME, "/" );
-		var oRequestContext = controller.getRequestService().getContext();
+		var oRequestContext = getController().getRequestService().getContext();
 		var routeString = 0;
 
 		// Determine relocation type
@@ -128,7 +125,7 @@ component accessors="true" {
 
 		// Cleanup event string to default if not sent in
 		if ( len( trim( arguments.event ) ) eq 0 ) {
-			arguments.event = controller.getSetting( "DefaultEvent" );
+			arguments.event = getController().getSetting( "DefaultEvent" );
 		}
 
 		// Query String Struct to String
@@ -153,7 +150,7 @@ component accessors="true" {
 				relocationURL = arguments.URL;
 				// Check SSL?
 				if ( !isNull( arguments.ssl ) ) {
-					relocationURL = controller.updateSSL( relocationURL, arguments.ssl );
+					relocationURL = getController().updateSSL( relocationURL, arguments.ssl );
 				}
 				// Query String?
 				if ( len( trim( arguments.queryString ) ) ) {
@@ -176,7 +173,7 @@ component accessors="true" {
 			default: {
 				// Convert module into proper entry point
 				if ( listLen( arguments.event, ":" ) > 1 ) {
-					var mConfig = controller.getSetting( "modules" );
+					var mConfig = getController().getSetting( "modules" );
 					var module = listFirst( arguments.event, ":" );
 					if ( structKeyExists( mConfig, module ) ) {
 						arguments.event = mConfig[ module ].inheritedEntryPoint & "/" & listRest( arguments.event, ":" );
@@ -200,7 +197,7 @@ component accessors="true" {
 				relocationURL = oRequestContext.getSESBaseURL();
 				// if the sesBaseURL is nothing, set it to the setting
 				if ( !len( relocationURL ) ) {
-					relocationURL = controller.getSetting( "sesBaseURL" );
+					relocationURL = getController().getSetting( "sesBaseURL" );
 				}
 				// add the trailing slash if there isnt one
 				if ( right( relocationURL, 1 ) neq "/" ) {
@@ -208,7 +205,7 @@ component accessors="true" {
 				}
 				// Check SSL?
 				if ( !isNull( arguments.ssl ) ) {
-					relocationURL = controller.updateSSL( relocationURL, arguments.ssl );
+					relocationURL = getController().updateSSL( relocationURL, arguments.ssl );
 				}
 
 				// Finalize the URL
@@ -223,11 +220,11 @@ component accessors="true" {
 
 		// Post Processors
 		if ( NOT arguments.postProcessExempt ) {
-			controller.getInterceptorService().announce( "postProcess" );
+			getController().getInterceptorService().announce( "postProcess" );
 		}
 
 		// Save Flash RAM
-		if ( controller.getConfigSettings().flash.autoSave ) {
+		if ( getController().getConfigSettings().flash.autoSave ) {
 			controller
 				.getRequestService()
 				.getFlashScope()
@@ -835,7 +832,7 @@ component accessors="true" {
 	}
 
 	function _getRequestContext() {
-		return variables.controller.getRenderer().getRequestContext();
+		return getController().getRenderer().getRequestContext();
 	}
 
 	/**
@@ -967,7 +964,7 @@ component accessors="true" {
 	 * @return Component
 	 */
 	function _mount( parameters = {}, key = "" ){
-		controller.getInterceptorService().announce(
+		getController().getInterceptorService().announce(
 			"onCBWireMount",
 			{
 				component : this,
@@ -1095,7 +1092,7 @@ component accessors="true" {
 	 * @return Controller
 	 */
 	private function _persistVariables( persist = "", struct persistStruct = {} ){
-		var flash = controller.getRequestService().getFlashScope();
+		var flash = getController().getRequestService().getFlashScope();
 
 		// persist persistStruct if passed
 		if ( !isNull( arguments.persistStruct ) ) {
@@ -1181,7 +1178,7 @@ component accessors="true" {
 	 */
 	function _hydrate(){
 		set_IsInitialRendering( false );
-		controller.getInterceptorService().announce( "onCBWireHydrate", { component : this } );
+		getController().getInterceptorService().announce( "onCBWireHydrate", { component : this } );
 		return this;
 	}
 
@@ -1196,7 +1193,7 @@ component accessors="true" {
 	 * @return String
 	 */
 	function _subsequentRenderIt(){
-		controller.getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
+		getController().getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
 		return this;
 	}
 
@@ -1302,7 +1299,7 @@ component accessors="true" {
 			var result = this.onRender( args = arguments.args );
 		} else {
 			if ( structKeyExists( this, "template" ) ) {
-				arguments.view = template;
+				arguments.view = this.template;
 			}
 			// Render our view using coldbox rendering
 			var result = getController().getRenderer().renderView( argumentCollection = arguments );
