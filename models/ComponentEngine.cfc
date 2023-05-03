@@ -16,13 +16,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="noRendering" default="false";
 
 	/**
-	 * The default data struct for cbwire components.
-	 * This should be overidden in the child component
-	 * with data properties.
-	 */
-	property name="dataProperties";
-
-	/**
 	 * Holds component metadata.
 	 */
 	property name="meta";
@@ -32,7 +25,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	function init( required wire ){
 		setWire( arguments.wire );
-		setDataProperties( {} );
 	}
 
 	/**

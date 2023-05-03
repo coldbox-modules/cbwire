@@ -48,6 +48,7 @@ component accessors="true" {
 	function init() {
 		variables._id = _generateId();
 		variables._renderingOverrides = {};
+		variables._dataProperties = {};
 		variables._computedProperties = {};
 		variables._finishedUpload = false;
 		variables._beforeHydrationState = {};
@@ -78,9 +79,8 @@ component accessors="true" {
 		setEngine( engine );
 
 		engine.setNoRendering( false );
-		engine.setDataProperties( variables.data );
+		variables._dataProperties = variables.data;
 		variables._computedProperties = variables.computed;
-		variables._emittedEvents = [];
 	}
 
 	/**
@@ -431,7 +431,7 @@ component accessors="true" {
 	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
 		var settings = getSettings();
 
-		var data = getEngine().getDataProperties();
+		var data = _getDataProperties();
 
 		var computed = _getComputedProperties();
 
@@ -551,15 +551,6 @@ component accessors="true" {
 	 */
 	function getInternals(){
 		return variables;
-	}
-
-	/**
-	 * Returns a reference to the data properties.
-	 * 
-	 * @returns struct
-	 */
-	function getDataProperties() {
-		return getEngine().getDataProperties();
 	}
 
 	/**
@@ -740,7 +731,7 @@ component accessors="true" {
 			_invokeMethod( methodName = "preUpdate" & arguments.propertyName, propertyName = arguments.value );
 		}
 
-		var data = getEngine().getDataProperties();
+		var data = _getDataProperties();
 
 		data[ "#arguments.propertyName#" ] = arguments.value;
 
@@ -768,7 +759,7 @@ component accessors="true" {
 	function _getState( boolean includeComputed = false ){
 		var state = {};
 
-		var data = getEngine().getDataProperties();
+		var data = _getDataProperties();
 
 		data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
@@ -966,7 +957,7 @@ component accessors="true" {
 	 *
 	 * @return void
 	 */
-	function _renderComputedProperties( data = getEngine().getDataProperties() ){
+	function _renderComputedProperties( data = _getDataProperties() ){
 		if ( !structKeyExists( variables, "computed" ) ) {
 			return;
 		}
@@ -1047,7 +1038,7 @@ component accessors="true" {
 	function _reset( property ){
 		if ( isNull( arguments.property ) ) {
 			// Reset all properties
-			getEngine().getDataProperties().each( function( key, value ){
+			_getDataProperties().each( function( key, value ){
 				_reset( key );
 			} );
 		} else if ( isArray( arguments.property ) ) {
@@ -1074,7 +1065,7 @@ component accessors="true" {
 	 * Toggle a data property
 	 */
 	function _toggleDataProperty( dataProperty ) {
-		var dataProperties = getEngine().getDataProperties();
+		var dataProperties = _getDataProperties();
 	
 		if ( dataProperties.keyExists( dataProperty ) ) {
 			var currentValue = dataProperties [ dataProperty ];
@@ -1235,6 +1226,12 @@ component accessors="true" {
 		return variables._emittedEvents;
 	}
 
+	function _getDataProperties() {
+		return variables._dataProperties;
+	}
 
+	function _setDataProperties( value ) {
+		variables._dataProperties = arguments.value;
+	}
 
 }

@@ -34,7 +34,7 @@ component {
 
 				if ( structKeyExists( cbwireComponent, "onHydrate#arguments.key#" ) ) {
 					invoke( cbwireComponent, "onHydrate#arguments.key#", {
-						data : engine.getDataProperties(),
+						data : cbwireComponent._getDataProperties(),
 						computed : cbwireComponent._getComputedProperties()
 					} );
 				}
@@ -47,7 +47,7 @@ component {
 
 		if ( structKeyExists( cbwireComponent, "onHydrate" ) ) {
 			cbwireComponent.onHydrate(
-				data=engine.getDataProperties(),
+				data=cbwireComponent._getDataProperties(),
 				computed=cbwireComponent._getComputedProperties()
 			);
 		}

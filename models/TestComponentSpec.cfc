@@ -69,7 +69,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	function toggle( required name ){
-		var data = getDataProperties();
+		var data = _getDataProperties();
 		if ( structKeyExists( data, name ) && isBoolean( data[ name ] ) ) {
 			data[ name ] = !data[ name ];
 		}
@@ -145,16 +145,16 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	function seeData( required dataProperty, required value ){
 		renderIt();
-		expect( getDataProperties()[ dataProperty ] ).toBe( value );
+		expect( _getDataProperties()[ dataProperty ] ).toBe( value );
 	}
 
 	function dontSeeData( required dataProperty, required value ){
 		renderIt();
-		expect( getDataProperties()[ dataProperty ] ).notToBe( value );
+		expect( _getDataProperties()[ dataProperty ] ).notToBe( value );
 	}
 
-	private function getDataProperties(){
-		return getWireInstance().getEngine().getDataProperties();
+	private function _getDataProperties(){
+		return getWireInstance()._getDataProperties();
 	}
 
 	private function getComputedProperties(){

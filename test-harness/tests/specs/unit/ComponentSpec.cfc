@@ -26,7 +26,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				structAppend(
 					variablesScope,
 					{
-						"data" : componentObj.getEngine().getDataProperties(),
+						"data" : componentObj._getDataProperties(),
 						"computed" : componentObj._getComputedProperties()
 					}
 				);
@@ -54,11 +54,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "getDataProperties()", function() {
+			describe( "_getDataProperties()", function() {
 				it( "can call getDataProperties()", function() {
-					componentObj.getEngine().setDataProperties( { "count" : 2 } );
-					expect( componentObj.getDataProperties() ).toBeStruct();
-					expect( componentObj.getDataProperties().count ).toBe( 2 );
+					componentObj._setDataProperties( { "count" : 2 } );
+					expect( componentObj._getDataProperties() ).toBeStruct();
+					expect( componentObj._getDataProperties().count ).toBe( 2 );
 				} );
 			} );
 
@@ -78,7 +78,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock = [ "count" ]
 					);
 
-					componentObj.getEngine().setDataProperties( { "count" : 2 } );
+					componentObj._setDataProperties( { "count" : 2 } );
 
 					expect( componentObj._getPath() ).toInclude( "?count=2" );
 				} );
@@ -91,7 +91,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						mock = [ "count" ]
 					);
 
-					componentObj.getEngine().setDataProperties( { "count" : 2 } );
+					componentObj._setDataProperties( { "count" : 2 } );
 
 					expect( componentObj._getPath() ).toBe( "http://localhost?count=2" );
 				} );
@@ -384,8 +384,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$set", function(){
 				it( "sets data property on our component", function(){
-					componentObj.getEngine().setDataProperties( { "name" : "test" } );
-					expect( componentObj.getEngine().getDataProperties()[ "name" ] ).toBe( "test" );
+					componentObj._setDataProperties( { "name" : "test" } );
+					expect( componentObj._getDataProperties()[ "name" ] ).toBe( "test" );
 				} );
 
 				it( "fires 'preUpdate[prop] event", function(){
@@ -430,7 +430,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				it( "returns the data property values", function(){
 					var state = componentObj._getState();
 
-					componentObj.getEngine().setDataProperties( { "count" : 1 } );
+					componentObj._setDataProperties( { "count" : 1 } );
 
 					expect( componentObj._getState()[ "count" ] ).toBe( 1 );
 				} );
@@ -481,7 +481,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					it( "executes a setter method on component object", function(){
 						var rc = cbwireRequest.getCollection();
 
-						componentObj.getEngine().setDataProperties( {
+						componentObj._setDataProperties( {
 							"message": ""
 						} );
 
@@ -636,7 +636,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getters", function(){
 				it( "can access data properties using getter", function(){
-					componentObj.getEngine().setDataProperties( { "count" : 1 } );
+					componentObj._setDataProperties( { "count" : 1 } );
 					expect( componentObj.getCount() ).toBe( 1 );
 				} );
 

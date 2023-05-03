@@ -219,7 +219,7 @@ component accessors="true" singleton {
 			return update.getName();
 		} );
 
-		var afterSyncInputState = duplicate( comp.getDataProperties() );
+		var afterSyncInputState = duplicate( comp._getDataProperties() );
 
 		// Update the state of our component with each of our updates
 		getUpdates().filter( function( update ) {
@@ -234,7 +234,7 @@ component accessors="true" singleton {
 		// Determine "dirty" properties
 		var dirtyProperties = syncedProperties.filter( function( property ) {
 			var previousValue = afterSyncInputState[ property ];
-			var currentValue = comp.getDataProperties()[ property ];
+			var currentValue = comp._getDataProperties()[ property ];
 			if ( isArray( previousValue ) && isArray( currentValue ) ) {
 				return !previousValue.equals( currentValue );
 			} else {

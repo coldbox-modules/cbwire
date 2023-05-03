@@ -26,7 +26,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				structAppend(
 					variablesScope,
 					{
-						"data" : componentObj.getEngine().getDataProperties(),
+						"data" : componentObj._getDataProperties(),
 						"computed" : componentObj._getComputedProperties()
 					}
 				);
@@ -44,12 +44,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getState()", function(){
 				it( "returns the data properties", function(){
-					engine.setDataProperties( { "name" : "Grant" } );
+					componentObj._setDataProperties( { "name" : "Grant" } );
 					expect( componentObj._getState().name ).toBe( "Grant" );
 				} );
 				it( "trims string values if the setting is enabled", function(){
 					componentObj.setSettings( { "trimStringValues" : true } );
-					engine.setDataProperties( { "name" : "Grant     " } );
+					componentObj._setDataProperties( { "name" : "Grant     " } );
 					expect( componentObj._getState().name ).toBe( "Grant" );
 				} );
 			} );
