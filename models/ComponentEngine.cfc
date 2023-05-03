@@ -11,11 +11,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="wire";
 
 	/**
-	 * The component's variables scope
-	 */
-	property name="variablesScope";
-
-	/**
 	 * Determines if component should be rendered or not.
 	 */
 	property name="noRendering" default="false";
@@ -35,9 +30,8 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	/**
 	 * A beautiful constructor
 	 */
-	function init( required wire, required variablesScope ){
+	function init( required wire ){
 		setWire( arguments.wire );
-		setVariablesScope( arguments.variablesScope );
 		setDataProperties( {} );
 	}
 

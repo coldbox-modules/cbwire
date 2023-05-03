@@ -53,13 +53,13 @@ component accessors="true" {
 		variables._beforeHydrationState = {};
 		variables._dirtyProperties = [];
 		variables._emittedEvents = [];
+		variables._children = {};
 	}
 
 	/**
 	 * Invoked when dependency injection complete.
 	 */
 	function onDIComplete(){
-		variables.$children = {};
 		variables.data = isNull( variables.data ) ? {} : variables.data;
 		variables.computed = isNull( variables.computed ) ? {} : variables.computed;
 
@@ -72,8 +72,7 @@ component accessors="true" {
 		var engine = getInstance(
 			name = "ComponentEngine@cbwire",
 			initArguments = {
-				wire : this,
-				variablesScope : variables
+				wire : this
 			}
 		);
 		setEngine( engine );
@@ -856,7 +855,7 @@ component accessors="true" {
 		if ( !variables._finishedUpload ) {
 			memento.effects[ "path" ] = _getPath();
 			memento.serverMemo[ "htmlHash" ] = _getHTMLHash( rendering );
-			memento.serverMemo[ "children" ] = isArray( getEngine().getVariablesScope().$children ) ? [] : getEngine().getVariablesScope().$children;
+			memento.serverMemo[ "children" ] = isArray( variables._children ) ? [] : variables._children;
 		}
 
 		return memento;
@@ -930,15 +929,15 @@ component accessors="true" {
 	 */
 	function _getQueryStringValues(){
 		// Default with an empty array
-		if ( !structKeyExists( getEngine().getVariablesScope(), "queryString" ) ) {
+		if ( !structKeyExists( variables, "queryString" ) ) {
 			return "";
 		}
 
 		var currentState = _getState();
 
 		// Handle array of property names
-		if ( isArray( getEngine().getVariablesScope().queryString ) ) {
-			var result = getEngine().getVariablesScope().queryString.reduce( function( agg, prop ){
+		if ( isArray( variables.queryString ) ) {
+			var result = variables.queryString.reduce( function( agg, prop ){
 				agg &= prop & "=" & currentState[ prop ];
 				return agg;
 			}, "" );
@@ -956,8 +955,8 @@ component accessors="true" {
 	 * @return Struct
 	 */
 	function _getListeners(){
-		if ( structKeyExists( getEngine().getVariablesScope(), "listeners" ) && isStruct( getEngine().getVariablesScope().listeners ) ) {
-			return getEngine().getVariablesScope().listeners;
+		if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ) {
+			return variables.listeners;
 		}
 		return {};
 	}
@@ -968,7 +967,7 @@ component accessors="true" {
 	 * @return void
 	 */
 	function _renderComputedProperties( data = getEngine().getDataProperties() ){
-		if ( !structKeyExists( getEngine().getVariablesScope(), "computed" ) ) {
+		if ( !structKeyExists( variables, "computed" ) ) {
 			return;
 		}
 
@@ -1150,7 +1149,7 @@ component accessors="true" {
 		_getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
 		variables._finishedUpload = true;
 		variables._dirtyProperties.append( "myFile" );
-		getEngine().getVariablesScope().data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
+		variables.data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
 		emitSelf(
 			eventName = "upload:finished",
 			parameters = [
