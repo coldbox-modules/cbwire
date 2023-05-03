@@ -78,19 +78,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Hydrates the incoming component with state from our request.
-	 *
-	 * @wireRequest CBWireRequest
-	 *
-	 * @return Component
-	 */
-	function hydrate(){
-		getWire().set_IsInitialRendering( false );
-		announce( "onCBWireHydrate", { component : getWire() } );
-		return this;
-	}
-
-	/**
 	 * Renders our component's view.
 	 *
 	 * @return Void

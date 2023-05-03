@@ -457,7 +457,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							}
 						} );
 
-					componentObj.getEngine().hydrate( cbwireRequest );
+					componentObj._hydrate( cbwireRequest );
 
 					expect(
 						componentObj
@@ -473,7 +473,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"children" : []
 					};
 					componentObj.$( "setHello", true );
-					componentObj.getEngine().hydrate( cbwireRequest );
+					componentObj._hydrate( cbwireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
 				} );
 
@@ -496,7 +496,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setMessage", true );
-						componentObj.getEngine().hydrate( cbwireRequest );
+						componentObj._hydrate( cbwireRequest );
 						expect( componentObj.$once( "setMessage" ) ).toBeTrue();
 						expect( componentObj.$callLog().setMessage[ 1 ][ 1 ] ).toBe( "We have input" );
 					} );
@@ -514,7 +514,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "whyAmIAwakeAt3am", true );
-						componentObj.getEngine().hydrate( cbwireRequest );
+						componentObj._hydrate( cbwireRequest );
 						expect( componentObj.$once( "whyAmIAwakeAt3am" ) ).toBeTrue();
 					} );
 
@@ -532,7 +532,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "resetName" );
-						componentObj.getEngine().hydrate( cbwireRequest );
+						componentObj._hydrate( cbwireRequest );
 
 						var callLog = componentObj.$callLog()[ "resetName" ][ 1 ];
 
@@ -554,7 +554,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						];
 
 						componentObj.$( "setName", true );
-						componentObj.getEngine().hydrate( cbwireRequest );
+						componentObj._hydrate( cbwireRequest );
 
 						var passedArgs = componentObj.$callLog()[ "setName" ][ 1 ];
 						expect( componentObj.$once( "setName" ) ).toBeTrue();
@@ -614,7 +614,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "onHydrate()", function(){
 				it( "it calls onHydrate() if it's defined on component", function(){
 					componentObj.$( "onHydrate", "got this" );
-					componentObj.getEngine().hydrate();
+					componentObj._hydrate();
 					expect( componentObj.$once( "onHydrate" ) ).toBeTrue();
 				} );
 			} );
@@ -629,7 +629,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					componentObj.$( "onHydrateCount", "got this" );
-					componentObj.getEngine().hydrate( cbwireRequest );
+					componentObj._hydrate( cbwireRequest );
 					expect( componentObj.$once( "onHydrateCount" ) ).toBeTrue();
 				} );
 			} );

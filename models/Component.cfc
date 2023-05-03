@@ -1197,5 +1197,17 @@ component accessors="true" {
 		return renderingResult;
 	}
 
+	/**
+	 * Hydrates the incoming component with state from our request.
+	 *
+	 * @wireRequest CBWireRequest
+	 *
+	 * @return Component
+	 */
+	function _hydrate(){
+		set_IsInitialRendering( false );
+		controller.getInterceptorService().announce( "onCBWireHydrate", { component : this } );
+		return getEngine();
+	}
 
 }

@@ -86,8 +86,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				cbwireComponent._setComputedProperties( getComputed() );
 			}
 			var memento = cbwireComponent
-				.getEngine()
-				.hydrate()
+				._hydrate()
 				.subsequentRenderIt()
 				.getWire()
 				._getMemento();
