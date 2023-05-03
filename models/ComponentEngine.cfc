@@ -1,4 +1,4 @@
-component extends="coldbox.system.FrameworkSupertype" accessors="true" {
+component accessors="true" {
 
 	/**
 	 * Inject ColdBox, needed by FrameworkSuperType
@@ -9,11 +9,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 * The CBWIRE component
 	 */
 	property name="wire";
-
-	/**
-	 * Holds component metadata.
-	 */
-	property name="meta";
 
 	/**
 	 * A beautiful constructor
@@ -98,10 +93,14 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 				arguments.view = getWire().template;
 			}
 			// Render our view using coldbox rendering
-			var result = super.renderView( argumentCollection = arguments );
+			var result = getController().getRenderer().renderView( argumentCollection = arguments );
 		}
 
 		return result;
+	}
+
+	function getRequestContext() {
+		return getController().getRenderer().getRequestContext();
 	}
 
 }
