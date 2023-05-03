@@ -319,7 +319,7 @@ component accessors="true" {
 
 		var templateRendering = engine.view( argumentCollection = arguments );
 		// Add properties to top element to make Livewire actually work.
-		return applyWiring ? engine.applyWiringToOuterElement( templateRendering ) : templateRendering;
+		return applyWiring ? _applyWiringToOuterElement( templateRendering ) : templateRendering;
 	}
 
 	/**
@@ -1164,5 +1164,38 @@ component accessors="true" {
 	function _setComputedProperties( value ) {
 		variables._computedProperties = arguments.value;
 	}
+
+	/**
+	 * Apply cbwire attribute to the outer element in the provided rendering.
+	 *
+	 * @rendering String | The view rendering.
+	 */
+	function _applyWiringToOuterElement( required rendering ){
+		var renderingResult = "";
+
+		// Provide a hash of our rendering which is used by Livewire JS.
+		var renderingHash = hash( arguments.rendering );
+
+		// Determine our outer element.
+		var outerElement = _getOuterElement( arguments.rendering );
+
+		// Add properties to top element to make cbwire actually work.
+		if ( get_IsInitialRendering() ) {
+			// Initial rendering
+			renderingResult = rendering.replaceNoCase(
+				outerElement,
+				outerElement & " wire:id=""#get_id()#"" wire:initial-data=""#serializeJSON( _getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
+				"once"
+			);
+			renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#get_id()# -->";
+		} else {
+			// Subsequent renderings
+			renderingResult = rendering.replaceNoCase( outerElement, outerElement & " wire:id=""#get_id()#""", "once" );
+		}
+
+
+		return renderingResult;
+	}
+
 
 }

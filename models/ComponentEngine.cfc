@@ -91,38 +91,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Apply cbwire attribute to the outer element in the provided rendering.
-	 *
-	 * @rendering String | The view rendering.
-	 */
-	function applyWiringToOuterElement( required rendering ){
-		var renderingResult = "";
-
-		// Provide a hash of our rendering which is used by Livewire JS.
-		var renderingHash = hash( arguments.rendering );
-
-		// Determine our outer element.
-		var outerElement = getWire()._getOuterElement( arguments.rendering );
-
-		// Add properties to top element to make cbwire actually work.
-		if ( getWire().get_IsInitialRendering() ) {
-			// Initial rendering
-			renderingResult = rendering.replaceNoCase(
-				outerElement,
-				outerElement & " wire:id=""#getWire().get_id()#"" wire:initial-data=""#serializeJSON( getWire()._getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
-				"once"
-			);
-			renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getWire().get_id()# -->";
-		} else {
-			// Subsequent renderings
-			renderingResult = rendering.replaceNoCase( outerElement, outerElement & " wire:id=""#getWire().get_id()#""", "once" );
-		}
-
-
-		return renderingResult;
-	}
-
-	/**
 	 * Renders our component's view.
 	 *
 	 * @return Void
