@@ -12,7 +12,7 @@ component {
 			cbwireComponent.set_id( cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
-		engine.setBeforeHydrationState( duplicate( cbwireComponent._getState() ) );
+		cbwireComponent._setBeforeHydrationState( duplicate( cbwireComponent._getState() ) );
 
 		if ( cbwireRequest.hasData() ) {
 			cbwireComponent.setData( cbwireRequest.getData() );

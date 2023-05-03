@@ -16,12 +16,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	property name="variablesScope";
 
 	/**
-	 * Holds the component's state values before hydration occurs.
-	 * Used to compare what's changed and perform dirty tracking
-	 */
-	property name="beforeHydrationState";
-
-	/**
 	 * Determines if component should be rendered or not.
 	 */
 	property name="noRendering" default="false";
@@ -56,7 +50,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	function init( required wire, required variablesScope ){
 		setWire( arguments.wire );
 		setVariablesScope( arguments.variablesScope );
-		setBeforeHydrationState( {} );
 		setDataProperties( {} );
 		setEmittedEvents( [] );
 		setDirtyProperties( [] );

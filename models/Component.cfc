@@ -50,6 +50,7 @@ component accessors="true" {
 		variables._renderingOverrides = {};
 		variables._computedProperties = {};
 		variables._finishedUpload = false;
+		variables._beforeHydrationState = {};
 	}
 
 	/**
@@ -75,7 +76,6 @@ component accessors="true" {
 		);
 		setEngine( engine );
 
-		engine.setBeforeHydrationState( {} );
 		engine.setNoRendering( false );
 		engine.setDataProperties( variables.data );
 		variables._computedProperties = variables.computed;
@@ -1030,7 +1030,7 @@ component accessors="true" {
 		}
 
 		// Capture the state before hydration
-		getEngine().setBeforeHydrationState( duplicate( _getState() ) );
+		variables._beforeHydrationState = duplicate( _getState() );
 
 		return getEngine();
 	}
@@ -1056,7 +1056,7 @@ component accessors="true" {
 			} );
 		} else {
 			// Reset individual property
-			_setProperty( arguments.property, getEngine().getBeforeHydrationState()[ arguments.property ] );
+			_setProperty( arguments.property, variables._beforeHydrationState[ arguments.property ] );
 		}
 	}
 
@@ -1209,6 +1209,10 @@ component accessors="true" {
 		set_IsInitialRendering( false );
 		controller.getInterceptorService().announce( "onCBWireHydrate", { component : this } );
 		return getEngine();
+	}
+
+	function _setBeforeHydrationState( value ) {
+		variables._beforeHydrationState = arguments.value;
 	}
 
 }
