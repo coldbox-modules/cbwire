@@ -64,21 +64,6 @@ component accessors="true" {
 	function onDIComplete(){
 		variables.data = isNull( variables.data ) ? {} : variables.data;
 		variables.computed = isNull( variables.computed ) ? {} : variables.computed;
-
-		/**
-		 * The core functions of cbwire components are separated into ComponentEngine@cbwire.
-		 * There were several reasons for this, the biggest being a clean separation of
-		 * concerns. This was also done to avoid cluttering up the variables scope of the component
-		 * and causing naming collisions with user defined component methods and properties.
-		 */
-		var engine = getInstance(
-			name = "ComponentEngine@cbwire",
-			initArguments = {
-				wire : this
-			}
-		);
-		setEngine( engine );
-
 		variables._noRendering = false;
 		variables._dataProperties = variables.data;
 		variables._computedProperties = variables.computed;
@@ -318,9 +303,7 @@ component accessors="true" {
 		name,
 		boolean applyWiring = true
 	){
-		var engine = getEngine();
-
-		var templateRendering = engine.view( argumentCollection = arguments );
+		var templateRendering = _view( argumentCollection = arguments );
 		// Add properties to top element to make Livewire actually work.
 		return applyWiring ? _applyWiringToOuterElement( templateRendering ) : templateRendering;
 	}
@@ -332,9 +315,7 @@ component accessors="true" {
 	 * @parameters Arrays | The params passed with the emitter.
 	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
-	function emit( required eventName, array parameters = [], track = true ){
-		var engine = getEngine();
-		
+	function emit( required eventName, array parameters = [], track = true ){	
 		// Invoke 'preEmit' event
 		_invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = arguments.parameters );
 
@@ -1025,7 +1006,7 @@ component accessors="true" {
 		// Capture the state before hydration
 		variables._beforeHydrationState = duplicate( _getState() );
 
-		return getEngine();
+		return this;
 	}
 
 	/**
@@ -1201,7 +1182,7 @@ component accessors="true" {
 	function _hydrate(){
 		set_IsInitialRendering( false );
 		controller.getInterceptorService().announce( "onCBWireHydrate", { component : this } );
-		return getEngine();
+		return this;
 	}
 
 	function _setBeforeHydrationState( value ) {
@@ -1216,7 +1197,7 @@ component accessors="true" {
 	 */
 	function _subsequentRenderIt(){
 		controller.getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
-		return getEngine();
+		return this;
 	}
 
 	function _addDirtyProperty( property ) {
@@ -1256,5 +1237,77 @@ component accessors="true" {
 	 */
 	function _renderIt(){
 		return view( view = _getTemplatePath() );
+	}
+
+/**
+	 * Render out our component's view
+	 *
+	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module The module to render the view from explicitly
+	 * @cache Cached the view output or not, defaults to false
+	 * @cacheTimeout The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider The provider to cache this view in, defaults to 'template'
+	 * @collection A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow The start row to limit the collection rendering with
+	 * @collectionMaxRows The max rows to iterate over the collection rendering with
+	 * @collectionDelim  A string to delimit the collection renderings by
+	 * @prePostExempt If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+	 *
+	 * @return The rendered view
+	 */
+	function _view(
+		view = "",
+		struct args = {},
+		module = "",
+		boolean cache = false,
+		cacheTimeout = "",
+		cacheLastAccessTimeout = "",
+		cacheSuffix = "",
+		cacheProvider = "template",
+		collection,
+		collectionAs = "",
+		numeric collectionStartRow = "1",
+		numeric collectionMaxRows = 0,
+		collectionDelim = "",
+		boolean prePostExempt = false,
+		name
+	){
+		// Pass the properties of the cbwire component as variables to the view
+		arguments.args = _getState( includeComputed = true );
+
+		// If there are any rendering overrides ( like during file upload ), then merge those in
+		structAppend( arguments.args, _getRenderingOverrides(), true );
+
+		// Provide validation results, either validation results we captured from our action or run them now.
+		arguments.args[ "validation" ] = isNull( getValidationResult() ) ? _validate() : getValidationResult();
+
+		// Include a reference to the component's id
+		arguments.args[ "_id" ] = get_id();
+
+		/*
+			Store our latest rendered id in the request scope so that it can be
+			read by the entangle() method.
+		*/
+		getCBWireRequest().getEvent().setPrivateValue( "cbwire_lastest_rendered_id", get_id() );
+
+		arguments.args[ "computed" ] = _getComputedProperties();
+
+		if ( structKeyExists( this, "onRender" ) ) {
+			// Render custom onRender method
+			var result = this.onRender( args = arguments.args );
+		} else {
+			if ( structKeyExists( this, "template" ) ) {
+				arguments.view = template;
+			}
+			// Render our view using coldbox rendering
+			var result = getController().getRenderer().renderView( argumentCollection = arguments );
+		}
+
+		return result;
 	}
 }

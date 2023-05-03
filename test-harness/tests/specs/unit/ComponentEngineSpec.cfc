@@ -30,16 +30,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"computed" : componentObj._getComputedProperties()
 					}
 				);
-				engine = prepareMock(
-					getInstance(
-						name = "ComponentEngine@cbwire",
-						initArguments = {
-							wire : componentObj,
-							variablesScope : variablesScope
-						}
-					)
-				);
-				componentObj.setEngine( engine );
 			} );
 
 			describe( "getState()", function(){
@@ -73,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			fdescribe( "renderComputedProperties", function(){
 				it( "useComputedPropertiesProxy defaults to true", function(){
-					expect( engine.getWire().getSettings().useComputedPropertiesProxy ).toBeTrue();
+					expect( componentObj.getSettings().useComputedPropertiesProxy ).toBeTrue();
 				} );
 
 				it( "renders the computed properties immediately by default", function(){

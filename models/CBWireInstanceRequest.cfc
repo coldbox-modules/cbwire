@@ -12,7 +12,6 @@ component {
 	function handle( required cbwireComponent, parameters = {} ){
 		return cbwireComponent
 			._mount( arguments.parameters )
-			.getWire()
 			._renderIt();
 	}
 

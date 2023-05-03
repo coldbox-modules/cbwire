@@ -30,16 +30,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"computed" : componentObj._getComputedProperties()
 					}
 				);
-				engine = prepareMock(
-					getInstance(
-						name = "ComponentEngine@cbwire",
-						initArguments = {
-							wire : componentObj,
-							variablesScope : variablesScope
-						}
-					)
-				);
-				componentObj.setEngine( engine );
 			} );
 
 			it( "can instantiate a component", function(){
@@ -154,8 +144,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "$getChecksum", function(){
 				it( "returns the expected checksum", function(){
-					engine.$( "getState", { "test" : "checksum" } );
-					expect( componentObj._getChecksum() ).toBe( "99914B932BD37A50B983C5E7C90AE93B" );
+					componentObj.$( "_getState", { "test" : "checksum" } );
+					expect( componentObj._getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
 				} );
 			} );
 
@@ -361,8 +351,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					componentObj._subsequentRenderIt();
 					expect(
 						componentObj
-							.getEngine()
-							.getRequestContext()
+							._getRequestContext()
 							.getValue( "_cbwire_subsequent_rendering" )
 					).toBe( "" );
 				} );
