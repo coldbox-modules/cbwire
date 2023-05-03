@@ -206,13 +206,38 @@ component accessors="true" singleton {
 		// Fire our preUpdate lifecycle event.
 		arguments.comp.getEngine().invokeMethod( "preUpdate" );
 
+		/*
+			Run the Sync Input's first and track 
+			what fields are being synced. We do this
+			so later we can determine if any data properties
+			changed after calling actions.
+		*/
+		var syncedProperties = getUpdates().filter( function( update ) {
+			return isInstanceOf( update, "SyncInput" );
+		} ).map( function( update ) {
+			// Apply the update
+			arguments.update.apply( comp );
+			return update.getName();
+		} );
+
+		var afterSyncInputState = duplicate( comp.getDataProperties() );
+
 		// Update the state of our component with each of our updates
-		getUpdates().each( function( update ){
+		getUpdates().filter( function( update ) {
+			return !isInstanceOf( update, "SyncInput" );
+		} ).each( function( update ) {
 			arguments.update.apply( comp );
 		} );
 
 		// Fire our postUpdate lifecycle event.
 		arguments.comp.getEngine().invokeMethod( "preUpdate" );
+
+		// Determine "dirty" properties
+		var dirtyProperties = syncedProperties.filter( function( property ) {
+			return afterSyncInputState[ property ] != comp.getDataProperties()[ property ];
+		} ).each( function( dirtyProperty ) {
+			comp.getEngine().addDirtyProperty( dirtyProperty );
+		});
 	}
 
 	/**

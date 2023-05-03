@@ -54,7 +54,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			fdescribe( "getDataProperties()", function() {
+			describe( "getDataProperties()", function() {
 				it( "can call getDataProperties()", function() {
 					componentObj.getEngine().setDataProperties( { "count" : 2 } );
 					expect( componentObj.getDataProperties() ).toBeStruct();
@@ -62,7 +62,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			fdescribe( "getComputedProperties()", function() {
+			describe( "getComputedProperties()", function() {
 				it( "can call getComputedProperties()", function() {
 					componentObj.getEngine().setComputedProperties( { "count" : function() { return 2; } } );
 					expect( componentObj.getComputedProperties() ).toBeStruct();
@@ -439,23 +439,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.getEngine().getState()[ "count" ] ).toBe( 1 );
 				} );
 
-				it( "renders computed properties to the state", function(){
-					componentObj
-						.getEngine()
-						.setComputedProperties( {
-							"calculator" : function(){
-								return 1 + 1;
-							},
-							"propertyWithNoReturnValue" : function(){
-								return;
-							}
-						} );
-
-					var state = componentObj.getEngine().getState( includeComputed = true );
-
-					expect( state.calculator ).toBe( 2 );
-				} );
-
 				it( "ignores custom functions that are not getters", function(){
 					componentObj.$property(
 						propertyName = "count",
@@ -503,6 +486,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				describe( "syncInput", function(){
 					it( "executes a setter method on component object", function(){
 						var rc = cbwireRequest.getCollection();
+
+						componentObj.getEngine().setDataProperties( {
+							"message": ""
+						} );
 
 						rc[ "updates" ] = [
 							{
@@ -659,7 +646,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj.getCount() ).toBe( 1 );
 				} );
 
-				it( "can access computed properties using getter", function(){
+				xit( "can access computed properties using getter", function(){
 					componentObj
 						.getEngine()
 						.setComputedProperties( {

@@ -6,6 +6,15 @@ component extends="WireUpdate" {
 	property name="populator" inject="wirebox:populator";
 
 	/**
+	 * Returns the field name.
+	 *
+	 * @return string
+	 */
+	function getName() {
+		return this.getPayload()[ "name" ];
+	}
+
+	/**
 	 * Applies this update to the specified component.
 	 *
 	 * @comp cbwire.models.Component | Component we are updating.

@@ -1011,6 +1011,10 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		}
 	}
 
+	function addDirtyProperty( property ) {
+		variables.dirtyProperties.append( arguments.property );
+	}
+
 	function finishUpload( params ){
 		var fileUpload = getController()
 			.getWireBox()

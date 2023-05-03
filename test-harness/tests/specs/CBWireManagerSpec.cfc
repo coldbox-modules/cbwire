@@ -181,6 +181,38 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = cbwireManager.handleIncomingRequest( event );
 				} );
 
+				it( "tracks dirty properties that are changed after running sync input", function() {
+					rc[ "serverMemo" ] = {
+						"children" : [],
+						"data" : { "title" : "CBWIRE rocks!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
+					};
+
+					rc[ "updates" ] = [
+						{
+							"type" : "syncInput",
+							"payload" : {
+								"id" : "zqs3",
+								"name" : "title",
+								"value" : "CBWIRE is cool!"
+							}
+						},
+						{
+							"type" : "callMethod",
+							"payload" : {
+								"id" : "zqs3",
+								"method" : "changeTitle",
+								"params" : []
+							}
+						}
+					];
+					var result = cbwireManager.handleIncomingRequest( event );
+					expect( result.effects.dirty[ 1 ] ).toBe( "title" );
+				} );
+
 				it( "can start upload", function(){
 					rc[ "serverMemo" ] = {
 						"children" : [],
