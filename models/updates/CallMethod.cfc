@@ -1,4 +1,4 @@
-component extends="WireUpdate" {
+component extends="BaseUpdate" {
 
 	property name="cbwireRequest" inject="CBWireRequest@cbwire";
 
@@ -8,8 +8,6 @@ component extends="WireUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
-		var engine = arguments.comp.getEngine();
-
 		arguments.comp._renderComputedProperties();
 
 		if ( getPayloadMethod() == "finishUpload" ) {
@@ -81,7 +79,7 @@ component extends="WireUpdate" {
 	 * @return Array
 	 */
 	private function getPassedParams(){
-		return this.getPayload()[ "params" ];
+		return getPayload()[ "params" ];
 	}
 
 	/**
@@ -90,8 +88,8 @@ component extends="WireUpdate" {
 	 * @return Boolean
 	 */
 	private function hasPassedParams(){
-		return this.hasPayload() && structKeyExists( this.getPayload(), "params" ) && isArray(
-			this.getPayload()[ "params" ]
+		return hasPayload() && structKeyExists( getPayload(), "params" ) && isArray(
+			getPayload()[ "params" ]
 		);
 	}
 
@@ -101,7 +99,7 @@ component extends="WireUpdate" {
 	 * @return Boolean
 	 */
 	private function hasPayloadMethod(){
-		return this.hasPayload() && structKeyExists( this.getPayload(), "method" );
+		return hasPayload() && structKeyExists( getPayload(), "method" );
 	}
 
 	/**
@@ -110,7 +108,7 @@ component extends="WireUpdate" {
 	 * @return String
 	 */
 	private function getPayloadMethod(){
-		return this.getPayload()[ "method" ];
+		return getPayload()[ "method" ];
 	}
 
 	/**

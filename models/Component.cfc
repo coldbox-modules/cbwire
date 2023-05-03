@@ -321,10 +321,10 @@ component accessors="true" {
 
 		// Capture the emit as we will need to notify the UI in our response
 		if ( arguments.track ) {
-			var emitter = createObject( "component", "cbwire.models.emit.BaseEmit" ).init(
-				arguments.eventName,
-				arguments.parameters
-			);
+			var emitter = {
+				"event" : arguments.eventName,
+				"params" : isArray( arguments.parameters ) ? arguments.parameters : [ arguments.parameters ]
+			};
 
 			_trackEmit( emitter );
 		}
@@ -346,11 +346,12 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function emitSelf( required eventName, parameters = {} ){
-		var emitter = createObject( "component", "cbwire.models.emit.EmitSelf" ).init(
-			arguments.eventName,
-			arguments.parameters
-		);
+	function emitSelf( required eventName, parameters = {} ) {
+		var emitter = {
+			"event" : arguments.eventName,
+			"params" : arguments.parameters,
+			"selfOnly" : true
+		};
 
 		// Capture the emit as we will need to notify the UI in our response
 		_trackEmit( emitter );
@@ -366,10 +367,11 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitUp( required eventName, parameters = {} ){
-		var emitter = createObject( "component", "cbwire.models.emit.EmitUp" ).init(
-			arguments.eventName,
-			arguments.parameters
-		);
+		var emitter = {
+			"event" : arguments.eventName,
+			"params" : arguments.parameters,
+			"ancestorsOnly" : true
+		};
 
 		// Capture the emit as we will need to notify the UI in our response
 		_trackEmit( emitter );
@@ -386,11 +388,11 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitTo( required eventName, required componentName, parameters = [] ){
-		var emitter = createObject( "component", "cbwire.models.emit.EmitTo" ).init(
-			arguments.eventName,
-			arguments.componentName,
-			arguments.parameters
-		);
+		var emitter = {
+			"event" : arguments.eventName,
+			"params" : arguments.parameters,
+			"to" : arguments.componentName
+		};
 
 		// Capture the emit as we will need to notify the UI in our response
 		_trackEmit( emitter );
@@ -564,8 +566,7 @@ component accessors="true" {
 	 * @return Array;
 	 */
 	function _trackEmit( required emitter ){
-		var result = emitter.getResult();
-		variables._emittedEvents.append( result );
+		variables._emittedEvents.append( arguments.emitter );
 	}
 
 	/**
@@ -973,7 +974,7 @@ component accessors="true" {
 		);
 
 		if ( structKeyExists( this, "mount" ) ) {
-			this.mount(
+			mount(
 				parameters = arguments.parameters,
 				key = arguments.key,
 				event = getCBWireRequest().getEvent(),
@@ -981,7 +982,7 @@ component accessors="true" {
 				prc = getCBWireRequest().getPrivateCollection()
 			);
 		} else if ( structKeyExists( this, "onMount" ) ) {
-			this.onMount(
+			onMount(
 				parameters = arguments.parameters,
 				key = arguments.key,
 				event = getCBWireRequest().getEvent(),
@@ -1077,7 +1078,9 @@ component accessors="true" {
 	}
 
 	/**
-	 * Returns boolean of if a proxy should be used for computed properties.
+	 * Returns true if a proxy should be used for computed properties.
+	 * 
+	 * @return boolean
 	 */
 	function _useComputedPropertiesProxy(){
 		return structKeyExists( getSettings(), "useComputedPropertiesProxy" ) && getSettings().useComputedPropertiesProxy == true;
@@ -1296,10 +1299,10 @@ component accessors="true" {
 
 		if ( structKeyExists( this, "onRender" ) ) {
 			// Render custom onRender method
-			var result = this.onRender( args = arguments.args );
+			var result = onRender( args = arguments.args );
 		} else {
 			if ( structKeyExists( this, "template" ) ) {
-				arguments.view = this.template;
+				arguments.view = template;
 			}
 			// Render our view using coldbox rendering
 			var result = getController().getRenderer().renderView( argumentCollection = arguments );

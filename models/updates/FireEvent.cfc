@@ -1,4 +1,4 @@
-component extends="WireUpdate" {
+component accessors="true" extends="BaseUpdate" {
 
 	/**
 	 * Applies this update to the specified component.
@@ -6,15 +6,13 @@ component extends="WireUpdate" {
 	 * @comp cbwire.models.Component | Component we are updating.
 	 */
 	function apply( required comp ){
-		var engine = arguments.comp.getEngine();
-
 		if ( !arguments.comp._hasListeners() ) {
 			return;
 		}
 
 		arguments.comp._renderComputedProperties();
 
-		var payload = this.getPayload();
+		var payload = getPayload();
 		var eventName = payload.event;
 		var params = payload.params;
 

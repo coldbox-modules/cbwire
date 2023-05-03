@@ -2,7 +2,9 @@
  * Represents an update to our UI which ultimately will update our cbwire component state.
  * This is primarily a parent object that is inherited from.
  */
-component {
+component accessors="true" {
+
+	property name="update";
 
 	/**
 	 * Our beautiful constructor.
@@ -10,7 +12,7 @@ component {
 	 * @update Struct | Incoming request collection.
 	 */
 	function init( required struct update ){
-		variables.update = arguments.update;
+		setUpdate( arguments.update );
 	}
 
 	/**
@@ -19,7 +21,7 @@ component {
 	 * @return String
 	 */
 	function getType(){
-		return variables.update.type;
+		return getUpdate().type;
 	}
 
 	/**
@@ -39,7 +41,7 @@ component {
 	 * @return Boolean
 	 */
 	function hasPayload(){
-		return structKeyExists( variables.update, "payload" );
+		return structKeyExists( getUpdate(), "payload" );
 	}
 
 	/**
@@ -48,7 +50,8 @@ component {
 	 * @return Struct
 	 */
 	function getPayload(){
-		return variables.update[ "payload" ];
+		var update = getUpdate();
+		return update[ "payload" ];
 	}
 
 	/**

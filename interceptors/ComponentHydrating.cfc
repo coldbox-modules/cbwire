@@ -6,8 +6,6 @@ component {
 
         var cbwireComponent = data.component;
 
-		var engine = cbwireComponent.getEngine();
-
         if ( cbwireRequest.hasFingerprint() ) {
 			cbwireComponent.set_id( cbwireRequest.getFingerPrint()[ "id" ] );
 		}

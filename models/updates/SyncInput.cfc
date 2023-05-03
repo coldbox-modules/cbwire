@@ -1,7 +1,7 @@
 /**
  * Represents a syncInput update from the UI.
  */
-component extends="WireUpdate" {
+component accessors="true" extends="BaseUpdate" {
 
 	property name="populator" inject="wirebox:populator";
 
@@ -11,7 +11,16 @@ component extends="WireUpdate" {
 	 * @return string
 	 */
 	function getName() {
-		return this.getPayload()[ "name" ];
+		return getPayload()[ "name" ];
+	}
+
+	/**
+	 * Returns the payload value
+	 * 
+	 * @return string
+	 */
+	function getValue() {
+		return getPayload()[ "value" ];
 	}
 
 	/**
@@ -20,16 +29,14 @@ component extends="WireUpdate" {
 	 * @comp cbwire.models.Component | Component we are updating.
 	 */
 	function apply( required comp ){
-		variables.populator.populateFromStruct(
+		getPopulator().populateFromStruct(
 			target: arguments.comp,
 			trustedSetter: true,
-			memento: { "#getName()#" : "#getPayload()[ "value" ]#" },
+			memento: { "#getName()#" : "#getValue()#" },
 			excludes: ""
 		);
 
 		// When syncing input, render our computed properties after the input has synced.
-		var engine = comp.getEngine();
-
 		arguments.comp._renderComputedProperties();
 	}
 
