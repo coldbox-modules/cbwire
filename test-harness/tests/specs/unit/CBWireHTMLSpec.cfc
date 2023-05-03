@@ -26,22 +26,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( isObject( cbwireHTML ) ).toBeTrue();
 			} );
 
-			describe( "getStyles()", function(){
-				it( "renders the styles", function(){
-					var result = cbwireHTML.getStyles();
-					expect( result ).toInclude( "@keyframes livewireautofill" );
-				} );
-
-				it( "renders turbo drive assets", function(){
-					moduleSettings[ "enableTurbo" ] = false;
-					var result = cbwireHTML.getStyles();
-					expect( result ).notToInclude( "import hotwiredTurbo from" );
-					moduleSettings[ "enableTurbo" ] = true;
-					result = cbwireHTML.getStyles();
-					expect( result ).toInclude( "import hotwiredTurbo from" );
-				} );
-			} );
-
 			describe( "getScripts()", function(){
 				it( "renders the scripts", function(){
 					var result = cbwireHTML.getScripts();

@@ -1,4 +1,4 @@
-component singleton {
+component accessors="true" singleton {
 
 	/**
 	 * Injected settings.
@@ -20,13 +20,23 @@ component singleton {
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
+
+	/**
+	 * Returns the styles to be placed in our HTML head.
+	 *
+	 * @return String
+	 */
+	function getStyles(){
+		return getController().getRenderer().renderView( view = "styles", module = "cbwire", args = { settings : getSettings() } );
+	}
+
 	/**
 	 * Returns the full path to a component.
 	 *
 	 * @componentName String | Name of the cbwire component.
 	 */
 	function getRootComponentPath( required componentName ) {
-		var appMapping = variables.controller.getSetting( "AppMapping" );
+		var appMapping = getController().getSetting( "AppMapping" );
 		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 
 		if ( reFindNoCase( "#appMapping#\.", arguments.componentName ) ) {
@@ -44,7 +54,7 @@ component singleton {
 	 * @return Component
 	 */
 	function getRootComponent( required componentName ){
-		return variables.wirebox.getInstance( getRootComponentPath( arguments.componentName ) );
+		return getWireBox().getInstance( getRootComponentPath( arguments.componentName ) );
 	}
 
 	/**
@@ -54,8 +64,9 @@ component singleton {
 	 * @return String
 	 */
 	function getWiresLocation(){
-		if ( structKeyExists( variables.settings, "wiresLocation" ) ) {
-			return variables.settings.wiresLocation;
+		var settings = getSettings();
+		if ( structKeyExists( settings, "wiresLocation" ) ) {
+			return settings.wiresLocation;
 		}
 		return "wires";
 	}
@@ -95,7 +106,7 @@ component singleton {
 	 * @return RequestContext
 	 */
 	function getEvent(){
-		return variables.requestService.getContext();
+		return getRequestService().getContext();
 	}
 
 	/**

@@ -18,11 +18,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		describe( "CBWireService.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				service = getInstance( "CBWireService@cbwire" );
+				service = prepareMock( getInstance( "CBWireService@cbwire" ) );
 			} );
 
 			it( "can instantiate a service", function(){
 				expect( isObject( service ) ).toBeTrue();
+			} );
+
+			describe( "getStyles()", function(){
+				it( "renders the styles", function(){
+					var result = service.getStyles();
+					expect( result ).toInclude( "@keyframes livewireautofill" );
+				} );
+
+				it( "renders turbo drive assets", function(){
+					moduleSettings[ "enableTurbo" ] = false;
+					service.setSettings( moduleSettings );
+					var result = service.getStyles();
+					expect( result ).notToInclude( "import hotwiredTurbo from" );
+					moduleSettings[ "enableTurbo" ] = true;
+					service.setSettings( moduleSettings );
+					result = service.getStyles();
+					expect( result ).toInclude( "import hotwiredTurbo from" );
+				} );
 			} );
 
 			describe( "getRootComponentPath()", function() {

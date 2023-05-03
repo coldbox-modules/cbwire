@@ -18,16 +18,6 @@ component singleton {
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
-
-	/**
-	 * Returns the styles to be placed in our HTML head.
-	 *
-	 * @return String
-	 */
-	function getStyles(){
-		return variables.renderer.renderView( view = "styles", module = "cbwire", args = { settings : settings } );
-	}
-
 	/**
 	 * Returns the JS to be placed in our HTML body.
 	 *

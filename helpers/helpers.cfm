@@ -3,7 +3,7 @@
     * Returns the styles to be placed in HTML head
     */
     function wireStyles() {
-        return getInstance( "CBWireHTML@cbwire" ).getStyles();
+        return getInstance( "CBWireService@cbwire" ).getStyles();
     }
 
     /**
