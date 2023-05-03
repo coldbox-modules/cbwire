@@ -1,7 +1,7 @@
 /**
  * Handles rendering the CSS and JavaScript that is placed in our layout so that cbwire can function.
  */
-component singleton {
+component accessors="true" singleton {
 
 	/**
 	 * Injected ColdBox Renderer for rendering operations.
@@ -19,15 +19,6 @@ component singleton {
 	property name="requestService" inject="coldbox:requestService";
 
 	/**
-	 * Returns the JS to be placed in our HTML body.
-	 *
-	 * @return String
-	 */
-	function getScripts(){
-		return variables.renderer.renderView( view = "scripts", module = "cbwire", args = { settings : settings } );
-	}
-
-	/**
 	 * Returns a reference to the LivewireJS entangle method
 	 * which provides model binding between AlpineJS and CBWIRE.
 	 *
@@ -36,17 +27,8 @@ component singleton {
 	 * @returns string
 	 */
 	function entangle( required prop ){
-		var lastComponentID = getEvent().getPrivateValue( "cbwire_lastest_rendered_id" );
+		var lastComponentID = getRequestService().getContext().getPrivateValue( "cbwire_lastest_rendered_id" );
 		return "window.Livewire.find( '#lastComponentID#' ).entangle( '#arguments.prop#' )";
-	}
-
-	/**
-	 * Return our request context.
-	 *
-	 * @returns RequestContext
-	 */
-	function getEvent(){
-		return variables.requestService.getContext();
 	}
 
 }

@@ -43,6 +43,24 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "getScripts()", function(){
+				it( "renders the scripts", function(){
+					var result = service.getScripts();
+					expect( result ).toInclude( "window.livewire = new Livewire();" );
+				} );
+
+				it( "renders turbo drive assets", function(){
+					moduleSettings[ "enableTurbo" ] = false;
+					service.setSettings( moduleSettings );
+					var result = service.getScripts();
+					expect( result ).notToInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
+					moduleSettings[ "enableTurbo" ] = true;
+					service.setSettings( moduleSettings );
+					result = service.getScripts();
+					expect( result ).toInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
+				} );
+			} );
+
 			describe( "getRootComponentPath()", function() {
 				
 				it( "by default appends the wires directory", function() {

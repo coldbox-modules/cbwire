@@ -10,7 +10,7 @@
     * Returns the JS to be placed in HTML body
     */
     function wireScripts() {
-        return getInstance( "CBWireHTML@cbwire" ).getScripts();
+        return getInstance( "CBWireService@cbwire" ).getScripts();
     }
 
     /**

@@ -31,6 +31,15 @@ component accessors="true" singleton {
 	}
 
 	/**
+	 * Returns the JS to be placed in our HTML body.
+	 *
+	 * @return String
+	 */
+	function getScripts(){
+		return getController().getRenderer().renderView( view = "scripts", module = "cbwire", args = { settings : getSettings() } );
+	}
+
+	/**
 	 * Returns the full path to a component.
 	 *
 	 * @componentName String | Name of the cbwire component.

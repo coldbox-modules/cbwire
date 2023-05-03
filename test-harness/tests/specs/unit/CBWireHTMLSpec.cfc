@@ -26,26 +26,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( isObject( cbwireHTML ) ).toBeTrue();
 			} );
 
-			describe( "getScripts()", function(){
-				it( "renders the scripts", function(){
-					var result = cbwireHTML.getScripts();
-					expect( result ).toInclude( "window.livewire = new Livewire();" );
-				} );
-
-				it( "renders turbo drive assets", function(){
-					moduleSettings[ "enableTurbo" ] = false;
-					var result = cbwireHTML.getScripts();
-					expect( result ).notToInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
-					moduleSettings[ "enableTurbo" ] = true;
-					result = cbwireHTML.getScripts();
-					expect( result ).toInclude( "https://cdn.jsdelivr.net/gh/livewire/turbolinks@" );
-				} );
-			} );
-
 			describe( "entangle", function(){
 				it( "includes expected entanglement code", function(){
 					var id = createUUID();
-					cbwireHTML.getEvent().setPrivateValue( "cbwire_lastest_rendered_id", id );
+					cbwireHTML.getRequestService().getContext().setPrivateValue( "cbwire_lastest_rendered_id", id );
 					var result = cbwireHTML.entangle( "someProperty" );
 					expect( result ).toBe( "window.Livewire.find( '#id#' ).entangle( 'someProperty' )" );
 				} );
