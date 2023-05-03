@@ -40,6 +40,19 @@ component accessors="true" singleton {
 	}
 
 	/**
+	 * Returns a reference to the LivewireJS entangle method
+	 * which provides model binding between AlpineJS and CBWIRE.
+	 *
+	 * @prop The data property you want to bind client and server side.
+	 *
+	 * @returns string
+	 */
+	function entangle( required prop ){
+		var lastComponentID = getRequestService().getContext().getPrivateValue( "cbwire_lastest_rendered_id" );
+		return "window.Livewire.find( '#lastComponentID#' ).entangle( '#arguments.prop#' )";
+	}
+
+	/**
 	 * Returns the full path to a component.
 	 *
 	 * @componentName String | Name of the cbwire component.

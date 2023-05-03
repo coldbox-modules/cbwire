@@ -61,6 +61,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "entangle", function(){
+				it( "includes expected entanglement code", function(){
+					var id = createUUID();
+					service.getRequestService().getContext().setPrivateValue( "cbwire_lastest_rendered_id", id );
+					var result = service.entangle( "someProperty" );
+					expect( result ).toBe( "window.Livewire.find( '#id#' ).entangle( 'someProperty' )" );
+				} );
+			} );
+
 			describe( "getRootComponentPath()", function() {
 				
 				it( "by default appends the wires directory", function() {
