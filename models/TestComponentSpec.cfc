@@ -89,7 +89,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				.getEngine()
 				.hydrate()
 				.subsequentRenderIt()
-				.getMemento();
+				.getWire()
+				._getMemento();
 			var html = memento[ "effects" ][ "html" ];
 			setRendering( html );
 			return html;
@@ -99,8 +100,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				cbwireComponent.getEngine().setComputedProperties( getComputed() );
 			}
 			var rendering = cbwireComponent
+				._mount( getParameters() )
 				.getEngine()
-				.mount( getParameters() )
 				.renderIt();
 			setRendering( rendering );
 			return rendering;

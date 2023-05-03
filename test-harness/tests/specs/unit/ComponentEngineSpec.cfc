@@ -45,12 +45,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "getState()", function(){
 				it( "returns the data properties", function(){
 					engine.setDataProperties( { "name" : "Grant" } );
-					expect( engine.getState().name ).toBe( "Grant" );
+					expect( componentObj._getState().name ).toBe( "Grant" );
 				} );
 				it( "trims string values if the setting is enabled", function(){
-					engine.setSettings( { "trimStringValues" : true } );
+					componentObj.setSettings( { "trimStringValues" : true } );
 					engine.setDataProperties( { "name" : "Grant     " } );
-					expect( engine.getState().name ).toBe( "Grant" );
+					expect( componentObj._getState().name ).toBe( "Grant" );
 				} );
 			} );
 
@@ -73,7 +73,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			fdescribe( "renderComputedProperties", function(){
 				it( "useComputedPropertiesProxy defaults to true", function(){
-					expect( engine.getSettings().useComputedPropertiesProxy ).toBeTrue();
+					expect( engine.getWire().getSettings().useComputedPropertiesProxy ).toBeTrue();
 				} );
 
 				it( "renders the computed properties immediately by default", function(){
@@ -83,13 +83,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					} );
 
-					engine.renderComputedProperties();
+					componentObj._renderComputedProperties();
 
 					expect( engine.getComputedProperties().name() ).toBe( "Grant" );
 				} );
 
 				it( "returns functions instead when using computed properties proxy", function(){
-					engine.setSettings( { "useComputedPropertiesProxy" : true } );
+					componentObj.setSettings( { "useComputedPropertiesProxy" : true } );
 
 					engine.setComputedProperties( {
 						"name" : function(){

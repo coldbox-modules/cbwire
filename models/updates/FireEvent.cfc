@@ -8,17 +8,17 @@ component extends="WireUpdate" {
 	function apply( required comp ){
 		var engine = arguments.comp.getEngine();
 
-		if ( !engine.hasListeners() ) {
+		if ( !arguments.comp._hasListeners() ) {
 			return;
 		}
 
-		engine.renderComputedProperties();
+		arguments.comp._renderComputedProperties();
 
 		var payload = this.getPayload();
 		var eventName = payload.event;
 		var params = payload.params;
 
-		engine.fire( eventName = eventName, parameters = params );
+		arguments.comp._fire( eventName = eventName, parameters = params );
 	}
 
 }

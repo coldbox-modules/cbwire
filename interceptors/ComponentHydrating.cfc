@@ -9,10 +9,10 @@ component {
 		var engine = cbwireComponent.getEngine();
 
         if ( variables.cbwireRequest.hasFingerprint() ) {
-			cbwireComponent.getEngine().setId( variables.cbwireRequest.getFingerPrint()[ "id" ] );
+			cbwireComponent.set_id( variables.cbwireRequest.getFingerPrint()[ "id" ] );
 		}
 
-		engine.setBeforeHydrationState( duplicate( engine.getState() ) );
+		engine.setBeforeHydrationState( duplicate( cbwireComponent._getState() ) );
 
 		if ( variables.cbwireRequest.hasData() ) {
 			cbwireComponent.setData( variables.cbwireRequest.getData() );
@@ -27,7 +27,7 @@ component {
 					var uuid = replaceNoCase( arguments.value, "cbwire-upload:", "", "once" );
 					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=cbwireComponent, params=[ key, [ uuid  ] ] } );
 				}
-				engine.invokeMethod(
+				cbwireComponent._invokeMethod(
 					methodName = "set" & arguments.key,
 					value      = isNull( arguments.value ) ? "" : arguments.value
 				);					

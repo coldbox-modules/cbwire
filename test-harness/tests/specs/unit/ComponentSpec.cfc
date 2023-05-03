@@ -48,7 +48,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getID()", function(){
 				it( "returns 20 character guid", function(){
-					var id = componentObj.getEngine().getId();
+					var id = componentObj.get_id();
 					expect( len( id ) ).toBe( 20 );
 					expect( reFindNoCase( "^[A-Za-z0-9-]+$", id ) ).toBeTrue();
 				} );
@@ -80,11 +80,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					componentObj.getEngine().setDataProperties( { "count" : 2 } );
 
-					expect( componentObj.getEngine().getPath() ).toInclude( "?count=2" );
+					expect( componentObj._getPath() ).toInclude( "?count=2" );
 				} );
 
 				it( "it doesn't duplicate query string params if they are present in cgi.HTTP_REFERER", function(){
-					engine.$( "getHTTPReferer", "http://localhost?count=1" );
+					componentObj.$( "_getHTTPReferer", "http://localhost?count=1" );
 					componentObj.$property(
 						propertyName = "queryString",
 						propertyScope = "variables",
@@ -93,13 +93,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					componentObj.getEngine().setDataProperties( { "count" : 2 } );
 
-					expect( componentObj.getEngine().getPath() ).toBe( "http://localhost?count=2" );
+					expect( componentObj._getPath() ).toBe( "http://localhost?count=2" );
 				} );
 			} );
 
 			describe( "$getListeners", function(){
 				it( "should return empty struct by default", function(){
-					expect( componentObj.getEngine().getListeners() ).toBe( {} );
+					expect( componentObj._getListeners() ).toBe( {} );
 				} );
 
 				it( "should return listeners defined on the component", function(){
@@ -108,32 +108,32 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						propertyScope = "variables",
 						mock = { "someEvent" : "someMethod" }
 					);
-					expect( componentObj.getEngine().getListeners() ).toBe( { "someEvent" : "someMethod" } );
+					expect( componentObj._getListeners() ).toBe( { "someEvent" : "someMethod" } );
 				} );
 			} );
 
 			describe( "$getMeta", function(){
 				it( "should return the meta", function(){
-					expect( componentObj.getEngine().getMeta().name ).toBe( "cbwire.models.Component" );
+					expect( componentObj._getMeta().name ).toBe( "cbwire.models.Component" );
 				} );
 
 				it( "should cache the results", function(){
-					engine.$property( propertyName = "meta", propertyScope = "variables", mock = "some meta" );
+					componentObj.$property( propertyName = "meta", propertyScope = "variables", mock = "some meta" );
 
-					expect( componentObj.getEngine().getMeta() ).toBe( "some meta" );
-					expect( componentObj.getEngine().getMeta() ).toBe( "some meta" );
+					expect( componentObj._getMeta() ).toBe( "some meta" );
+					expect( componentObj._getMeta() ).toBe( "some meta" );
 				} );
 
 				it( "should return cached results if they exists", function(){
-					engine.$property( propertyName = "meta", propertyScope = "variables", mock = "some meta" );
-					expect( componentObj.getEngine().getMeta() ).toBe( "some meta" );
+					componentObj.$property( propertyName = "meta", propertyScope = "variables", mock = "some meta" );
+					expect( componentObj._getMeta() ).toBe( "some meta" );
 				} );
 			} );
 
 
 			describe( "getInitialData", function(){
 				it( "returns a struct", function(){
-					expect( componentObj.getEngine().getInitialData() ).toBeStruct();
+					expect( componentObj._getInitialData() ).toBeStruct();
 				} );
 
 				it( "should include listeners defined on our component", function(){
@@ -142,20 +142,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						propertyScope = "variables",
 						mock = { "postAdded" : "doSomething" }
 					);
-					expect( componentObj.getEngine().getInitialData().effects.listeners ).toBeArray();
-					expect( componentObj.getEngine().getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
+					expect( componentObj._getInitialData().effects.listeners ).toBeArray();
+					expect( componentObj._getInitialData().effects.listeners[ 1 ] ).toBe( "postAdded" );
 				} );
 
 				it( "returns the component checksum in the serverMemo", function(){
-					engine.$( "getChecksum", "test" );
-					expect( componentObj.getEngine().getInitialData().serverMemo.checksum ).toBe( "test" );
+					componentObj.$( "_getChecksum", "test" );
+					expect( componentObj._getInitialData().serverMemo.checksum ).toBe( "test" );
 				} );
 			} );
 
 			describe( "$getChecksum", function(){
 				it( "returns the expected checksum", function(){
 					engine.$( "getState", { "test" : "checksum" } );
-					expect( componentObj.getEngine().getChecksum() ).toBe( "8D19A0A0D180FFCD52B7DC0B572DC8D3" );
+					expect( componentObj._getChecksum() ).toBe( "99914B932BD37A50B983C5E7C90AE93B" );
 				} );
 			} );
 
@@ -390,24 +390,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "fires 'preUpdate[prop] event", function(){
 					componentObj.$( "preUpdateName", true );
-					componentObj
-						.getEngine()
-						.setProperty( propertyName = "name", value = "test", invokeUpdateMethods = true );
+					componentObj._setProperty( propertyName = "name", value = "test", invokeUpdateMethods = true );
 					expect( componentObj.$once( "preUpdateName" ) ).toBeTrue();
 					expect( componentObj.$callLog()[ "preUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
 				} );
 
 				it( "fires 'postUpdate[prop] event", function(){
 					componentObj.$( "postUpdateName", true );
-					componentObj
-						.getEngine()
-						.setProperty( propertyName = "name", value = "test", invokeUpdateMethods = true );
+					componentObj._setProperty( propertyName = "name", value = "test", invokeUpdateMethods = true );
 					expect( componentObj.$once( "postUpdateName" ) ).toBeTrue();
 					expect( componentObj.$callLog()[ "postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
 				} );
 
 				it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
-					engine.setSettings( { "throwOnMissingSetterMethod" : true } );
+					componentObj.setSettings( { "throwOnMissingSetterMethod" : true } );
 					expect( function(){
 						componentObj.setSomeName( "test" );
 					} ).toThrow( type = "WireSetterNotFound" );
@@ -428,15 +424,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getState", function(){
 				it( "returns empty struct by default", function(){
-					expect( componentObj.getEngine().getState() ).toBe( {} );
+					expect( componentObj._getState() ).toBe( {} );
 				} );
 
 				it( "returns the data property values", function(){
-					var state = componentObj.getEngine().getState();
+					var state = componentObj._getState();
 
 					componentObj.getEngine().setDataProperties( { "count" : 1 } );
 
-					expect( componentObj.getEngine().getState()[ "count" ] ).toBe( 1 );
+					expect( componentObj._getState()[ "count" ] ).toBe( 1 );
 				} );
 
 				it( "ignores custom functions that are not getters", function(){
@@ -446,7 +442,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					);
 
-					var state = componentObj.getEngine().getState();
+					var state = componentObj._getState();
 
 					expect( structKeyExists( state, "count" ) ).toBeFalse();
 				} );
@@ -572,7 +568,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "onMount()", function(){
 				it( "it calls onMount() if it's defined on component", function(){
 					componentObj.$( "onMount", "sup?" );
-					componentObj.getEngine().mount();
+					componentObj._mount();
 					expect( componentObj.$once( "onMount" ) ).toBeTrue();
 				} );
 
@@ -582,7 +578,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					rc[ "someRandomVar" ] = "someRandomValue";
 
 					componentObj.$( "onMount" );
-					componentObj.getEngine().mount();
+					componentObj._mount();
 
 					var passedArgs = componentObj.$callLog().onMount[ 1 ];
 
@@ -596,7 +592,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "mount()", function(){
 				it( "it calls mount() if it's defined on component", function(){
 					componentObj.$( "mount", "sup?" );
-					componentObj.getEngine().mount();
+					componentObj._mount();
 					expect( componentObj.$once( "mount" ) ).toBeTrue();
 				} );
 
@@ -606,7 +602,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					rc[ "someRandomVar" ] = "someRandomValue";
 
 					componentObj.$( "mount" );
-					componentObj.getEngine().mount();
+					componentObj._mount();
 
 					var passedArgs = componentObj.$callLog().mount[ 1 ];
 
@@ -654,7 +650,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								return 1 + 2;
 							}
 						} );
-					componentObj.getEngine().renderComputedProperties( componentObj.getInternals().data );
+					componentObj._renderComputedProperties( componentObj.getInternals().data );
 					expect( componentObj.getOnePlusTwo() ).toBe( 3 );
 				} );
 			} );

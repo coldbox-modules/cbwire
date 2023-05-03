@@ -10,10 +10,10 @@ component extends="WireUpdate" {
 	function apply( required comp ){
 		var engine = arguments.comp.getEngine();
 
-		engine.renderComputedProperties();
+		arguments.comp._renderComputedProperties();
 
 		if ( getPayloadMethod() == "finishUpload" ) {
-			engine.finishUpload( params = getPassedParamsAsArguments() );
+			arguments.comp._finishUpload( params = getPassedParamsAsArguments() );
 			return;
 		}
 		if ( getPayloadMethod() == "startUpload" ) {

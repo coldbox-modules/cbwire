@@ -111,7 +111,8 @@ component singleton {
 			.getEngine()
 			.hydrate()
 			.subsequentRenderIt()
-			.getMemento();
+			.getWire()
+			._getMemento();
 	}
 
 	function handleFileUpload( event, rc, prc ){

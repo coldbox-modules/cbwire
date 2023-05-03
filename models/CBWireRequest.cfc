@@ -190,8 +190,7 @@ component accessors="true" singleton {
 	 */
 	function renderIt( componentName, parameters = {}, key = "" ){
 		return getComponentInstance( arguments.componentName )
-			.getEngine()
-			.mount( arguments.parameters, arguments.key )
+			._mount( arguments.parameters, arguments.key )
 			.renderIt();
 	}
 
@@ -204,7 +203,7 @@ component accessors="true" singleton {
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
-		arguments.comp.getEngine().invokeMethod( "preUpdate" );
+		arguments.comp._invokeMethod( "preUpdate" );
 
 		/*
 			Run the Sync Input's first and track 
@@ -230,7 +229,7 @@ component accessors="true" singleton {
 		} );
 
 		// Fire our postUpdate lifecycle event.
-		arguments.comp.getEngine().invokeMethod( "preUpdate" );
+		arguments.comp._invokeMethod( "preUpdate" );
 
 		// Determine "dirty" properties
 		var dirtyProperties = syncedProperties.filter( function( property ) {

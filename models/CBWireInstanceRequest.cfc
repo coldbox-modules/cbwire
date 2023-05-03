@@ -11,8 +11,7 @@ component {
 	 */
 	function handle( required cbwireComponent, parameters = {} ){
 		return cbwireComponent
-			.getEngine()
-			.mount( arguments.parameters )
+			._mount( arguments.parameters )
 			.renderIt();
 	}
 

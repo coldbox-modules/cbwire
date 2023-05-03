@@ -30,7 +30,7 @@ component extends="WireUpdate" {
 		// When syncing input, render our computed properties after the input has synced.
 		var engine = comp.getEngine();
 
-		engine.renderComputedProperties();
+		arguments.comp._renderComputedProperties();
 	}
 
 }
