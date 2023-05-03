@@ -19,7 +19,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function run( testResults, testBox ){
 		// all your suites go here.
-		describe( "CBWireManager", function(){
+		describe( "CBWireService", function(){
 			beforeEach( function( currentSpec ){
 				setup();
 				event = getRequestContext();
@@ -37,15 +37,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				event.setValue( "wireComponent", "TestComponent" );
 
 
-				cbwireManager = prepareMock(
-					getInstance( name = "cbwire.models.CBWireManager", initArguments = { "event" : event } )
+				cbwireService = prepareMock(
+					getInstance( name = "cbwire.models.CBWireService", initArguments = { "event" : event } )
 				);
 			} );
 
 			describe( "handleIncomingRequest", function(){
 				it( "returns effects and server memo", function(){
 					event.setValue( "wireComponent", "TestComponent" );
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "<div wire:id=" );
 					expect( result.effects.dirty ).toBeArray();
 					expect( result.effects.emits ).toBeArray();
@@ -73,7 +73,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							}
 						}
 					];
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Slays!" );
 					expect( result.effects.dirty ).toBeArray();
 					expect( result.effects.emits ).toBeArray();
@@ -103,7 +103,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					];
 
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Rocks!" );
 				} );
 
@@ -128,7 +128,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					];
 
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Rocks!" );
 				} );
 
@@ -153,7 +153,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					];
 
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.html ).toInclude( "Title: Fired some event" );
 				} );
 
@@ -178,7 +178,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					];
 
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 				} );
 
 				it( "tracks dirty properties that are changed after running sync input", function() {
@@ -209,7 +209,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							}
 						}
 					];
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.dirty[ 1 ] ).toBe( "title" );
 				} );
 
@@ -244,7 +244,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						}
 					];
 
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.emits[ 1 ].event ).toBe( "upload:generatedSignedUrl" )
 					expect( result.effects.emits[ 1 ].params[ 1 ] ).toBe( "myFile" );
 					expect( result.effects.emits[ 1 ].params[ 2 ] ).toInclude( "/livewire/upload-file?expires=" );
@@ -255,12 +255,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "getWiresLocation()", function(){
 				it( "returns 'wires' by default", function(){
-					cbwireManager.$property( "settings", "variables", {} );
-					expect( cbwireManager.getWiresLocation() ).toBe( "wires" );
+					cbwireService.$property( "settings", "variables", {} );
+					expect( cbwireService.getWiresLocation() ).toBe( "wires" );
 				} );
 				it( "returns the wiresLocation from settings", function(){
-					cbwireManager.$property( "settings", "variables", { wiresLocation : "somewhere" } );
-					expect( cbwireManager.getWiresLocation() ).toBe( "somewhere" );
+					cbwireService.$property( "settings", "variables", { wiresLocation : "somewhere" } );
+					expect( cbwireService.getWiresLocation() ).toBe( "somewhere" );
 				} );
 			} );
 		} );

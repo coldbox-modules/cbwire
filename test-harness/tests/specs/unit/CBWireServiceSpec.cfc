@@ -15,30 +15,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	/*********************************** BDD SUITES ***********************************/
 
 	function run( testResults, testBox ){
-		describe( "CBWIREManager.cfc", function(){
+		describe( "CBWireService.cfc", function(){
 			beforeEach( function( currentSpec ){
 				setup();
-				manager = getInstance( "CBWireManager@cbwire" );
+				service = getInstance( "CBWireService@cbwire" );
 			} );
 
-			it( "can instantiate a manager", function(){
-				expect( isObject( manager ) ).toBeTrue();
+			it( "can instantiate a service", function(){
+				expect( isObject( service ) ).toBeTrue();
 			} );
 
 			describe( "getRootComponentPath()", function() {
 				
 				it( "by default appends the wires directory", function() {
-					var result = manager.getRootComponentPath( "SomeComponent" );
+					var result = service.getRootComponentPath( "SomeComponent" );
 					expect( result ).toBe( "wires.SomeComponent" );
 				} );
 
 				it( "by default keeps the wires directory", function() {
-					var result = manager.getRootComponentPath( "wires.SomeComponent" );
+					var result = service.getRootComponentPath( "wires.SomeComponent" );
 					expect( result ).toBe( "wires.SomeComponent" );
 				} );	
 
 				it( "doesn't alter the path if a full path is already provided", function() {
-					var result = manager.getRootComponentPath( "myapp.wires.SomeComponent" );
+					var result = service.getRootComponentPath( "myapp.wires.SomeComponent" );
 					expect( result ).toBe( "myapp.wires.SomeComponent" );
 				} );
 			} );

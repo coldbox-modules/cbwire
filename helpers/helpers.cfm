@@ -31,7 +31,7 @@
 	 * @return Component
 	 */
     function wire( componentName, parameters = {} ) {
-        return getInstance( "CBWireManager@cbwire" )
+        return getInstance( "CBWireService@cbwire" )
                    .getComponentInstance( arguments.componentName )
                    ._mount( arguments.parameters )
                    .renderIt();

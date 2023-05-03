@@ -2,7 +2,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	property name="wirebox" inject="wirebox";
 
-	property name="cbwireManager" inject="CBWireManager@cbwire";
+	property name="cbwireService" inject="CBWireService@cbwire";
 
 	/**
 	 * Injected RequestService so that we can access the current ColdBox RequestContext.
@@ -163,7 +163,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	private function getWireInstance(){
 		if ( isNull( getCBWireInstance() ) ) {
-			setCBWireInstance( cbwireManager.getComponentInstance( getComponentName() ) );
+			setCBWireInstance( cbwireService.getComponentInstance( getComponentName() ) );
 		}
 		return getCBWireInstance();
 	}
