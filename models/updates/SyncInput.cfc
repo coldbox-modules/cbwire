@@ -23,7 +23,7 @@ component extends="WireUpdate" {
 		variables.populator.populateFromStruct(
 			target: arguments.comp,
 			trustedSetter: true,
-			memento: { "#this.getPayload()[ "name" ]#" : "#this.getPayload()[ "value" ]#" },
+			memento: { "#getName()#" : "#getPayload()[ "value" ]#" },
 			excludes: ""
 		);
 

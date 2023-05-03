@@ -27,7 +27,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					variablesScope,
 					{
 						"data" : componentObj.getEngine().getDataProperties(),
-						"computed" : componentObj.getEngine().getComputedProperties()
+						"computed" : componentObj._getComputedProperties()
 					}
 				);
 				engine = prepareMock(
@@ -77,7 +77,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "renders the computed properties immediately by default", function(){
-					engine.setComputedProperties( {
+					componentObj._setComputedProperties( {
 						"name" : function(){
 							return "Grant"
 						}
@@ -85,19 +85,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					componentObj._renderComputedProperties();
 
-					expect( engine.getComputedProperties().name() ).toBe( "Grant" );
+					expect( componentObj._getComputedProperties().name() ).toBe( "Grant" );
 				} );
 
 				it( "returns functions instead when using computed properties proxy", function(){
 					componentObj.setSettings( { "useComputedPropertiesProxy" : true } );
 
-					engine.setComputedProperties( {
+					componentObj._setComputedProperties( {
 						"name" : function(){
 							return "Grant"
 						}
 					} );
 
-					expect( engine.getComputedProperties().name() ).toBe( "Grant" );
+					expect( componentObj._getComputedProperties().name() ).toBe( "Grant" );
 				} );
 			} );
 		} );

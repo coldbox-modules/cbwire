@@ -33,12 +33,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	 */
 	property name="dataProperties";
 
-	/**
-	 * The default computed struct for cbwire components.
-	 * This should be overidden in the child component with
-	 * computed properties.
-	 */
-	property name="computedProperties";
 
 	/**
 	 * Tracks any emitted events during a request lifecycle
@@ -69,7 +63,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		setVariablesScope( arguments.variablesScope );
 		setBeforeHydrationState( {} );
 		setDataProperties( {} );
-		setComputedProperties( {} );
 		setEmittedEvents( [] );
 		setDirtyProperties( [] );
 	}
@@ -206,7 +199,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		*/
 		getWire().getCBWireRequest().getEvent().setPrivateValue( "cbwire_lastest_rendered_id", getWire().get_id() );
 
-		arguments.args[ "computed" ] = getComputedProperties();
+		arguments.args[ "computed" ] = getWire()._getComputedProperties();
 
 		if ( structKeyExists( getWire(), "onRender" ) ) {
 			// Render custom onRender method

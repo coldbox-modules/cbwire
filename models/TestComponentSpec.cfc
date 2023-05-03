@@ -83,7 +83,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var cbwireComponent = getWireInstance();
 
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent.getEngine().setComputedProperties( getComputed() );
+				cbwireComponent._setComputedProperties( getComputed() );
 			}
 			var memento = cbwireComponent
 				.getEngine()
@@ -97,11 +97,10 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 		} else {
 			var cbwireComponent = getWireInstance();
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent.getEngine().setComputedProperties( getComputed() );
+				cbwireComponent._setComputedProperties( getComputed() );
 			}
 			var rendering = cbwireComponent
 				._mount( getParameters() )
-				.getEngine()
 				.renderIt();
 			setRendering( rendering );
 			return rendering;
@@ -159,7 +158,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	private function getComputedProperties(){
-		return getWireInstance().getEngine().getComputedProperties();
+		return getWireInstance()._getComputedProperties();
 	}
 
 	private function getWireInstance(){

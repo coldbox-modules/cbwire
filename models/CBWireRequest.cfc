@@ -233,7 +233,13 @@ component accessors="true" singleton {
 
 		// Determine "dirty" properties
 		var dirtyProperties = syncedProperties.filter( function( property ) {
-			return afterSyncInputState[ property ] != comp.getDataProperties()[ property ];
+			var previousValue = afterSyncInputState[ property ];
+			var currentValue = comp.getDataProperties()[ property ];
+			if ( isArray( previousValue ) && isArray( currentValue ) ) {
+				return !previousValue.equals( currentValue );
+			} else {
+				return previousValue != currentValue;
+			}
 		} ).each( function( dirtyProperty ) {
 			comp.getEngine().addDirtyProperty( dirtyProperty );
 		});

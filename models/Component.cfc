@@ -48,6 +48,7 @@ component accessors="true" {
 	function init() {
 		variables._id = _generateId();
 		variables._renderingOverrides = {};
+		variables._computedProperties = {};
 	}
 
 	/**
@@ -76,7 +77,7 @@ component accessors="true" {
 		engine.setBeforeHydrationState( {} );
 		engine.setNoRendering( false );
 		engine.setDataProperties( variables.data );
-		engine.setComputedProperties( variables.computed );
+		variables._computedProperties = variables.computed;
 		engine.setEmittedEvents( [] );
 	}
 
@@ -430,7 +431,7 @@ component accessors="true" {
 
 		var data = getEngine().getDataProperties();
 
-		var computed = getEngine().getComputedProperties();
+		var computed = _getComputedProperties();
 
 		if ( reFindNoCase( "^get.+", arguments.missingMethodName ) ) {
 			// Extract data property name from the getter method called.
@@ -557,15 +558,6 @@ component accessors="true" {
 	 */
 	function getDataProperties() {
 		return getEngine().getDataProperties();
-	}
-
-	/**
-	 * Returns a reference to the computed properties.
-	 * 
-	 * @returns struct
-	 */
-	function getComputedProperties() {
-		return getEngine().getComputedProperties();
 	}
 
 	/**
@@ -811,7 +803,7 @@ component accessors="true" {
 			_renderComputedProperties( data );
 
 			if ( !_useComputedPropertiesProxy() ) {
-				getEngine().getComputedProperties().each( function( key, value ){
+				_getComputedProperties().each( function( key, value ){
 					if ( !isNull( value ) ) {
 						state[ key ] = value;
 					}
@@ -972,17 +964,17 @@ component accessors="true" {
 	 *
 	 * @return void
 	 */
-	function _renderComputedProperties( data = getDataProperties() ){
+	function _renderComputedProperties( data = getEngine().getDataProperties() ){
 		if ( !structKeyExists( getEngine().getVariablesScope(), "computed" ) ) {
 			return;
 		}
 
 		if ( _useComputedPropertiesProxy() ) {
-			computedProperties = _getComputedPropertiesProxy();
+			variables._computedProperties = _getComputedPropertiesProxy();
 		} else {
-			getEngine().getComputedProperties().each( function( key, value, computedProperties ){
+			_getComputedProperties().each( function( key, value, computedProperties ){
 				if ( isCustomFunction( value ) ) {
-					computedProperties[ key ] = value( data );
+					variables._computedProperties[ key ] = value( data );
 				}
 			} );
 		}
@@ -1106,7 +1098,7 @@ component accessors="true" {
 			.getInstance(
 				name = "ComputedPropertiesProxy@cbwire",
 				initArguments = {
-					computedProperties : getEngine().getComputedProperties(),
+					computedProperties : _getComputedProperties(),
 					wire : this
 				}
 			);
@@ -1163,6 +1155,14 @@ component accessors="true" {
 				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
 			]
 		);
+	}
+
+	function _getComputedProperties() {
+		return variables._computedProperties;
+	}
+
+	function _setComputedProperties( value ) {
+		variables._computedProperties = arguments.value;
 	}
 
 }

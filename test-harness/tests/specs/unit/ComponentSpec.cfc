@@ -27,7 +27,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					variablesScope,
 					{
 						"data" : componentObj.getEngine().getDataProperties(),
-						"computed" : componentObj.getEngine().getComputedProperties()
+						"computed" : componentObj._getComputedProperties()
 					}
 				);
 				engine = prepareMock(
@@ -62,11 +62,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			describe( "getComputedProperties()", function() {
-				it( "can call getComputedProperties()", function() {
-					componentObj.getEngine().setComputedProperties( { "count" : function() { return 2; } } );
-					expect( componentObj.getComputedProperties() ).toBeStruct();
-					expect( componentObj.getComputedProperties().count() ).toBe( 2 );
+			describe( "_getComputedProperties()", function() {
+				it( "can call _getComputedProperties()", function() {
+					componentObj._setComputedProperties( { "count" : function() { return 2; } } );
+					expect( componentObj._getComputedProperties() ).toBeStruct();
+					expect( componentObj._getComputedProperties().count() ).toBe( 2 );
 				} );
 			} );
 
@@ -451,8 +451,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			describe( "hydrate", function(){
 				it( "renders (executes) computed properties on hydrate", function(){
 					componentObj
-						.getEngine()
-						.setComputedProperties( {
+						._setComputedProperties( {
 							"add2Plus2" : function(){
 								return 4;
 							}
@@ -462,8 +461,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					expect(
 						componentObj
-							.getEngine()
-							.getComputedProperties()
+							._getComputedProperties()
 							.add2Plus2()
 					).toBe( 4 );
 				} );
@@ -644,8 +642,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				xit( "can access computed properties using getter", function(){
 					componentObj
-						.getEngine()
-						.setComputedProperties( {
+						._setComputedProperties( {
 							"onePlusTwo" : function(){
 								return 1 + 2;
 							}
