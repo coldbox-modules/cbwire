@@ -63,7 +63,7 @@ component extends="WireUpdate" {
 	 * @return Boolean
 	 */
 	private function hasCallableAction( required comp ){
-		return hasPayloadMethod() && arguments.comp.getEngine().hasMethod( getPayloadMethod() );
+		return hasPayloadMethod() && arguments.comp._hasMethod( getPayloadMethod() );
 	}
 
 	/**

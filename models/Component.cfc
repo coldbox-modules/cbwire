@@ -682,7 +682,7 @@ component accessors="true" {
 		if ( structKeyExists( listeners, eventName ) ) {
 			var listener = listeners[ eventName ];
 
-			if ( len( arguments.eventName ) && getEngine().hasMethod( listener ) ) {
+			if ( len( arguments.eventName ) && _hasMethod( listener ) ) {
 				return _invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
 			}
 		}
@@ -1232,6 +1232,16 @@ component accessors="true" {
 
 	function _setDataProperties( value ) {
 		variables._dataProperties = arguments.value;
+	}
+
+		/**
+	 * Returns true if the provided method name can be found on our component.
+	 *
+	 * @methodName String | The method name we are checking.
+	 * @return Boolean
+	 */
+	function _hasMethod( required methodName ){
+		return structKeyExists( this, arguments.methodName );
 	}
 
 }

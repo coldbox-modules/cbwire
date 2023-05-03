@@ -28,16 +28,6 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 	}
 
 	/**
-	 * Returns true if the provided method name can be found on our component.
-	 *
-	 * @methodName String | The method name we are checking.
-	 * @return Boolean
-	 */
-	function hasMethod( required methodName ){
-		return structKeyExists( getWire(), arguments.methodName );
-	}
-
-	/**
 	 * Renders our component's view.
 	 *
 	 * @return Void
