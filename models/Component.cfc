@@ -497,7 +497,7 @@ component accessors="true" {
 	 *
 	 * @return cbvalidation.model.result.IValidationResult
 	 */
-	function validate(){
+	function _validate(){
 		arguments.target = isNull( arguments.target ) ? this : arguments.target;
 		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
 		return getValidationResult();

@@ -659,7 +659,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						propertyScope = "this",
 						mock = { "firstname" : { required : true } }
 					);
-					var result = componentObj.validate();
+					var result = componentObj._validate();
 					expect( result ).toBeInstanceOf( "ValidationResult" );
 					expect( result.hasErrors() ).toBeTrue();
 					expect( result.getErrors( "firstname" )[ 1 ].getMessage() ).toBe(
@@ -668,7 +668,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "provides validations that can be passed in", function(){
-					var result = componentObj.validate(
+					var result = componentObj._validate(
 						target = {},
 						constraints = { "firstname" : { required : true } }
 					);

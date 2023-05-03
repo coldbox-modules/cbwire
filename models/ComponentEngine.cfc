@@ -188,7 +188,7 @@ component extends="coldbox.system.FrameworkSupertype" accessors="true" {
 		structAppend( arguments.args, getWire()._getRenderingOverrides(), true );
 
 		// Provide validation results, either validation results we captured from our action or run them now.
-		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire().validate() : getWire().getValidationResult();
+		arguments.args[ "validation" ] = isNull( getWire().getValidationResult() ) ? getWire()._validate() : getWire().getValidationResult();
 
 		// Include a reference to the component's id
 		arguments.args[ "_id" ] = getWire().get_id();
