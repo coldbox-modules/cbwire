@@ -18,6 +18,9 @@ component accessors="true" {
 	// Inject the wire request that's incoming from the browser.
 	property name="cbwireRequest" inject="CBWireRequest@cbwire";
 
+	// Inject the cbwire service
+	property name="cbwireService" inject="CBWireService@cbwire";
+
 	// Holds our validation result.
 	property name="validationResult";
 
@@ -53,6 +56,8 @@ component accessors="true" {
 		variables._emittedEvents = [];
 		variables._children = {};
 		variables._noRendering = false;
+		variables._inlineComponentType = "";
+		variables._inlineComponentId = "";
 	}
 
 	/**
@@ -540,13 +545,24 @@ component accessors="true" {
 	 * @returns string
 	 */
 	function _getTemplatePath() {
-		if ( structKeyExists( variables, "template" ) ) {
-			return variables.template;
+		var templatePath = "";
+		if ( _isInlineComponent() ) {
+			return "/cbwire/models/tmp/" & variables._inlineComponentId & ".cfm";
+		} else if ( structKeyExists( variables, "template" ) ) {
+			templatePath = variables.template;
+		} else {
+			var currentPath = getCurrentTemplatePath();
+			var currentDir = getDirectoryFromPath( currentPath );
+			currentDir = replaceNoCase( currentDir, getController().getAppRootPath(), "", "one" );
+			var templateName = replaceNoCase( getFileFromPath( currentPath ), ".cfc", ".cfm", "one" );
+			templatePath = "/" & currentDir & templateName;
 		}
 
-		var componentName = lCase( getMetadata( this ).name );
+		if ( left( templatePath, 1 ) != "/" ) {
+			templatePath = "/" & templatePath;
+		}
 
-		return "wires/#listLast( componentName, "." )#";
+		return templatePath;
 	}
 
 	/**
@@ -596,7 +612,7 @@ component accessors="true" {
 	 */
 	function _getInitialData( rendering = "" ){
 
-		var fingerprintName = _getMeta().name;
+		var fingerprintName = _isInlineComponent() ? variables._inlineComponentType : _getMeta().name;
 
 		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
 
@@ -1236,7 +1252,9 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function _renderIt(){
-		return view( view = _getTemplatePath() );
+		var html = view( view = _getTemplatePath() );
+		_cleanup();
+		return html;
 	}
 
 /**
@@ -1301,13 +1319,48 @@ component accessors="true" {
 			// Render custom onRender method
 			var result = onRender( args = arguments.args );
 		} else {
-			if ( structKeyExists( this, "template" ) ) {
-				arguments.view = template;
+			// Render our view using a RendererEncapsulator
+			savecontent variable="result" {
+				cfmodule(
+					template = "RendererEncapsulator.cfm",
+					cbwireTemplate = _getTemplatePath(),
+					args = arguments.args
+				);
 			}
-			// Render our view using coldbox rendering
-			var result = getController().getRenderer().renderView( argumentCollection = arguments );
 		}
 
 		return result;
+	}
+
+	function _isInlineComponent() {
+		return variables._inlineComponentId.len() ? true : false;
+	}
+
+	function _setInlineComponentId( value ) {
+		variables._inlineComponentId = arguments.value;
+	}
+
+	function _setInlineComponentType( value ) {
+		variables._inlineComponentType = arguments.value;
+	}
+
+	/**
+	 * Perform any cleanup work such as 
+	 * clearing inline component assets.
+	 */
+	function _cleanup() {
+		if ( _isInlineComponent() ) {
+			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
+			var templatePath = currentDir & "#variables._inlineComponentId#.cfm";
+			var componentPath = currentDir & "#variables._inlineComponentId#.cfc";
+
+			if ( fileExists( templatePath ) ) {
+				fileDelete( templatePath );
+			}
+
+			if ( fileExists( componentPath ) ) {
+				fileDelete( componentPath );
+			}
+		}
 	}
 }

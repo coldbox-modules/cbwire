@@ -76,7 +76,61 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function getRootComponent( required componentName ){
-		return getWireBox().getInstance( getRootComponentPath( arguments.componentName ) );
+		var componentPath = getRootComponentPath( arguments.componentName );
+		try {
+			return getWireBox().getInstance( componentPath );
+		} catch ( Injector.InstanceNotFoundException e ) {
+			// Check to see if an inline component exists
+			var inlinePath = replaceNoCase( componentPath, ".", "/", "all" );
+			inlinePath = expandPath( "/" & inlinePath & ".cfm" );
+			
+			if ( fileExists( inlinePath ) ) {
+
+				var fileContents = fileRead( inlinePath );
+				var inlineContents = "";
+				var remainingContents = "";
+
+				var startedWire = false;
+				var endedWire = false;
+
+				for ( var line in fileContents.listToArray( chr(10) ) ) {
+					if ( line contains "// @Wire" ) {
+						startedWire = true;
+						continue;
+					}
+					if ( line contains "// @EndWire" ) {
+						endedWire = true;
+						continue;
+					}
+
+					if ( startedWire && !endedWire ) {
+						inlineContents &= line & chr( 10 );
+					} else {
+						remainingContents &= line;
+					}
+				}
+
+				var currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
+
+				var emptyInlineComponent = fileRead( currentDirectory & "EmptyInlineComponent.cfc" );
+
+				emptyInlineComponent = replaceNoCase( emptyInlineComponent, "// Inline Contents Goes Here", inlineContents, "one" );
+
+				var uuid = createUUID();
+
+				fileWrite( currentDirectory & "tmp/#uuid#.cfc", emptyInlineComponent );
+				fileWrite( currentDirectory & "tmp/#uuid#.cfm", remainingContents );
+				var comp = getWireBox().getInstance( "cbwire.models.tmp.#uuid#" );
+
+				comp._setInlineComponentType( arguments.componentName );
+				comp._setInlineComponentId( uuid );
+
+				return comp;
+
+			} else {
+				rethrow;
+			}
+		}
 	}
 
 	/**
