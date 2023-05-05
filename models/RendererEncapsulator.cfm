@@ -4,5 +4,10 @@
         return cbwireService.entangle( argumentCollection=arguments );
     };
     variables.args = attributes.args;
+
+    structAppend( variables, attributes.args );
+
+    structAppend( variables, attributes.args.computed );
+
     include "#attributes.cbwireTemplate#";
 </cfscript>

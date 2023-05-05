@@ -801,18 +801,6 @@ component accessors="true" {
 			return value;
 		} );
 
-		if ( arguments.includeComputed ) {
-			_renderComputedProperties( data );
-
-			if ( !_useComputedPropertiesProxy() ) {
-				_getComputedProperties().each( function( key, value ){
-					if ( !isNull( value ) ) {
-						state[ key ] = value;
-					}
-				} );
-			}
-		}
-
 		return state;
 	}
 
@@ -962,27 +950,6 @@ component accessors="true" {
 	}
 
 	/**
-	 * Loops through the defined computed properties and invokes the functions once.
-	 *
-	 * @return void
-	 */
-	function _renderComputedProperties( data = _getDataProperties() ){
-		if ( !structKeyExists( variables, "computed" ) ) {
-			return;
-		}
-
-		if ( _useComputedPropertiesProxy() ) {
-			variables._computedProperties = _getComputedPropertiesProxy();
-		} else {
-			_getComputedProperties().each( function( key, value, computedProperties ){
-				if ( isCustomFunction( value ) ) {
-					variables._computedProperties[ key ] = value( data );
-				}
-			} );
-		}
-	}
-
-/**
 	 * Fires when the cbwire component is initially created.
 	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
 	 *
@@ -1089,30 +1056,6 @@ component accessors="true" {
 		}
 
 		throw( message = "Cannot find data property '#arguments.dataProperty#' for toggling." );
-	}
-
-	/**
-	 * Returns our computed properties proxy
-	 */
-	function _getComputedPropertiesProxy(){
-		return getController()
-			.getWirebox()
-			.getInstance(
-				name = "ComputedPropertiesProxy@cbwire",
-				initArguments = {
-					computedProperties : _getComputedProperties(),
-					wire : this
-				}
-			);
-	}
-
-	/**
-	 * Returns true if a proxy should be used for computed properties.
-	 * 
-	 * @return boolean
-	 */
-	function _useComputedPropertiesProxy(){
-		return structKeyExists( getSettings(), "useComputedPropertiesProxy" ) && getSettings().useComputedPropertiesProxy == true;
 	}
 
 	/**
@@ -1326,7 +1269,7 @@ component accessors="true" {
 		*/
 		getCBWireRequest().getEvent().setPrivateValue( "cbwire_lastest_rendered_id", get_id() );
 
-		arguments.args[ "computed" ] = _getComputedProperties();
+		arguments.args[ "computed" ] = variables.computed;
 
 		if ( structKeyExists( this, "onRender" ) ) {
 			// Render custom onRender method

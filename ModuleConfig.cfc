@@ -43,11 +43,7 @@ component {
 			/**
 			 * Trims string properties if set to true
 			 */
-			"trimStringValues" : false,
-			/**
-			 * Use proxy for Computed Properties
-			 */
-			"useComputedPropertiesProxy" : true
+			"trimStringValues" : false
 		};
 
 		routes = [
