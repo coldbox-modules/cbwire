@@ -58,6 +58,7 @@ component accessors="true" {
 		variables._noRendering = false;
 		variables._inlineComponentType = "";
 		variables._inlineComponentId = "";
+		variables._module = "";
 	}
 
 	/**
@@ -551,6 +552,7 @@ component accessors="true" {
 		} else if ( structKeyExists( variables, "template" ) ) {
 			templatePath = variables.template;
 		} else {
+
 			var currentPath = getCurrentTemplatePath();
 			var currentDir = getDirectoryFromPath( currentPath );
 			currentDir = replaceNoCase( currentDir, getController().getAppRootPath(), "", "one" );
@@ -612,12 +614,23 @@ component accessors="true" {
 	 */
 	function _getInitialData( rendering = "" ){
 
-		var fingerprintName = _isInlineComponent() ? variables._inlineComponentType : _getMeta().name;
+		
+		if ( _isInlineComponent() ) {
+			var currentModule = getController().getRenderer().getRequestContext().getCurrentModule();
+			var fingerprintName = variables._inlineComponentType;
+
+			if ( len( currentModule) ) {
+				//fingerprintName = currentModule & "." & getCBWIRERequest().getWiresLocation() & "." & fingerprintName;
+			}
+		} else {
+			var fingerprintName = _getMeta().name;
+		}
 
 		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
 
 		return {
 			"fingerprint" : {
+				"module": variables._module,
 				"id" : variables._id,
 				"name" : fingerprintName,
 				"locale" : "en",
@@ -1362,5 +1375,14 @@ component accessors="true" {
 				fileDelete( componentPath );
 			}
 		}
+	}
+
+	/**
+	 * Sets the module this component belongs to.
+	 * 
+	 * @return void
+	 */
+	function _setModule( value ) {
+		variables._module = arguments.value;
 	}
 }

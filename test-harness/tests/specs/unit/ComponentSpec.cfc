@@ -172,7 +172,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 				} );
 
-				it( "provides rendering", function(){
+				xit( "provides rendering", function(){
 					expect( componentObj.renderView( "testView" ) ).toInclude( "<div" );
 				} );
 

@@ -16,10 +16,19 @@ component accessors="true" singleton {
 	property name="wirebox" inject="wirebox";
 
 	/**
+	 * Injection CBWireRequest
+	 */
+	property name="cbwireRequest" inject="CBWireRequest@cbwire";
+
+	/**
 	 * Injected RequestService so that we can access the current ColdBox RequestContext.
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
+	/**
+	 * Inject InlineComopnentBuilder
+	 */
+	property name="inlineComponentBuilder" inject="InlineComponentBuilder@cbwire";
 
 	/**
 	 * Returns the styles to be placed in our HTML head.
@@ -27,7 +36,7 @@ component accessors="true" singleton {
 	 * @return String
 	 */
 	function getStyles(){
-		return getController().getRenderer().renderView( view = "styles", module = "cbwire", args = { settings : getSettings() } );
+		return getRenderer().renderView( view = "styles", module = "cbwire", args = { settings : getSettings() } );
 	}
 
 	/**
@@ -36,7 +45,7 @@ component accessors="true" singleton {
 	 * @return String
 	 */
 	function getScripts(){
-		return getController().getRenderer().renderView( view = "scripts", module = "cbwire", args = { settings : getSettings() } );
+		return getRenderer().renderView( view = "scripts", module = "cbwire", args = { settings : getSettings() } );
 	}
 
 	/**
@@ -48,8 +57,7 @@ component accessors="true" singleton {
 	 * @returns string
 	 */
 	function entangle( required prop ){
-		var lastComponentID = getRequestService().getContext().getPrivateValue( "cbwire_lastest_rendered_id" );
-		return "window.Livewire.find( '#lastComponentID#' ).entangle( '#arguments.prop#' )";
+		return "window.Livewire.find( '#getLastRenderedId()#' ).entangle( '#arguments.prop#' )";
 	}
 
 	/**
@@ -58,18 +66,25 @@ component accessors="true" singleton {
 	 * @componentName String | Name of the cbwire component.
 	 */
 	function getRootComponentPath( required componentName ) {
-		var appMapping = getController().getSetting( "AppMapping" );
+		var appMapping = getAppMapping();
 		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
+		var componentPath = "";
 
-		if ( reFindNoCase( "#appMapping#\.", arguments.componentName ) ) {
-			return arguments.componentName;
-		} else {
-			return "#wireRoot#.#arguments.componentName#";
+		componentPath = reFindNoCase( "#appMapping#\.", arguments.componentName ) ? 
+							arguments.componentName :
+							"#wireRoot#.#arguments.componentName#";
+
+		var currentModule = getCurrentRequestModule();
+
+		if ( currentModule.len() ) {
+			componentPath = currentModule & "." & componentPath;
 		}
+
+		return componentPath;
 	}
 
 	/**
-	 * Returns a cbwire component using the root "HelloWorld" convention.
+	 * Returns a cbwire componentn.
 	 *
 	 * @componentName String | Name of the cbwire component.
 	 *
@@ -77,75 +92,22 @@ component accessors="true" singleton {
 	 */
 	function getRootComponent( required componentName ){
 		var componentPath = getRootComponentPath( arguments.componentName );
+
 		try {
 			return getWireBox().getInstance( componentPath );
 		} catch ( Injector.InstanceNotFoundException e ) {
-			// Check to see if an inline component exists
-			var inlinePath = replaceNoCase( componentPath, ".", "/", "all" );
-			inlinePath = expandPath( "/" & inlinePath & ".cfm" );
 			
-			if ( fileExists( inlinePath ) ) {
+			var inlineComponent = getInlineComponentBuilder()
+									.build( componentPath, arguments.componentName, getCurrentRequestModule() );
 
-				var fileContents = fileRead( inlinePath );
-				var inlineContents = "";
-				var remainingContents = "";
-
-				var startedWire = false;
-				var endedWire = false;
-
-				for ( var line in fileContents.listToArray( chr(10) ) ) {
-					if ( line contains "// @Wire" ) {
-						startedWire = true;
-						continue;
-					}
-					if ( line contains "// @EndWire" ) {
-						endedWire = true;
-						continue;
-					}
-
-					if ( startedWire && !endedWire ) {
-						inlineContents &= line & chr( 10 );
-					} else {
-						remainingContents &= line;
-					}
-				}
-
-				var currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
-
-				var emptyInlineComponent = fileRead( currentDirectory & "EmptyInlineComponent.cfc" );
-
-				emptyInlineComponent = replaceNoCase( emptyInlineComponent, "// Inline Contents Goes Here", inlineContents, "one" );
-
-				var uuid = createUUID();
-
-				fileWrite( currentDirectory & "tmp/#uuid#.cfc", emptyInlineComponent );
-				fileWrite( currentDirectory & "tmp/#uuid#.cfm", remainingContents );
-				var comp = getWireBox().getInstance( "cbwire.models.tmp.#uuid#" );
-
-				comp._setInlineComponentType( arguments.componentName );
-				comp._setInlineComponentId( uuid );
-
-				return comp;
-
-			} else {
+			if ( isNull( inlineComponent ) ) {
 				rethrow;
 			}
+
+			return inlineComponent;
 		}
 	}
 
-	/**
-	 * Returns the cbwire wiresLocation setting.
-	 * Defaults to 'wires'
-	 *
-	 * @return String
-	 */
-	function getWiresLocation(){
-		var settings = getSettings();
-		if ( structKeyExists( settings, "wiresLocation" ) ) {
-			return settings.wiresLocation;
-		}
-		return "wires";
-	}
 
 	/**
 	 * Finds and returns our cbwire component by name, either using
@@ -167,6 +129,7 @@ component accessors="true" singleton {
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
 			var params = listToArray( arguments.componentName, "@" );
+
 			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
@@ -176,14 +139,6 @@ component accessors="true" singleton {
 		return comp;
 	}
 
-	/**
-	 * Returns the current ColdBox RequestContext event.
-	 *
-	 * @return RequestContext
-	 */
-	function getEvent(){
-		return getRequestService().getContext();
-	}
 
 	/**
 	 * Primary entry point for cbwire requests.
@@ -226,6 +181,60 @@ component accessors="true" singleton {
 				mimeType = "#metaJSON.contentType#/#metaJSON.contentSubType#"
 			)
 			.noRender();
+	}
+
+	/**
+	 * Returns the module of the current request.
+	 * 
+	 * @return string
+	 */
+	function getCurrentRequestModule() {
+		return cbwireRequest.hasFingerprint() ? cbwireRequest.getFingerprint().module : getRequestService().getContext().getCurrentModule();
+	}
+	/**
+	 * Returns the app mapping.
+	 * 
+	 * @return string
+	 */
+	function getAppMapping() {
+		return getController().getSetting( "AppMapping" );
+	}
+
+	/**
+	 * Returns the current ColdBox RequestContext event.
+	 *
+	 * @return RequestContext
+	 */
+	function getEvent(){
+		return getRequestService().getContext();
+	}
+
+	/**
+	 * Returns the last rendered id.
+	 * 
+	 * @return string
+	 */
+	function getLastRenderedId() {
+		return getRequestService().getContext().getPrivateValue( "cbwire_lastest_rendered_id" );
+	}
+
+	/**
+	 * Returns the renderer.
+	 * 
+	 * @return Renderer
+	 */
+	function getRenderer() {
+		return getController().getRenderer();
+	}
+
+	/**
+	 * Returns the cbwire wiresLocation setting.
+	 * Defaults to 'wires'
+	 *
+	 * @return String
+	 */
+	function getWiresLocation(){
+		return structKeyExists( getSettings(), "wiresLocation" ) ? getSettings().wiresLocation : "wires";
 	}
 
 }
