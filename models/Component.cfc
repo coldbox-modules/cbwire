@@ -488,6 +488,7 @@ component accessors="true" {
 	 */
 	function _validate(){
 		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		arguments.constraints = _getConstraints();
 		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
 		return getValidationResult();
 	}
@@ -1258,7 +1259,9 @@ component accessors="true" {
 		structAppend( arguments.args, _getRenderingOverrides(), true );
 
 		// Provide validation results, either validation results we captured from our action or run them now.
-		arguments.args[ "validation" ] = isNull( getValidationResult() ) ? _validate() : getValidationResult();
+		if ( _cbValidationInstalled() ) {
+			arguments.args[ "validation" ] = isNull( getValidationResult() ) ? _validate() : getValidationResult();
+		}
 
 		// Include a reference to the component's id
 		arguments.args[ "_id" ] = get_id();
@@ -1286,6 +1289,27 @@ component accessors="true" {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Returns true if cbValidation is installed.
+	 * 
+	 * @return boolean
+	 */
+	function _cbValidationInstalled() {
+		return getController()
+			.getModuleService()
+			.getLoadedModules()
+			.findNoCase( "cbvalidation" );
+	}
+
+	/**
+	 * Returns the constratins defined on the component.
+	 * 
+	 * @return struct
+	 */
+	function _getConstraints() {
+		return variables.keyExists( "constraints" ) ? variables.constraints : {};
 	}
 
 	function _isInlineComponent() {
