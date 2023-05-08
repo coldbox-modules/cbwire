@@ -33,7 +33,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				"locale" : "en",
 				"method" : "GET",
 				"id" : "some-id",
-				"name" : arguments.componentName
+				"name" : arguments.componentName,
+				"module": ""
 			},
 			"serverMemo" : {
 				"checksum" : "some-checksum",
@@ -82,9 +83,11 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var rc = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
 
+			
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent._setComputedProperties( getComputed() );
 			}
+
 			var memento = cbwireComponent
 				._hydrate()
 				._subsequentRenderIt()
@@ -94,8 +97,12 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			return html;
 		} else {
 			var cbwireComponent = getWireInstance();
+
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent._setComputedProperties( getComputed() );
+				var computedProperties = cbwireComponent._getComputedProperties();
+				getComputed().each( function( key, value ) {
+					computedProperties[ key ] = value;
+				} );
 			}
 			var rendering = cbwireComponent
 				._mount( getParameters() )
@@ -134,21 +141,25 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	function see( required needle ){
 		renderIt();
 		expect( getRendering() ).toInclude( needle );
+		return this;
 	}
 
 	function dontSee( required needle ){
 		renderIt();
 		expect( getRendering() ).notToInclude( needle );
+		return this;
 	}
 
 	function seeData( required dataProperty, required value ){
 		renderIt();
 		expect( _getDataProperties()[ dataProperty ] ).toBe( value );
+		return this;
 	}
 
 	function dontSeeData( required dataProperty, required value ){
 		renderIt();
 		expect( _getDataProperties()[ dataProperty ] ).notToBe( value );
+		return this;
 	}
 
 	private function _getDataProperties(){
