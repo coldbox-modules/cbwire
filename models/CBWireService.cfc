@@ -66,6 +66,7 @@ component accessors="true" singleton {
 	 * @componentName String | Name of the cbwire component.
 	 */
 	function getRootComponentPath( required componentName ) {
+
 		var appMapping = getAppMapping();
 		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 		var componentPath = "";
@@ -76,7 +77,7 @@ component accessors="true" singleton {
 
 		var currentModule = getCurrentRequestModule();
 
-		if ( currentModule.len() ) {
+		if ( currentModule.len() && currentModule != "cbwire" ) {
 			componentPath = currentModule & "." & componentPath;
 		}
 

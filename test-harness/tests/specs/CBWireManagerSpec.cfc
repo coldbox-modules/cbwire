@@ -31,7 +31,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					"locale" : "en",
 					"name" : "wires.TestComponent",
 					"id" : "0686d74bD2d2490E8FbA",
-					"method" : "GET"
+					"method" : "GET",
+					"module": ""
 				};
 
 				event.setValue( "wireComponent", "TestComponent" );

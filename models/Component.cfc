@@ -315,47 +315,53 @@ component accessors="true" {
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Arrays | The params passed with the emitter.
-	 * @trackEmit Boolean | True if you want to notify the UI that the emit occurred.
 	 */
-	function emit( required eventName, array parameters = [], track = true ){	
+	function emit( required eventName ){
+
+		if ( !arguments.keyExists( "track" ) ) {
+			arguments.track = true;
+		}
+
+		var parameters = _parseEmitArguments( argumentCollection=arguments );
+
 		// Invoke 'preEmit' event
-		_invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = arguments.parameters );
+		_invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = parameters );
 
 		// Invoke 'preEmit[EventName]' event
-		_invokeMethod( methodName = "preEmit" & arguments.eventName, parameters = arguments.parameters );
+		_invokeMethod( methodName = "preEmit" & arguments.eventName, parameters = parameters );
 
 		// Capture the emit as we will need to notify the UI in our response
 		if ( arguments.track ) {
 			var emitter = {
 				"event" : arguments.eventName,
-				"params" : isArray( arguments.parameters ) ? arguments.parameters : [ arguments.parameters ]
+				"params" : parameters
 			};
 
 			_trackEmit( emitter );
 		}
 
 		// Invoke 'postEmit' event
-		_invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = arguments.parameters );
+		_invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = parameters );
 
 		// Invoke 'postEmit[EventName]' event
-		_invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = arguments.parameters );
+		_invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = parameters );
 	}
 
 	/**
- * Emits an event that is scoped to just the current cbwire component.
+	 * Emits an event that is scoped to just the current cbwire component.
 	 *
 	 * Additional parameters can be passed through.
 
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct | The emitter's params.
 	 *
 	 * @return Void
 	 */
-	function emitSelf( required eventName, parameters = {} ) {
+	function emitSelf( required eventName ) {
+		var parameters = _parseEmitArguments( argumentCollection=arguments );
+
 		var emitter = {
 			"event" : arguments.eventName,
-			"params" : arguments.parameters,
+			"params" : parameters,
 			"selfOnly" : true
 		};
 
@@ -368,14 +374,15 @@ component accessors="true" {
 	 *
 	 * Additional parameters can be passed through.
 	 * @eventName String | The name of our event to emit.
-	 * @parameters Struct  The emitter's params.
 	 *
 	 * @return Void
 	 */
-	function emitUp( required eventName, parameters = {} ){
+	function emitUp( required eventName ){
+		var parameters = _parseEmitArguments( argumentCollection=arguments );
+		
 		var emitter = {
 			"event" : arguments.eventName,
-			"params" : arguments.parameters,
+			"params" : parameters,
 			"ancestorsOnly" : true
 		};
 
@@ -384,19 +391,22 @@ component accessors="true" {
 	}
 
 	/**
-	 * Emits an event that is scoped to only a specific compnoent.
+	 * Emits an event that is scoped to only a specific component.
 	 *
 	 * Additional parameters can be passed through.
 	 * @eventName String | The name of our event to emit.
-	 * @componentName String | The name of our component to emit to.
-	 * @parameters Array | The emitter's params. Must be an array to preserve order of arguments that are return to cbwire.
 	 *
 	 * @return Void
 	 */
-	function emitTo( required eventName, required componentName, parameters = [] ){
+	function emitTo( required componentName, required eventName ){
+		var parameters = _parseEmitArguments( argumentCollection=arguments );
+
+		// Remove the first param since it's our component name.
+		parameters.deleteAt( 1 );
+
 		var emitter = {
 			"event" : arguments.eventName,
-			"params" : arguments.parameters,
+			"params" : parameters,
 			"to" : arguments.componentName
 		};
 
@@ -486,9 +496,9 @@ component accessors="true" {
 	 *
 	 * @return cbvalidation.model.result.IValidationResult
 	 */
-	function _validate(){
+	function _validate( constraints ){
 		arguments.target = isNull( arguments.target ) ? this : arguments.target;
-		arguments.constraints = _getConstraints();
+		arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
 		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
 		return getValidationResult();
 	}
@@ -1301,6 +1311,27 @@ component accessors="true" {
 			.getModuleService()
 			.getLoadedModules()
 			.findNoCase( "cbvalidation" );
+	}
+
+	/**
+	 * Parse out emit arguments and parameters
+	 */
+	function _parseEmitArguments() {
+		var argumentsRef = arguments;
+		return arguments.reduce( function ( agg, argument ) {
+
+			if ( argument == "eventName" ) return agg;
+
+			if ( isArray( argumentsRef[ argument ] ) ) {
+				argumentsRef[ argument ].each( function( nestedArgument ) {
+					agg.append( nestedArgument );
+				} );
+			} else {
+				agg.append( argumentsRef[ argument ] );
+			}
+
+			return agg;
+		}, [] );
 	}
 
 	/**
