@@ -51,11 +51,11 @@ component accessors="true" singleton {
         var endedWire = false;
 
         for ( var line in fileContents.listToArray( chr(10) ) ) {
-            if ( line contains "// @Wire" ) {
+            if ( line contains "<cfscript>" ) {
                 startedWire = true;
                 continue;
             }
-            if ( line contains "// @EndWire" ) {
+            if ( line contains "</cfscript>" ) {
                 endedWire = true;
                 continue;
             }
