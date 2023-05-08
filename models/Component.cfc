@@ -237,7 +237,7 @@ component accessors="true" {
 				.saveFlash();
 		}
 
-		set_redirectTo( relocationURL2 );
+		set_redirectTo( relocationURL );
 	}
 
 	/**
