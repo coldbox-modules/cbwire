@@ -307,8 +307,11 @@ component accessors="true" {
 		boolean applyWiring = true
 	){
 		var templateRendering = _view( argumentCollection = arguments );
+
+		var rendering = applyWiring ? _applyWiringToOuterElement( templateRendering ) : templateRendering;
+
 		// Add properties to top element to make Livewire actually work.
-		return applyWiring ? _applyWiringToOuterElement( templateRendering ) : templateRendering;
+		return rendering;
 	}
 
 	/**
@@ -651,7 +654,7 @@ component accessors="true" {
 			},
 			"effects" : { "listeners" : _getListenerNames() },
 			"serverMemo" : {
-				"children" : [],
+				"children" : _getChildren( rendering ),
 				"errors" : [],
 				"htmlHash" : _getHTMLHash( rendering ),
 				"data" : _getState( includeComputed = false ),
@@ -854,7 +857,7 @@ component accessors="true" {
 		if ( !variables._finishedUpload ) {
 			memento.effects[ "path" ] = _getPath();
 			memento.serverMemo[ "htmlHash" ] = _getHTMLHash( rendering );
-			memento.serverMemo[ "children" ] = isArray( variables._children ) ? [] : variables._children;
+			//memento.serverMemo[ "children" ] = isArray( variables._children ) ? [] : variables._children;
 		}
 
 		return memento;
@@ -1284,6 +1287,8 @@ component accessors="true" {
 
 		arguments.args[ "computed" ] = variables.computed;
 
+		arguments.args[ "parent" ] = this;
+
 		if ( structKeyExists( this, "onRender" ) ) {
 			// Render custom onRender method
 			var result = onRender( args = arguments.args );
@@ -1299,6 +1304,34 @@ component accessors="true" {
 		}
 
 		return result;
+	}
+
+
+	/**
+	 * Parses out any directly rendered children for this component.
+	 * 
+	 * @rendering string | The rendering to parse
+	 * @return struct
+	 */
+	function _getChildren( required string rendering ) {
+		var matches = reMatchNoCase( "<[A-Za-z]+ wire:id=""[A-Za-z0-9]+""", rendering )
+			.filter( function( match ) {
+				return !findNoCase( variables._id, match );
+			} );
+
+		return matches.reduce( function( agg, match, index ) {
+			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var id = idRegexResult.match[ 2 ];
+
+			var tagRegexResult = reFindNoCase( "^<([A-Za-z]+) wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var tag = tagRegexResult.match[ 2 ];			
+
+			agg[ variables._id & "-" & index ] = {
+				"id": id,
+        		"tag": tag
+			};
+			return agg;
+		}, {} );
 	}
 
 	/**

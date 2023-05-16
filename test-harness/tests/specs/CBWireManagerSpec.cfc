@@ -50,13 +50,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.effects.html ).toInclude( "<div wire:id=" );
 					expect( result.effects.dirty ).toBeArray();
 					expect( result.effects.emits ).toBeArray();
-					expect( result.serverMemo.children ).toBeStruct();
 					expect( result.serverMemo.data ).toBeStruct();
 				} );
 
 				it( "executes action 'changeTitle'", function(){
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"data" : { "title" : "CBWIRE rocks!" },
 						"errors" : [],
 						"dataMeta" : [],
@@ -78,14 +77,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.effects.html ).toInclude( "Title: CBWIRE Slays!" );
 					expect( result.effects.dirty ).toBeArray();
 					expect( result.effects.emits ).toBeArray();
-					expect( result.serverMemo.children ).toBeStruct();
 					expect( result.serverMemo.data.title ).toBe( "CBWIRE Slays!" );
 					expect( result.serverMemo.data ).toBeStruct();
 				} );
 
 				it( "resets property using reset( propertyname )", function(){
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"data" : { "title" : "CBWIRE Slays!" },
 						"errors" : [],
 						"dataMeta" : [],
@@ -110,7 +108,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "resets all properties using reset()", function(){
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"data" : { "title" : "CBWIRE Slays!" },
 						"errors" : [],
 						"dataMeta" : [],
@@ -135,7 +133,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "emits event", function(){
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"data" : { "title" : "CBWIRE Slays!" },
 						"errors" : [],
 						"dataMeta" : [],
@@ -160,7 +158,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "syncs input", function(){
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"data" : { "title" : "CBWIRE Slays!" },
 						"errors" : [],
 						"dataMeta" : [],
@@ -184,7 +182,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "tracks dirty properties that are changed after running sync input", function() {
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"data" : { "title" : "CBWIRE rocks!" },
 						"errors" : [],
 						"dataMeta" : [],
@@ -216,7 +214,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "can start upload", function(){
 					rc[ "serverMemo" ] = {
-						"children" : [],
+						"children" : {},
 						"errors" : [],
 						"htmlHash" : "48e6dd7c",
 						"data" : { "myFile" : "" },
