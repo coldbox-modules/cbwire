@@ -1314,7 +1314,7 @@ component accessors="true" {
 	 * @return struct
 	 */
 	function _getChildren( required string rendering ) {
-		var matches = reMatchNoCase( "<[A-Za-z]+ wire:id=""[A-Za-z0-9]+""", rendering )
+		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9]+""", rendering )
 			.filter( function( match ) {
 				return !findNoCase( variables._id, match );
 			} );
@@ -1323,9 +1323,9 @@ component accessors="true" {
 			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9]+)""", match, 1, true );
 			var id = idRegexResult.match[ 2 ];
 
-			var tagRegexResult = reFindNoCase( "^<([A-Za-z]+) wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var tagRegexResult = reFindNoCase( "<([A-Za-z]+)\s*wire:id=""([A-Za-z0-9]+)""", match, 1, true );
 			var tag = tagRegexResult.match[ 2 ];			
-
+			
 			agg[ variables._id & "-" & index ] = {
 				"id": id,
         		"tag": tag
