@@ -63,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "wireStyles() renders the wire styles", function(){
 				var event = get( "/examples/wireStyles" );
 				var content = event.getRenderedContent();
-				expect( content ).toInclude( "<!-- Livewire Styles -->" );
+				expect( content ).toInclude( "<!-- CBWIRE Styles -->" );
 				expect( content ).toInclude( "@keyframes livewireautofill { from {} }" );
 			} );
 

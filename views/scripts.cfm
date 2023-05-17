@@ -1,7 +1,7 @@
 <cfset manifest = getInstance( "coldbox:setting:manifest@cbwire" )>
 
 <cfoutput>
-<!-- Livewire Scripts -->
+<!-- CBWIRE Scripts -->
 <script src="#event.getModuleRoot( 'cbwire' )#/includes/js#manifest["/livewire.js"]#" data-turbo-eval="false" data-turbolinks-eval="false"></script>
 <script data-turbo-eval="false" data-turbolinks-eval="false">
     if (window.livewire) {
