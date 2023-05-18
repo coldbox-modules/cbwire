@@ -321,11 +321,11 @@ component accessors="true" {
 	 */
 	function emit( required eventName ){
 
+		var parameters = _parseEmitArguments( argumentCollection=arguments );
+
 		if ( !arguments.keyExists( "track" ) ) {
 			arguments.track = true;
 		}
-
-		var parameters = _parseEmitArguments( argumentCollection=arguments );
 
 		// Invoke 'preEmit' event
 		_invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = parameters );
@@ -1349,7 +1349,7 @@ component accessors="true" {
 	/**
 	 * Parse out emit arguments and parameters
 	 */
-	function _parseEmitArguments() {
+	function _parseEmitArguments( required eventName ) {
 		var argumentsRef = arguments;
 		return arguments.reduce( function ( agg, argument ) {
 
