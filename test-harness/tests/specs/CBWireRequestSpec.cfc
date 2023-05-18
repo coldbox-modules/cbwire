@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					event.setValue( "updates", [ { "type" : "callMethod" } ] );
 					expect( wireRequest.getUpdates() ).toBeArray();
 					expect( arrayLen( wireRequest.getUpdates() ) ).toBe( 1 );
-					expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "WireUpdate" );
+					expect( wireRequest.getUpdates()[ 1 ] ).toBeInstanceOf( "BaseUpdate" );
 				} );
 
 				it( "returns type of callmethod", function(){

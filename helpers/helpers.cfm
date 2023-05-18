@@ -3,14 +3,22 @@
     * Returns the styles to be placed in HTML head
     */
     function wireStyles() {
-        return getInstance( "CBWireHTML@cbwire" ).getStyles();
+        return getInstance( "CBWireService@cbwire" ).getStyles();
     }
 
     /**
     * Returns the JS to be placed in HTML body
     */
     function wireScripts() {
-        return getInstance( "CBWireHTML@cbwire" ).getScripts();
+        return getInstance( "CBWireService@cbwire" ).getScripts();
+    }
+
+    /**
+     * Returns a reference to the LivewireJS entangle method
+     * which provides model binding between AlpineJS and CBWIRE.
+     */
+    function entangle() {
+        return getInstance( "CBWireService@cbwire" ).entangle( argumentCollection=arguments );
     }
 
     /**
@@ -23,10 +31,9 @@
 	 * @return Component
 	 */
     function wire( componentName, parameters = {} ) {
-        return getInstance( "CBWireManager@cbwire" )
+        return getInstance( "CBWireService@cbwire" )
                    .getComponentInstance( arguments.componentName )
-                   .getEngine()
-                   .mount( arguments.parameters )
-                   .renderIt();
+                   ._mount( arguments.parameters )
+                   ._renderIt();
     }
 </cfscript>
