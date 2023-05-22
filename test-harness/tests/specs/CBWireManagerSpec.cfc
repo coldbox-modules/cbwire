@@ -53,6 +53,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.serverMemo.data ).toBeStruct();
 				} );
 
+				it( "handles redirects via relocate()", function() {
+					rc[ "serverMemo" ] = {
+						"children" : [],
+						"data" : { "title" : "CBWIRE rocks!" },
+						"errors" : [],
+						"dataMeta" : [],
+						"checksum" : "BCF81523602F2382F82B9CD8A99410FA",
+						"htmlHash" : "ed290ae9"
+					};
+
+					rc[ "updates" ] = [
+						{
+							"type" : "callMethod",
+							"payload" : {
+								"id" : "zqs3",
+								"method" : "performRedirect",
+								"params" : []
+							}
+						}
+					];
+					var result = cbwireManager.handleIncomingRequest( event );
+					expect( result.effects.redirect ).toInclude( "/index.cfm/main/index" );
+				} );
+
 				it( "executes action 'changeTitle'", function(){
 					rc[ "serverMemo" ] = {
 						"children" : {},
