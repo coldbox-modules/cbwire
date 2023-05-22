@@ -1,6 +1,6 @@
 component {
 
-    property name="cbwireManager" inject="CBWireManager@cbwire";
+    property name="cbwireService" inject="CBWireService@cbwire";
 
     /**
      * Primary entry point for cbwire requests.
@@ -10,7 +10,7 @@ component {
      * URI: /livewire/messages/:wireComponent
      */
     function index( event, rc, prc ){
-        return cbwireManager.handleIncomingRequest( event, rc, prc );
+        return cbwireService.handleIncomingRequest( event, rc, prc );
     }
 
     /**
@@ -19,7 +19,7 @@ component {
      * URI: /livewire/upload-file
      */
     function uploadFile( event, rc, prc ) {
-        return cbwireManager.handleFileUpload( event, rc, prc );
+        return cbwireService.handleFileUpload( event, rc, prc );
     }
 
     /**
@@ -28,7 +28,7 @@ component {
      * URI: /livewire/previe-file/:uploadUUID
      */
     function previewFile( event, rc, prc ) {
-        return cbwireManager.handlePreviewFile( event, rc, prc );
+        return cbwireService.handlePreviewFile( event, rc, prc );
     }
 
 }

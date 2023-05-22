@@ -1,9 +1,8 @@
 <cfset manifest = getInstance( "coldbox:setting:manifest@cbwire" )>
-<cfset moduleRootURI = getInstance( "coldbox:setting:moduleRootURI@cbwire" )>
 
 <cfoutput>
-<!-- Livewire Scripts -->
-<script src="#moduleRootURI#/includes/js#manifest["/livewire.js"]#" data-turbo-eval="false" data-turbolinks-eval="false"></script>
+<!-- CBWIRE Scripts -->
+<script src="#event.getModuleRoot( 'cbwire' )#/includes/js#manifest["/livewire.js"]#" data-turbo-eval="false" data-turbolinks-eval="false"></script>
 <script data-turbo-eval="false" data-turbolinks-eval="false">
     if (window.livewire) {
 	    console.warn('Livewire: It looks like Livewire\'s ##wireScripts()## JavaScript assets have already been loaded. Make sure you aren\'t loading them twice.')

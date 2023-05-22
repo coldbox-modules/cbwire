@@ -32,10 +32,6 @@ component {
 			 */
 			"componentLocation" : "wires",
 			/**
-			 * The default root module URI for URLs.
-			 */
-			"moduleRootURI" : "/modules/cbwire",
-			/**
 			 * Determines if Turbo should be enabled
 			 */
 			"enableTurbo" : false,

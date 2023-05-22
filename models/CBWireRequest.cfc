@@ -190,9 +190,8 @@ component accessors="true" singleton {
 	 */
 	function renderIt( componentName, parameters = {}, key = "" ){
 		return getComponentInstance( arguments.componentName )
-			.getEngine()
-			.mount( arguments.parameters, arguments.key )
-			.renderIt();
+			._mount( arguments.parameters, arguments.key )
+			._renderIt();
 	}
 
 	/**
@@ -204,15 +203,46 @@ component accessors="true" singleton {
 	 */
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
-		arguments.comp.getEngine().invokeMethod( "preUpdate" );
+		arguments.comp._invokeMethod( "preUpdate" );
+
+		/*
+			Run the Sync Input's first and track 
+			what fields are being synced. We do this
+			so later we can determine if any data properties
+			changed after calling actions.
+		*/
+		var syncedProperties = getUpdates().filter( function( update ) {
+			return isInstanceOf( update, "SyncInput" );
+		} ).map( function( update ) {
+			// Apply the update
+			arguments.update.apply( comp );
+			return update.getName();
+		} );
+
+		var afterSyncInputState = duplicate( comp._getDataProperties() );
 
 		// Update the state of our component with each of our updates
-		getUpdates().each( function( update ){
+		getUpdates().filter( function( update ) {
+			return !isInstanceOf( update, "SyncInput" );
+		} ).each( function( update ) {
 			arguments.update.apply( comp );
 		} );
 
 		// Fire our postUpdate lifecycle event.
-		arguments.comp.getEngine().invokeMethod( "preUpdate" );
+		arguments.comp._invokeMethod( "preUpdate" );
+
+		// Determine "dirty" properties
+		var dirtyProperties = syncedProperties.filter( function( property ) {
+			var previousValue = afterSyncInputState[ property ];
+			var currentValue = comp._getDataProperties()[ property ];
+			if ( isArray( previousValue ) && isArray( currentValue ) ) {
+				return !previousValue.equals( currentValue );
+			} else {
+				return previousValue != currentValue;
+			}
+		} ).each( function( dirtyProperty ) {
+			comp._addDirtyProperty( dirtyProperty );
+		});
 	}
 
 	/**

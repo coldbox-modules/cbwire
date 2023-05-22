@@ -6,7 +6,7 @@
     "description":"",
     "dependencies":{
         "coldbox":"^6.0.0",
-        "cbvalidation":"3.3.0+10"
+        "cbvalidation":"^4.3.0+24"
     },
     "devDependencies":{
         "testbox":"^4.0.0",

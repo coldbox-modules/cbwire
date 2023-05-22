@@ -2,7 +2,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	property name="wirebox" inject="wirebox";
 
-	property name="cbwireManager" inject="CBWireManager@cbwire";
+	property name="cbwireService" inject="CBWireService@cbwire";
 
 	/**
 	 * Injected RequestService so that we can access the current ColdBox RequestContext.
@@ -33,7 +33,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				"locale" : "en",
 				"method" : "GET",
 				"id" : "some-id",
-				"name" : arguments.componentName
+				"name" : arguments.componentName,
+				"module": ""
 			},
 			"serverMemo" : {
 				"checksum" : "some-checksum",
@@ -69,7 +70,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	function toggle( required name ){
-		var data = getDataProperties();
+		var data = _getDataProperties();
 		if ( structKeyExists( data, name ) && isBoolean( data[ name ] ) ) {
 			data[ name ] = !data[ name ];
 		}
@@ -82,26 +83,30 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var rc = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
 
+			
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent.getEngine().setComputedProperties( getComputed() );
+				cbwireComponent._setComputedProperties( getComputed() );
 			}
+
 			var memento = cbwireComponent
-				.getEngine()
-				.hydrate()
-				.subsequentRenderIt()
-				.getMemento();
+				._hydrate()
+				._subsequentRenderIt()
+				._getMemento();
 			var html = memento[ "effects" ][ "html" ];
 			setRendering( html );
 			return html;
 		} else {
 			var cbwireComponent = getWireInstance();
+
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent.getEngine().setComputedProperties( getComputed() );
+				var computedProperties = cbwireComponent._getComputedProperties();
+				getComputed().each( function( key, value ) {
+					computedProperties[ key ] = value;
+				} );
 			}
 			var rendering = cbwireComponent
-				.getEngine()
-				.mount( getParameters() )
-				.renderIt();
+				._mount( getParameters() )
+				._renderIt();
 			setRendering( rendering );
 			return rendering;
 		}
@@ -136,34 +141,38 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	function see( required needle ){
 		renderIt();
 		expect( getRendering() ).toInclude( needle );
+		return this;
 	}
 
 	function dontSee( required needle ){
 		renderIt();
 		expect( getRendering() ).notToInclude( needle );
+		return this;
 	}
 
 	function seeData( required dataProperty, required value ){
 		renderIt();
-		expect( getDataProperties()[ dataProperty ] ).toBe( value );
+		expect( _getDataProperties()[ dataProperty ] ).toBe( value );
+		return this;
 	}
 
 	function dontSeeData( required dataProperty, required value ){
 		renderIt();
-		expect( getDataProperties()[ dataProperty ] ).notToBe( value );
+		expect( _getDataProperties()[ dataProperty ] ).notToBe( value );
+		return this;
 	}
 
-	private function getDataProperties(){
-		return getWireInstance().getEngine().getDataProperties();
+	private function _getDataProperties(){
+		return getWireInstance()._getDataProperties();
 	}
 
 	private function getComputedProperties(){
-		return getWireInstance().getEngine().getComputedProperties();
+		return getWireInstance()._getComputedProperties();
 	}
 
 	private function getWireInstance(){
 		if ( isNull( getCBWireInstance() ) ) {
-			setCBWireInstance( cbwireManager.getComponentInstance( getComponentName() ) );
+			setCBWireInstance( cbwireService.getComponentInstance( getComponentName() ) );
 		}
 		return getCBWireInstance();
 	}

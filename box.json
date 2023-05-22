@@ -1,6 +1,6 @@
 {
     "name":"cbwire",
-    "version":"2.2.6",
+    "version":"3.0.0-snapshot",
     "location":"forgeboxStorage",
     "author":"Ortus Solutions <info@ortussolutions.com",
     "homepage":"https://github.com/coldbox-modules/cbwire",
@@ -22,7 +22,6 @@
     ],
     "contributors":[],
     "dependencies":{
-        "cbvalidation":"^3.3.0+10"
     },
     "devDependencies":{
         "commandbox-cfformat":"*",
@@ -45,6 +44,5 @@
         "runner":"http://localhost:60299/tests/runner.cfm"
     },
     "installPaths":{
-        "cbvalidation":"modules/cbvalidation/"
     }
 }
