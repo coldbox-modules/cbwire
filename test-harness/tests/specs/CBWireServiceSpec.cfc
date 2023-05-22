@@ -73,7 +73,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							}
 						}
 					];
-					var result = cbwireManager.handleIncomingRequest( event );
+					var result = cbwireService.handleIncomingRequest( event );
 					expect( result.effects.redirect ).toInclude( "/index.cfm/main/index" );
 				} );
 
