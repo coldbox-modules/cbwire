@@ -13,6 +13,9 @@
         <a class="btn btn-primary w-100" href="/examples/ComputedProperties">Computed Properties</a>
     </div>
     <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/ComputedPropertiesCache">Computed Properties Cache</a>
+    </div>
+    <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/DataBinding">Data Binding</a>
     </div>
     <div class="col-3 pt-3">

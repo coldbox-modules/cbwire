@@ -59,6 +59,7 @@ component accessors="true" {
 		variables._inlineComponentType = "";
 		variables._inlineComponentId = "";
 		variables._module = "";
+		variables._cache = {};
 	}
 
 	/**
@@ -1298,6 +1299,7 @@ component accessors="true" {
 				cfmodule(
 					template = "RendererEncapsulator.cfm",
 					cbwireTemplate = _getTemplatePath(),
+					cbwireComponent = this,
 					args = arguments.args
 				);
 			}
@@ -1415,5 +1417,30 @@ component accessors="true" {
 	 */
 	function _setModule( value ) {
 		variables._module = arguments.value;
+	}
+
+	/**
+	 * Returns the computed properties wrapped with 
+	 * checks for caching.
+	 * 
+	 * @return struct
+	 */
+	function _getComputedPropertiesWithCaching() {
+		var result = {};
+		// Loop through computed properties and setup caching checks
+    	_getComputedProperties().each( function( propertyName, method ) {
+			result[ propertyName ] = function( caching = true ) {
+				if ( caching ) {
+					if ( !variables._cache.keyExists( propertyName ) ) {
+						variables._cache[ propertyName ] = method();
+					}
+					return variables._cache[ propertyName ];
+				} else {
+					return method();
+				}
+			};
+		} );
+
+		return result;
 	}
 }
