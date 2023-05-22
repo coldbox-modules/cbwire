@@ -86,6 +86,161 @@ component accessors="true" {
 	}
 
 	/**
+	 * Relocate user browser requests to other events, URLs, or URIs.
+	 *
+	 * @event             The name of the event to relocate to, if not passed, then it will use the default event found in your configuration file.
+	 * @queryString       The query string or a struct to append, if needed. If in SES mode it will be translated to convention name value pairs
+	 * @addToken          Wether to add the tokens or not to the relocation. Default is false
+	 * @persist           What request collection keys to persist in flash RAM automatically for you
+	 * @persistStruct     A structure of key-value pairs to persist in flash RAM automatically for you
+	 * @ssl               Whether to relocate in SSL or not. You need to explicitly say TRUE or FALSE if going out from SSL. If none passed, we look at the even's SES base URL (if in SES mode)
+	 * @baseURL           Use this baseURL instead of the index.cfm that is used by default. You can use this for SSL or any full base url you would like to use. Ex: https://mysite.com/index.cfm
+	 * @postProcessExempt Do not fire the postProcess interceptors, by default it does
+	 * @URL               The full URL you would like to relocate to instead of an event: ex: URL='http://www.google.com'
+	 * @URI               The relative URI you would like to relocate to instead of an event: ex: URI='/mypath/awesome/here'
+	 *
+	 * @return void
+	 */
+	function relocate(
+		event = "",
+		queryString = "",
+		boolean addToken = false,
+		persist = "",
+		struct persistStruct = structNew()
+		boolean ssl,
+		baseURL = "",
+		boolean postProcessExempt = false,
+		URL,
+		URI
+	){
+		// Determine the type of relocation
+		var relocationType = "SES";
+		var relocationURL = "";
+		var eventName = getController().getConfigSettings()[ "EventName" ];
+		var frontController = listLast( CGI.SCRIPT_NAME, "/" );
+		var oRequestContext = getController().getRequestService().getContext();
+		var routeString = 0;
+
+		// Determine relocation type
+		if ( !isNull( arguments.url ) && len( arguments.url ) ) {
+			relocationType = "URL";
+		}
+		if ( !isNull( arguments.URI ) && len( arguments.URI ) ) {
+			relocationType = "URI";
+		}
+
+		// Cleanup event string to default if not sent in
+		if ( len( trim( arguments.event ) ) eq 0 ) {
+			arguments.event = getController().getSetting( "DefaultEvent" );
+		}
+
+		// Query String Struct to String
+		if ( isStruct( arguments.queryString ) ) {
+			arguments.queryString = arguments.queryString
+				.reduce( function( result, key, value ){
+					arguments.result.append( "#encodeForURL( arguments.key )#=#encodeForURL( arguments.value )#" );
+					return arguments.result;
+				}, [] )
+				.toList( "&" );
+		}
+
+		// Overriding Front Controller via baseURL argument
+		if ( len( trim( arguments.baseURL ) ) ) {
+			frontController = arguments.baseURL;
+		}
+
+		// Relocation Types
+		switch ( relocationType ) {
+			// FULL URL relocations
+			case "URL": {
+				relocationURL = arguments.URL;
+				// Check SSL?
+				if ( !isNull( arguments.ssl ) ) {
+					relocationURL = getController().updateSSL( relocationURL, arguments.ssl );
+				}
+				// Query String?
+				if ( len( trim( arguments.queryString ) ) ) {
+					relocationURL = relocationURL & "?#arguments.queryString#";
+				}
+				break;
+			}
+
+			// URI relative relocations
+			case "URI": {
+				relocationURL = arguments.URI;
+				// Query String?
+				if ( len( trim( arguments.queryString ) ) ) {
+					relocationURL = relocationURL & "?#arguments.queryString#";
+				}
+				break;
+			}
+
+			// Default event relocations
+			default: {
+				// Convert module into proper entry point
+				if ( listLen( arguments.event, ":" ) > 1 ) {
+					var mConfig = getController().getSetting( "modules" );
+					var module = listFirst( arguments.event, ":" );
+					if ( structKeyExists( mConfig, module ) ) {
+						arguments.event = mConfig[ module ].inheritedEntryPoint & "/" & listRest( arguments.event, ":" );
+					}
+				}
+				// Route String start by converting event syntax to / syntax
+				routeString = replace( arguments.event, ".", "/", "all" );
+				// Convert Query String to convention name value-pairs
+				if ( len( trim( arguments.queryString ) ) ) {
+					// If the routestring ends with '/' we do not want to
+					// double append '/'
+					if ( right( routeString, 1 ) NEQ "/" ) {
+						routeString = routeString & "/" & replace( arguments.queryString, "&", "/", "all" );
+					} else {
+						routeString = routeString & replace( arguments.queryString, "&", "/", "all" );
+					}
+					routeString = replace( routeString, "=", "/", "all" );
+				}
+
+				// Get Base relocation URL from context
+				relocationURL = oRequestContext.getSESBaseURL();
+				// if the sesBaseURL is nothing, set it to the setting
+				if ( !len( relocationURL ) ) {
+					relocationURL = getController().getSetting( "sesBaseURL" );
+				}
+				// add the trailing slash if there isnt one
+				if ( right( relocationURL, 1 ) neq "/" ) {
+					relocationURL = relocationURL & "/";
+				}
+				// Check SSL?
+				if ( !isNull( arguments.ssl ) ) {
+					relocationURL = getController().updateSSL( relocationURL, arguments.ssl );
+				}
+
+				// Finalize the URL
+				relocationURL = relocationURL & routeString;
+
+				break;
+			}
+		}
+
+		// persist Flash RAM
+		_persistVariables( argumentCollection = arguments );
+
+		// Post Processors
+		if ( NOT arguments.postProcessExempt ) {
+			getController().getInterceptorService().announce( "postProcess" );
+		}
+
+		// Save Flash RAM
+		if ( getController().getConfigSettings().flash.autoSave ) {
+			controller
+				.getRequestService()
+				.getFlashScope()
+				.saveFlash();
+		}
+
+		set_redirectTo( relocationURL );
+	}
+
+	/**
 	 * Render out a view
 	 *
 	 * @deprecated Use view() instead
@@ -399,4 +554,866 @@ component accessors="true" {
 		return variables;
 	}
 
+	/**
+	 * Returns the template path for the component.
+	 * 
+	 * @returns string
+	 */
+	function _getTemplatePath() {
+		var templatePath = "";
+		if ( _isInlineComponent() ) {
+			return "/cbwire/models/tmp/" & variables._inlineComponentId & ".cfm";
+		} else if ( structKeyExists( variables, "template" ) ) {
+			templatePath = variables.template;
+		} else {
+
+			var currentPath = getCurrentTemplatePath();
+			var currentDir = getDirectoryFromPath( currentPath );
+			currentDir = replaceNoCase( currentDir, getController().getAppRootPath(), "", "one" );
+			var templateName = replaceNoCase( getFileFromPath( currentPath ), ".cfc", ".cfm", "one" );
+			templatePath = "/" & currentDir & templateName;
+		}
+
+		if ( left( templatePath, 1 ) != "/" ) {
+			templatePath = "/" & templatePath;
+		}
+
+		return templatePath;
+	}
+
+	/**
+	 * Toggles a data property.
+	 * 
+	 * @returns void
+	 */
+	function $toggle( dataProperty ) {
+		return _toggleDataProperty( arguments.dataProperty );
+	}
+
+	/**
+	 * Tracks an emit, which is later returned in our API response and used
+	 * by cbwire.
+	 *
+	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
+	 * @return Array;
+	 */
+	function _trackEmit( required emitter ){
+		variables._emittedEvents.append( arguments.emitter );
+	}
+
+	/**
+	 * Returns a unique ID for the component.
+	 *
+	 * @return String
+	 */
+	function _generateId(){
+		var guidChars = listToArray( createUUID(), "" )
+			.filter( function( char ){
+				return char != "-";
+			} )
+			.filter( function( char, index ){
+				return index <= 20;
+			} )
+			.map( function( char ){
+				return randRange( 0, 1 ) == 0 ? uCase( char ) : lCase( char );
+			} );
+		return arrayToList( guidChars, "" );
+	}
+
+	/**
+	 * Returns the initial data of our component, which is ultimately serialized
+	 * to json and return in the view as our component is first rendered.
+	 *
+	 * @return Struct
+	 */
+	function _getInitialData( rendering = "" ){
+
+		
+		if ( _isInlineComponent() ) {
+			var currentModule = getController().getRenderer().getRequestContext().getCurrentModule();
+			var fingerprintName = variables._inlineComponentType;
+
+			if ( len( currentModule) ) {
+				//fingerprintName = currentModule & "." & getCBWIRERequest().getWiresLocation() & "." & fingerprintName;
+			}
+		} else {
+			var fingerprintName = _getMeta().name;
+		}
+
+		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
+
+		return {
+			"fingerprint" : {
+				"module": variables._module,
+				"id" : variables._id,
+				"name" : fingerprintName,
+				"locale" : "en",
+				"path" : _getPath(),
+				"method" : "GET",
+				"v" : "acj"
+			},
+			"effects" : { "listeners" : _getListenerNames() },
+			"serverMemo" : {
+				"children" : _getChildren( rendering ),
+				"errors" : [],
+				"htmlHash" : _getHTMLHash( rendering ),
+				"data" : _getState( includeComputed = false ),
+				"dataMeta" : [],
+				"checksum" : _getChecksum()
+			}
+		};
+	}
+
+	function _getRenderingOverrides() {
+		return variables._renderingOverrides;
+	}
+
+	/**
+	 * Returns true if listeners are detected on the component.
+	 *
+	 * @return Boolean
+	 */
+	function _hasListeners(){
+		return arrayLen( _getListenerNames() );
+	}
+
+	/**
+	 * Determines the outer element within our rendering.
+	 * If an outer element isn't found, an error is thrown.
+	 *
+	 * @rendering String | The view rendering.
+	 */
+	function _getOuterElement( required rendering ){
+		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
+
+		if ( arrayLen( matches ) ) {
+			return matches[ 1 ];
+		}
+
+		throw( type = "OuterElementNotFound", message = "Unable to find an outer element to bind cbwire to." );
+	}
+
+	/**
+	 * Executes the listeners associated with the provided event.
+	 *
+	 * @eventName String | The name of our event to emit.
+	 * @parameters Arrays | The params passed with the emitter.
+	 */
+	function _fire( required eventName, array parameters = [] ){
+		var listeners = _getListeners();
+
+		if ( structKeyExists( listeners, eventName ) ) {
+			var listener = listeners[ eventName ];
+
+			if ( len( arguments.eventName ) && _hasMethod( listener ) ) {
+				return _invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
+			}
+		}
+	}
+
+	/**
+	 * Invokes a dynamic method on our component. If the method doesn't exist,
+	 * then it proceeds without error because of onMissingMethod.
+	 *
+	 * Returns whatever the method returns.
+	 *
+	 * Used mainly with lifecycle hooks.
+	 *
+	 * @return Any
+	 */
+	function _invokeMethod( required methodName ){
+		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
+
+		return invoke( this, arguments.methodName, params );
+	}
+
+	/**
+	 * Returns true if trimStringValues settings is enabled.
+	 * 
+	 * @return boolean
+	 */
+	function _shouldTrimStringValues(){
+		return structKeyExists( getSettings(), "trimStringValues" ) && getSettings().trimStringValues == true;
+	}
+
+	/**
+	 * Sets an individual data property value, first by using a setter
+	 * if it exists, and otherwise setting directly to our variables
+	 * scope.
+	 *
+	 * Fires '$preUpdate[prop]' and 'postUpdate[prop]' events on the cbwire component.
+	 *
+	 * @propertyName String | Name of the property we are setting
+	 * @value Any | Value of the property we are settting
+	 *
+	 * @return Void
+	 */
+	function _setProperty( propertyName, value, invokeUpdateMethods = false ){
+		if ( arguments.invokeUpdateMethods ) {
+			// Invoke '$preUpdate[prop]' event
+			_invokeMethod( methodName = "preUpdate" & arguments.propertyName, propertyName = arguments.value );
+		}
+
+		var data = _getDataProperties();
+
+		data[ "#arguments.propertyName#" ] = arguments.value;
+
+		if ( arguments.invokeUpdateMethods ) {
+			// Invoke 'postUpdate[prop]' event
+			_invokeMethod( methodName = "postUpdate" & arguments.propertyName, propertyName = arguments.value );
+		}
+	}
+
+	/**
+	 * Returns the checksum hash of our current state.
+	 *
+	 * @return String
+	 */
+	function _getChecksum(){
+		return hash( serializeJSON( _getState() ) );
+	}
+
+	/**
+	 * Returns the current state of our component.
+	 *
+	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
+	 * @return Struct
+	 */
+	function _getState( boolean includeComputed = false ){
+		var state = {};
+
+		var data = _getDataProperties();
+
+		data.each( function( key, value ){
+			if ( isClosure( arguments.value ) ) {
+				// Render the closure and store in our data properties
+				data[ key ] = arguments.value();
+				state[ arguments.key ] = data[ key ];
+			} else {
+				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value ) ) {
+					state[ arguments.key ] = arguments.value;
+				} else if ( isNull( arguments.value ) ) {
+					state[ arguments.key ] = javaCast( "null", 0 );
+				} else {
+					state[ arguments.key ] = "";
+				}
+			}
+		} );
+
+		if ( _shouldTrimStringValues() ) {
+			state.each( function( key, value ){
+				if ( isSimpleValue( state[ key ] ) ) {
+					state[ key ] = trim( state[ key ] );
+				}
+			} );
+		}
+
+		state = state.map( function( key, value, data ){
+			if ( isNull( value ) ) {
+				return javaCast( "null", 0 );
+			}
+			return value;
+		} );
+
+		return state;
+	}
+
+	/**
+	 * Returns the meta data for this component.
+	 * Ensures that we only run this once.
+	 *
+	 * @return Struct
+	 */
+	function _getMeta(){
+		if ( isNull( variables.meta ) ) {
+			variables.meta = getMetadata( this );
+		}
+		return variables.meta;
+	}
+
+	/**
+	 * Returns the memento for our component which holds the current
+	 * state of our component. This is returned on subsequent XHR requests
+	 * from cbwire.
+	 *
+	 * @return Struct
+	 */
+	function _getMemento(){
+		var rendering = _getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+
+		var memento = {
+			"effects" : {
+				"html" : _getHTML(),
+				"dirty" : variables._dirtyProperties,
+				"emits" : variables._emittedEvents,
+				"redirect" : !isNull( get_RedirectTo() ) ? get_RedirectTo() : javacast( "null", 0 )
+			},
+			"serverMemo" : {
+				"data" : _getState( includeComputed = false ),
+				"checksum" : _getChecksum()
+			}
+		}
+
+		if ( !variables._finishedUpload ) {
+			memento.effects[ "path" ] = _getPath();
+			memento.serverMemo[ "htmlHash" ] = _getHTMLHash( rendering );
+			//memento.serverMemo[ "children" ] = isArray( variables._children ) ? [] : variables._children;
+		}
+
+		return memento;
+	}
+
+	function _getRequestContext() {
+		return getController().getRenderer().getRequestContext();
+	}
+
+	/**
+	 * Returns the HTML rendering or null
+	 *
+	 * @return Any
+	 */
+	function _getHTML(){
+		var rendering = _getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+		return len( rendering ) ? rendering : javacast( "null", 0 );
+	}
+
+	/**
+	 * Returns the names of the listeners defined on our component.
+	 *
+	 * @return Array
+	 */
+	function _getListenerNames(){
+		return structKeyList( _getListeners() ).listToArray();
+	}
+
+	/**
+	 * Returns our HTTP referer.
+	 *
+	 * @return String
+	 */
+	function _getHTTPReferer(){
+		return len( cgi.HTTP_REFERER ) ? CGI.HTTP_REFERER : "/";
+	}
+
+	/**
+	 * Returns the URL which is included in the initial data that is rendered
+	 * with the view.
+	 *
+	 * Inspects the cbwire component for properties that should
+	 * be included in the path
+	 *
+	 * @return String
+	 */
+	function _getPath(){
+		var queryStringValues = _getQueryStringValues();
+
+		if ( len( queryStringValues ) ) {
+			var referer = _getHTTPReferer();
+
+			// Strip away any queryString parameters from the referer so
+			// we don't duplicate them when we append the queryStringValues below.
+			if ( referer contains "?" ) {
+				referer = listGetAt( referer, 1, "?" );
+			}
+
+			return "#referer#?#queryStringValues#";
+		}
+
+		// Return empty string by default;
+		return _getHTTPReferer();
+	}
+
+	/**
+	 * Check if there are properties to be included in our query string
+	 * and assembles them together in a single string to be used within a URL.
+	 *
+	 * @return String
+	 */
+	function _getQueryStringValues(){
+		// Default with an empty array
+		if ( !structKeyExists( variables, "queryString" ) ) {
+			return "";
+		}
+
+		var currentState = _getState();
+
+		// Handle array of property names
+		if ( isArray( variables.queryString ) ) {
+			var result = variables.queryString.reduce( function( agg, prop ){
+				agg &= prop & "=" & currentState[ prop ];
+				return agg;
+			}, "" );
+		} else {
+			var result = "";
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns the listeners defined on the component.
+	 * If no listeners are defined, an empty struct is returned.
+	 *
+	 * @return Struct
+	 */
+	function _getListeners(){
+		if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ) {
+			return variables.listeners;
+		}
+		return {};
+	}
+
+	/**
+	 * Fires when the cbwire component is initially created.
+	 * Looks to see if a mount() method is defined on our component and if so, invokes it.
+	 *
+	 * This method is given the $ prefix to avoid collision with the mount method
+	 * that can be optionally defined on a cbwire component.
+	 *
+	 * @parameters Struct of params to bind into the component
+	 *
+	 * @return Component
+	 */
+	function _mount( parameters = {}, key = "" ){
+		getController().getInterceptorService().announce(
+			"onCBWireMount",
+			{
+				component : this,
+				parameters : arguments.parameters
+			}
+		);
+
+		if ( structKeyExists( this, "mount" ) ) {
+			mount(
+				parameters = arguments.parameters,
+				key = arguments.key,
+				event = getCBWireRequest().getEvent(),
+				rc = getCBWireRequest().getCollection(),
+				prc = getCBWireRequest().getPrivateCollection()
+			);
+		} else if ( structKeyExists( this, "onMount" ) ) {
+			onMount(
+				parameters = arguments.parameters,
+				key = arguments.key,
+				event = getCBWireRequest().getEvent(),
+				rc = getCBWireRequest().getCollection(),
+				prc = getCBWireRequest().getPrivateCollection()
+			);
+		} else {
+			/**
+			 * Use setter population to populate our component.
+			 */
+			getPopulator().populateFromStruct(
+				target: this,
+				trustedSetter: true,
+				memento: arguments.parameters,
+				excludes: ""
+			);
+		}
+
+		// Capture the state before hydration
+		variables._beforeHydrationState = duplicate( _getState() );
+
+		return this;
+	}
+
+	/**
+	 * Resets a property back to it's original state when the component
+	 * was initially hydrated.
+	 *
+	 * This accepts either a single property or an array of properties
+	 *
+	 * @return Void
+	 */
+	function _reset( property ){
+		if ( isNull( arguments.property ) ) {
+			// Reset all properties
+			_getDataProperties().each( function( key, value ){
+				_reset( key );
+			} );
+		} else if ( isArray( arguments.property ) ) {
+			// Reset each property in our array individually
+			arguments.property.each( function( prop ){
+				_reset( prop );
+			} );
+		} else {
+			// Reset individual property
+			_setProperty( arguments.property, variables._beforeHydrationState[ arguments.property ] );
+		}
+	}
+
+	/**
+	 * Returns a SHA-256 hash of the passed in content.
+	 *
+	 * @return string
+	 */
+	function _getHTMLHash( content ){
+		return hash( content, "SHA-256" );
+	}
+
+	/**
+	 * Toggle a data property
+	 */
+	function _toggleDataProperty( dataProperty ) {
+		var dataProperties = _getDataProperties();
+	
+		if ( dataProperties.keyExists( dataProperty ) ) {
+			var currentValue = dataProperties [ dataProperty ];
+
+			if ( isBoolean( currentValue ) ) {
+				invoke( this, "set#arguments.dataProperty#", [ booleanFormat( !currentValue ) ] );
+			} else {
+				throw( message = "The data property '#arguments.dataProperty#' must be a boolean value (true/false) for toggling." );
+			}
+
+			return;
+		}
+
+		throw( message = "Cannot find data property '#arguments.dataProperty#' for toggling." );
+	}
+
+	/**
+	 * Internal helper to flash persist elements
+	 *
+	 * @persist       What request collection keys to persist in flash RAM automatically for you
+	 * @persistStruct A structure of key-value pairs to persist in flash RAM automatically for you
+	 *
+	 * @return Controller
+	 */
+	private function _persistVariables( persist = "", struct persistStruct = {} ){
+		var flash = getController().getRequestService().getFlashScope();
+
+		// persist persistStruct if passed
+		if ( !isNull( arguments.persistStruct ) ) {
+			flash.putAll( map = arguments.persistStruct, saveNow = true );
+		}
+
+		// Persist RC keys if passed.
+		if ( len( trim( arguments.persist ) ) ) {
+			flash.persistRC( include = arguments.persist, saveNow = true );
+		}
+
+		return this;
+	}
+
+	/**
+	 * Finishes an upload.
+	 *
+	 * @return void
+	 */
+	function _finishUpload( params ){
+		var fileUpload = getController()
+			.getWireBox()
+			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : this, params : params } );
+		_getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
+		variables._finishedUpload = true;
+		variables._dirtyProperties.append( "myFile" );
+		variables.data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
+		emitSelf(
+			eventName = "upload:finished",
+			parameters = [
+				"myFile",
+				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
+			]
+		);
+	}
+
+	function _getComputedProperties() {
+		return variables._computedProperties;
+	}
+
+	function _setComputedProperties( value ) {
+		variables._computedProperties = arguments.value;
+	}
+
+	/**
+	 * Apply cbwire attribute to the outer element in the provided rendering.
+	 *
+	 * @rendering String | The view rendering.
+	 */
+	function _applyWiringToOuterElement( required rendering ){
+		var renderingResult = "";
+
+		// Provide a hash of our rendering which is used by Livewire JS.
+		var renderingHash = hash( arguments.rendering );
+
+		// Determine our outer element.
+		var outerElement = _getOuterElement( arguments.rendering );
+
+		// Add properties to top element to make cbwire actually work.
+		if ( get_IsInitialRendering() ) {
+			// Initial rendering
+			renderingResult = rendering.replaceNoCase(
+				outerElement,
+				outerElement & " wire:id=""#get_id()#"" wire:initial-data=""#serializeJSON( _getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
+				"once"
+			);
+			renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#get_id()# -->";
+		} else {
+			// Subsequent renderings
+			renderingResult = rendering.replaceNoCase( outerElement, outerElement & " wire:id=""#get_id()#""", "once" );
+		}
+
+
+		return renderingResult;
+	}
+
+	/**
+	 * Hydrates the incoming component with state from our request.
+	 *
+	 * @wireRequest CBWireRequest
+	 *
+	 * @return Component
+	 */
+	function _hydrate(){
+		set_IsInitialRendering( false );
+		getController().getInterceptorService().announce( "onCBWireHydrate", { component : this } );
+		return this;
+	}
+
+	function _setBeforeHydrationState( value ) {
+		variables._beforeHydrationState = arguments.value;
+	}
+
+	/**
+	 * Invokes renderIt() on the cbwire component and caches the rendered
+	 * results into variables.rendering.
+	 *
+	 * @return String
+	 */
+	function _subsequentRenderIt(){
+		getController().getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
+		return this;
+	}
+
+	function _addDirtyProperty( property ) {
+		variables._dirtyProperties.append( arguments.property );
+	}
+
+	function _getEmittedEvents() {
+		return variables._emittedEvents;
+	}
+
+	function _getDataProperties() {
+		return variables._dataProperties;
+	}
+
+	function _setDataProperties( value ) {
+		variables._dataProperties = arguments.value;
+	}
+
+		/**
+	 * Returns true if the provided method name can be found on our component.
+	 *
+	 * @methodName String | The method name we are checking.
+	 * @return Boolean
+	 */
+	function _hasMethod( required methodName ){
+		return structKeyExists( this, arguments.methodName );
+	}
+
+	function _getNoRendering() {
+		return variables._noRendering;
+	}
+
+	/**
+	 * Renders our component's view.
+	 *
+	 * @return Void
+	 */
+	function _renderIt(){
+		var html = view( view = _getTemplatePath() );
+		_cleanup();
+		return html;
+	}
+
+/**
+	 * Render out our component's view
+	 *
+	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module The module to render the view from explicitly
+	 * @cache Cached the view output or not, defaults to false
+	 * @cacheTimeout The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider The provider to cache this view in, defaults to 'template'
+	 * @collection A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow The start row to limit the collection rendering with
+	 * @collectionMaxRows The max rows to iterate over the collection rendering with
+	 * @collectionDelim  A string to delimit the collection renderings by
+	 * @prePostExempt If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+	 *
+	 * @return The rendered view
+	 */
+	function _view(
+		view = "",
+		struct args = {},
+		module = "",
+		boolean cache = false,
+		cacheTimeout = "",
+		cacheLastAccessTimeout = "",
+		cacheSuffix = "",
+		cacheProvider = "template",
+		collection,
+		collectionAs = "",
+		numeric collectionStartRow = "1",
+		numeric collectionMaxRows = 0,
+		collectionDelim = "",
+		boolean prePostExempt = false,
+		name
+	){
+		// Pass the properties of the cbwire component as variables to the view
+		arguments.args = _getState( includeComputed = true );
+
+		// If there are any rendering overrides ( like during file upload ), then merge those in
+		structAppend( arguments.args, _getRenderingOverrides(), true );
+
+		// Provide validation results, either validation results we captured from our action or run them now.
+		if ( _cbValidationInstalled() ) {
+			arguments.args[ "validation" ] = isNull( getValidationResult() ) ? _validate() : getValidationResult();
+		}
+
+		// Include a reference to the component's id
+		arguments.args[ "_id" ] = get_id();
+
+		/*
+			Store our latest rendered id in the request scope so that it can be
+			read by the entangle() method.
+		*/
+		getCBWireRequest().getEvent().setPrivateValue( "cbwire_lastest_rendered_id", get_id() );
+
+		arguments.args[ "computed" ] = variables.computed;
+
+		arguments.args[ "parent" ] = this;
+
+		if ( structKeyExists( this, "onRender" ) ) {
+			// Render custom onRender method
+			var result = onRender( args = arguments.args );
+		} else {
+			// Render our view using a RendererEncapsulator
+			savecontent variable="result" {
+				cfmodule(
+					template = "RendererEncapsulator.cfm",
+					cbwireTemplate = _getTemplatePath(),
+					args = arguments.args
+				);
+			}
+		}
+
+		return result;
+	}
+
+
+	/**
+	 * Parses out any directly rendered children for this component.
+	 * 
+	 * @rendering string | The rendering to parse
+	 * @return struct
+	 */
+	function _getChildren( required string rendering ) {
+		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9]+""", rendering )
+			.filter( function( match ) {
+				return !findNoCase( variables._id, match );
+			} );
+
+		return matches.reduce( function( agg, match, index ) {
+			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var id = idRegexResult.match[ 2 ];
+
+			var tagRegexResult = reFindNoCase( "<([A-Za-z]+)\s*wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var tag = tagRegexResult.match[ 2 ];			
+			
+			agg[ variables._id & "-" & index ] = {
+				"id": id,
+        		"tag": tag
+			};
+			return agg;
+		}, {} );
+	}
+
+	/**
+	 * Returns true if cbValidation is installed.
+	 * 
+	 * @return boolean
+	 */
+	function _cbValidationInstalled() {
+		return getController()
+			.getModuleService()
+			.getLoadedModules()
+			.findNoCase( "cbvalidation" );
+	}
+
+	/**
+	 * Parse out emit arguments and parameters
+	 */
+	function _parseEmitArguments( required eventName ) {
+		var argumentsRef = arguments;
+		return arguments.reduce( function ( agg, argument ) {
+
+			if ( argument == "eventName" ) return agg;
+
+			if ( isArray( argumentsRef[ argument ] ) ) {
+				argumentsRef[ argument ].each( function( nestedArgument ) {
+					agg.append( nestedArgument );
+				} );
+			} else {
+				agg.append( argumentsRef[ argument ] );
+			}
+
+			return agg;
+		}, [] );
+	}
+
+	/**
+	 * Returns the constratins defined on the component.
+	 * 
+	 * @return struct
+	 */
+	function _getConstraints() {
+		return variables.keyExists( "constraints" ) ? variables.constraints : {};
+	}
+
+	function _isInlineComponent() {
+		return variables._inlineComponentId.len() ? true : false;
+	}
+
+	function _setInlineComponentId( value ) {
+		variables._inlineComponentId = arguments.value;
+	}
+
+	function _setInlineComponentType( value ) {
+		variables._inlineComponentType = arguments.value;
+	}
+
+	/**
+	 * Perform any cleanup work such as 
+	 * clearing inline component assets.
+	 */
+	function _cleanup() {
+		if ( _isInlineComponent() ) {
+			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
+			var templatePath = currentDir & "#variables._inlineComponentId#.cfm";
+			var componentPath = currentDir & "#variables._inlineComponentId#.cfc";
+
+			if ( fileExists( templatePath ) ) {
+				fileDelete( templatePath );
+			}
+
+			if ( fileExists( componentPath ) ) {
+				fileDelete( componentPath );
+			}
+		}
+	}
+
+	/**
+	 * Sets the module this component belongs to.
+	 * 
+	 * @return void
+	 */
+	function _setModule( value ) {
+		variables._module = arguments.value;
+	}
 }
