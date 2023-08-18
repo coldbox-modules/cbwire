@@ -547,6 +547,14 @@ component accessors="true" {
 	}
 
 	/**
+	 * Refreshes a component, which mainly is just changing it's id
+	 * so that it rerenders in the DOM.
+	 */
+	function refresh() {
+		variables._id = _generateId();
+	}
+
+	/**
 	 * Remove once refectoring is done.
 	 *
 	 * @return struct

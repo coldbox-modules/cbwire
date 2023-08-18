@@ -44,6 +44,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
+			describe( "refresh()", function() {
+				it( "changes the component id which will force a re-render of all child components", function() {
+					var id = componentObj.get_id();
+					componentObj.refresh();
+					var newId = componentObj.get_id();
+					expect( id ).notToBe( newId );
+				} );
+			} );
+
 			describe( "_getDataProperties()", function() {
 				it( "can call getDataProperties()", function() {
 					componentObj._setDataProperties( { "count" : 2 } );
