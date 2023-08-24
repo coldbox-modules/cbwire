@@ -80,13 +80,18 @@ component accessors="true" singleton {
      */
     private function generateFiles( componentName, parsedContents ) {
         var currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
+        var tmpDirectory = currentDirectory & "tmp";
+
+        if ( !directoryExists( tmpDirectory ) ) {
+            directoryCreate( tmpDirectory );
+        }
 
         var emptyInlineComponent = fileRead( currentDirectory & "EmptyInlineComponent.cfc" );
 
         emptyInlineComponent = replaceNoCase( emptyInlineComponent, "// Inline Contents Goes Here", arguments.parsedContents.inlineContents, "one" );
 
-        fileWrite( currentDirectory & "tmp/#arguments.componentName#.cfc", emptyInlineComponent );
-        fileWrite( currentDirectory & "tmp/#arguments.componentName#.cfm", arguments.parsedContents.remainingContents );
+        fileWrite( tmpDirectory & "/#arguments.componentName#.cfc", emptyInlineComponent );
+        fileWrite( tmpDirectory & "/#arguments.componentName#.cfm", arguments.parsedContents.remainingContents );
     }
 
     /**
