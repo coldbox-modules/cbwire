@@ -204,6 +204,7 @@ component accessors="true" singleton {
 	function applyUpdates( comp ){
 		// Fire our preUpdate lifecycle event.
 		arguments.comp._invokeMethod( "preUpdate" );
+		var beforeSyncInputState = duplicate( comp._getDataProperties() );
 
 		/*
 			Run the Sync Input's first and track 
@@ -221,6 +222,19 @@ component accessors="true" singleton {
 
 		var afterSyncInputState = duplicate( comp._getDataProperties() );
 
+		getUpdates().filter( function(update ) {
+			return isInstanceOf( update, "SyncInput" );			
+		} ).each( function( update ) {
+
+			var oldValue = beforeSyncInputState[ update.getName() ];
+			var newValue = afterSyncInputState[ update.getName() ];
+
+			comp._invokeMethod(
+				methodName = "onUpdate" & update.getName(),
+				passThroughParameters = { "newValue": newValue, "oldValue": oldValue }
+			);
+		} );
+
 		// Update the state of our component with each of our updates
 		getUpdates().filter( function( update ) {
 			return !isInstanceOf( update, "SyncInput" );
@@ -229,18 +243,31 @@ component accessors="true" singleton {
 		} );
 
 		// Fire our postUpdate lifecycle event.
-		arguments.comp._invokeMethod( "preUpdate" );
+		arguments.comp._invokeMethod( 
+			methodName = "onUpdate",
+			passThroughParameters = {
+				"newValues": afterSyncInputState,
+				"oldValues": beforeSyncInputState
+			}
+		);
 
 		// Determine "dirty" properties
-		var dirtyProperties = syncedProperties.filter( function( property ) {
-			var previousValue = afterSyncInputState[ property ];
-			var currentValue = comp._getDataProperties()[ property ];
-			if ( isArray( previousValue ) && isArray( currentValue ) ) {
-				return !previousValue.equals( currentValue );
-			} else {
-				return previousValue != currentValue;
+		var dirtyProperties = afterSyncInputState.reduce( function( agg, key, value ) {
+			var oldValue = comp._getDataProperties()[ arguments.key ];
+			if ( isSimpleValue( oldValue ) && oldValue != arguments.value ) {
+				agg.append( arguments.key );
+			} else if ( 
+				( isArray( oldValue ) && isArray( arguments.value ) ) ||
+				( isStruct( oldValue ) ) && isStruct( arguments.value )
+			) {
+				if ( serializeJSON( oldValue ) != serializeJSON( arguments.value ) ) {
+					agg.append( arguments.key );
+				}
 			}
-		} ).each( function( dirtyProperty ) {
+			return agg;
+		}, [] );
+		
+		dirtyProperties.each( function( dirtyProperty ) {
 			comp._addDirtyProperty( dirtyProperty );
 		});
 	}

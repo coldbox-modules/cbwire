@@ -386,20 +386,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( componentObj._getDataProperties()[ "name" ] ).toBe( "test" );
 				} );
 
-				it( "fires 'preUpdate[prop] event", function(){
-					componentObj.$( "preUpdateName", true );
-					componentObj._setProperty( propertyName = "name", value = "test", invokeUpdateMethods = true );
-					expect( componentObj.$once( "preUpdateName" ) ).toBeTrue();
-					expect( componentObj.$callLog()[ "preUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
-				} );
-
-				it( "fires 'postUpdate[prop] event", function(){
-					componentObj.$( "postUpdateName", true );
-					componentObj._setProperty( propertyName = "name", value = "test", invokeUpdateMethods = true );
-					expect( componentObj.$once( "postUpdateName" ) ).toBeTrue();
-					expect( componentObj.$callLog()[ "postUpdateName" ][ 1 ][ "propertyName" ] ).toBe( "test" );
-				} );
-
 				it( "throws an error when 'throwOnMissingSetterMethod' is true", function(){
 					componentObj.setSettings( { "throwOnMissingSetterMethod" : true } );
 					expect( function(){
@@ -473,31 +459,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					componentObj.$( "setHello", true );
 					componentObj._hydrate( cbwireRequest );
 					expect( componentObj.$once( "setHello" ) ).toBeTrue();
-				} );
-
-				describe( "syncInput", function(){
-					it( "executes a setter method on component object", function(){
-						var rc = cbwireRequest.getCollection();
-
-						componentObj._setDataProperties( {
-							"message": ""
-						} );
-
-						rc[ "updates" ] = [
-							{
-								"type" : "syncInput",
-								"payload" : {
-									"name" : "message",
-									"value" : "We have input"
-								}
-							}
-						];
-
-						componentObj.$( "setMessage", true );
-						componentObj._hydrate( cbwireRequest );
-						expect( componentObj.$once( "setMessage" ) ).toBeTrue();
-						expect( componentObj.$callLog().setMessage[ 1 ][ 1 ] ).toBe( "We have input" );
-					} );
 				} );
 
 				describe( "callMethod", function(){

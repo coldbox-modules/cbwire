@@ -29,12 +29,7 @@ component accessors="true" extends="BaseUpdate" {
 	 * @comp cbwire.models.Component | Component we are updating.
 	 */
 	function apply( required comp ){
-		getPopulator().populateFromStruct(
-			target: arguments.comp,
-			trustedSetter: true,
-			memento: { "#getName()#" : "#getValue()#" },
-			excludes: ""
-		);
+		arguments.comp._setProperty( getName(), getValue() );
 
 		// When syncing input, render our computed properties after the input has synced.
 		arguments.comp._renderComputedProperties();

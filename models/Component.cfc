@@ -757,20 +757,9 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function _setProperty( propertyName, value, invokeUpdateMethods = false ){
-		if ( arguments.invokeUpdateMethods ) {
-			// Invoke '$preUpdate[prop]' event
-			_invokeMethod( methodName = "preUpdate" & arguments.propertyName, propertyName = arguments.value );
-		}
-
+	function _setProperty( propertyName, value ){
 		var data = _getDataProperties();
-
 		data[ "#arguments.propertyName#" ] = arguments.value;
-
-		if ( arguments.invokeUpdateMethods ) {
-			// Invoke 'postUpdate[prop]' event
-			_invokeMethod( methodName = "postUpdate" & arguments.propertyName, propertyName = arguments.value );
-		}
 	}
 
 	/**
