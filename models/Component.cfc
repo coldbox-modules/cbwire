@@ -1416,7 +1416,7 @@ component accessors="true" {
 		variables._module = arguments.value;
 	}
 
-	/**
+	/** 
 	 * Returns the computed properties wrapped with 
 	 * checks for caching.
 	 * 

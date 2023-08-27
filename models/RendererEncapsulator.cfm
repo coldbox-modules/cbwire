@@ -5,6 +5,16 @@
 
     serverMemoChildren = httpRequestData.content.len() ? deserializeJson( httpRequestData.content ).serverMemo.children : {};
 
+    variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
+
+    variables[ "data" ] = attributes.cbwireComponent._getDataProperties();
+
+    functions = getMetaData( attributes.cbwirecomponent ).functions;
+    functions.each( function( cbwireFunction ) {
+        variables[ cbwireFunction.name ] = function() {
+            return attributes.cbwireComponent[ cbwireFunction.name ]( argumentCollection=arguments )
+        };
+    } );
 
     variables.wire = function( componentName, parameters = {} ) {
         childWireInstanceIndex += 1;
