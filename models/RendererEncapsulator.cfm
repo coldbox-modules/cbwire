@@ -12,7 +12,7 @@
     functions = getMetaData( attributes.cbwirecomponent ).functions;
     functions.each( function( cbwireFunction ) {
         variables[ cbwireFunction.name ] = function() {
-            invoke( attributes.cbwireComponent, cbwireFunction.name, arguments );
+            return invoke( attributes.cbwireComponent, cbwireFunction.name, arguments );
         };
     } );
 
