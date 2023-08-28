@@ -64,4 +64,10 @@ component accessors="true" {
 		throw( message = "This must be implemented in the child class." );
 	}
 
+	/**
+	 * Is updating data property? Defaults to false.
+	 */
+	function isUpdatingDataProperty() {
+		return false;
+	}
 }

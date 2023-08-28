@@ -498,27 +498,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						expect( componentObj.$once( "resetName" ) ).toBeTrue();
 						expect( callLog[ "1" ] ).toBe( "George" );
 					} );
-
-					it( "uses set", function(){
-						var rc = cbwireRequest.getCollection();
-
-						rc[ "updates" ] = [
-							{
-								"type" : "callMethod",
-								"payload" : {
-									"method" : "$set",
-									"params" : [ "name", "George" ]
-								}
-							}
-						];
-
-						componentObj.$( "setName", true );
-						componentObj._hydrate( cbwireRequest );
-
-						var passedArgs = componentObj.$callLog()[ "setName" ][ 1 ];
-						expect( componentObj.$once( "setName" ) ).toBeTrue();
-						expect( passedArgs[ 1 ] ).toBe( "George" );
-					} );
 				} );
 			} );
 

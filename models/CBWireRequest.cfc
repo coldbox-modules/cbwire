@@ -212,20 +212,18 @@ component accessors="true" singleton {
 			so later we can determine if any data properties
 			changed after calling actions.
 		*/
-		var syncedProperties = getUpdates().filter( function( update ) {
-			return isInstanceOf( update, "SyncInput" );
-		} ).map( function( update ) {
+		getUpdates().filter( function( update ) {
+			return update.isUpdatingDataProperty();
+		} ).each( function( update ) {
 			// Apply the update
 			arguments.update.apply( comp );
-			return update.getName();
 		} );
 
 		var afterSyncInputState = duplicate( comp._getDataProperties() );
 
 		getUpdates().filter( function(update ) {
-			return isInstanceOf( update, "SyncInput" );			
+			return update.isUpdatingDataProperty()			
 		} ).each( function( update ) {
-
 			var oldValue = beforeSyncInputState[ update.getName() ];
 			var newValue = afterSyncInputState[ update.getName() ];
 

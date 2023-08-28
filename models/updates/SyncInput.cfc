@@ -35,5 +35,12 @@ component accessors="true" extends="BaseUpdate" {
 		arguments.comp._renderComputedProperties();
 	}
 
+	/**
+	 * Is updating data property? Defaults to false.
+	 */
+	function isUpdatingDataProperty() {
+		return true;
+	}
+
 }
 

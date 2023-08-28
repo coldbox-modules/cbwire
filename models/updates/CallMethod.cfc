@@ -3,6 +3,17 @@ component extends="BaseUpdate" {
 	property name="cbwireRequest" inject="CBWireRequest@cbwire";
 
 	/**
+	 * Is updating data property? Defaults to false.
+	 */
+	function isUpdatingDataProperty() {
+		return getPayloadMethod() == "$set";
+	}
+
+	function getName() {
+		return getPassedParamsAsArguments()[ 1 ];
+	}
+
+	/**
 	 * Runs the specified action method within the request payload on the provided component.
 	 *
 	 * @return Void
@@ -15,7 +26,7 @@ component extends="BaseUpdate" {
 			return;
 		}
 		if ( getPayloadMethod() == "startUpload" ) {
-			var dataProperty = getPassedParamsAsArguments()[ 1 ];
+			var dataProperty = getName();
 			var signature = "someSignature";
 			var signedURL = "/livewire/upload-file?expires=never&signature=#signature#";
 			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ dataProperty, signedURL ] );
@@ -25,7 +36,7 @@ component extends="BaseUpdate" {
 		if ( getPayloadMethod() == "$set" ) {
 			invoke(
 				arguments.comp,
-				"set" & getPassedParamsAsArguments()[ 1 ],
+				"set" & getName(),
 				[ getPassedParamsAsArguments()[ 2 ] ]
 			);
 			return;
