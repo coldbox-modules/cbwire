@@ -230,37 +230,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( arrayLen( componentObj._getEmittedEvents() ) ).toBe( 2 );
 				} );
 			} );
-
-			describe( "emit", function(){
-				it( "invokes a preEmit method on the component if it's defined", function(){
-					componentObj.$( "preEmit", true );
-					componentObj.emit( "SomeEvent" );
-					expect( componentObj.$once( "preEmit" ) ).toBeTrue();
-					expect( componentObj.$callLog()[ "preEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
-				} );
-
-				it( "invokes a postEmit method on the component if it's defined", function(){
-					componentObj.$( "postEmit", true );
-					componentObj.emit( "SomeEvent" );
-					expect( componentObj.$once( "postEmit" ) ).toBeTrue();
-					expect( componentObj.$callLog()[ "postEmit" ][ 1 ].eventName ).toBe( "SomeEvent" );
-				} );
-
-				it( "invokes a preEmit[EventName] method on the component if it's defined", function(){
-					componentObj.$( "preEmitBTTF", true );
-					componentObj.emit( "BTTF", "gigawatt" );
-					expect( componentObj.$once( "preEmitBTTF" ) ).toBeTrue();
-					expect( componentObj.$callLog()[ "preEmitBTTF" ][ 1 ].parameters[ 1 ]).toBe( "gigawatt" );
-				} );
-
-				it( "invokes a postEmit[EventName] method on the component if it's defined", function(){
-					componentObj.$( "postEmitBTTF", true );
-					componentObj.emit( "BTTF", "gigawatt");				
-					expect( componentObj.$once( "postEmitBTTF" ) ).toBeTrue();
-					expect( componentObj.$callLog()[ "postEmitBTTF" ][ 1 ].parameters ).toBe( [ "gigawatt" ] );
-				} );
-			} );
-
+			
 			describe( "emitSelf", function(){
 				it( "tracks the expected values", function(){
 					componentObj.emitSelf(

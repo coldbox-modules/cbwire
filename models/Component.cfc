@@ -328,12 +328,6 @@ component accessors="true" {
 			arguments.track = true;
 		}
 
-		// Invoke 'preEmit' event
-		_invokeMethod( methodName = "preEmit", eventName = arguments.eventName, parameters = parameters );
-
-		// Invoke 'preEmit[EventName]' event
-		_invokeMethod( methodName = "preEmit" & arguments.eventName, parameters = parameters );
-
 		// Capture the emit as we will need to notify the UI in our response
 		if ( arguments.track ) {
 			var emitter = {
@@ -343,12 +337,6 @@ component accessors="true" {
 
 			_trackEmit( emitter );
 		}
-
-		// Invoke 'postEmit' event
-		_invokeMethod( methodName = "postEmit", eventName = arguments.eventName, parameters = parameters );
-
-		// Invoke 'postEmit[EventName]' event
-		_invokeMethod( methodName = "postEmit" & arguments.eventName, parameters = parameters );
 	}
 
 	/**
