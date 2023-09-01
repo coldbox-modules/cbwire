@@ -21,9 +21,9 @@ component accessors="true" singleton {
 			// 	return comp;
 			// }
 
-            generateFiles( arguments.componentName, parseContents( cfmPath ) );
+            var files = generateFiles( arguments.componentName, parseContents( cfmPath ) );
 
-			return loadComponent( arguments.componentName, arguments.module );
+			return loadComponent( arguments.componentName, files.tempComponentName, arguments.module );
 		}
     }
 
@@ -90,8 +90,14 @@ component accessors="true" singleton {
 
         emptyInlineComponent = replaceNoCase( emptyInlineComponent, "// Inline Contents Goes Here", arguments.parsedContents.inlineContents, "one" );
 
-        fileWrite( tmpDirectory & "/#arguments.componentName#.cfc", emptyInlineComponent );
-        fileWrite( tmpDirectory & "/#arguments.componentName#.cfm", arguments.parsedContents.remainingContents );
+        var uuid = createUUID();
+
+        fileWrite( tmpDirectory & "/#arguments.componentName##uuid#.cfc", emptyInlineComponent );
+        fileWrite( tmpDirectory & "/#arguments.componentName##uuid#.cfm", arguments.parsedContents.remainingContents );
+
+        return {
+            "tempComponentName": "#arguments.componentName##uuid#"
+        };
     }
 
     /**
@@ -102,11 +108,12 @@ component accessors="true" singleton {
      * 
      * @return Component 
      */
-    private function loadComponent( required componentName, module = "" ) {
-        var comp = getWireBox().getInstance( "cbwire.models.tmp.#arguments.componentName#" );
+    private function loadComponent( required componentName, required tempComponentName, module = "" ) {
+        
+        var comp = getWireBox().getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" );
 
         comp._setInlineComponentType( arguments.componentName );
-        comp._setInlineComponentId( arguments.componentName );
+        comp._setInlineComponentId( arguments.tempComponentName );
         comp._setModule( arguments.module );
 
         return comp;
