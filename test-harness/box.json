@@ -5,11 +5,11 @@
     "private":true,
     "description":"",
     "dependencies":{
-        "coldbox":"^6.0.0",
+        "coldbox":"^6",
         "cbvalidation":"^4.3.0+24"
     },
     "devDependencies":{
-        "testbox":"^4.0.0",
+        "testbox":"^5",
         "route-visualizer":"^1.4.0+24"
     },
     "installPaths":{
