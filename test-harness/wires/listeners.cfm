@@ -8,7 +8,7 @@
     -->
     <script>
         cbwire.on( 'success', function( payload ) {
-            alert( 'Message sent at ' + payload[ 0 ] );
+            alert( 'Message sent at' );
         } );
     </script>
 </cfsavecontent>

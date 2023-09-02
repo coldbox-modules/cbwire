@@ -95,7 +95,7 @@ component accessors="true" singleton {
 		var componentPath = getRootComponentPath( arguments.componentName );
 
 		try {
-			return getWireBox().getInstance( componentPath );
+			return getWireBox().getInstance( componentPath ).startup();
 		} catch ( Injector.InstanceNotFoundException e ) {
 			
 			var inlineComponent = getInlineComponentBuilder()

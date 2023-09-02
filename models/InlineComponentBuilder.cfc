@@ -110,7 +110,9 @@ component accessors="true" singleton {
      */
     private function loadComponent( required componentName, required tempComponentName, module = "" ) {
         
-        var comp = getWireBox().getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" );
+        var comp = getWireBox()
+                    .getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" )
+                    .startup();
 
         comp._setInlineComponentType( arguments.componentName );
         comp._setInlineComponentId( arguments.tempComponentName );

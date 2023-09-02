@@ -23,7 +23,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					getInstance( name = "cbwire.models.updates.FireEvent", initArguments = { "update" : update } )
 				);
 				wireRequest = prepareMock( getInstance( "cbwire.models.CBWireRequest" ) );
-				componentObj = prepareMock( getInstance( name = "cbwire.models.Component" ) );
+				engineObj = prepareMock( getInstance( name = "cbwire.models.Component" ).startup() );
+				componentObj = prepareMock( engineObj.getParent() );
 			} );
 
 			it( "returns an object", function(){
@@ -32,20 +33,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "apply()", function(){
 				it( "does nothing when no listener definitions are present", function(){
-					componentObj.$( "$fireEvent" );
-					fireEventUpdate.apply( componentObj );
-					expect( componentObj.$once( "$fireEvent" ) ).toBeFalse();
+					engineObj.$( "_fire" );
+					fireEventUpdate.apply( engineObj );
+					expect( engineObj.$once( "_fire" ) ).toBeFalse();
 				} );
 
 				it( "calls listener", function(){
 					update[ "payload" ] = { "event" : "someEvent", params : [] };
-					componentObj.$property(
+					engineObj.$property(
 						propertyName = "listeners",
 						propertyScope = "variables",
 						mock = { "someEvent" : "someListener" }
 					);
 					componentObj.$( "someListener", true );
-					fireEventUpdate.apply( componentObj );
+					fireEventUpdate.apply( engineObj );
 					expect( componentObj.$once( "someListener" ) ).toBeTrue();
 				} );
 			} );

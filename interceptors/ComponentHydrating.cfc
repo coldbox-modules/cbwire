@@ -31,8 +31,8 @@ component {
 					value      = isNull( arguments.value ) ? "" : arguments.value
 				);					
 
-				if ( structKeyExists( cbwireComponent, "onHydrate#arguments.key#" ) ) {
-					invoke( cbwireComponent, "onHydrate#arguments.key#", {
+				if ( structKeyExists( cbwireComponent.getParent(), "onHydrate#arguments.key#" ) ) {
+					invoke( cbwireComponent.getParent(), "onHydrate#arguments.key#", {
 						data : cbwireComponent._getDataProperties(),
 						computed : cbwireComponent._getComputedProperties()
 					} );
@@ -44,8 +44,8 @@ component {
 			}
 		}
 
-		if ( structKeyExists( cbwireComponent, "onHydrate" ) ) {
-			cbwireComponent.onHydrate(
+		if ( structKeyExists( cbwireComponent.getParent(), "onHydrate" ) ) {
+			cbwireComponent.getParent().onHydrate(
 				data=cbwireComponent._getDataProperties(),
 				computed=cbwireComponent._getComputedProperties()
 			);

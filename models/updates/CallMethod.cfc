@@ -49,7 +49,7 @@ component extends="BaseUpdate" {
 
 		if ( hasCallableAction( arguments.comp ) ) {
 			try {
-				invoke( arguments.comp, getPayloadMethod(), getPassedParamsAsArguments() );
+				invoke( arguments.comp.getParent(), getPayloadMethod(), getPassedParamsAsArguments() );
 			} catch ( ValidationException validateException ) {
 				// Silently stop further action processing on validationOrFail() exceptions.
 			}
@@ -72,7 +72,7 @@ component extends="BaseUpdate" {
 	 * @return Boolean
 	 */
 	private function hasCallableAction( required comp ){
-		return hasPayloadMethod() && arguments.comp._hasMethod( getPayloadMethod() );
+		return hasPayloadMethod();
 	}
 
 	/**

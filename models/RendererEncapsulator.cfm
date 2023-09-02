@@ -9,6 +9,10 @@
 
     variables[ "data" ] = attributes.cbwireComponent._getDataProperties();
 
+    variables[ "rc" ] = attributes.event.getCollection();
+
+    variables[ "prc" ] = attributes.event.getPrivateCollection();
+
     functions = getMetaData( attributes.cbwirecomponent ).functions;
     functions.each( function( cbwireFunction ) {
         variables[ cbwireFunction.name ] = function() {

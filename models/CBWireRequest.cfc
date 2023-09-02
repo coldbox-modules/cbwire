@@ -249,10 +249,14 @@ component accessors="true" singleton {
 			}
 		);
 
+
 		// Determine "dirty" properties
 		var dirtyProperties = afterSyncInputState.reduce( function( agg, key, value ) {
 			var oldValue = comp._getDataProperties()[ arguments.key ];
-			if ( isSimpleValue( oldValue ) && oldValue != arguments.value ) {
+			
+			if ( isObject( arguments.value ) ) {
+				return agg;
+			} else if ( isSimpleValue( oldValue ) && oldValue != arguments.value ) {
 				agg.append( arguments.key );
 			} else if ( 
 				( isArray( oldValue ) && isArray( arguments.value ) ) ||
