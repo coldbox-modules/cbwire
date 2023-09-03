@@ -2,6 +2,8 @@ component accessors="true" singleton {
 
     property name="wirebox" inject="wirebox";
 
+    property name="initialRender" default="true";
+
     /**
      * Builds an inline component if it can locate the necessary files.
      * Otherwise, returns null.
@@ -12,15 +14,6 @@ component accessors="true" singleton {
         var cfmPath = getCFMPath( arguments.componentPath );
 		
 		if ( fileExists( cfmPath ) ) {
-
-            // Future caching goes here
-			// if ( fileExists( currentDirectory & "tmp/#arguments.componentName#.cfc") ) {
-			// 	var comp = getWireBox().getInstance( "cbwire.models.tmp.#arguments.componentName#" );
-			// 	comp._setInlineComponentType( arguments.componentName );
-			// 	comp._setInlineComponentId( arguments.componentName );
-			// 	return comp;
-			// }
-
             var files = generateFiles( arguments.componentName, parseContents( cfmPath ) );
 
 			return loadComponent( arguments.componentName, files.tempComponentName, arguments.module );
@@ -111,12 +104,11 @@ component accessors="true" singleton {
     private function loadComponent( required componentName, required tempComponentName, module = "" ) {
         
         var comp = getWireBox()
-                    .getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" )
-                    .startup();
+                    .getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" );
 
-        comp._setInlineComponentType( arguments.componentName );
-        comp._setInlineComponentId( arguments.tempComponentName );
-        comp._setModule( arguments.module );
+        comp.setInlineComponentType( arguments.componentName );
+        comp.setInlineComponentId( arguments.tempComponentName );
+        comp.setModule( arguments.module );
 
         return comp;
     }

@@ -91,14 +91,15 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	function getRootComponent( required componentName ){
+	function getRootComponent( required componentName, required initialRender ){
 		var componentPath = getRootComponentPath( arguments.componentName );
 
 		try {
-			return getWireBox().getInstance( componentPath ).startup();
+			return getWireBox().getInstance( componentPath );
 		} catch ( Injector.InstanceNotFoundException e ) {
 			
 			var inlineComponent = getInlineComponentBuilder()
+									.setInitialRender( arguments.initialRender )
 									.build( componentPath, arguments.componentName, getCurrentRequestModule() );
 
 			if ( isNull( inlineComponent ) ) {
@@ -119,7 +120,7 @@ component accessors="true" singleton {
 	 *
 	 * @componentName String | The name of the component.
 	 */
-	function getComponentInstance( componentName ){
+	function getComponentInstance( componentName, initialRender=true ){
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = getWiresLocation();
 
@@ -134,7 +135,7 @@ component accessors="true" singleton {
 			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
-			var comp = getRootComponent( arguments.componentName );
+			var comp = getRootComponent( arguments.componentName, arguments.initialRender );
 		}
 
 		return comp;
@@ -151,9 +152,10 @@ component accessors="true" singleton {
 	function handleIncomingRequest( event, rc, prc ){
 		var wireComponent = event.getValue( "wireComponent" );
 		return getComponentInstance( wireComponent )
-			._hydrate()
-			._subsequentRenderIt()
-			._getMemento();
+			.startup( initialRender=false )
+			.hydrate()
+			.subsequentRenderIt()
+			.getMemento();
 	}
 
 	function handleFileUpload( event, rc, prc ){
@@ -190,7 +192,8 @@ component accessors="true" singleton {
 	 * @return string
 	 */
 	function getCurrentRequestModule() {
-		return cbwireRequest.hasFingerprint() ? cbwireRequest.getFingerprint().module : getRequestService().getContext().getCurrentModule();
+		var rc = requestService.getContext().getCollection();
+		return structKeyExists( rc, "fingerprint" ) ? rc.fingerprint.module : getRequestService().getContext().getCurrentModule();
 	}
 	/**
 	 * Returns the app mapping.

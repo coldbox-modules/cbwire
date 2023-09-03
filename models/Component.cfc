@@ -2,22 +2,26 @@ component accessors="true" {
 
 	property name="wirebox" inject="wirebox";
 
-	property name="engine";
+	property name="renderer";
 	property name="data";
 	property name="listeners";
 	property name="computed";
 	property name="template";
 	property name="queryString";
+	property name="inlineComponentID" default="";
+	property name="inlineComponentType" default="";
+	property name="module" default="";
 
 	/**
 	 * A beautiful start.
 	 */
-	function startup(){
-		var engine = wirebox
-			.getInstance( "ComponentEngine@cbwire" )
+	function startup( initialRender = true ){
+		var rendererType = arguments.initialRender ? "InitialRenderer@cbwire" : "SubsequentRenderer@cbwire";
+		var renderer = wirebox
+			.getInstance( rendererType )
 			.start( parent = this, parentCFCPath = getCurrentTemplatePath() );
-		setEngine( engine );
-		return engine;
+		setRenderer( renderer );
+		return renderer;
 	}
 
 	/**
@@ -25,35 +29,39 @@ component accessors="true" {
 	 */
 
     function emit( required eventName ){
-		return getEngine().emit( argumentCollection = arguments );
+		return getRenderer().emit( argumentCollection = arguments );
 	}
 
 	function emitSelf( required eventName ){
-		return getEngine().emitSelf( argumentCollection = arguments );
+		return getRenderer().emitSelf( argumentCollection = arguments );
 	}
 
 	function emitUp( required eventName ){
-		return getEngine().emitUp( argumentCollection = arguments );
+		return getRenderer().emitUp( argumentCollection = arguments );
 	}
 
 	function emitTo( required componentName, required eventName ){
-		return getEngine().emitTo( argumentCollection = arguments );
+		return getRenderer().emitTo( argumentCollection = arguments );
 	}
 
 	function getInstance( name, initArguments = {}, dsl ){
-		return getEngine().getInstance( argumentCollection = arguments );
+		return getRenderer().getInstance( argumentCollection = arguments );
 	}
 
 	function getValidationManager(){
-		return getEngine().getValidationManager();
+		return getRenderer().getValidationManager();
+	}
+
+	function isInlineComponent() {
+		return getInlineComponentID().len() ? true : false ;
 	}
 
 	function noRender() {
-		return getEngine().noRender( argumentCollection=arguments );
+		return getRenderer().noRender( argumentCollection=arguments );
 	}
 
 	function refresh() {
-		return getEngine().refresh( argumentCollection=arguments );
+		return getRenderer().refresh( argumentCollection=arguments );
 	}
 
 	function relocate(
@@ -68,15 +76,15 @@ component accessors="true" {
 		URL,
 		URI
 	){
-		return getEngine().relocate( argumentCollection = arguments );
+		return getRenderer().relocate( argumentCollection = arguments );
 	}
 
 	function renderView(){
-		return getEngine().renderView( argumentCollection = arguments );
+		return getRenderer().renderView( argumentCollection = arguments );
 	}
 
 	function reset( property ){
-		return getEngine().reset( argumentCollection=arguments );
+		return getRenderer().reset( argumentCollection=arguments );
 	}
 
 	function validateOrFail(
@@ -88,7 +96,7 @@ component accessors="true" {
 		string includeFields = "",
 		string profiles      = ""
 	){
-		return getEngine().validateOrFail( argumentCollection=arguments );
+		return getRenderer().validateOrFail( argumentCollection=arguments );
 	}
 
 	/**
@@ -98,10 +106,10 @@ component accessors="true" {
 	 * @missingMethodArguments
 	 */
 	function onMissingMethod( missingMethodName, missingMethodArguments ){
-		if ( structKeyExists( getEngine(), missingMethodName ) ) {
-			return invoke( getEngine(), missingMethodName, missingMethodArguments );
+		if ( structKeyExists( getRenderer(), missingMethodName ) ) {
+			return invoke( getRenderer(), missingMethodName, missingMethodArguments );
 		}
-		return getEngine().onMissingMethod( argumentCollection = arguments );
+		return getRenderer().onMissingMethod( argumentCollection = arguments );
 	}
 
 }

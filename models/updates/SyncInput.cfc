@@ -29,7 +29,7 @@ component accessors="true" extends="BaseUpdate" {
 	 * @comp cbwire.models.Component | Component we are updating.
 	 */
 	function apply( required comp ){
-		arguments.comp._setProperty( getName(), getValue() );
+		arguments.comp.setProperty( getName(), getValue() );
 
 		// When syncing input, render our computed properties after the input has synced.
 		arguments.comp._renderComputedProperties();

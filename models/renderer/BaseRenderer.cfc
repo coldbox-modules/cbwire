@@ -6,6 +6,8 @@
  */
 component accessors="true" {
 
+	property name="wirebox" inject="wirebox";
+
 	// Inject ColdBox, needed by FrameworkSuperType
 	property name="controller" inject="coldbox";
 
@@ -24,18 +26,11 @@ component accessors="true" {
 	// Holds our validation result.
 	property name="validationResult";
 
-	// Holds the template path
-	property name="template";
-
 	/**
-	 * Determines if component is being initially rendered or subsequently rendered.
+	 * Injected RequestService so that we can access the current ColdBox RequestContext.
 	 */
-	property name="_isInitialRendering" default="true";
+	property name="requestService" inject="coldbox:requestService";
 
-	/**
-	 * Holds component id
-	 */
-	property name="_id";
 
 	/**
 	 * Holds redirect to
@@ -43,37 +38,43 @@ component accessors="true" {
 	property name="_redirectTo";
 
 
+	property name="id";
     property name="parent";
 	property name="constraints";
+	property name="dataProperties";
+	property name="computedProperties";
+	property name="listeners";
+	property name="dirtyProperties";
+	property name="noRendering";
+	property name="parentCFCPath";
+	property name="beforeHydrationState";
+	property name="emittedEvents";
+	property name="finishedUpload";
+	property name="renderingOverrides";
+	property name="cache";
+	property name="querystring";
+	property name="template";
+	property name="isInitialRendering";
 
 	/**
 	 * A beautiful start.
 	 */
 	function start( parent, parentCFCPath ) {
         setParent( arguments.parent );
-        variables.parentCFCPath = arguments.parentCFCPath;
-		variables._id = _generateId();
-		variables._renderingOverrides = {};
-		variables._dataProperties = {};
-		variables._computedProperties = {};
-		variables._finishedUpload = false;
-		variables._beforeHydrationState = {};
-		variables._dirtyProperties = [];
-		variables._emittedEvents = [];
-		variables._children = {};
-		variables._noRendering = false;
-		variables._inlineComponentType = "";
-		variables._inlineComponentId = "";
-		variables._module = "";
-		variables._cache = {};
-        variables.data = isNull( parent.getData() ) ? {} : parent.getData();
-        variables.computed = isNull( parent.getComputed() ) ? {} : parent.getComputed();
-        variables._noRendering = false;
-        variables._dataProperties = variables.data;
-        variables._computedProperties = variables.computed;
-        variables.template = isNull( parent.getTemplate() ) ? "" : parent.getTemplate();
-        variables.listeners = isNull( parent.getListeners() ) ? {} : parent.getListeners();
-		variables.queryString = isNull( parent.getQueryString() ) ? "" : parent.getQueryString();
+		setParentCFCPath( arguments.parentCFCPath );
+		setID( generateComponentID() );
+		setRenderingOverrides( {} );
+		setFinishedUpload( false );
+		setBeforeHydrationState( {} );
+		setDirtyProperties( [] );
+		setEmittedEvents( [] );
+		setCache( {} );      
+		setNoRendering( false );
+        setDataProperties( isNull( parent.getData() ) ? {} : parent.getData() );
+        setComputedProperties( isNull( parent.getComputed() ) ? {} : parent.getComputed() );
+        setTemplate( isNull( parent.getTemplate() ) ? "" : parent.getTemplate() );
+        setListeners( isNull( parent.getListeners() ) ? {} : parent.getListeners() );
+		setQueryString( isNull( parent.getQueryString() ) ? "" : parent.getQueryString() );
 		setConstraints( isNull( parent.constraints ) ? {} : parent.constraints );
         return this;
 	}
@@ -228,7 +229,7 @@ component accessors="true" {
 		}
 
 		// persist Flash RAM
-		_persistVariables( argumentCollection = arguments );
+		persistVariables( argumentCollection = arguments );
 
 		// Post Processors
 		if ( NOT arguments.postProcessExempt ) {
@@ -314,7 +315,7 @@ component accessors="true" {
 	){
 		var templateRendering = _view( argumentCollection = arguments );
 
-		var rendering = applyWiring ? _applyWiringToOuterElement( templateRendering ) : templateRendering;
+		var rendering = applyWiring ? applyWiringToOuterElement( templateRendering ) : templateRendering;
 
 		// Add properties to top element to make Livewire actually work.
 		return rendering;
@@ -327,7 +328,7 @@ component accessors="true" {
 	 */
 	function emit( required eventName ){
 
-		var parameters = _parseEmitArguments( argumentCollection=arguments );
+		var parameters = parseEmitArguments( argumentCollection=arguments );
 
 		if ( !arguments.keyExists( "track" ) ) {
 			arguments.track = true;
@@ -340,7 +341,7 @@ component accessors="true" {
 				"params" : parameters
 			};
 
-			_trackEmit( emitter );
+			trackEvent( emitter );
 		}
 	}
 
@@ -354,7 +355,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitSelf( required eventName ) {
-		var parameters = _parseEmitArguments( argumentCollection=arguments );
+		var parameters = parseEmitArguments( argumentCollection=arguments );
 
 		var emitter = {
 			"event" : arguments.eventName,
@@ -363,7 +364,7 @@ component accessors="true" {
 		};
 
 		// Capture the emit as we will need to notify the UI in our response
-		_trackEmit( emitter );
+		trackEvent( emitter );
 	}
 
 	/**
@@ -375,7 +376,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitUp( required eventName ){
-		var parameters = _parseEmitArguments( argumentCollection=arguments );
+		var parameters = parseEmitArguments( argumentCollection=arguments );
 		
 		var emitter = {
 			"event" : arguments.eventName,
@@ -384,7 +385,7 @@ component accessors="true" {
 		};
 
 		// Capture the emit as we will need to notify the UI in our response
-		_trackEmit( emitter );
+		trackEvent( emitter );
 	}
 
 	/**
@@ -396,7 +397,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function emitTo( required componentName, required eventName ){
-		var parameters = _parseEmitArguments( argumentCollection=arguments );
+		var parameters = parseEmitArguments( argumentCollection=arguments );
 
 		// Remove the first param since it's our component name.
 		parameters.deleteAt( 1 );
@@ -408,7 +409,7 @@ component accessors="true" {
 		};
 
 		// Capture the emit as we will need to notify the UI in our response
-		_trackEmit( emitter );
+		trackEvent( emitter );
 	}
 
 	/**
@@ -425,9 +426,9 @@ component accessors="true" {
 	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
 		var settings = getSettings();
 
-		var data = _getDataProperties();
+		var data = getDataProperties();
 
-		var computed = _getComputedProperties();
+		var computed = getComputedProperties();
 
 		if ( reFindNoCase( "^get.+", arguments.missingMethodName ) ) {
 			// Extract data property name from the getter method called.
@@ -454,9 +455,9 @@ component accessors="true" {
 			if ( dataPropertyExists ) {
 				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
 				if ( structKeyExists( arguments.missingMethodArguments, "value" ) ) {
-					_setProperty( dataPropertyName, arguments.missingMethodArguments.value );
+					setProperty( dataPropertyName, arguments.missingMethodArguments.value );
 				} else {
-					_setProperty( dataPropertyName, arguments.missingMethodArguments[ 1 ], true );
+					setProperty( dataPropertyName, arguments.missingMethodArguments[ 1 ], true );
 				}
 			} else if (
 				structKeyExists( settings, "throwOnMissingSetterMethod" ) && settings.throwOnMissingSetterMethod == true
@@ -467,7 +468,7 @@ component accessors="true" {
 
 		if ( reFindNoCase( "^reset.+", arguments.missingMethodName ) ) {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
-			_reset( dataPropertyName );
+			reset( dataPropertyName );
 		}
 	}
 
@@ -477,7 +478,7 @@ component accessors="true" {
 	 * @return void
 	 */
 	function noRender(){
-		variables._noRendering = true;
+		setNoRendering( true );
 	}
 
 	/**
@@ -493,7 +494,7 @@ component accessors="true" {
 	 *
 	 * @return cbvalidation.model.result.IValidationResult
 	 */
-	function _validate( constraints ){
+	function validate( constraints ){
 		arguments.target = isNull( arguments.target ) ? getParent() : arguments.target;
 		arguments.constraints = isNull( arguments.constraints ) ? getConstraints() : arguments.constraints;
 		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
@@ -544,7 +545,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function reset( property ){
-		_reset( argumentCollection = arguments );
+		reset( argumentCollection = arguments );
 	}
 
 	/**
@@ -552,7 +553,7 @@ component accessors="true" {
 	 * so that it rerenders in the DOM.
 	 */
 	function refresh() {
-		variables._id = _generateId();
+		setID( generateComponentID() );
 	}
 
 	/**
@@ -569,15 +570,15 @@ component accessors="true" {
 	 * 
 	 * @returns string
 	 */
-	function _getTemplatePath() {
+	function getComponentTemplatePath() {
 		var templatePath = "";
-		if ( _isInlineComponent() ) {
-			return "/cbwire/models/tmp/" & variables._inlineComponentId & ".cfm";
-		} else if ( len( variables.template ) ) {
-			templatePath = variables.template;
+		if ( getParent().isInlineComponent() ) {
+			return "/cbwire/models/tmp/" & getParent().getParent().getInlineComponentID() & ".cfm";
+		} else if ( len( getTemplate() ) ) {
+			templatePath = getTemplate();
 		} else {
 
-			var currentPath = variables.parentCFCPath;
+			var currentPath = getParentCFCPath();
 			var currentDir = getDirectoryFromPath( currentPath );
 			currentDir = replaceNoCase( currentDir, getController().getAppRootPath(), "", "one" );
 			var templateName = replaceNoCase( getFileFromPath( currentPath ), ".cfc", ".cfm", "one" );
@@ -597,7 +598,7 @@ component accessors="true" {
 	 * @returns void
 	 */
 	function $toggle( dataProperty ) {
-		return _toggleDataProperty( arguments.dataProperty );
+		return toggleDataProperty( arguments.dataProperty );
 	}
 
 	/**
@@ -607,8 +608,8 @@ component accessors="true" {
 	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
 	 * @return Array;
 	 */
-	function _trackEmit( required emitter ){
-		variables._emittedEvents.append( arguments.emitter );
+	function trackEvent( required emitter ){
+		getEmittedEvents().append( arguments.emitter );
 	}
 
 	/**
@@ -616,7 +617,7 @@ component accessors="true" {
 	 *
 	 * @return String
 	 */
-	function _generateId(){
+	function generateComponentID(){
 		var guidChars = listToArray( createUUID(), "" )
 			.filter( function( char ){
 				return char != "-";
@@ -636,46 +637,42 @@ component accessors="true" {
 	 *
 	 * @return Struct
 	 */
-	function _getInitialData( rendering = "" ){
+	function getInitialData( rendering = "" ){
 
 		
-		if ( _isInlineComponent() ) {
+		if ( getParent().isInlineComponent() ) {
 			var currentModule = getController().getRenderer().getRequestContext().getCurrentModule();
-			var fingerprintName = variables._inlineComponentType;
+			var fingerprintName = getParent().getInlineComponentType();
 
 			if ( len( currentModule) ) {
-				//fingerprintName = currentModule & "." & getCBWIRERequest().getWiresLocation() & "." & fingerprintName;
+				//fingerprintName = currentModule & "." & getWiresLocation() & "." & fingerprintName;
 			}
 		} else {
-			var fingerprintName = _getMeta().name;
+			var fingerprintName = getMeta().name;
 		}
 
 		fingerprintName = reReplaceNoCase( fingerprintName, "^root\.", "", "one" );
 
 		return {
 			"fingerprint" : {
-				"module": variables._module,
-				"id" : variables._id,
+				"module": getParent().getModule(),
+				"id" : getID(),
 				"name" : fingerprintName,
 				"locale" : "en",
-				"path" : _getPath(),
+				"path" : getPath(),
 				"method" : "GET",
 				"v" : "acj"
 			},
-			"effects" : { "listeners" : _getListenerNames() },
+			"effects" : { "listeners" : getListenerNames() },
 			"serverMemo" : {
-				"children" : _getChildren( rendering ),
+				"children" : getChildren( rendering ),
 				"errors" : [],
-				"htmlHash" : _getHTMLHash( rendering ),
-				"data" : _getState( includeComputed = false ),
+				"htmlHash" : generateHash( rendering ),
+				"data" : getState( includeComputed = false ),
 				"dataMeta" : [],
-				"checksum" : _getChecksum()
+				"checksum" : generateChecksum()
 			}
 		};
-	}
-
-	function _getRenderingOverrides() {
-		return variables._renderingOverrides;
 	}
 
 	/**
@@ -683,8 +680,8 @@ component accessors="true" {
 	 *
 	 * @return Boolean
 	 */
-	function _hasListeners(){
-		return arrayLen( _getListenerNames() );
+	function hasListeners(){
+		return arrayLen( getListenerNames() );
 	}
 
 	/**
@@ -693,7 +690,7 @@ component accessors="true" {
 	 *
 	 * @rendering String | The view rendering.
 	 */
-	function _getOuterElement( required rendering ){
+	function getOuterElement( required rendering ){
 		var matches = reMatchNoCase( "<[a-z]+\s*", arguments.rendering );
 
 		if ( arrayLen( matches ) ) {
@@ -710,13 +707,13 @@ component accessors="true" {
 	 * @parameters Arrays | The params passed with the emitter.
 	 */
 	function _fire( required eventName, array parameters = [] ){
-		var listeners = _getListeners();
+		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
 			var listener = listeners[ eventName ];
 
-			if ( len( arguments.eventName ) && _hasMethod( listener ) ) {
-				return _invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
+			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
+				return invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
 			}
 		}
 	}
@@ -731,7 +728,7 @@ component accessors="true" {
 	 *
 	 * @return Any
 	 */
-	function _invokeMethod( required methodName ){
+	function invokeMethod( required methodName ){
 		var params = structKeyExists( arguments, "passThroughParameters" ) ? arguments.passThroughParameters : arguments;
 
 		return invoke( getParent(), arguments.methodName, params );
@@ -742,7 +739,7 @@ component accessors="true" {
 	 * 
 	 * @return boolean
 	 */
-	function _shouldTrimStringValues(){
+	function whenTrimStrings(){
 		return structKeyExists( getSettings(), "trimStringValues" ) && getSettings().trimStringValues == true;
 	}
 
@@ -758,8 +755,8 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function _setProperty( propertyName, value ){
-		var data = _getDataProperties();
+	function setProperty( propertyName, value ){
+		var data = getDataProperties();
 		data[ "#arguments.propertyName#" ] = arguments.value;
 	}
 
@@ -768,8 +765,8 @@ component accessors="true" {
 	 *
 	 * @return String
 	 */
-	function _getChecksum(){
-		return hash( serializeJSON( _getState() ) );
+	function generateChecksum(){
+		return hash( serializeJSON( getState() ) );
 	}
 
 	/**
@@ -778,10 +775,10 @@ component accessors="true" {
 	 * @includeComputed Boolean | Set to true to include computed properties in the returned state.
 	 * @return Struct
 	 */
-	function _getState( boolean includeComputed = false ){
+	function getState( boolean includeComputed = false ){
 		var state = {};
 
-		var data = _getDataProperties();
+		var data = getDataProperties();
 
 		data.each( function( key, value ){
 			if ( isClosure( arguments.value ) ) {
@@ -799,7 +796,7 @@ component accessors="true" {
 			}
 		} );
 
-		if ( _shouldTrimStringValues() ) {
+		if ( whenTrimStrings() ) {
 			state.each( function( key, value ){
 				if ( isSimpleValue( state[ key ] ) ) {
 					state[ key ] = trim( state[ key ] );
@@ -823,7 +820,7 @@ component accessors="true" {
 	 *
 	 * @return Struct
 	 */
-	function _getMeta(){
+	function getMeta(){
 		if ( isNull( variables.meta ) ) {
 			variables.meta = getMetadata( getParent() );
 		}
@@ -837,32 +834,31 @@ component accessors="true" {
 	 *
 	 * @return Struct
 	 */
-	function _getMemento(){
-		var rendering = _getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+	function getMemento(){
+		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 
 		var memento = {
 			"effects" : {
-				"html" : _getHTML(),
-				"dirty" : variables._dirtyProperties,
-				"emits" : variables._emittedEvents,
+				"html" : getHTML(),
+				"dirty" : getDirtyProperties(),
+				"emits" : getEmittedEvents(),
 				"redirect" : !isNull( get_RedirectTo() ) ? get_RedirectTo() : javacast( "null", 0 )
 			},
 			"serverMemo" : {
-				"data" : _getState( includeComputed = false ),
-				"checksum" : _getChecksum()
+				"data" : getState( includeComputed = false ),
+				"checksum" : generateChecksum()
 			}
 		}
 
-		if ( !variables._finishedUpload ) {
-			memento.effects[ "path" ] = _getPath();
-			memento.serverMemo[ "htmlHash" ] = _getHTMLHash( rendering );
-			//memento.serverMemo[ "children" ] = isArray( variables._children ) ? [] : variables._children;
+		if ( !getFinishedUpload() ) {
+			memento.effects[ "path" ] = getPath();
+			memento.serverMemo[ "htmlHash" ] = generateHash( rendering );
 		}
 
 		return memento;
 	}
 
-	function _getRequestContext() {
+	function getRequestContext() {
 		return getController().getRenderer().getRequestContext();
 	}
 
@@ -871,8 +867,8 @@ component accessors="true" {
 	 *
 	 * @return Any
 	 */
-	function _getHTML(){
-		var rendering = _getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+	function getHTML(){
+		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
 		return len( rendering ) ? rendering : javacast( "null", 0 );
 	}
 
@@ -881,8 +877,8 @@ component accessors="true" {
 	 *
 	 * @return Array
 	 */
-	function _getListenerNames(){
-		return structKeyList( _getListeners() ).listToArray();
+	function getListenerNames(){
+		return structKeyList( getListeners() ).listToArray();
 	}
 
 	/**
@@ -890,7 +886,7 @@ component accessors="true" {
 	 *
 	 * @return String
 	 */
-	function _getHTTPReferer(){
+	function getHTTPReferer(){
 		return len( cgi.HTTP_REFERER ) ? CGI.HTTP_REFERER : "/";
 	}
 
@@ -903,11 +899,11 @@ component accessors="true" {
 	 *
 	 * @return String
 	 */
-	function _getPath(){
-		var queryStringValues = _getQueryStringValues();
+	function getPath(){
+		var queryStringValues = getQueryStringValues();
 
 		if ( len( queryStringValues ) ) {
-			var referer = _getHTTPReferer();
+			var referer = getHTTPReferer();
 
 			// Strip away any queryString parameters from the referer so
 			// we don't duplicate them when we append the queryStringValues below.
@@ -919,7 +915,7 @@ component accessors="true" {
 		}
 
 		// Return empty string by default;
-		return _getHTTPReferer();
+		return getHTTPReferer();
 	}
 
 	/**
@@ -928,17 +924,17 @@ component accessors="true" {
 	 *
 	 * @return String
 	 */
-	function _getQueryStringValues(){
+	function getQueryStringValues(){
 		// Default with an empty array
 		if ( !structKeyExists( variables, "queryString" ) ) {
 			return "";
 		}
 
-		var currentState = _getState();
+		var currentState = getState();
 
 		// Handle array of property names
-		if ( isArray( variables.queryString ) ) {
-			var result = variables.queryString.reduce( function( agg, prop ){
+		if ( isArray( getQueryString() ) ) {
+			var result = getQueryString().reduce( function( agg, prop ){
 				agg &= prop & "=" & currentState[ prop ];
 				return agg;
 			}, "" );
@@ -947,19 +943,6 @@ component accessors="true" {
 		}
 
 		return result;
-	}
-
-	/**
-	 * Returns the listeners defined on the component.
-	 * If no listeners are defined, an empty struct is returned.
-	 *
-	 * @return Struct
-	 */
-	function _getListeners(){
-		if ( structKeyExists( variables, "listeners" ) && isStruct( variables.listeners ) ) {
-			return variables.listeners;
-		}
-		return {};
 	}
 
 	/**
@@ -973,7 +956,7 @@ component accessors="true" {
 	 *
 	 * @return Component
 	 */
-	function _mount( parameters = {}, key = "" ){
+	function mount( parameters = {}, key = "" ){
 		getController().getInterceptorService().announce(
 			"onCBWireMount",
 			{
@@ -986,17 +969,17 @@ component accessors="true" {
 			getParent().mount(
 				parameters = arguments.parameters,
 				key = arguments.key,
-				event = getCBWireRequest().getEvent(),
-				rc = getCBWireRequest().getCollection(),
-				prc = getCBWireRequest().getPrivateCollection()
+				event = getEvent(),
+				rc = getCollection(),
+				prc = getPrivateCollection()
 			);
 		} else if ( structKeyExists( getParent(), "onMount" ) ) {
 			getParent().onMount(
 				parameters = arguments.parameters,
 				key = arguments.key,
-				event = getCBWireRequest().getEvent(),
-				rc = getCBWireRequest().getCollection(),
-				prc = getCBWireRequest().getPrivateCollection()
+				event = getEvent(),
+				rc = getCollection(),
+				prc = getPrivateCollection()
 			);
 		} else {
 			/**
@@ -1011,7 +994,7 @@ component accessors="true" {
 		}
 
 		// Capture the state before hydration
-		variables._beforeHydrationState = duplicate( _getState() );
+		setBeforeHydrationState( duplicate( getState() ) );
 
 		return this;
 	}
@@ -1024,20 +1007,21 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function _reset( property ){
+	function reset( property ){
 		if ( isNull( arguments.property ) ) {
 			// Reset all properties
-			_getDataProperties().each( function( key, value ){
-				_reset( key );
+			getDataProperties().each( function( key, value ){
+				reset( key );
 			} );
 		} else if ( isArray( arguments.property ) ) {
 			// Reset each property in our array individually
 			arguments.property.each( function( prop ){
-				_reset( prop );
+				reset( prop );
 			} );
 		} else {
+			var beforeHydrationState = getBeforeHydrationState();
 			// Reset individual property
-			_setProperty( arguments.property, variables._beforeHydrationState[ arguments.property ] );
+			setProperty( arguments.property, beforeHydrationState[ arguments.property ] );
 		}
 	}
 
@@ -1046,15 +1030,15 @@ component accessors="true" {
 	 *
 	 * @return string
 	 */
-	function _getHTMLHash( content ){
+	function generateHash( content ){
 		return hash( content, "SHA-256" );
 	}
 
 	/**
 	 * Toggle a data property
 	 */
-	function _toggleDataProperty( dataProperty ) {
-		var dataProperties = _getDataProperties();
+	function toggleDataProperty( dataProperty ) {
+		var dataProperties = getDataProperties();
 	
 		if ( dataProperties.keyExists( dataProperty ) ) {
 			var currentValue = dataProperties [ dataProperty ];
@@ -1079,7 +1063,7 @@ component accessors="true" {
 	 *
 	 * @return Controller
 	 */
-	private function _persistVariables( persist = "", struct persistStruct = {} ){
+	private function persistVariables( persist = "", struct persistStruct = {} ){
 		var flash = getController().getRequestService().getFlashScope();
 
 		// persist persistStruct if passed
@@ -1100,13 +1084,15 @@ component accessors="true" {
 	 *
 	 * @return void
 	 */
-	function _finishUpload( params ){
+	function finishUpload( params ){
 		var fileUpload = getController()
 			.getWireBox()
 			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : this, params : params } );
-		_getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
-		variables._finishedUpload = true;
-		variables._dirtyProperties.append( "myFile" );
+		
+		var renderingOverides = getRenderingOverrides();
+		renderingOverides[ params[ 1 ] ] = fileUpload;
+		setFinishedUpload( true );
+		getDirtyProperties().append( "myFile" );
 		variables.data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
 		emitSelf(
 			eventName = "upload:finished",
@@ -1117,61 +1103,36 @@ component accessors="true" {
 		);
 	}
 
-	function _getComputedProperties() {
-		return variables._computedProperties;
-	}
-
-	function _setComputedProperties( value ) {
-		variables._computedProperties = arguments.value;
-	}
-
 	/**
 	 * Apply cbwire attribute to the outer element in the provided rendering.
 	 *
 	 * @rendering String | The view rendering.
 	 */
-	function _applyWiringToOuterElement( required rendering ){
+	function applyWiringToOuterElement( required rendering ){
 		var renderingResult = "";
 
 		// Provide a hash of our rendering which is used by Livewire JS.
 		var renderingHash = hash( arguments.rendering );
 
 		// Determine our outer element.
-		var outerElement = _getOuterElement( arguments.rendering );
+		var outerElement = getOuterElement( arguments.rendering );
 
 		// Add properties to top element to make cbwire actually work.
-		if ( get_IsInitialRendering() ) {
+		if ( getIsInitialRendering() ) {
 			// Initial rendering
 			renderingResult = rendering.replaceNoCase(
 				outerElement,
-				outerElement & " wire:id=""#get_id()#"" wire:initial-data=""#serializeJSON( _getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
+				outerElement & " wire:id=""#getID()#"" wire:initial-data=""#serializeJSON( getInitialData( rendering ) ).replace( """", "&quot;", "all" )#""",
 				"once"
 			);
-			renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#get_id()# -->";
+			renderingResult &= "#chr( 10 )#<!-- Livewire Component wire-end:#getID()# -->";
 		} else {
 			// Subsequent renderings
-			renderingResult = rendering.replaceNoCase( outerElement, outerElement & " wire:id=""#get_id()#""", "once" );
+			renderingResult = rendering.replaceNoCase( outerElement, outerElement & " wire:id=""#getID()#""", "once" );
 		}
 
 
 		return renderingResult;
-	}
-
-	/**
-	 * Hydrates the incoming component with state from our request.
-	 *
-	 * @wireRequest CBWireRequest
-	 *
-	 * @return Component
-	 */
-	function _hydrate(){
-		set_IsInitialRendering( false );
-		getController().getInterceptorService().announce( "onCBWireHydrate", { component : this } );
-		return this;
-	}
-
-	function _setBeforeHydrationState( value ) {
-		variables._beforeHydrationState = arguments.value;
 	}
 
 	/**
@@ -1180,39 +1141,23 @@ component accessors="true" {
 	 *
 	 * @return String
 	 */
-	function _subsequentRenderIt(){
+	function subsequentRenderIt(){
 		getController().getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
 		return this;
 	}
 
 	function _addDirtyProperty( property ) {
-		variables._dirtyProperties.append( arguments.property );
+		getDirtyProperties().append( arguments.property );
 	}
 
-	function _getEmittedEvents() {
-		return variables._emittedEvents;
-	}
-
-	function _getDataProperties() {
-		return variables._dataProperties;
-	}
-
-	function _setDataProperties( value ) {
-		variables._dataProperties = arguments.value;
-	}
-
-		/**
+	/**
 	 * Returns true if the provided method name can be found on our component.
 	 *
 	 * @methodName String | The method name we are checking.
 	 * @return Boolean
 	 */
-	function _hasMethod( required methodName ){
+	function hasMethod( required methodName ){
 		return structKeyExists( getParent(), arguments.methodName );
-	}
-
-	function _getNoRendering() {
-		return variables._noRendering;
 	}
 
 	/**
@@ -1220,9 +1165,9 @@ component accessors="true" {
 	 *
 	 * @return Void
 	 */
-	function _renderIt(){
-		var html = view( view = _getTemplatePath() );
-		_cleanup();
+	function renderIt(){
+		var html = view( view = getComponentTemplatePath() );
+		cleanup();
 		return html;
 	}
 
@@ -1265,26 +1210,26 @@ component accessors="true" {
 		name
 	){
 		// Pass the properties of the cbwire component as variables to the view
-		arguments.args = _getState( includeComputed = true );
+		arguments.args = getState( includeComputed = true );
 
 		// If there are any rendering overrides ( like during file upload ), then merge those in
-		structAppend( arguments.args, _getRenderingOverrides(), true );
+		structAppend( arguments.args, getRenderingOverrides(), true );
 
 		// Provide validation results, either validation results we captured from our action or run them now.
 		if ( isValidationModuleInstalled() ) {
-			arguments.args[ "validation" ] = isNull( getValidationResult() ) ? _validate() : getValidationResult();
+			arguments.args[ "validation" ] = isNull( getValidationResult() ) ? validate() : getValidationResult();
 		}
 
 		// Include a reference to the component's id
-		arguments.args[ "_id" ] = get_id();
+		arguments.args[ "_id" ] = getID();
 
 		/*
 			Store our latest rendered id in the request scope so that it can be
 			read by the entangle() method.
 		*/
-		getCBWireRequest().getEvent().setPrivateValue( "cbwire_lastest_rendered_id", get_id() );
+		getEvent().setPrivateValue( "cbwire_lastest_rendered_id", getID() );
 
-		arguments.args[ "computed" ] = variables.computed;
+		arguments.args[ "computed" ] = getComputedProperties();
 
 		arguments.args[ "parent" ] = this;
 
@@ -1296,9 +1241,9 @@ component accessors="true" {
 			savecontent variable="result" {
 				cfmodule(
 					template = "RendererEncapsulator.cfm",
-					cbwireTemplate = _getTemplatePath(),
-					cbwireComponent = getParent(),
-					event = getCBWireRequest().getEvent(),
+					cbwireTemplate = getComponentTemplatePath(),
+					cbwireComponent = this,
+					event = getEvent(),
 					args = arguments.args
 				);
 			}
@@ -1314,10 +1259,10 @@ component accessors="true" {
 	 * @rendering string | The rendering to parse
 	 * @return struct
 	 */
-	function _getChildren( required string rendering ) {
+	function getChildren( required string rendering ) {
 		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9]+""", rendering )
 			.filter( function( match ) {
-				return !findNoCase( variables._id, match );
+				return !findNoCase( getID(), match );
 			} );
 
 		return matches.reduce( function( agg, match, index ) {
@@ -1327,7 +1272,7 @@ component accessors="true" {
 			var tagRegexResult = reFindNoCase( "<([A-Za-z]+)\s*wire:id=""([A-Za-z0-9]+)""", match, 1, true );
 			var tag = tagRegexResult.match[ 2 ];			
 			
-			agg[ variables._id & "-" & index ] = {
+			agg[ getID() & "-" & index ] = {
 				"id": id,
         		"tag": tag
 			};
@@ -1350,7 +1295,7 @@ component accessors="true" {
 	/**
 	 * Parse out emit arguments and parameters
 	 */
-	function _parseEmitArguments( required eventName ) {
+	function parseEmitArguments( required eventName ) {
 		var argumentsRef = arguments;
 		return arguments.reduce( function ( agg, argument ) {
 
@@ -1368,27 +1313,15 @@ component accessors="true" {
 		}, [] );
 	}
 
-	function _isInlineComponent() {
-		return variables._inlineComponentId.len() ? true : false;
-	}
-
-	function _setInlineComponentId( value ) {
-		variables._inlineComponentId = arguments.value;
-	}
-
-	function _setInlineComponentType( value ) {
-		variables._inlineComponentType = arguments.value;
-	}
-
 	/**
 	 * Perform any cleanup work such as 
 	 * clearing inline component assets.
 	 */
-	function _cleanup() {
-		if ( _isInlineComponent() ) {
+	function cleanup() {
+		if ( getParent().isInlineComponent() ) {
 			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
-			var templatePath = currentDir & "#variables._inlineComponentId#.cfm";
-			var componentPath = currentDir & "#variables._inlineComponentId#.cfc";
+			var templatePath = currentDir & "#getParent().getInlineComponentID()#.cfm";
+			var componentPath = currentDir & "#getParent().getInlineComponentID()#.cfc";
 
 			if ( fileExists( templatePath ) ) {
 				fileDelete( templatePath );
@@ -1400,31 +1333,23 @@ component accessors="true" {
 		}
 	}
 
-	/**
-	 * Sets the module this component belongs to.
-	 * 
-	 * @return void
-	 */
-	function _setModule( value ) {
-		variables._module = arguments.value;
-	}
-
 	/** 
 	 * Returns the computed properties wrapped with 
 	 * checks for caching.
 	 * 
 	 * @return struct
 	 */
-	function _getComputedPropertiesWithCaching() {
+	function getComputedPropertiesWithCaching() {
 		var result = {};
 		// Loop through computed properties and setup caching checks
-    	_getComputedProperties().each( function( propertyName, method ) {
+    	getComputedProperties().each( function( propertyName, method ) {
 			result[ propertyName ] = function( caching = true ) {
 				if ( caching ) {
-					if ( !variables._cache.keyExists( propertyName ) ) {
-						variables._cache[ propertyName ] = method();
+					var cache = getCache();
+					if ( !cache.keyExists( propertyName ) ) {
+						cache[ propertyName ] = method();
 					}
-					return variables._cache[ propertyName ];
+					return cache[ propertyName ];
 				} else {
 					return method();
 				}
@@ -1432,5 +1357,32 @@ component accessors="true" {
 		} );
 
 		return result;
+	}
+
+	/**
+	 * Returns the current ColdBox RequestContext event.
+	 *
+	 * @return RequestContext
+	 */
+	function getEvent(){
+		return getRequestService().getContext();
+	}
+
+	/**
+	 * Returns our event's public request collection.
+	 *
+	 * @return Struct
+	 */
+	function getCollection(){
+		return getEvent().getCollection( argumentCollection = arguments );
+	}
+
+	/**
+	 * Returns our event's private request collection.
+	 *
+	 * @return Struct
+	 */
+	function getPrivateCollection(){
+		return getEvent().getPrivateCollection( argumentCollection = arguments );
 	}
 }

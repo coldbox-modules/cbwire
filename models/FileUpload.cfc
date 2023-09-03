@@ -77,7 +77,7 @@ component accessors="true" {
 	function destroy(){
 		fileDelete( getTemporaryStoragePath() );
 		fileDelete( getMetaPath() );
-		getComp()._reset( getDataPropertyName() );
+		getComp().reset( getDataPropertyName() );
 	}
 
 }

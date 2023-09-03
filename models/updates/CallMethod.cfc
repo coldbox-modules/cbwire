@@ -1,7 +1,5 @@
 component extends="BaseUpdate" {
 
-	property name="cbwireRequest" inject="CBWireRequest@cbwire";
-
 	/**
 	 * Is updating data property? Defaults to false.
 	 */
@@ -22,7 +20,7 @@ component extends="BaseUpdate" {
 		arguments.comp._renderComputedProperties();
 
 		if ( getPayloadMethod() == "finishUpload" ) {
-			arguments.comp._finishUpload( params = getPassedParamsAsArguments() );
+			arguments.comp.finishUpload( params = getPassedParamsAsArguments() );
 			return;
 		}
 		if ( getPayloadMethod() == "startUpload" ) {
@@ -52,10 +50,11 @@ component extends="BaseUpdate" {
 				invoke( arguments.comp.getParent(), getPayloadMethod(), getPassedParamsAsArguments() );
 			} catch ( ValidationException validateException ) {
 				// Silently stop further action processing on validationOrFail() exceptions.
+			} catch ( any e ) {
+				rethrow;
 			}
 			return;
 		}
-
 		// We cannot locate the action, so throw an error.
 		throw(
 			type = "WireActionNotFound",

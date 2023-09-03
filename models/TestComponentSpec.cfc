@@ -70,7 +70,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 	}
 
 	function toggle( required name ){
-		var data = _getDataProperties();
+		var data = getDataProperties();
 		if ( structKeyExists( data, name ) && isBoolean( data[ name ] ) ) {
 			data[ name ] = !data[ name ];
 		}
@@ -85,13 +85,13 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 			
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				cbwireComponent._setComputedProperties( getComputed() );
+				cbwireComponent.setComputedProperties( getComputed() );
 			}
 
 			var memento = cbwireComponent
-				._hydrate()
-				._subsequentRenderIt()
-				._getMemento();
+				.hydrate()
+				.subsequentRenderIt()
+				.getMemento();
 			var html = memento[ "effects" ][ "html" ];
 			setRendering( html );
 			return html;
@@ -99,14 +99,14 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var cbwireComponent = getWireInstance();
 
 			if ( listLen( structKeyList( getComputed() ) ) ) {
-				var computedProperties = cbwireComponent._getComputedProperties();
+				var computedProperties = cbwireComponent.getComputedProperties();
 				getComputed().each( function( key, value ) {
 					computedProperties[ key ] = value;
 				} );
 			}
 			var rendering = cbwireComponent
-				._mount( getParameters() )
-				._renderIt();
+				.mount( getParameters() )
+				.renderIt();
 			setRendering( rendering );
 			return rendering;
 		}
@@ -152,22 +152,22 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 	function seeData( required dataProperty, required value ){
 		renderIt();
-		expect( _getDataProperties()[ dataProperty ] ).toBe( value );
+		expect( getDataProperties()[ dataProperty ] ).toBe( value );
 		return this;
 	}
 
 	function dontSeeData( required dataProperty, required value ){
 		renderIt();
-		expect( _getDataProperties()[ dataProperty ] ).notToBe( value );
+		expect( getDataProperties()[ dataProperty ] ).notToBe( value );
 		return this;
 	}
 
-	private function _getDataProperties(){
-		return getWireInstance()._getDataProperties();
+	private function getDataProperties(){
+		return getWireInstance().getDataProperties();
 	}
 
 	private function getComputedProperties(){
-		return getWireInstance()._getComputedProperties();
+		return getWireInstance().getComputedProperties();
 	}
 
 	private function getWireInstance(){
