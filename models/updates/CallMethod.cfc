@@ -17,7 +17,7 @@ component extends="BaseUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
-		arguments.comp._renderComputedProperties();
+		//arguments.comp._renderComputedProperties();
 
 		if ( getPayloadMethod() == "finishUpload" ) {
 			arguments.comp.finishUpload( params = getPassedParamsAsArguments() );

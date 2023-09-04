@@ -32,7 +32,7 @@ component accessors="true" extends="BaseUpdate" {
 		arguments.comp.setProperty( getName(), getValue() );
 
 		// When syncing input, render our computed properties after the input has synced.
-		arguments.comp._renderComputedProperties();
+		//arguments.comp._renderComputedProperties();
 	}
 
 	/**

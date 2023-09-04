@@ -40,12 +40,10 @@ component extends="BaseRenderer" {
 				if ( !isNull( arguments.value ) && isSimpleValue( arguments.value ) && findNoCase( "cbwire-upload:", arguments.value ) ) {
 					var uploadFullReference = duplicate( arguments.value );
 					var uuid = replaceNoCase( arguments.value, "cbwire-upload:", "", "once" );
-					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=this, params=[ key, [ uuid  ] ] } );
+					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=this, params=[ key, [ uuid  ] ] } );		
 				}
-				invokeMethod(
-					methodName = "set" & arguments.key,
-					value      = isNull( arguments.value ) ? "" : arguments.value
-				);					
+
+				setProperty( arguments.key, isNull( arguments.value ) ? "" : arguments.value );	
 
 				if ( structKeyExists( getParent(), "onHydrate#arguments.key#" ) ) {
 					invoke( getParent(), "onHydrate#arguments.key#", {
@@ -68,108 +66,99 @@ component extends="BaseRenderer" {
 		}
 
 		// Check if our request contains updates, and if so apply them.
-		if ( hasUpdates() ) {
-			applyUpdates();
-		}
+		handleConcern( "ApplyUpdates" );
 
 		return this;
 	}
 
-	/**
-	 * Returns an array of WireUpdate objects with our updates from the request context.
-	 *
-	 * @return Array | WireUpdate
-	 */
-	function getUpdates(){
-		return getCollection()[ "updates" ].map( function( update ){
-			var casedType = arguments.update.type;
-
-			casedType = reReplaceNoCase( casedType, "^(.)", "\U\1", "one" );
-
-			return getWirebox().getInstance(
-				name = "#casedType#@cbwire",
-				initArguments = { "update" : arguments.update }
-			);
-		} );
+	function handleConcern( concern ) {
+		arguments.comp = this;
+		return getInstance( arguments.concern & "Concern@cbwire" ).handle( argumentCollection=arguments );
 	}
 
 	/**
-	 * Applies any updates in our request to the specified cbwire component
+	 * Emits a global event from our cbwire component.
+	 *
+	 * @eventName String | The name of our event to emit.
+	 */
+	function emit( required eventName ){
+		return handleConcern( concern="Emit", eventName=arguments.eventName );
+	}
+
+	/**
+	 * Emits an event that is scoped to just the current cbwire component.
+	 *
+	 * Additional parameters can be passed through.
+
+	 * @eventName String | The name of our event to emit.
 	 *
 	 * @return Void
 	 */
-	function applyUpdates(){
-		// Fire our preUpdate lifecycle event.
-		invokeMethod( "preUpdate" );
-		var beforeSyncInputState = duplicate( getDataProperties() );
+	function emitSelf( required eventName ) {
+		var parameters = parseEmitArguments( argumentCollection=arguments );
 
-		/*
-			Run the Sync Input's first and track 
-			what fields are being synced. We do this
-			so later we can determine if any data properties
-			changed after calling actions.
-		*/
-		getUpdates().filter( function( update ) {
-			return update.isUpdatingDataProperty();
-		} ).each( function( update ) {
-			// Apply the update
-			arguments.update.apply( this );
-		} );
+		var emitter = {
+			"event" : arguments.eventName,
+			"params" : parameters,
+			"selfOnly" : true
+		};
 
-		var afterSyncInputState = duplicate( getDataProperties() );
+		// Capture the emit as we will need to notify the UI in our response
+		trackEmit( emitter );
+	}
 
-		getUpdates().filter( function(update ) {
-			return update.isUpdatingDataProperty()			
-		} ).each( function( update ) {
-			var oldValue = beforeSyncInputState[ update.getName() ];
-			var newValue = afterSyncInputState[ update.getName() ];
-
-			invokeMethod(
-				methodName = "onUpdate" & update.getName(),
-				passThroughParameters = { "newValue": newValue, "oldValue": oldValue }
-			);
-		} );
-
-		// Update the state of our component with each of our updates
-		getUpdates().filter( function( update ) {
-			return !isInstanceOf( update, "SyncInput" );
-		} ).each( function( update ) {
-			arguments.update.apply( this );
-		} );
-
-		// Fire our postUpdate lifecycle event.
-		invokeMethod( 
-			methodName = "onUpdate",
-			passThroughParameters = {
-				"newValues": afterSyncInputState,
-				"oldValues": beforeSyncInputState
-			}
-		);
-
-
-		// Determine "dirty" properties
-		var dirtyProperties = afterSyncInputState.reduce( function( agg, key, value ) {
-			var oldValue = getDataProperties()[ arguments.key ];
-			
-			if ( isObject( arguments.value ) ) {
-				return agg;
-			} else if ( isSimpleValue( oldValue ) && oldValue != arguments.value ) {
-				agg.append( arguments.key );
-			} else if ( 
-				( isArray( oldValue ) && isArray( arguments.value ) ) ||
-				( isStruct( oldValue ) ) && isStruct( arguments.value )
-			) {
-				if ( serializeJSON( oldValue ) != serializeJSON( arguments.value ) ) {
-					agg.append( arguments.key );
-				}
-			}
-			return agg;
-		}, [] );
+	/**
+	 * Emits an event that is scoped to parents and not children or sibling components.
+	 *
+	 * Additional parameters can be passed through.
+	 * @eventName String | The name of our event to emit.
+	 *
+	 * @return Void
+	 */
+	function emitUp( required eventName ){
+		var parameters = parseEmitArguments( argumentCollection=arguments );
 		
+		var emitter = {
+			"event" : arguments.eventName,
+			"params" : parameters,
+			"ancestorsOnly" : true
+		};
 
-		dirtyProperties.each( function( dirtyProperty ) {
-			_addDirtyProperty( dirtyProperty );
-		});
+		// Capture the emit as we will need to notify the UI in our response
+		trackEmit( emitter );
+	}
+
+	/**
+	 * Emits an event that is scoped to only a specific component.
+	 *
+	 * Additional parameters can be passed through.
+	 * @eventName String | The name of our event to emit.
+	 *
+	 * @return Void
+	 */
+	function emitTo( required componentName, required eventName ){
+		var parameters = parseEmitArguments( argumentCollection=arguments );
+
+		// Remove the first param since it's our component name.
+		parameters.deleteAt( 1 );
+
+		var emitter = {
+			"event" : arguments.eventName,
+			"params" : parameters,
+			"to" : arguments.componentName
+		};
+
+		// Capture the emit as we will need to notify the UI in our response
+		trackEmit( emitter );
+	}
+
+	/**
+	 * When called, the component is flagged so that no rendering will occur.
+	 *
+	 * @return void
+	 */
+	function noRender(){
+		setNoRendering( true );
 	}
 
 	/**
@@ -214,15 +203,6 @@ component extends="BaseRenderer" {
 	 */
 	function getFingerprint(){
 		return getCollection().fingerprint;
-	}
-
-	/**
-	 * Returns true if our request context contains an 'updates' property.
-	 *
-	 * @return Boolean
-	 */
-	function hasUpdates(){
-		return structKeyExists( getCollection(), "updates" ) && isArray( getCollection().updates ) && arrayLen( getCollection().updates );
 	}
 
 	/**

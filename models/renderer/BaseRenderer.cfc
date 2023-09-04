@@ -322,166 +322,6 @@ component accessors="true" {
 	}
 
 	/**
-	 * Emits a global event from our cbwire component.
-	 *
-	 * @eventName String | The name of our event to emit.
-	 */
-	function emit( required eventName ){
-
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-
-		if ( !arguments.keyExists( "track" ) ) {
-			arguments.track = true;
-		}
-
-		// Capture the emit as we will need to notify the UI in our response
-		if ( arguments.track ) {
-			var emitter = {
-				"event" : arguments.eventName,
-				"params" : parameters
-			};
-
-			trackEvent( emitter );
-		}
-	}
-
-	/**
-	 * Emits an event that is scoped to just the current cbwire component.
-	 *
-	 * Additional parameters can be passed through.
-
-	 * @eventName String | The name of our event to emit.
-	 *
-	 * @return Void
-	 */
-	function emitSelf( required eventName ) {
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-
-		var emitter = {
-			"event" : arguments.eventName,
-			"params" : parameters,
-			"selfOnly" : true
-		};
-
-		// Capture the emit as we will need to notify the UI in our response
-		trackEvent( emitter );
-	}
-
-	/**
-	 * Emits an event that is scoped to parents and not children or sibling components.
-	 *
-	 * Additional parameters can be passed through.
-	 * @eventName String | The name of our event to emit.
-	 *
-	 * @return Void
-	 */
-	function emitUp( required eventName ){
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-		
-		var emitter = {
-			"event" : arguments.eventName,
-			"params" : parameters,
-			"ancestorsOnly" : true
-		};
-
-		// Capture the emit as we will need to notify the UI in our response
-		trackEvent( emitter );
-	}
-
-	/**
-	 * Emits an event that is scoped to only a specific component.
-	 *
-	 * Additional parameters can be passed through.
-	 * @eventName String | The name of our event to emit.
-	 *
-	 * @return Void
-	 */
-	function emitTo( required componentName, required eventName ){
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-
-		// Remove the first param since it's our component name.
-		parameters.deleteAt( 1 );
-
-		var emitter = {
-			"event" : arguments.eventName,
-			"params" : parameters,
-			"to" : arguments.componentName
-		};
-
-		// Capture the emit as we will need to notify the UI in our response
-		trackEvent( emitter );
-	}
-
-	/**
-	 * Runs if any missing methods are called on our component.
-	 *
-	 * Mainly used for component populator using the wirebox populator
-	 * and trusted setters.
-	 *
-	 * @missingMethodName String | Name of the missing method that was called.
-	 * @missingMethodArguments Struct | The arguments provided to the missing method.
-	 *
-	 * @return Void
-	 */
-	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
-		var settings = getSettings();
-
-		var data = getDataProperties();
-
-		var computed = getComputedProperties();
-
-		if ( reFindNoCase( "^get.+", arguments.missingMethodName ) ) {
-			// Extract data property name from the getter method called.
-			var propertyName = reReplaceNoCase( arguments.missingMethodName, "^get", "", "one" )
-
-			// Check to see if the data property name is defined on the component.
-			if ( structKeyExists( data, propertyName ) ) {
-				return data[ propertyName ];
-			}
-
-			// Check to see if the computed property name is defined in the component.
-			if ( structKeyExists( computed, propertyName ) ) {
-				return computed[ propertyName ];
-			}
-		}
-
-		if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ) {
-			// Extract data property name from the setter method called.
-			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
-
-			// Check to see if the data property name is defined in the component.
-			var dataPropertyExists = structKeyExists( data, dataPropertyName );
-
-			if ( dataPropertyExists ) {
-				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
-				if ( structKeyExists( arguments.missingMethodArguments, "value" ) ) {
-					setProperty( dataPropertyName, arguments.missingMethodArguments.value );
-				} else {
-					setProperty( dataPropertyName, arguments.missingMethodArguments[ 1 ], true );
-				}
-			} else if (
-				structKeyExists( settings, "throwOnMissingSetterMethod" ) && settings.throwOnMissingSetterMethod == true
-			) {
-				throw( type = "WireSetterNotFound", message = "The wire property '#dataPropertyName#' was not found." );
-			}
-		}
-
-		if ( reFindNoCase( "^reset.+", arguments.missingMethodName ) ) {
-			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
-			reset( dataPropertyName );
-		}
-	}
-
-	/**
-	 * When called, the component is flagged so that no rendering will occur.
-	 *
-	 * @return void
-	 */
-	function noRender(){
-		setNoRendering( true );
-	}
-
-	/**
 	 * Validate an object or structure according to the constraints rules.
 	 *
 	 * @target An object or structure to validate
@@ -608,7 +448,7 @@ component accessors="true" {
 	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
 	 * @return Array;
 	 */
-	function trackEvent( required emitter ){
+	function trackEmit( required emitter ){
 		getEmittedEvents().append( arguments.emitter );
 	}
 
@@ -747,8 +587,6 @@ component accessors="true" {
 	 * Sets an individual data property value, first by using a setter
 	 * if it exists, and otherwise setting directly to our variables
 	 * scope.
-	 *
-	 * Fires '$preUpdate[prop]' and 'postUpdate[prop]' events on the cbwire component.
 	 *
 	 * @propertyName String | Name of the property we are setting
 	 * @value Any | Value of the property we are settting
@@ -1293,27 +1131,6 @@ component accessors="true" {
 	}
 
 	/**
-	 * Parse out emit arguments and parameters
-	 */
-	function parseEmitArguments( required eventName ) {
-		var argumentsRef = arguments;
-		return arguments.reduce( function ( agg, argument ) {
-
-			if ( argument == "eventName" ) return agg;
-
-			if ( isArray( argumentsRef[ argument ] ) ) {
-				argumentsRef[ argument ].each( function( nestedArgument ) {
-					agg.append( nestedArgument );
-				} );
-			} else {
-				agg.append( argumentsRef[ argument ] );
-			}
-
-			return agg;
-		}, [] );
-	}
-
-	/**
 	 * Perform any cleanup work such as 
 	 * clearing inline component assets.
 	 */
@@ -1384,5 +1201,65 @@ component accessors="true" {
 	 */
 	function getPrivateCollection(){
 		return getEvent().getPrivateCollection( argumentCollection = arguments );
+	}
+
+/**
+	 * Runs if any missing methods are called on our component.
+	 *
+	 * Mainly used for component populator using the wirebox populator
+	 * and trusted setters.
+	 *
+	 * @missingMethodName String | Name of the missing method that was called.
+	 * @missingMethodArguments Struct | The arguments provided to the missing method.
+	 *
+	 * @return Void
+	 */
+	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
+		var settings = getSettings();
+
+		var data = getDataProperties();
+
+		var computed = getComputedProperties();
+
+		if ( reFindNoCase( "^get.+", arguments.missingMethodName ) ) {
+			// Extract data property name from the getter method called.
+			var propertyName = reReplaceNoCase( arguments.missingMethodName, "^get", "", "one" )
+
+			// Check to see if the data property name is defined on the component.
+			if ( structKeyExists( data, propertyName ) ) {
+				return data[ propertyName ];
+			}
+
+			// Check to see if the computed property name is defined in the component.
+			if ( structKeyExists( computed, propertyName ) ) {
+				return computed[ propertyName ];
+			}
+		}
+
+		if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ) {
+			// Extract data property name from the setter method called.
+			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
+
+			// Check to see if the data property name is defined in the component.
+			var dataPropertyExists = structKeyExists( data, dataPropertyName );
+
+			if ( dataPropertyExists ) {
+				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
+				if ( structKeyExists( arguments.missingMethodArguments, "value" ) ) {
+					setProperty( dataPropertyName, arguments.missingMethodArguments.value );
+				} else {
+					setProperty( dataPropertyName, arguments.missingMethodArguments[ 1 ], true );
+				}
+			} else if (
+				structKeyExists( settings, "throwOnMissingSetterMethod" ) && settings.throwOnMissingSetterMethod == true
+			) {
+				throw( type = "WireSetterNotFound", message = "The wire property '#dataPropertyName#' was not found." );
+			}
+		}
+
+		if ( reFindNoCase( "^reset.+", arguments.missingMethodName ) ) {
+			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
+			reset( dataPropertyName );
+		}
 	}
 }
