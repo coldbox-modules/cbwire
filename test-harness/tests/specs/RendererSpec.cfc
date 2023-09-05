@@ -260,7 +260,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function parseInitialData( html ) {
 		var regexMatches = reFindNoCase( "wire:initial-data=""(.+)""", html, 1, true );
-		return mid( html, regexMatches.pos[ 2 ], regexMatches.len[ 2 ] ).replaceNoCase( "&quot;", "'", "all" );
+		return mid( html, regexMatches.pos[ 2 ], regexMatches.len[ 2 ] ).replaceNoCase( "&quot;", """", "all" );
 	}
 
 }
