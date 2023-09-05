@@ -16,64 +16,8 @@ component extends="BaseRenderer" {
 	 * @return Component
 	 */
 	function hydrate(){
-		var cbwireRequest = getInstance( "CBWireRequest@cbwire" );
-
-        if ( hasFingerprint() ) {
-			setID( getFingerPrint()[ "id" ] );
-		}
-
-		setBeforeHydrationState( duplicate( getState() ) );
-
-		if ( hasServerMemoData() ) {
-			getDataProperties().each( function( key, value ) {
-				if ( structKeyExists( getServerMemoData(), key ) ) {
-					getDataProperties()[ key ] = getServerMemoData()[ key ];
-				}
-			} );
-		}
-
-		// Check if our request contains a server memo, and if so update our component state.
-		if ( hasServerMemo() ) {
-			var serverMemo = getServerMemo();
-
-			serverMemo.data.each( function( key, value ){
-				if ( !isNull( arguments.value ) && isSimpleValue( arguments.value ) && findNoCase( "cbwire-upload:", arguments.value ) ) {
-					var uploadFullReference = duplicate( arguments.value );
-					var uuid = replaceNoCase( arguments.value, "cbwire-upload:", "", "once" );
-					arguments.value = getController().getWireBox().getInstance( name="FileUpload@cbwire", initArguments={ comp=this, params=[ key, [ uuid  ] ] } );		
-				}
-
-				setProperty( arguments.key, isNull( arguments.value ) ? "" : arguments.value );	
-
-				if ( structKeyExists( getParent(), "onHydrate#arguments.key#" ) ) {
-					invoke( getParent(), "onHydrate#arguments.key#", {
-						data : getDataProperties(),
-						computed : getComputedProperties()
-					} );
-				}
-			} );
-
-			if ( hasChildren() ) {
-				variables.$children = getChildren();
-			}
-		}
-
-		if ( structKeyExists( getParent(), "onHydrate" ) ) {
-			getParent().onHydrate(
-				data=getDataProperties(),
-				computed=getComputedProperties()
-			);
-		}
-
-		// Check if our request contains updates, and if so apply them.
-		handleConcern( "ApplyUpdates" );
-
+		handleConcern( concern="Hydrate" );
 		return this;
-	}
-
-	function handleConcern( concern ) {
-		arguments.comp = this;
-		return getInstance( arguments.concern & "Concern@cbwire" ).handle( argumentCollection=arguments );
 	}
 
 	/**

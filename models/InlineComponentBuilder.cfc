@@ -16,7 +16,7 @@ component accessors="true" singleton {
 		if ( fileExists( cfmPath ) ) {
             var files = generateFiles( arguments.componentName, parseContents( cfmPath ) );
 
-			return loadComponent( arguments.componentName, files.tempComponentName, arguments.module );
+			return loadComponent( arguments.componentName, listLast( files.tempComponentName, "." ), arguments.module );
 		}
     }
 
@@ -72,6 +72,9 @@ component accessors="true" singleton {
      * @return void
      */
     private function generateFiles( componentName, parsedContents ) {
+
+        arguments.componentName = listLast( arguments.componentName, "." );
+
         var currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
         var tmpDirectory = currentDirectory & "tmp";
 
@@ -103,6 +106,7 @@ component accessors="true" singleton {
      */
     private function loadComponent( required componentName, required tempComponentName, module = "" ) {
         
+
         var comp = getWireBox()
                     .getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" );
 

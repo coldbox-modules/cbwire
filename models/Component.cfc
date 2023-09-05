@@ -7,6 +7,7 @@ component accessors="true" {
 	property name="listeners";
 	property name="computed";
 	property name="template";
+	property name="constraints";
 	property name="queryString";
 	property name="inlineComponentID" default="";
 	property name="inlineComponentType" default="";

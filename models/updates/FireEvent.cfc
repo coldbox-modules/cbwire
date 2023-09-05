@@ -16,7 +16,7 @@ component accessors="true" extends="BaseUpdate" {
 		var eventName = payload.event;
 		var params = payload.params;
 
-		arguments.comp._fire( eventName = eventName, parameters = params );
+		arguments.comp.fire( eventName = eventName, parameters = params );
 	}
 
 }

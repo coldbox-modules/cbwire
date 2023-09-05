@@ -31,13 +31,6 @@ component accessors="true" {
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
-
-	/**
-	 * Holds redirect to
-	 */
-	property name="_redirectTo";
-
-
 	property name="id";
     property name="parent";
 	property name="constraints";
@@ -55,6 +48,8 @@ component accessors="true" {
 	property name="querystring";
 	property name="template";
 	property name="isInitialRendering";
+	property name="redirectTo";
+
 
 	/**
 	 * A beautiful start.
@@ -75,8 +70,13 @@ component accessors="true" {
         setTemplate( isNull( parent.getTemplate() ) ? "" : parent.getTemplate() );
         setListeners( isNull( parent.getListeners() ) ? {} : parent.getListeners() );
 		setQueryString( isNull( parent.getQueryString() ) ? "" : parent.getQueryString() );
-		setConstraints( isNull( parent.constraints ) ? {} : parent.constraints );
+		setConstraints( isNull( parent.getConstraints() ) ? {} : parent.getConstraints() );
         return this;
+	}
+
+	function handleConcern( concern ) {
+		arguments.comp = this;
+		return getCBWIREService().handleConcern( argumentCollection=arguments );
 	}
 
 	/**
@@ -120,131 +120,9 @@ component accessors="true" {
 		URL,
 		URI
 	){
-		// Determine the type of relocation
-		var relocationType = "SES";
-		var relocationURL = "";
-		var eventName = getController().getConfigSettings()[ "EventName" ];
-		var frontController = listLast( CGI.SCRIPT_NAME, "/" );
-		var oRequestContext = getController().getRequestService().getContext();
-		var routeString = 0;
 
-		// Determine relocation type
-		if ( !isNull( arguments.url ) && len( arguments.url ) ) {
-			relocationType = "URL";
-		}
-		if ( !isNull( arguments.URI ) && len( arguments.URI ) ) {
-			relocationType = "URI";
-		}
-
-		// Cleanup event string to default if not sent in
-		if ( len( trim( arguments.event ) ) eq 0 ) {
-			arguments.event = getController().getSetting( "DefaultEvent" );
-		}
-
-		// Query String Struct to String
-		if ( isStruct( arguments.queryString ) ) {
-			arguments.queryString = arguments.queryString
-				.reduce( function( result, key, value ){
-					arguments.result.append( "#encodeForURL( arguments.key )#=#encodeForURL( arguments.value )#" );
-					return arguments.result;
-				}, [] )
-				.toList( "&" );
-		}
-
-		// Overriding Front Controller via baseURL argument
-		if ( len( trim( arguments.baseURL ) ) ) {
-			frontController = arguments.baseURL;
-		}
-
-		// Relocation Types
-		switch ( relocationType ) {
-			// FULL URL relocations
-			case "URL": {
-				relocationURL = arguments.URL;
-				// Check SSL?
-				if ( !isNull( arguments.ssl ) ) {
-					relocationURL = getController().updateSSL( relocationURL, arguments.ssl );
-				}
-				// Query String?
-				if ( len( trim( arguments.queryString ) ) ) {
-					relocationURL = relocationURL & "?#arguments.queryString#";
-				}
-				break;
-			}
-
-			// URI relative relocations
-			case "URI": {
-				relocationURL = arguments.URI;
-				// Query String?
-				if ( len( trim( arguments.queryString ) ) ) {
-					relocationURL = relocationURL & "?#arguments.queryString#";
-				}
-				break;
-			}
-
-			// Default event relocations
-			default: {
-				// Convert module into proper entry point
-				if ( listLen( arguments.event, ":" ) > 1 ) {
-					var mConfig = getController().getSetting( "modules" );
-					var module = listFirst( arguments.event, ":" );
-					if ( structKeyExists( mConfig, module ) ) {
-						arguments.event = mConfig[ module ].inheritedEntryPoint & "/" & listRest( arguments.event, ":" );
-					}
-				}
-				// Route String start by converting event syntax to / syntax
-				routeString = replace( arguments.event, ".", "/", "all" );
-				// Convert Query String to convention name value-pairs
-				if ( len( trim( arguments.queryString ) ) ) {
-					// If the routestring ends with '/' we do not want to
-					// double append '/'
-					if ( right( routeString, 1 ) NEQ "/" ) {
-						routeString = routeString & "/" & replace( arguments.queryString, "&", "/", "all" );
-					} else {
-						routeString = routeString & replace( arguments.queryString, "&", "/", "all" );
-					}
-					routeString = replace( routeString, "=", "/", "all" );
-				}
-
-				// Get Base relocation URL from context
-				relocationURL = oRequestContext.getSESBaseURL();
-				// if the sesBaseURL is nothing, set it to the setting
-				if ( !len( relocationURL ) ) {
-					relocationURL = getController().getSetting( "sesBaseURL" );
-				}
-				// add the trailing slash if there isnt one
-				if ( right( relocationURL, 1 ) neq "/" ) {
-					relocationURL = relocationURL & "/";
-				}
-				// Check SSL?
-				if ( !isNull( arguments.ssl ) ) {
-					relocationURL = getController().updateSSL( relocationURL, arguments.ssl );
-				}
-
-				// Finalize the URL
-				relocationURL = relocationURL & routeString;
-
-				break;
-			}
-		}
-
-		// persist Flash RAM
-		persistVariables( argumentCollection = arguments );
-
-		// Post Processors
-		if ( NOT arguments.postProcessExempt ) {
-			getController().getInterceptorService().announce( "postProcess" );
-		}
-
-		// Save Flash RAM
-		if ( getController().getConfigSettings().flash.autoSave ) {
-			controller
-				.getRequestService()
-				.getFlashScope()
-				.saveFlash();
-		}
-
-		set_redirectTo( relocationURL );
+		arguments.concern = "Relocate";
+		return handleConcern( argumentCollection=arguments );
 	}
 
 	/**
@@ -546,7 +424,7 @@ component accessors="true" {
 	 * @eventName String | The name of our event to emit.
 	 * @parameters Arrays | The params passed with the emitter.
 	 */
-	function _fire( required eventName, array parameters = [] ){
+	function fire( required eventName, array parameters = [] ){
 		var listeners = getListeners();
 
 		if ( structKeyExists( listeners, eventName ) ) {
@@ -680,7 +558,7 @@ component accessors="true" {
 				"html" : getHTML(),
 				"dirty" : getDirtyProperties(),
 				"emits" : getEmittedEvents(),
-				"redirect" : !isNull( get_RedirectTo() ) ? get_RedirectTo() : javacast( "null", 0 )
+				"redirect" : !isNull( getRedirectTo() ) ? getRedirectTo() : javacast( "null", 0 )
 			},
 			"serverMemo" : {
 				"data" : getState( includeComputed = false ),
@@ -795,45 +673,11 @@ component accessors="true" {
 	 * @return Component
 	 */
 	function mount( parameters = {}, key = "" ){
-		getController().getInterceptorService().announce(
-			"onCBWireMount",
-			{
-				component : this,
-				parameters : arguments.parameters
-			}
-		);
-
-		if ( structKeyExists( getParent(), "mount" ) ) {
-			getParent().mount(
-				parameters = arguments.parameters,
-				key = arguments.key,
-				event = getEvent(),
-				rc = getCollection(),
-				prc = getPrivateCollection()
-			);
-		} else if ( structKeyExists( getParent(), "onMount" ) ) {
-			getParent().onMount(
-				parameters = arguments.parameters,
-				key = arguments.key,
-				event = getEvent(),
-				rc = getCollection(),
-				prc = getPrivateCollection()
-			);
-		} else {
-			/**
-			 * Use setter population to populate our component.
-			 */
-			getPopulator().populateFromStruct(
-				target: this,
-				trustedSetter: true,
-				memento: arguments.parameters,
-				excludes: ""
-			);
-		}
-
-		// Capture the state before hydration
-		setBeforeHydrationState( duplicate( getState() ) );
-
+		arguments.concern = "OnMount";
+		arguments.event = getEvent();
+		arguments.rc = getCollection();
+		arguments.prc = getPrivateCollection();
+		handleConcern( argumentCollection=arguments );
 		return this;
 	}
 
@@ -891,30 +735,6 @@ component accessors="true" {
 		}
 
 		throw( message = "Cannot find data property '#arguments.dataProperty#' for toggling." );
-	}
-
-	/**
-	 * Internal helper to flash persist elements
-	 *
-	 * @persist       What request collection keys to persist in flash RAM automatically for you
-	 * @persistStruct A structure of key-value pairs to persist in flash RAM automatically for you
-	 *
-	 * @return Controller
-	 */
-	private function persistVariables( persist = "", struct persistStruct = {} ){
-		var flash = getController().getRequestService().getFlashScope();
-
-		// persist persistStruct if passed
-		if ( !isNull( arguments.persistStruct ) ) {
-			flash.putAll( map = arguments.persistStruct, saveNow = true );
-		}
-
-		// Persist RC keys if passed.
-		if ( len( trim( arguments.persist ) ) ) {
-			flash.persistRC( include = arguments.persist, saveNow = true );
-		}
-
-		return this;
 	}
 
 	/**
@@ -980,7 +800,9 @@ component accessors="true" {
 	 * @return String
 	 */
 	function subsequentRenderIt(){
-		getController().getInterceptorService().announce( "onCBWireSubsequentRenderIt", { component : this } );
+        setIsInitialRendering( false );
+		var result = getNoRendering() ? "" : renderIt();
+        getEvent().setValue( "_cbwire_subsequent_rendering", trim( result ) );
 		return this;
 	}
 
@@ -1137,8 +959,8 @@ component accessors="true" {
 	function cleanup() {
 		if ( getParent().isInlineComponent() ) {
 			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
-			var templatePath = currentDir & "#getParent().getInlineComponentID()#.cfm";
-			var componentPath = currentDir & "#getParent().getInlineComponentID()#.cfc";
+			var templatePath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfm";
+			var componentPath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfc";
 
 			if ( fileExists( templatePath ) ) {
 				fileDelete( templatePath );
@@ -1215,47 +1037,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
-		var settings = getSettings();
-
-		var data = getDataProperties();
-
-		var computed = getComputedProperties();
-
-		if ( reFindNoCase( "^get.+", arguments.missingMethodName ) ) {
-			// Extract data property name from the getter method called.
-			var propertyName = reReplaceNoCase( arguments.missingMethodName, "^get", "", "one" )
-
-			// Check to see if the data property name is defined on the component.
-			if ( structKeyExists( data, propertyName ) ) {
-				return data[ propertyName ];
-			}
-
-			// Check to see if the computed property name is defined in the component.
-			if ( structKeyExists( computed, propertyName ) ) {
-				return computed[ propertyName ];
-			}
-		}
-
-		if ( reFindNoCase( "^set.+", arguments.missingMethodName ) ) {
-			// Extract data property name from the setter method called.
-			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^set", "", "one" );
-
-			// Check to see if the data property name is defined in the component.
-			var dataPropertyExists = structKeyExists( data, dataPropertyName );
-
-			if ( dataPropertyExists ) {
-				// Handle variations in missingMethodArguments from wirebox bean populator and our own implemented setters.
-				if ( structKeyExists( arguments.missingMethodArguments, "value" ) ) {
-					setProperty( dataPropertyName, arguments.missingMethodArguments.value );
-				} else {
-					setProperty( dataPropertyName, arguments.missingMethodArguments[ 1 ], true );
-				}
-			} else if (
-				structKeyExists( settings, "throwOnMissingSetterMethod" ) && settings.throwOnMissingSetterMethod == true
-			) {
-				throw( type = "WireSetterNotFound", message = "The wire property '#dataPropertyName#' was not found." );
-			}
-		}
+		handleConcern( concern="DynamicGetterSetter", methodName=arguments.missingMethodName, methodArguments=arguments.missingMethodArguments );
 
 		if ( reFindNoCase( "^reset.+", arguments.missingMethodName ) ) {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );

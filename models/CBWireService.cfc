@@ -186,6 +186,26 @@ component accessors="true" singleton {
 			.noRender();
 	}
 
+    /**
+	 * Instantiates our cbwire component, mounts it,
+	 * and then calls it's internal renderIt() method.
+	 *
+	 * @componentName String | The name of the component to load.
+	 * @parameters Struct | The parameters you want mounted initially.
+	 *
+	 * @return Component
+	 */
+    function wire( componentName, parameters = {} ) {
+        return getComponentInstance( arguments.componentName )
+                   .startup()
+                   .mount( arguments.parameters )
+                   .renderIt();
+    }
+
+	function handleConcern( concern ) {
+		return getWirebox().getInstance( arguments.concern & "Concern@cbwire" ).handle( argumentCollection=arguments );
+	}
+
 	/**
 	 * Returns the module of the current request.
 	 * 
