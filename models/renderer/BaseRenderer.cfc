@@ -255,18 +255,6 @@ component accessors="true" {
 	}
 
 	/**
-	 * Resets a property back to it's original state when the component
-	 * was initially hydrated.
-	 *
-	 * This accepts either a single property or an array of properties
-	 *
-	 * @return Void
-	 */
-	function reset( property ){
-		reset( argumentCollection = arguments );
-	}
-
-	/**
 	 * Refreshes a component, which mainly is just changing it's id
 	 * so that it rerenders in the DOM.
 	 */
