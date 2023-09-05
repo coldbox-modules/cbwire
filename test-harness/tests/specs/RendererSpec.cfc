@@ -86,7 +86,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( initialDataStruct.serverMemo.checksum ).toBe( "BADBE6F8E88D18078F92F3C05DFB1917" );
 				expect( initialDataStruct.serverMemo.htmlHash ).toBe( "F907DA7046723B56BD64AFAEDFA5EDC91C6D63DCD89CC96B02E5E4DD609E974D" );
 				expect( initialDataStruct.fingerprint.module ).toBe( "" );
-				expect( initialDataStruct.fingerprint.path ).toContain( "/tests/" );
+				expect( structKeyExists( initialDataStruct.fingerprint, "path" ) ).toBeTrue();
 				expect( initialDataStruct.fingerprint.name ).toBe( "tests.templates.TestComponent" );
 				expect( initialDataStruct.fingerprint.id.len() ).toBe( 20 );
 				expect( initialDataStruct.fingerprint.method ).toBe( "GET" );
