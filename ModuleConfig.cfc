@@ -66,7 +66,6 @@ component {
 
 		interceptorSettings = {
 			customInterceptionPoints : [
-				"onCBWireRequest",
 				"onCBWireMount",
 				"onCBWireRenderIt",
 				"onCBWireSubsequentRenderIt"

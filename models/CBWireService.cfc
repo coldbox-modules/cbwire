@@ -16,11 +16,6 @@ component accessors="true" {
 	property name="wirebox" inject="wirebox";
 
 	/**
-	 * Injection CBWireRequest
-	 */
-	property name="cbwireRequest" inject="CBWireRequest@cbwire";
-
-	/**
 	 * Injected RequestService so that we can access the current ColdBox RequestContext.
 	 */
 	property name="requestService" inject="coldbox:requestService";

@@ -4,7 +4,6 @@ component accessors="true" singleton {
 	property name="wirebox" inject="wirebox";
 
 	function handle( comp ){
-		var cbwireRequest = wirebox.getInstance( "CBWireRequest@cbwire" );
 		var localComponent = arguments.comp;
 
 		if ( localComponent.hasFingerprint() ) {

@@ -11,14 +11,8 @@ component accessors="true" {
 	// Inject ColdBox, needed by FrameworkSuperType
 	property name="controller" inject="coldbox";
 
-	// WireBox's populator object
-	property name="populator" inject="wirebox:populator";
-
 	// Inject module settings
 	property name="settings" inject="coldbox:modulesettings:cbwire";
-
-	// Inject the wire request that's incoming from the browser.
-	property name="cbwireRequest" inject="CBWireRequest@cbwire";
 
 	// Inject the cbwire service
 	property name="cbwireService" inject="CBWireService@cbwire";

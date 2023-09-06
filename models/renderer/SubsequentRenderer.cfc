@@ -11,8 +11,6 @@ component extends="BaseRenderer" {
 	/**
 	 * Hydrates the incoming component with state from our request.
 	 *
-	 * @wireRequest CBWireRequest
-	 *
 	 * @return Component
 	 */
 	function hydrate(){
