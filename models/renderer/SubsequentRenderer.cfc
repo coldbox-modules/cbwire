@@ -16,7 +16,7 @@ component extends="BaseRenderer" {
 	 * @return Component
 	 */
 	function hydrate(){
-		handleConcern( concern="Hydrate" );
+		getConcern( "Hydrate" ).handle( comp=this );
 		return this;
 	}
 
@@ -25,8 +25,9 @@ component extends="BaseRenderer" {
 	 *
 	 * @eventName String | The name of our event to emit.
 	 */
-	function emit( required eventName ){
-		return handleConcern( concern="Emit", eventName=arguments.eventName );
+	function emit( required eventName, parameters ){
+		arguments.comp = this;
+		return getConcern( "Emit" ).handle( argumentCollection=arguments );
 	}
 
 	/**
@@ -38,17 +39,9 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitSelf( required eventName ) {
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-
-		var emitter = {
-			"event" : arguments.eventName,
-			"params" : parameters,
-			"selfOnly" : true
-		};
-
-		// Capture the emit as we will need to notify the UI in our response
-		trackEmit( emitter );
+	function emitSelf( required eventName, parameters ) {
+		arguments.comp = this;
+		return getConcern( "EmitSelf" ).handle( argumentCollection=arguments );
 	}
 
 	/**
@@ -59,17 +52,9 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitUp( required eventName ){
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-		
-		var emitter = {
-			"event" : arguments.eventName,
-			"params" : parameters,
-			"ancestorsOnly" : true
-		};
-
-		// Capture the emit as we will need to notify the UI in our response
-		trackEmit( emitter );
+	function emitUp( required eventName, parameters ){
+		arguments.comp = this;
+		return getConcern( "EmitUp" ).handle( argumentCollection=arguments );
 	}
 
 	/**
@@ -80,20 +65,9 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitTo( required componentName, required eventName ){
-		var parameters = parseEmitArguments( argumentCollection=arguments );
-
-		// Remove the first param since it's our component name.
-		parameters.deleteAt( 1 );
-
-		var emitter = {
-			"event" : arguments.eventName,
-			"params" : parameters,
-			"to" : arguments.componentName
-		};
-
-		// Capture the emit as we will need to notify the UI in our response
-		trackEmit( emitter );
+	function emitTo( required componentName, required eventName, parameters ){
+		arguments.comp = this;
+		return getConcern( "EmitTo" ).handle( argumentCollection=arguments );
 	}
 
 	/**

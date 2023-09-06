@@ -1,8 +1,8 @@
-component accessors="true" singleton {
+component extends="BaseEmitConcern" {
 
     function handle( comp, eventName ) {
 
- 		var parameters = parseEmitArguments( argumentCollection=arguments );
+ 		var localParameters = parseEmitArguments( argumentCollection=arguments );
         
 		if ( !arguments.keyExists( "track" ) ) {
             arguments.track = true;
@@ -12,35 +12,11 @@ component accessors="true" singleton {
 		if ( arguments.track ) {
 			var emitter = {
 				"event" : arguments.eventName,
-				"params" : parameters
+				"params" : localParameters
 			};
 
 			comp.trackEmit( emitter );
 		}
 
     }
-
-    /**
-	 * Parse out emit arguments and parameters
-	 */
-	function parseEmitArguments( required eventName ) {
-		var argumentsRef = arguments;
-		return arguments.reduce( function ( agg, argument ) {
-			var value = argumentsRef[ argument ];
-
-			if ( argument == "eventName" ) return agg;
-
-			if ( isObject( value ) ) {
-				return agg;
-			} else if ( isArray( value ) ) {
-				value.each( function( nestedArgument ) {
-					agg.append( nestedArgument );
-				} );
-			} else {
-				agg.append( value );
-			}
-
-			return agg;
-		}, [] );
-	}
 }

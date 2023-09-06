@@ -1,4 +1,4 @@
-component accessors="true" singleton {
+component accessors="true" {
 
 	/**
 	 * Injected settings.
@@ -202,8 +202,8 @@ component accessors="true" singleton {
                    .renderIt();
     }
 
-	function handleConcern( concern ) {
-		return getWirebox().getInstance( arguments.concern & "Concern@cbwire" ).handle( argumentCollection=arguments );
+	function getConcern( concern ) {
+		return getWirebox().getInstance( arguments.concern & "Concern@cbwire" );
 	}
 
 	/**

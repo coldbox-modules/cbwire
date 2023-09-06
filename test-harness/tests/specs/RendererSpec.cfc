@@ -83,8 +83,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( initialDataStruct.effects.listeners[ 1 ] ).toBe( "onSuccess" );
 				expect( initialDataStruct.serverMemo.data.mounted ).toBeTrue();
 				expect( initialDataStruct.serverMemo.data.name ).toBe( "Grant" );
-				expect( initialDataStruct.serverMemo.checksum ).toBe( "BADBE6F8E88D18078F92F3C05DFB1917" );
-				expect( initialDataStruct.serverMemo.htmlHash ).toBe( "F907DA7046723B56BD64AFAEDFA5EDC91C6D63DCD89CC96B02E5E4DD609E974D" );
+				expect( initialDataStruct.serverMemo.checksum ).toBe( "552FC968AE91CDBF4AEE70F9492FCAD7" );
+				expect( initialDataStruct.serverMemo.htmlHash ).toBe( "C1B0F0D8CB40840A466FB24143E9FF8F2BCAF457368EEAD1E5E6ABA7BDB86702" );
 				expect( initialDataStruct.fingerprint.module ).toBe( "" );
 				expect( structKeyExists( initialDataStruct.fingerprint, "path" ) ).toBeTrue();
 				expect( initialDataStruct.fingerprint.name ).toBe( "tests.templates.TestComponent" );
@@ -138,6 +138,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( isStruct( parent.$callLog().onMount[ 1 ].prc ) ).toBeTrue();
 			} );
 
+			it( "registers listeners", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/template.cfm" );
+				var result = renderInitial( comp );
+				var initialDataJSON = parseInitialData( result );
+				var initialDataStruct = deserializeJSON( initialDataJSON );
+				expect( initialDataStruct.effects.listeners[ 1 ] ).toBe( "onSuccess" );
+			} );
+
 			xit( "throws error if there are two or more outer elements", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/templateWithTwoOuterElements.cfm" );
 				expect( function() {
@@ -166,6 +174,221 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "is an instance of SubsequentRenderer", function() {
 				expect( comp ).toBeInstanceOf( "SubsequentRenderer" );
 			} );
+
+			describe( "emit()", function() {
+				
+				it( "can emit an event with no arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitEventWithoutArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( isArray( firstEmit.params ) ).toBeTrue();
+					expect( arrayLen( firstEmit.params ) ).toBe( 0 );
+				} );
+
+				it( "can emit an event with one argument", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitEventWithOneArg"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "someArg" );
+				} );
+
+				it( "can emit an event with many arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitEventWithManyArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "arg1" );
+					expect( firstEmit.params[ 2 ] ).toBe( "arg2" );
+					expect( firstEmit.params[ 3 ] ).toBe( "arg3" );
+				} );
+			} );
+
+			describe( "emitSelf()", function() {
+				
+				it( "can emit an event with no arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitSelfEventWithoutArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( isArray( firstEmit.params ) ).toBeTrue();
+					expect( arrayLen( firstEmit.params ) ).toBe( 0 );
+					expect( firstEmit.selfOnly ).toBe( true );
+				} );
+
+				it( "can emit an event with one argument", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitSelfEventWithOneArg"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "someArg" );
+					expect( firstEmit.selfOnly ).toBeTrue();
+				} );
+
+				it( "can emit an event with many arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitSelfEventWithManyArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "arg1" );
+					expect( firstEmit.params[ 2 ] ).toBe( "arg2" );
+					expect( firstEmit.params[ 3 ] ).toBe( "arg3" );
+					expect( firstEmit.selfOnly ).toBeTrue();
+				} );
+			} );
+
+			describe( "emitUp()", function() {
+				
+				it( "can emit up an event with no arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitUpEventWithoutArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( isArray( firstEmit.params ) ).toBeTrue();
+					expect( arrayLen( firstEmit.params ) ).toBe( 0 );
+					expect( firstEmit.ancestorsOnly ).toBe( true );
+				} );
+
+				it( "can emit an event with one argument", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitUpEventWithOneArg"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "someArg" );
+					expect( firstEmit.ancestorsOnly ).toBeTrue();
+				} );
+
+				it( "can emit an event with many arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitUpEventWithManyArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "arg1" );
+					expect( firstEmit.params[ 2 ] ).toBe( "arg2" );
+					expect( firstEmit.params[ 3 ] ).toBe( "arg3" );
+					expect( firstEmit.ancestorsOnly ).toBeTrue();
+				} );
+			} );
+
+			describe( "emitTo()", function() {
+				
+				it( "can emit an event with no arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitToEventWithoutArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( isArray( firstEmit.params ) ).toBeTrue();
+					expect( arrayLen( firstEmit.params ) ).toBe( 0 );
+					expect( firstEmit.to ).toBe( "Component2" );
+				} );
+
+				it( "can emit an event with one argument", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitToEventWithOneArg"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "someArg" );
+					expect( firstEmit.to ).toBe( "Component2");
+				} );
+
+				it( "can emit an event with many arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitToEventWithManyArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( firstEmit.params[ 1 ] ).toBe( "arg1" );
+					expect( firstEmit.params[ 2 ] ).toBe( "arg2" );
+					expect( firstEmit.params[ 3 ] ).toBe( "arg3" );
+					expect( firstEmit.to ).toBe( "Component2" );
+				} );
+
+				it( "executes a registered listener", function() {
+					rc.updates = [ {
+						type: "FireEvent",
+						payload: {
+							event: "onSuccess",
+							params: []
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "listener: true" );
+				} );
+			} );
+
 
 			describe( "hydration", function() {
 				
@@ -238,6 +461,50 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
+			describe( "updates", function() {
+				it( "executes onUpdate", function() {
+					rc.updates = [ {
+						type: "SyncInput",
+						payload: {
+							name: "name",
+							value: "I synced!"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					parent.$( "onUpdate" );
+					renderSubsequent( comp );
+					expect( parent.$callLog().onUpdate[ 1 ].oldValues.name ).toBe( "Grant" );
+					expect( parent.$callLog().onUpdate[ 1 ].newValues.name ).toBe( "I synced!" );
+				} );
+
+				it( "executes onUpdate[Property]", function() {
+					rc.updates = [ {
+						type: "SyncInput",
+						payload: {
+							name: "name",
+							value: "I synced!"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					parent.$( "onUpdateName" );
+					renderSubsequent( comp );
+					expect( parent.$callLog().onUpdateName[ 1 ].oldValue ).toBe( "Grant" );
+					expect( parent.$callLog().onUpdateName[ 1 ].newValue ).toBe( "I synced!" );
+				} );
+			} );
+
+			it( "can sync input", function() {
+				rc.updates = [ {
+					type: "SyncInput",
+					payload: {
+						name: "name",
+						value: "I synced!"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				var result = renderSubsequent( comp );
+				expect( result.effects.html ).toContain( "name: I synced!" );
+			} );
 		} );
 
 		describe( "InlineComponents", function() {

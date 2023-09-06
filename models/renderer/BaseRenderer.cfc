@@ -74,10 +74,10 @@ component accessors="true" {
         return this;
 	}
 
-	function handleConcern( concern ) {
-		arguments.comp = this;
-		return getCBWIREService().handleConcern( argumentCollection=arguments );
+	function getConcern( concern ) {
+		return getCBWIREService().getConcern( arguments.concern );
 	}
+
 
 	/**
 	 * Get a instance object from WireBox
@@ -661,11 +661,11 @@ component accessors="true" {
 	 * @return Component
 	 */
 	function mount( parameters = {}, key = "" ){
-		arguments.concern = "OnMount";
+		arguments.comp = this;
 		arguments.event = getEvent();
 		arguments.rc = getCollection();
 		arguments.prc = getPrivateCollection();
-		handleConcern( argumentCollection=arguments );
+		getConcern( "OnMount" ).handle( argumentCollection=arguments );
 		return this;
 	}
 
@@ -1025,7 +1025,7 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
-		handleConcern( concern="DynamicGetterSetter", methodName=arguments.missingMethodName, methodArguments=arguments.missingMethodArguments );
+		getConcern( "DynamicGetterSetter" ).handle( comp=this, methodName=arguments.missingMethodName, methodArguments=arguments.missingMethodArguments );
 
 		if ( reFindNoCase( "^reset.+", arguments.missingMethodName ) ) {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
