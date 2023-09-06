@@ -29,7 +29,7 @@ component accessors="true" {
 	 * PUBLIC METHODS for Wires
 	 */
 
-    function emit( required eventName ){
+	function emit( required eventName ){
 		return getRenderer().emit( argumentCollection = arguments );
 	}
 
@@ -53,16 +53,16 @@ component accessors="true" {
 		return getRenderer().getValidationManager();
 	}
 
-	function isInlineComponent() {
-		return getInlineComponentID().len() ? true : false ;
+	function isInlineComponent(){
+		return getInlineComponentID().len() ? true : false;
 	}
 
-	function noRender() {
-		return getRenderer().noRender( argumentCollection=arguments );
+	function noRender(){
+		return getRenderer().noRender( argumentCollection = arguments );
 	}
 
-	function refresh() {
-		return getRenderer().refresh( argumentCollection=arguments );
+	function refresh(){
+		return getRenderer().refresh( argumentCollection = arguments );
 	}
 
 	function relocate(
@@ -85,19 +85,19 @@ component accessors="true" {
 	}
 
 	function reset( property ){
-		return getRenderer().reset( argumentCollection=arguments );
+		return getRenderer().reset( argumentCollection = arguments );
 	}
 
 	function validateOrFail(
 		any target,
-		string fields        = "*",
-		any constraints      = "",
-		string locale        = "",
+		string fields = "*",
+		any constraints = "",
+		string locale = "",
 		string excludeFields = "",
 		string includeFields = "",
-		string profiles      = ""
+		string profiles = ""
 	){
-		return getRenderer().validateOrFail( argumentCollection=arguments );
+		return getRenderer().validateOrFail( argumentCollection = arguments );
 	}
 
 	/**

@@ -3,11 +3,11 @@ component extends="BaseUpdate" {
 	/**
 	 * Is updating data property? Defaults to false.
 	 */
-	function isUpdatingDataProperty() {
+	function isUpdatingDataProperty(){
 		return getPayloadMethod() == "$set";
 	}
 
-	function getName() {
+	function getName(){
 		return getPassedParamsAsArguments()[ 1 ];
 	}
 
@@ -17,7 +17,7 @@ component extends="BaseUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
-		//arguments.comp._renderComputedProperties();
+		// arguments.comp._renderComputedProperties();
 
 		if ( getPayloadMethod() == "finishUpload" ) {
 			arguments.comp.finishUpload( params = getPassedParamsAsArguments() );
@@ -32,11 +32,7 @@ component extends="BaseUpdate" {
 		}
 
 		if ( getPayloadMethod() == "$set" ) {
-			invoke(
-				arguments.comp,
-				"set" & getName(),
-				[ getPassedParamsAsArguments()[ 2 ] ]
-			);
+			invoke( arguments.comp, "set" & getName(), [ getPassedParamsAsArguments()[ 2 ] ] );
 			return;
 		}
 
@@ -98,9 +94,7 @@ component extends="BaseUpdate" {
 	 * @return Boolean
 	 */
 	private function hasPassedParams(){
-		return hasPayload() && structKeyExists( getPayload(), "params" ) && isArray(
-			getPayload()[ "params" ]
-		);
+		return hasPayload() && structKeyExists( getPayload(), "params" ) && isArray( getPayload()[ "params" ] );
 	}
 
 	/**

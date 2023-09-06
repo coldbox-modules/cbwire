@@ -32,7 +32,7 @@ component accessors="true" {
 	property name="requestService" inject="coldbox:requestService";
 
 	property name="id";
-    property name="parent";
+	property name="parent";
 	property name="constraints";
 	property name="dataProperties";
 	property name="computedProperties";
@@ -54,8 +54,8 @@ component accessors="true" {
 	/**
 	 * A beautiful start.
 	 */
-	function start( parent, parentCFCPath ) {
-        setParent( arguments.parent );
+	function start( parent, parentCFCPath ){
+		setParent( arguments.parent );
 		setParentCFCPath( arguments.parentCFCPath );
 		setID( generateComponentID() );
 		setRenderingOverrides( {} );
@@ -63,18 +63,18 @@ component accessors="true" {
 		setBeforeHydrationState( {} );
 		setDirtyProperties( [] );
 		setEmittedEvents( [] );
-		setCache( {} );      
+		setCache( {} );
 		setNoRendering( false );
-        setDataProperties( isNull( parent.getData() ) ? {} : parent.getData() );
-        setComputedProperties( isNull( parent.getComputed() ) ? {} : parent.getComputed() );
-        setTemplate( isNull( parent.getTemplate() ) ? "" : parent.getTemplate() );
-        setListeners( isNull( parent.getListeners() ) ? {} : parent.getListeners() );
+		setDataProperties( isNull( parent.getData() ) ? {} : parent.getData() );
+		setComputedProperties( isNull( parent.getComputed() ) ? {} : parent.getComputed() );
+		setTemplate( isNull( parent.getTemplate() ) ? "" : parent.getTemplate() );
+		setListeners( isNull( parent.getListeners() ) ? {} : parent.getListeners() );
 		setQueryString( isNull( parent.getQueryString() ) ? "" : parent.getQueryString() );
 		setConstraints( isNull( parent.getConstraints() ) ? {} : parent.getConstraints() );
-        return this;
+		return this;
 	}
 
-	function getConcern( concern ) {
+	function getConcern( concern ){
 		return getCBWIREService().getConcern( arguments.concern );
 	}
 
@@ -120,9 +120,8 @@ component accessors="true" {
 		URL,
 		URI
 	){
-
 		arguments.concern = "Relocate";
-		return handleConcern( argumentCollection=arguments );
+		return handleConcern( argumentCollection = arguments );
 	}
 
 	/**
@@ -236,12 +235,12 @@ component accessors="true" {
 	 */
 	function validateOrFail(
 		any target,
-		string fields        = "*",
-		any constraints      = "",
-		string locale        = "",
+		string fields = "*",
+		any constraints = "",
+		string locale = "",
 		string excludeFields = "",
 		string includeFields = "",
-		string profiles      = ""
+		string profiles = ""
 	){
 		arguments.target = isNull( arguments.target ) ? this : arguments.target;
 		return getValidationManager().validateOrFail( argumentCollection = arguments );
@@ -258,7 +257,7 @@ component accessors="true" {
 	 * Refreshes a component, which mainly is just changing it's id
 	 * so that it rerenders in the DOM.
 	 */
-	function refresh() {
+	function refresh(){
 		setID( generateComponentID() );
 	}
 
@@ -273,17 +272,16 @@ component accessors="true" {
 
 	/**
 	 * Returns the template path for the component.
-	 * 
+	 *
 	 * @returns string
 	 */
-	function getComponentTemplatePath() {
+	function getComponentTemplatePath(){
 		var templatePath = "";
 		if ( getParent().isInlineComponent() ) {
 			return "/cbwire/models/tmp/" & getParent().getParent().getInlineComponentID() & ".cfm";
 		} else if ( len( getTemplate() ) ) {
 			templatePath = getTemplate();
 		} else {
-
 			var currentPath = getParentCFCPath();
 			var currentDir = getDirectoryFromPath( currentPath );
 			currentDir = replaceNoCase( currentDir, getController().getAppRootPath(), "", "one" );
@@ -300,10 +298,10 @@ component accessors="true" {
 
 	/**
 	 * Toggles a data property.
-	 * 
+	 *
 	 * @returns void
 	 */
-	function $toggle( dataProperty ) {
+	function $toggle( dataProperty ){
 		return toggleDataProperty( arguments.dataProperty );
 	}
 
@@ -344,14 +342,15 @@ component accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
-
-		
 		if ( getParent().isInlineComponent() ) {
-			var currentModule = getController().getRenderer().getRequestContext().getCurrentModule();
+			var currentModule = getController()
+				.getRenderer()
+				.getRequestContext()
+				.getCurrentModule();
 			var fingerprintName = getParent().getInlineComponentType();
 
-			if ( len( currentModule) ) {
-				//fingerprintName = currentModule & "." & getWiresLocation() & "." & fingerprintName;
+			if ( len( currentModule ) ) {
+				// fingerprintName = currentModule & "." & getWiresLocation() & "." & fingerprintName;
 			}
 		} else {
 			var fingerprintName = getMeta().name;
@@ -361,7 +360,7 @@ component accessors="true" {
 
 		return {
 			"fingerprint" : {
-				"module": getParent().getModule(),
+				"module" : getParent().getModule(),
 				"id" : getID(),
 				"name" : fingerprintName,
 				"locale" : "en",
@@ -442,7 +441,7 @@ component accessors="true" {
 
 	/**
 	 * Returns true if trimStringValues settings is enabled.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function whenTrimStrings(){
@@ -493,7 +492,7 @@ component accessors="true" {
 				if ( isSimpleValue( arguments.value ) || isArray( arguments.value ) || isStruct( arguments.value ) ) {
 					state[ arguments.key ] = arguments.value;
 				} else if ( isNull( arguments.value ) ) {
-					state[ arguments.key ] = javaCast( "null", 0 );
+					state[ arguments.key ] = javacast( "null", 0 );
 				} else {
 					state[ arguments.key ] = "";
 				}
@@ -510,7 +509,7 @@ component accessors="true" {
 
 		state = state.map( function( key, value, data ){
 			if ( isNull( value ) ) {
-				return javaCast( "null", 0 );
+				return javacast( "null", 0 );
 			}
 			return value;
 		} );
@@ -562,7 +561,7 @@ component accessors="true" {
 		return memento;
 	}
 
-	function getRequestContext() {
+	function getRequestContext(){
 		return getController().getRenderer().getRequestContext();
 	}
 
@@ -665,7 +664,7 @@ component accessors="true" {
 		arguments.event = getEvent();
 		arguments.rc = getCollection();
 		arguments.prc = getPrivateCollection();
-		getConcern( "OnMount" ).handle( argumentCollection=arguments );
+		getConcern( "OnMount" ).handle( argumentCollection = arguments );
 		return this;
 	}
 
@@ -707,16 +706,18 @@ component accessors="true" {
 	/**
 	 * Toggle a data property
 	 */
-	function toggleDataProperty( dataProperty ) {
+	function toggleDataProperty( dataProperty ){
 		var dataProperties = getDataProperties();
-	
+
 		if ( dataProperties.keyExists( dataProperty ) ) {
-			var currentValue = dataProperties [ dataProperty ];
+			var currentValue = dataProperties[ dataProperty ];
 
 			if ( isBoolean( currentValue ) ) {
 				invoke( this, "set#arguments.dataProperty#", [ booleanFormat( !currentValue ) ] );
 			} else {
-				throw( message = "The data property '#arguments.dataProperty#' must be a boolean value (true/false) for toggling." );
+				throw(
+					message = "The data property '#arguments.dataProperty#' must be a boolean value (true/false) for toggling."
+				);
 			}
 
 			return;
@@ -734,7 +735,7 @@ component accessors="true" {
 		var fileUpload = getController()
 			.getWireBox()
 			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : this, params : params } );
-		
+
 		var renderingOverides = getRenderingOverrides();
 		renderingOverides[ params[ 1 ] ] = fileUpload;
 		setFinishedUpload( true );
@@ -788,13 +789,13 @@ component accessors="true" {
 	 * @return String
 	 */
 	function subsequentRenderIt(){
-        setIsInitialRendering( false );
+		setIsInitialRendering( false );
 		var result = getNoRendering() ? "" : renderIt();
-        getEvent().setValue( "_cbwire_subsequent_rendering", trim( result ) );
+		getEvent().setValue( "_cbwire_subsequent_rendering", trim( result ) );
 		return this;
 	}
 
-	function _addDirtyProperty( property ) {
+	function _addDirtyProperty( property ){
 		getDirtyProperties().append( arguments.property );
 	}
 
@@ -819,7 +820,7 @@ component accessors="true" {
 		return html;
 	}
 
-/**
+	/**
 	 * Render out our component's view
 	 *
 	 * @view The the view to render, if not passed, then we look in the request context for the current set view.
@@ -903,37 +904,33 @@ component accessors="true" {
 
 	/**
 	 * Parses out any directly rendered children for this component.
-	 * 
+	 *
 	 * @rendering string | The rendering to parse
 	 * @return struct
 	 */
-	function getChildren( required string rendering ) {
-		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9]+""", rendering )
-			.filter( function( match ) {
-				return !findNoCase( getID(), match );
-			} );
+	function getChildren( required string rendering ){
+		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9]+""", rendering ).filter( function( match ){
+			return !findNoCase( getID(), match );
+		} );
 
-		return matches.reduce( function( agg, match, index ) {
+		return matches.reduce( function( agg, match, index ){
 			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9]+)""", match, 1, true );
 			var id = idRegexResult.match[ 2 ];
 
 			var tagRegexResult = reFindNoCase( "<([A-Za-z]+)\s*wire:id=""([A-Za-z0-9]+)""", match, 1, true );
-			var tag = tagRegexResult.match[ 2 ];			
-			
-			agg[ getID() & "-" & index ] = {
-				"id": id,
-        		"tag": tag
-			};
+			var tag = tagRegexResult.match[ 2 ];
+
+			agg[ getID() & "-" & index ] = { "id" : id, "tag" : tag };
 			return agg;
 		}, {} );
 	}
 
 	/**
 	 * Returns true if cbValidation is installed.
-	 * 
+	 *
 	 * @return boolean
 	 */
-	function isValidationModuleInstalled() {
+	function isValidationModuleInstalled(){
 		return getController()
 			.getModuleService()
 			.getLoadedModules()
@@ -941,10 +938,10 @@ component accessors="true" {
 	}
 
 	/**
-	 * Perform any cleanup work such as 
+	 * Perform any cleanup work such as
 	 * clearing inline component assets.
 	 */
-	function cleanup() {
+	function cleanup(){
 		if ( getParent().isInlineComponent() ) {
 			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
 			var templatePath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfm";
@@ -960,17 +957,17 @@ component accessors="true" {
 		}
 	}
 
-	/** 
-	 * Returns the computed properties wrapped with 
+	/**
+	 * Returns the computed properties wrapped with
 	 * checks for caching.
-	 * 
+	 *
 	 * @return struct
 	 */
-	function getComputedPropertiesWithCaching() {
+	function getComputedPropertiesWithCaching(){
 		var result = {};
 		// Loop through computed properties and setup caching checks
-    	getComputedProperties().each( function( propertyName, method ) {
-			result[ propertyName ] = function( caching = true ) {
+		getComputedProperties().each( function( propertyName, method ){
+			result[ propertyName ] = function( caching = true ){
 				if ( caching ) {
 					var cache = getCache();
 					if ( !cache.keyExists( propertyName ) ) {
@@ -1013,7 +1010,7 @@ component accessors="true" {
 		return getEvent().getPrivateCollection( argumentCollection = arguments );
 	}
 
-/**
+	/**
 	 * Runs if any missing methods are called on our component.
 	 *
 	 * Mainly used for component populator using the wirebox populator
@@ -1025,11 +1022,16 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function onMissingMethod( required missingMethodName, required missingMethodArguments ){
-		getConcern( "DynamicGetterSetter" ).handle( comp=this, methodName=arguments.missingMethodName, methodArguments=arguments.missingMethodArguments );
+		getConcern( "DynamicGetterSetter" ).handle(
+			comp = this,
+			methodName = arguments.missingMethodName,
+			methodArguments = arguments.missingMethodArguments
+		);
 
 		if ( reFindNoCase( "^reset.+", arguments.missingMethodName ) ) {
 			var dataPropertyName = reReplaceNoCase( arguments.missingMethodName, "^reset", "", "one" );
 			reset( dataPropertyName );
 		}
 	}
+
 }

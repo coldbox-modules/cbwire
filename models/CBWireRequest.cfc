@@ -62,9 +62,7 @@ component accessors="true" singleton {
 	 * @return Component
 	 */
 	function renderIt( componentName, parameters = {}, key = "" ){
-		return getComponentInstance( arguments.componentName )
-			.mount( arguments.parameters, arguments.key )
-			.renderIt();
+		return getComponentInstance( arguments.componentName ).mount( arguments.parameters, arguments.key ).renderIt();
 	}
 
 	/**

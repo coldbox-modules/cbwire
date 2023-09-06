@@ -3,10 +3,10 @@ component extends="BaseRenderer" {
 	/**
 	 * A beautiful start.
 	 */
-	function start( parent, parentCFCPath ) {
-        setIsInitialRendering( false );
-        return super.start( argumentCollection=arguments );
-    }
+	function start( parent, parentCFCPath ){
+		setIsInitialRendering( false );
+		return super.start( argumentCollection = arguments );
+	}
 
 	/**
 	 * Hydrates the incoming component with state from our request.
@@ -16,7 +16,7 @@ component extends="BaseRenderer" {
 	 * @return Component
 	 */
 	function hydrate(){
-		getConcern( "Hydrate" ).handle( comp=this );
+		getConcern( "Hydrate" ).handle( comp = this );
 		return this;
 	}
 
@@ -27,7 +27,7 @@ component extends="BaseRenderer" {
 	 */
 	function emit( required eventName, parameters ){
 		arguments.comp = this;
-		return getConcern( "Emit" ).handle( argumentCollection=arguments );
+		return getConcern( "Emit" ).handle( argumentCollection = arguments );
 	}
 
 	/**
@@ -39,9 +39,9 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitSelf( required eventName, parameters ) {
+	function emitSelf( required eventName, parameters ){
 		arguments.comp = this;
-		return getConcern( "EmitSelf" ).handle( argumentCollection=arguments );
+		return getConcern( "EmitSelf" ).handle( argumentCollection = arguments );
 	}
 
 	/**
@@ -54,7 +54,7 @@ component extends="BaseRenderer" {
 	 */
 	function emitUp( required eventName, parameters ){
 		arguments.comp = this;
-		return getConcern( "EmitUp" ).handle( argumentCollection=arguments );
+		return getConcern( "EmitUp" ).handle( argumentCollection = arguments );
 	}
 
 	/**
@@ -67,7 +67,7 @@ component extends="BaseRenderer" {
 	 */
 	function emitTo( required componentName, required eventName, parameters ){
 		arguments.comp = this;
-		return getConcern( "EmitTo" ).handle( argumentCollection=arguments );
+		return getConcern( "EmitTo" ).handle( argumentCollection = arguments );
 	}
 
 	/**

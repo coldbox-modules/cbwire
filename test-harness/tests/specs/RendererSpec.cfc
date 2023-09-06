@@ -92,7 +92,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( initialDataStruct.fingerprint.method ).toBe( "GET" );
 			} );
 
-
 			it( "can render data properties using data property name", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
 				var result = renderInitial( comp );

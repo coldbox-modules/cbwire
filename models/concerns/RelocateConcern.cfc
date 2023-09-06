@@ -3,8 +3,8 @@ component accessors="true" singleton {
 	// Inject ColdBox, needed by FrameworkSuperType
 	property name="controller" inject="coldbox";
 
-    function handle( comp ) {
-        // Determine the type of relocation
+	function handle( comp ){
+		// Determine the type of relocation
 		var relocationType = "SES";
 		var relocationURL = "";
 		var eventName = getController().getConfigSettings()[ "EventName" ];
@@ -128,9 +128,9 @@ component accessors="true" singleton {
 		}
 
 		comp.setRedirectTo( relocationURL );
-    }
+	}
 
-    /**
+	/**
 	 * Internal helper to flash persist elements
 	 *
 	 * @persist       What request collection keys to persist in flash RAM automatically for you
@@ -153,4 +153,5 @@ component accessors="true" singleton {
 
 		return this;
 	}
+
 }

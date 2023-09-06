@@ -67,7 +67,8 @@ component accessors="true" {
 	/**
 	 * Is updating data property? Defaults to false.
 	 */
-	function isUpdatingDataProperty() {
+	function isUpdatingDataProperty(){
 		return false;
 	}
+
 }

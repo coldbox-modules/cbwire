@@ -34,7 +34,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 				"method" : "GET",
 				"id" : "some-id",
 				"name" : arguments.componentName,
-				"module": ""
+				"module" : ""
 			},
 			"serverMemo" : {
 				"checksum" : "some-checksum",
@@ -83,7 +83,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var rc = event.setContext( getHydrationCollection() );
 			var cbwireComponent = getWireInstance();
 
-			
+
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				cbwireComponent.setComputedProperties( getComputed() );
 			}
@@ -100,13 +100,11 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 
 			if ( listLen( structKeyList( getComputed() ) ) ) {
 				var computedProperties = cbwireComponent.getComputedProperties();
-				getComputed().each( function( key, value ) {
+				getComputed().each( function( key, value ){
 					computedProperties[ key ] = value;
 				} );
 			}
-			var rendering = cbwireComponent
-				.mount( getParameters() )
-				.renderIt();
+			var rendering = cbwireComponent.mount( getParameters() ).renderIt();
 			setRendering( rendering );
 			return rendering;
 		}

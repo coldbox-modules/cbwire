@@ -10,7 +10,7 @@ component accessors="true" extends="BaseUpdate" {
 			return;
 		}
 
-		//arguments.comp._renderComputedProperties();
+		// arguments.comp._renderComputedProperties();
 
 		var payload = getPayload();
 		var eventName = payload.event;

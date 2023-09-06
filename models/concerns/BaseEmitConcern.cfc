@@ -1,13 +1,12 @@
 component {
-    /**
+
+	/**
 	 * Parse out emit arguments and parameters
 	 */
-	function parseEmitArguments( required eventName ) {
-
+	function parseEmitArguments( required eventName ){
 		var argumentsRef = arguments;
 
-		return argumentsRef.reduce( function ( agg, argument ) {
-
+		return argumentsRef.reduce( function( agg, argument ){
 			if ( isNull( argumentsRef[ argument ] ) || argument == "ComponentName" ) {
 				return agg;
 			}
@@ -19,7 +18,7 @@ component {
 			if ( isObject( value ) ) {
 				return agg;
 			} else if ( isArray( value ) ) {
-				value.each( function( nestedArgument ) {
+				value.each( function( nestedArgument ){
 					agg.append( nestedArgument );
 				} );
 			} else {
@@ -29,4 +28,5 @@ component {
 			return agg;
 		}, [] );
 	}
+
 }

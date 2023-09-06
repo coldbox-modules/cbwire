@@ -1,67 +1,76 @@
 component accessors="true" singleton {
 
-    property name="wirebox" inject="wirebox";
-    property name="requestService" inject="coldbox:requestService";
+	property name="wirebox" inject="wirebox";
+	property name="requestService" inject="coldbox:requestService";
 
-    function handle( comp ) {
+	function handle( comp ){
 		if ( !hasUpdates() ) {
-            return;
-        }
+			return;
+		}
 
 		var beforeSyncInputState = duplicate( comp.getDataProperties() );
 
 		/*
-			Run the Sync Input's first and track 
+			Run the Sync Input's first and track
 			what fields are being synced. We do this
 			so later we can determine if any data properties
 			changed after calling actions.
 		*/
-		getUpdates().filter( function( update ) {
-			return update.isUpdatingDataProperty();
-		} ).each( function( update ) {
-			// Apply the update
-			arguments.update.apply( comp );
-		} );
+		getUpdates()
+			.filter( function( update ){
+				return update.isUpdatingDataProperty();
+			} )
+			.each( function( update ){
+				// Apply the update
+				arguments.update.apply( comp );
+			} );
 
 		var afterSyncInputState = duplicate( comp.getDataProperties() );
 
-		getUpdates().filter( function(update ) {
-			return update.isUpdatingDataProperty()			
-		} ).each( function( update ) {
-			var oldValue = beforeSyncInputState[ update.getName() ];
-			var newValue = afterSyncInputState[ update.getName() ];
+		getUpdates()
+			.filter( function( update ){
+				return update.isUpdatingDataProperty()
+			} )
+			.each( function( update ){
+				var oldValue = beforeSyncInputState[ update.getName() ];
+				var newValue = afterSyncInputState[ update.getName() ];
 
-			comp.invokeMethod(
-				methodName = "onUpdate" & update.getName(),
-				passThroughParameters = { "newValue": newValue, "oldValue": oldValue }
-			);
-		} );
+				comp.invokeMethod(
+					methodName = "onUpdate" & update.getName(),
+					passThroughParameters = {
+						"newValue" : newValue,
+						"oldValue" : oldValue
+					}
+				);
+			} );
 
 		// Update the state of our component with each of our updates
-		getUpdates().filter( function( update ) {
-			return !isInstanceOf( update, "SyncInput" );
-		} ).each( function( update ) {
-			arguments.update.apply( comp );
-		} );
+		getUpdates()
+			.filter( function( update ){
+				return !isInstanceOf( update, "SyncInput" );
+			} )
+			.each( function( update ){
+				arguments.update.apply( comp );
+			} );
 
 		// Fire our postUpdate lifecycle event.
-		comp.invokeMethod( 
+		comp.invokeMethod(
 			methodName = "onUpdate",
 			passThroughParameters = {
-				"newValues": afterSyncInputState,
-				"oldValues": beforeSyncInputState
+				"newValues" : afterSyncInputState,
+				"oldValues" : beforeSyncInputState
 			}
 		);
 
 		// Determine "dirty" properties
-		var dirtyProperties = afterSyncInputState.reduce( function( agg, key, value ) {
+		var dirtyProperties = afterSyncInputState.reduce( function( agg, key, value ){
 			var oldValue = comp.getDataProperties()[ arguments.key ];
-			
+
 			if ( isObject( arguments.value ) ) {
 				return agg;
 			} else if ( isSimpleValue( oldValue ) && oldValue != arguments.value ) {
 				agg.append( arguments.key );
-			} else if ( 
+			} else if (
 				( isArray( oldValue ) && isArray( arguments.value ) ) ||
 				( isStruct( oldValue ) ) && isStruct( arguments.value )
 			) {
@@ -72,10 +81,10 @@ component accessors="true" singleton {
 			return agg;
 		}, [] );
 
-		dirtyProperties.each( function( dirtyProperty ) {
+		dirtyProperties.each( function( dirtyProperty ){
 			comp._addDirtyProperty( dirtyProperty );
-		});
-    }
+		} );
+	}
 
 	/**
 	 * Returns true if our request context contains an 'updates' property.
@@ -83,10 +92,12 @@ component accessors="true" singleton {
 	 * @return Boolean
 	 */
 	function hasUpdates(){
-		return structKeyExists( getCollection(), "updates" ) && isArray( getCollection().updates ) && arrayLen( getCollection().updates );
+		return structKeyExists( getCollection(), "updates" ) && isArray( getCollection().updates ) && arrayLen(
+			getCollection().updates
+		);
 	}
 
-/**
+	/**
 	 * Returns the current ColdBox RequestContext event.
 	 *
 	 * @return RequestContext
@@ -104,7 +115,7 @@ component accessors="true" singleton {
 		return getEvent().getCollection( argumentCollection = arguments );
 	}
 
-    /**
+	/**
 	 * Returns an array of WireUpdate objects with our updates from the request context.
 	 *
 	 * @return Array | WireUpdate
@@ -121,4 +132,5 @@ component accessors="true" singleton {
 			);
 		} );
 	}
+
 }

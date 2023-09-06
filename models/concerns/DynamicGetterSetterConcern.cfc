@@ -1,13 +1,13 @@
 component accessors="true" singleton {
 
-    function handle( comp, methodName, methodArguments={} ) {
+	function handle( comp, methodName, methodArguments = {} ){
 		var settings = comp.getSettings();
 
 		var data = comp.getDataProperties();
 
 		var computed = comp.getComputedProperties();
 
-        if ( reFindNoCase( "^get.+", arguments.methodName ) ) {
+		if ( reFindNoCase( "^get.+", arguments.methodName ) ) {
 			// Extract data property name from the getter method called.
 			var propertyName = reReplaceNoCase( arguments.methodName, "^get", "", "one" )
 
@@ -42,5 +42,6 @@ component accessors="true" singleton {
 				throw( type = "WireSetterNotFound", message = "The wire property '#dataPropertyName#' was not found." );
 			}
 		}
-    }
+	}
+
 }
