@@ -94,3 +94,4 @@ If CBWIRE makes you happy, please consider becoming a [Patreon supporter](https:
 -   Up and Running Screencast: https://cfcasts.com/series/ortus-single-video-series/videos/up-and-running-with-cbwire
 -   Into The Box 2021 Presentation: https://cfcasts.com/series/into-the-box-2021/videos/cbwire-coldbox-+-livewire-grant-copley
 -   Ortus Webinar 2022: https://cfcasts.com/series/ortus-webinars-2022/videos/grant-copley-on-cbwire-+-alpine_js
+-   DataTable example: https://github.com/grantcopley/cbwire-datatable-example
