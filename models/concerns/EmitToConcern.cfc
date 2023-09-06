@@ -1,4 +1,4 @@
-component extends="BaseEmitConcern" {
+component extends="BaseEmitConcern" singleton {
 
 	function handle( comp, componentName, eventName ){
 		var localParameters = parseEmitArguments( argumentCollection = arguments );
