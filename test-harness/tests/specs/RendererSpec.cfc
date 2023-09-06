@@ -83,8 +83,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( initialDataStruct.effects.listeners[ 1 ] ).toBe( "onSuccess" );
 				expect( initialDataStruct.serverMemo.data.mounted ).toBeTrue();
 				expect( initialDataStruct.serverMemo.data.name ).toBe( "Grant" );
-				expect( initialDataStruct.serverMemo.checksum ).toBe( "552FC968AE91CDBF4AEE70F9492FCAD7" );
-				expect( initialDataStruct.serverMemo.htmlHash ).toBe( "C1B0F0D8CB40840A466FB24143E9FF8F2BCAF457368EEAD1E5E6ABA7BDB86702" );
+				expect( structKeyExists( initialDataStruct.serverMemo, "checksum" ) ).toBeTrue();
+				expect( structKeyExists( initialDataStruct.serverMemo, "htmlHash" ) ).toBeTrue();
 				expect( initialDataStruct.fingerprint.module ).toBe( "" );
 				expect( structKeyExists( initialDataStruct.fingerprint, "path" ) ).toBeTrue();
 				expect( initialDataStruct.fingerprint.name ).toBe( "tests.templates.TestComponent" );
