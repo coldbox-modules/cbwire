@@ -54,6 +54,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} ).toThrow( type="OuterElementNotFound" );  
 			} );
 
+			it( "fires onDIComplete", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "onDIComplete: true" );
+			} );
+
 			it( "wire:initial-data has properties with their default values", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
 				var result = renderInitial( comp );
@@ -118,6 +124,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "result: 10" );
 			} );
 
+			it( "caches computed properties", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/cachedcomputedproperty.cfm" );
+				var result = renderInitial( comp );
+				var ticks = reMatchNoCase( "\d+\|\d+\|\d+", result ).first();
+				var ticksArray = listToArray( ticks, "|" );
+				expect( ticksArray[ 1 ] ).toBe( ticksArray[ 2 ] );
+				expect( ticksArray[ 2 ] ).notToBe( ticksArray[ 3 ] );
+			} );
+
 			it( "lifecycle onMount method executes and updates data properties", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/onmount.cfm" );
 				comp.$( "getEvent", event );
@@ -143,6 +158,26 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var initialDataJSON = parseInitialData( result );
 				var initialDataStruct = deserializeJSON( initialDataJSON );
 				expect( initialDataStruct.effects.listeners[ 1 ] ).toBe( "onSuccess" );
+			} );
+
+			it( "can use property injection on component", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/template.cfm" );
+				var result = renderInitial( comp );
+				expect( parent.getCBWIREService() ).toBeInstanceOf( "cbwire.models.CBWireService" );
+			} );
+
+			it( "can call entangle()", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/entangle.cfm" );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "name: window.Livewire.find( '#comp.getID()#' ).entangle( 'name' )" );
+			} );
+
+			describe( "validation", function() {
+				it( "validates constraints", function() {
+					comp.$( "getComponentTemplatePath", "/tests/templates/validation.cfm" );
+					var result = renderInitial( comp );
+					expect( result ).toContain( "The 'EMAIL' value is required" );
+				} );
 			} );
 
 			xit( "throws error if there are two or more outer elements", function() {
@@ -172,6 +207,90 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			it( "is an instance of SubsequentRenderer", function() {
 				expect( comp ).toBeInstanceOf( "SubsequentRenderer" );
+			} );
+
+			it( "calling noRender() causes no rendering to be returned", function() {
+				rc.updates = [ {
+					type: "CallMethod",
+					payload: {
+						method: "doNotRender"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				var result = renderSubsequent( comp );
+				expect( isNull( result.effects.html ) ).toBeTrue();
+			} );
+
+			it( "declaring queryString causes it to be returned in path", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				var result = renderSubsequent( comp );
+				expect( result.effects.path ).toContain( "?name=Grant" );
+			} );
+
+			it( "actions can call getInstance()", function() {
+				rc.updates = [ {
+					type: "CallMethod",
+					payload: {
+						method: "callGetInstance"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				var result = renderSubsequent( comp );
+				expect( result.effects.html ).toContain( "getInstance: true" );
+			} );
+
+			describe( "redirecting", function() {
+
+				it( "can relocate to an uri", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "redirectToURI"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.redirect ).toBe( "/some-url" );
+				} );
+
+				it( "can relocate to a URL", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "redirectToURL"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.redirect ).toBe( "https://www.google.com" );
+				} );
+
+				it( "can relocate to an event", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "redirectToEvent"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.redirect ).toContain( "/examples/index" );
+				} );
+
+				it( "can relocate to an event", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "redirectWithFlash"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var flashScope = getRequestContext().getController().getRequestService().getFlashScope().getAll();
+					expect( result.effects.redirect ).toContain( "/examples/index" );
+					expect( flashScope.confirm ).toBe( "Redirect successful" );
+				} );
+
 			} );
 
 			describe( "emit()", function() {
@@ -504,7 +623,104 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var result = renderSubsequent( comp );
 				expect( result.effects.html ).toContain( "name: I synced!" );
 			} );
+
+			describe( "validation", function() {
+
+				it( "can call validateOrFail() from an action and FAIL", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "runValidateFailure"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "validateOrFail: false" );
+				} );
+	
+				it( "can call validateOrFail() from an action and COMPLETE", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "runValidateSuccess"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "validateOrFail: true" );
+				} );
+
+				it( "can call validate() from an action", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "runValidate"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "validate: true" );
+				} );
+
+			} );
+
+			describe( "file uploads", function() {
+				it( "can start an upload", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							"id": "ksfh",
+        					"method": "startUpload",
+        					"params": [
+          						"someFile",
+								[
+									{
+									"name": "2022-08-21 07.52.50.gif",
+									"size": 424008,
+									"type": "image/gif"
+									}
+								],
+								false
+							]
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					
+					var result = renderSubsequent( comp );
+					expect( result.effects.emits[ 1 ].event ).toBe( "upload:generatedSignedUrl" );
+					expect( result.effects.emits[ 1 ].params[ 1 ] ).toBe( "someFile" );
+					expect( result.effects.emits[ 1 ].params[ 2 ] ).toBe( "/livewire/upload-file?expires=never&signature=someSignature" );
+					expect( result.effects.emits[ 1 ].selfOnly ).toBeTrue();
+				} );
+
+				it( "can finish an upload", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							"id": "ksfh",
+        					"method": "finishUpload",
+        					"params": [
+          						"someFile",
+								[ "37867A38-4DB3-43EC-8FB93DB936302BC5" ],
+								false
+							]
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					
+					var result = renderSubsequent( comp );
+
+					expect( comp.getDataProperties().someFile ).toContain( "cbwire-upload:" );
+					expect( result.effects.emits[ 1 ].event ).toBe( "upload:finished" );
+					expect( result.effects.emits[ 1 ].params[ 1 ] ).toBe( "someFile" );
+					expect( result.effects.emits[ 1 ].selfOnly ).toBeTrue();
+				} );
+
+			} );
+
 		} );
+
+
 
 		describe( "InlineComponents", function() {
 

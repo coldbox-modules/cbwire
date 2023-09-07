@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    this.constraints = {
+    constraints = {
         "email": { required: true, type: "email" }
     };
 

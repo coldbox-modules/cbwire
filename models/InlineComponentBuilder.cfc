@@ -76,6 +76,12 @@ component accessors="true" singleton {
 
 		var currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
 		var tmpDirectory = currentDirectory & "tmp";
+		var tmpCFCPath = tmpDirectory & "/#arguments.componentName#.cfc";
+		var tmpCFMPath = tmpDirectory & "/#arguments.componentName#.cfm";
+		
+		if ( fileExists( tmpCFCPath ) && fileExists( tmpCFMPath ) ) {
+			return { "tempComponentName" : "#arguments.componentName#" };
+		}
 
 		if ( !directoryExists( tmpDirectory ) ) {
 			directoryCreate( tmpDirectory );
@@ -92,10 +98,10 @@ component accessors="true" singleton {
 
 		var uuid = createUUID();
 
-		fileWrite( tmpDirectory & "/#arguments.componentName##uuid#.cfc", emptyInlineComponent );
-		fileWrite( tmpDirectory & "/#arguments.componentName##uuid#.cfm", arguments.parsedContents.remainingContents );
+		fileWrite( tmpCFCPath, emptyInlineComponent );
+		fileWrite( tmpCFMPath, arguments.parsedContents.remainingContents );
 
-		return { "tempComponentName" : "#arguments.componentName##uuid#" };
+		return { "tempComponentName" : "#arguments.componentName#" };
 	}
 
 	/**

@@ -38,7 +38,7 @@ component accessors="true" singleton {
 					arguments.value = getWireBox().getInstance(
 						name = "FileUpload@cbwire",
 						initArguments = {
-							comp : this,
+							comp : localComponent,
 							params : [ key, [ uuid ] ]
 						}
 					);

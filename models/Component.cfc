@@ -53,6 +53,10 @@ component accessors="true" {
 		return getRenderer().getValidationManager();
 	}
 
+	function validate( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
+		return getRenderer().validate( argumentCollection=arguments );
+	}
+
 	function isInlineComponent(){
 		return getInlineComponentID().len() ? true : false;
 	}

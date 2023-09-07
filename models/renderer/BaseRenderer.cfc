@@ -114,8 +114,8 @@ component accessors="true" {
 		URL,
 		URI
 	){
-		arguments.concern = "Relocate";
-		return handleConcern( argumentCollection = arguments );
+		arguments.comp = this;
+		return getConcern( "Relocate" ).handle( argumentCollection=arguments );
 	}
 
 	/**
@@ -205,8 +205,8 @@ component accessors="true" {
 	 *
 	 * @return cbvalidation.model.result.IValidationResult
 	 */
-	function validate( constraints ){
-		arguments.target = isNull( arguments.target ) ? getParent() : arguments.target;
+	function validate( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
+		arguments.target = isNull( arguments.target ) ? getDataProperties() : arguments.target;
 		arguments.constraints = isNull( arguments.constraints ) ? getConstraints() : arguments.constraints;
 		setValidationResult( getValidationManager().validate( argumentCollection = arguments ) );
 		return getValidationResult();
@@ -236,7 +236,8 @@ component accessors="true" {
 		string includeFields = "",
 		string profiles = ""
 	){
-		arguments.target = isNull( arguments.target ) ? this : arguments.target;
+		arguments.target = isNull( arguments.target ) ? getDataProperties() : arguments.target;
+		arguments.constraints = getConstraints();
 		return getValidationManager().validateOrFail( argumentCollection = arguments );
 	}
 
@@ -244,7 +245,7 @@ component accessors="true" {
 	 * Retrieve the application's configured Validation Manager
 	 */
 	function getValidationManager(){
-		return getInstance( "ValidationManager@cbvalidation" );
+		return getInstance( dsl="provider:ValidationManager@cbvalidation" );
 	}
 
 	/**
@@ -730,15 +731,14 @@ component accessors="true" {
 			.getWireBox()
 			.getInstance( name = "FileUpload@cbwire", initArguments = { comp : this, params : params } );
 
-		var renderingOverides = getRenderingOverrides();
-		renderingOverides[ params[ 1 ] ] = fileUpload;
+		getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
 		setFinishedUpload( true );
-		getDirtyProperties().append( "myFile" );
-		variables.data[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
+		getDirtyProperties().append( params[ 1 ] );
+		getDataProperties()[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
 		emitSelf(
 			eventName = "upload:finished",
 			parameters = [
-				"myFile",
+				params[ 1 ],
 				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
 			]
 		);
@@ -936,19 +936,19 @@ component accessors="true" {
 	 * clearing inline component assets.
 	 */
 	function cleanup(){
-		if ( getParent().isInlineComponent() ) {
-			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
-			var templatePath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfm";
-			var componentPath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfc";
+		// if ( getParent().isInlineComponent() ) {
+		// 	var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
+		// 	var templatePath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfm";
+		// 	var componentPath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfc";
 
-			if ( fileExists( templatePath ) ) {
-				fileDelete( templatePath );
-			}
+		// 	if ( fileExists( templatePath ) ) {
+		// 		fileDelete( templatePath );
+		// 	}
 
-			if ( fileExists( componentPath ) ) {
-				fileDelete( componentPath );
-			}
-		}
+		// 	if ( fileExists( componentPath ) ) {
+		// 		fileDelete( componentPath );
+		// 	}
+		// }
 	}
 
 	/**
