@@ -2,7 +2,7 @@
 
 [![cbwire CI](https://github.com/coldbox-modules/cbwire/actions/workflows/ci.yml/badge.svg?branch=development)](https://github.com/coldbox-modules/cbwire/actions/workflows/ci.yml)
 
-CBWIRE is a ColdBox module that helps you build modern applications in record time. Create reactive, single-page applications using CFML with little-to-no JavaScript, and without building APIs.
+CBWIRE is a ColdBox module that helps you build modern applications in record time. Create reactive, single-page applications with CFML and without using much JavaScript or building APIs.
 
 <div align="center">
 	<img src="https://raw.githubusercontent.com/coldbox-modules/cbwire/development/logo.png">
