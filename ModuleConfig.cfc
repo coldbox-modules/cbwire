@@ -73,6 +73,8 @@ component {
 		};
 
 		interceptors = [
+			// Init
+			{ class : "#moduleMapping#.interceptors.Reinit" },
 			// Security
 			{ class : "#moduleMapping#.interceptors.hydrate.CheckIncomingRequestHeaders" },
 			// Mounting
