@@ -793,6 +793,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "Nested folder component" );
 			} );
 
+			it( "can render component from outside folder using wire()", function() {
+				var result = service.wire( "anotherFolder.OutsideFolderComponent" );
+				expect( result ).toContain( "outside component" );
+			} );
+
 			xit( "can render component from nested module folder using wire()", function() {
 				var result = service.wire( "myComponents.NestedFolderComponent@testmodule" );
 				writeDump( result );
