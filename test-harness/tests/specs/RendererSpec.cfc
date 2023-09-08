@@ -172,6 +172,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "name: window.Livewire.find( '#comp.getID()#' ).entangle( 'name' )" );
 			} );
 
+			it( "uses onRender() if defined", function() {
+				parent.$( "onRender", "<div>rendered with onRender</div>" );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "rendered with onRender" );
+			} );
+
 			describe( "validation", function() {
 				it( "validates constraints", function() {
 					comp.$( "getComponentTemplatePath", "/tests/templates/validation.cfm" );
@@ -718,9 +724,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
+			it( "can call computed properties from actions", function() {
+				rc.updates = [ {
+					type: "CallMethod",
+					payload: {
+						method: "actionWithComputedProperty"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				
+				var result = renderSubsequent( comp );
+
+				expect( comp.getDataProperties().sum ).toBe( 10 );
+			} );
+
 		} );
-
-
 
 		describe( "InlineComponents", function() {
 
@@ -729,6 +747,52 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var result = cbwireService.wire( "tests.templates.InlineComponent" );
 				expect( result ).toContain( "Name: Inline Component" );
 			} );
+		} );
+
+		describe( "CBWIREService", function() {
+			beforeEach( function( currentSpec ){
+				setup();
+				event = getRequestContext();
+				rc = event.getCollection();
+				prc = event.getPrivateCollection();
+                service = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+			} );
+
+			it( "can getStyles()", function() {
+				var result = service.getStyles();
+				expect( result ).toContain( "<!-- CBWIRE Styles -->" );
+				expect( result ).toContain( "<style>" );
+				expect( result ).toContain( "</style>" );
+			} );
+
+			it( "can getStyles() with Turbo", function() {
+				service.$( "getSettings", { "enableTurbo": false }, false );
+				var result = service.getStyles();
+				expect( result ).notToContain( "import hotwiredTurbo from" );
+				service.$( "getSettings", { "enableTurbo": true }, false );
+				var result = service.getStyles();
+				expect( result ).toContain( "import hotwiredTurbo from" );
+			} );
+
+			it( "can getScripts()", function() {
+				var result = service.getScripts();
+				expect( result ).toContain( "<!-- CBWIRE Scripts -->" );
+				expect( result ).toContain( "<script " );
+				expect( result ).toContain( "</script>" );
+				expect( result ).toContain( "window.Livewire" );
+				expect( result ).toContain( "window.cbwire" );
+			} );
+
+			it( "can render component from ./wires folder using wire()", function() {
+				var result = service.wire( "TestComponent" );
+				expect( result ).toContain( "Title: CBWIRE Rocks!" );
+			} );
+
+			it( "can render component from nested folder using wire()", function() {
+				var result = service.wire( "wires.nestedComponent.NestedFolderComponent" );
+				expect( result ).toContain( "Nested folder component" );
+			} );
+
 		} );
 	}
 

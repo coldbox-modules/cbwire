@@ -23,7 +23,8 @@ component extends="cbwire.models.Component" {
         "getInstance": false,
         "validateOrFail": false,
         "validate": false,
-        "myFile": ""
+        "myFile": "",
+        "sum": 0
     };
 
     computed = {
@@ -161,5 +162,9 @@ component extends="cbwire.models.Component" {
 
     function someMethod() {
         data.listener = true;
+    }
+
+    function actionWithComputedProperty() {
+        data.sum = computed.fivePlusFive();
     }
 }
