@@ -1,9 +1,14 @@
-component accessors="true" singleton {
+component accessors="true" {
 
 	/**
 	 * Injected settings.
 	 */
 	property name="settings" inject="coldbox:modulesettings:cbwire";
+
+	/**
+	 * Module service
+	 */
+	property name="moduleService" inject="coldbox:moduleService";
 
 	/**
 	 * Injected ColdBox controller which we will use to access our app and module settings
@@ -132,6 +137,17 @@ component accessors="true" singleton {
 		return comp;
 	}
 
+	function getModuleComponent( path, module ) {
+		var registry = moduleService.getModuleRegistry();
+
+		if ( !structKeyExists( registry, module ) ) {
+			throw( type="ModuleNotFound", "CBWIRE cannot locate the module '#arguments.module#'.")
+		}
+
+		writeDump( var=moduleService.getModuleRegistry(), top=2 );
+		abort;
+
+	}
 
 	/**
 	 * Primary entry point for cbwire requests.
