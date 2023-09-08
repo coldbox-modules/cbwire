@@ -140,12 +140,12 @@ component accessors="true" {
 	function getModuleComponent( path, module ) {
 		var registry = moduleService.getModuleRegistry();
 
-		if ( !structKeyExists( registry, module ) ) {
-			throw( type="ModuleNotFound", "CBWIRE cannot locate the module '#arguments.module#'.")
-		}
+		// if ( !structKeyExists( registry, module ) ) {
+		// 	throw( type="ModuleNotFound", "CBWIRE cannot locate the module '#arguments.module#'.")
+		// }
 
-		writeDump( var=moduleService.getModuleRegistry(), top=2 );
-		abort;
+		// writeDump( var=moduleService.getModuleRegistry(), top=2 );
+		// abort;
 
 	}
 
