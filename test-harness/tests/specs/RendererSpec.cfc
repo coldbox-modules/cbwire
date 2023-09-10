@@ -147,6 +147,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var result = renderInitial( comp );
 				expect( parent.$once( "onMount" ) ).toBeTrue();
 				expect( isStruct( parent.$callLog().onMount[ 1 ].parameters ) ).toBeTrue();
+				expect( isStruct( parent.$callLog().onMount[ 1 ].params ) ).toBeTrue();
 				expect( isObject( parent.$callLog().onMount[ 1 ].event ) ).toBeTrue();
 				expect( isStruct( parent.$callLog().onMount[ 1 ].rc ) ).toBeTrue();
 				expect( isStruct( parent.$callLog().onMount[ 1 ].prc ) ).toBeTrue();

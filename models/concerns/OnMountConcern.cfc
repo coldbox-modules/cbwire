@@ -6,7 +6,8 @@ component accessors="true" singleton {
 		if ( structKeyExists( comp.getParent(), "mount" ) ) {
 			comp.getParent()
 				.mount(
-					parameters = arguments.parameters,
+					parameters = arguments.parameters, // deprecated
+					params = arguments.parameters,
 					key = arguments.key,
 					event = event,
 					rc = rc,
@@ -15,7 +16,8 @@ component accessors="true" singleton {
 		} else if ( structKeyExists( comp.getParent(), "onMount" ) ) {
 			comp.getParent()
 				.onMount(
-					parameters = arguments.parameters,
+					parameters = arguments.parameters, // deprecated
+					params = arguments.parameters,
 					key = arguments.key,
 					event = event,
 					rc = rc,
