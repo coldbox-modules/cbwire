@@ -567,6 +567,10 @@ component accessors="true" {
 	 */
 	function getHTML(){
 		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
+
+		// Ensure that comments are removed otherwise it will cause rendering issues
+		rendering = reReplaceNoCase( rendering, "<!--.+-->", "", "all" );
+
 		return len( rendering ) ? rendering : javacast( "null", 0 );
 	}
 

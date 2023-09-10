@@ -738,6 +738,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( comp.getDataProperties().sum ).toBe( 10 );
 			} );
 
+			it( "can render a component with comments", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/templateWithComments.cfm" );
+				var result = renderSubsequent( comp );
+				expect( result.effects.html ).notToContain( "This is a template with multiple comments" );
+				expect( result.effects.html ).notToContain( "we have single line comments" );
+				expect( result.effects.html ).notToContain( "multi" );
+			} );
+
 		} );
 
 		describe( "InlineComponents", function() {
