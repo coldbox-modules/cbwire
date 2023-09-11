@@ -768,17 +768,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
 				result = renderSubsequent( comp );
 				expect( result.effects.html ).notToContain( 'wire:id="abc123"' );
-
 			} );
 
 		} );
 
-		describe( "InlineComponents", function() {
+		describe( "Single-file Components", function() {
 
-			it( "can render inline components", function() {
+			it( "can render single-file components", function() {
 				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
-				var result = cbwireService.wire( "tests.templates.InlineComponent" );
-				expect( result ).toContain( "Name: Inline Component" );
+				var result = cbwireService.wire( "tests.templates.SingleFileComponent" );
+				expect( result ).toContain( "Name: Single File Component" );
+			} );
+
+			it( "caches single-file components is 'cacheSingleFileComponents' setting is enabled", function() {
+				var settings = getInstance( dsl="coldbox:modulesettings:cbwire" );
+				var moduleRootPath = settings.moduleRootPath;
+				var tmpFilePath = "#moduleRootPath#/models/tmp/SingleFileComponent.cfc";
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+
+				if ( fileExists( tmpFilePath ) ) {
+					fileDelete( tmpFilePath );
+				}
+
+				expect( fileExists( tmpFilePath ) ).toBeFalse();
+
+				settings.cacheSingleFileComponents = false;
+				var result = cbwireService.wire( "tests.templates.SingleFileComponent" );
+				expect( fileExists( tmpFilePath ) ).toBeFalse();
+
+				settings.cacheSingleFileComponents = true;
+				var result = cbwireService.wire( "tests.templates.SingleFileComponent" );
+				expect( fileExists( tmpFilePath ) ).toBeTrue();
 			} );
 		} );
 
@@ -841,15 +861,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		} );
 	}
 
-	function renderInitial( comp ) {
+	private function renderInitial( comp ) {
 		return comp.mount().renderIt();
 	}
 
-	function renderSubsequent( comp ) {
+	private function renderSubsequent( comp ) {
 		return comp.hydrate().subsequentRenderIt().getMemento();
 	}
 
-	function parseInitialData( html ) {
+	private function parseInitialData( html ) {
 		var regexMatches = reFindNoCase( "wire:initial-data=""(.+)""", html, 1, true );
 		return mid( html, regexMatches.pos[ 2 ], regexMatches.len[ 2 ] ).replaceNoCase( "&quot;", """", "all" );
 	}

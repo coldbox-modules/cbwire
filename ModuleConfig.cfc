@@ -37,6 +37,11 @@ component {
 			 */
 			"enableTurbo" : false,
 			/**
+			 * Caching for single-file components to speed up response time.
+			 * Should be false for local development.
+			 */
+			"cacheSingleFileComponents": false,
+			/**
 			 * Cache Livewire's manifest for the livewire.js path
 			 * with it's hashing as a setting that we can use elsewhere.
 			 */

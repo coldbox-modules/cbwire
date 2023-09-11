@@ -940,19 +940,21 @@ component accessors="true" {
 	 * clearing single-file component assets.
 	 */
 	function cleanup(){
-		// if ( getParent().isInlineComponent() ) {
-		// 	var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
-		// 	var templatePath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfm";
-		// 	var componentPath = getSettings().moduleRootPath & "/models/tmp/#getParent().getInlineComponentID()#.cfc";
+		if ( getParent().isSingleFileComponent() ) {
+			var currentDir = getDirectoryFromPath( getCurrentTemplatePath() );
+			var templatePath = getSettings().moduleRootPath & "/models/tmp/#getParent().getSingleFileComponentID()#.cfm";
+			var componentPath = getSettings().moduleRootPath & "/models/tmp/#getParent().getSingleFileComponentID()#.cfc";
 
-		// 	if ( fileExists( templatePath ) ) {
-		// 		fileDelete( templatePath );
-		// 	}
+			if ( !getSettings().cacheSingleFileComponents ) {
+				if ( fileExists( templatePath ) ) {
+					fileDelete( templatePath );
+				}
 
-		// 	if ( fileExists( componentPath ) ) {
-		// 		fileDelete( componentPath );
-		// 	}
-		// }
+				if ( fileExists( componentPath ) ) {
+					fileDelete( componentPath );
+				}
+			}
+		}
 	}
 
 	/**
