@@ -747,6 +747,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result.effects.html ).notToContain( "multi" );
 			} );
 
+			it( "can call refresh() and generate a new id", function() {
+				rc.fingerprint = { id: "abc123" };
+				rc.updates = [ {
+					type: "CallMethod",
+					payload: {
+						method: "someMethod"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				var result = renderSubsequent( comp );
+				expect( result.effects.html ).toContain( 'wire:id="abc123"' );
+
+				rc.updates = [ {
+					type: "CallMethod",
+					payload: {
+						method: "actionWithRefresh"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				result = renderSubsequent( comp );
+				expect( result.effects.html ).notToContain( 'wire:id="abc123"' );
+
+			} );
+
 		} );
 
 		describe( "InlineComponents", function() {
