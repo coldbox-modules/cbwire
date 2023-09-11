@@ -1,6 +1,6 @@
 <cfscript>
     data = {
-        "name": "Inline Component"
+        "name": "Single File Component"
     };
 </cfscript>
 

@@ -26,9 +26,9 @@ component accessors="true" {
 	property name="requestService" inject="coldbox:requestService";
 
 	/**
-	 * Inject InlineComopnentBuilder
+	 * Inject SingleFileComponentBuilder
 	 */
-	property name="inlineComponentBuilder" inject="InlineComponentBuilder@cbwire";
+	property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
 
 	/**
 	 * Returns the styles to be placed in our HTML head.
@@ -94,15 +94,15 @@ component accessors="true" {
 		try {
 			return getWireBox().getInstance( componentPath );
 		} catch ( Injector.InstanceNotFoundException e ) {
-			var inlineComponent = getInlineComponentBuilder()
+			var singleFileComponent = getSingleFileComponentBuilder()
 				.setInitialRender( arguments.initialRender )
 				.build( componentPath, arguments.componentName, getCurrentRequestModule() );
 
-			if ( isNull( inlineComponent ) ) {
+			if ( isNull( singleFileComponent ) ) {
 				rethrow;
 			}
 
-			return inlineComponent;
+			return singleFileComponent;
 		}
 	}
 

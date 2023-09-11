@@ -9,8 +9,8 @@ component accessors="true" {
 	property name="template";
 	property name="constraints";
 	property name="queryString";
-	property name="inlineComponentID" default="";
-	property name="inlineComponentType" default="";
+	property name="singleFileComponentID" default="";
+	property name="singleFileComponentType" default="";
 	property name="module" default="";
 
 	/**
@@ -57,8 +57,8 @@ component accessors="true" {
 		return getRenderer().validate( argumentCollection=arguments );
 	}
 
-	function isInlineComponent(){
-		return getInlineComponentID().len() ? true : false;
+	function isSingleFileComponent(){
+		return getSingleFileComponentID().len() ? true : false;
 	}
 
 	function noRender(){

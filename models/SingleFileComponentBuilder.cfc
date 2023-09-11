@@ -1,11 +1,11 @@
 component accessors="true" singleton {
 
 	property name="wirebox" inject="wirebox";
-
+	property name="settings" inject="coldbox:modulesettings:cbwire";
 	property name="initialRender" default="true";
 
 	/**
-	 * Builds an inline component if it can locate the necessary files.
+	 * Builds an single-file component if it can locate the necessary files.
 	 * Otherwise, returns null.
 	 *
 	 * @return Component
@@ -37,7 +37,7 @@ component accessors="true" singleton {
 	 */
 	function parseContents( required cfmPath ){
 		var fileContents = fileRead( cfmPath );
-		var inlineContents = "";
+		var singleFileContents = "";
 		var remainingContents = "";
 
 		var startedWire = false;
@@ -54,20 +54,20 @@ component accessors="true" singleton {
 			}
 
 			if ( startedWire && !endedWire ) {
-				inlineContents &= line & chr( 10 );
+				singleFileContents &= line & chr( 10 );
 			} else {
 				remainingContents &= line;
 			}
 		}
 
 		return {
-			"inlineContents" : inlineContents,
+			"singleFileContents" : singleFileContents,
 			"remainingContents" : remainingContents
 		};
 	}
 
 	/**
-	 * Generates the CFC and CFM files for inline component.
+	 * Generates the CFC and CFM files for single-file components.
 	 *
 	 * @return void
 	 */
@@ -79,33 +79,35 @@ component accessors="true" singleton {
 		var tmpCFCPath = tmpDirectory & "/#arguments.componentName#.cfc";
 		var tmpCFMPath = tmpDirectory & "/#arguments.componentName#.cfm";
 		
-		if ( fileExists( tmpCFCPath ) && fileExists( tmpCFMPath ) ) {
-			return { "tempComponentName" : "#arguments.componentName#" };
+		if ( structKeyExists( settings, "cacheSingleFileComponents" ) && settings.cacheSingleFileComponents ) {
+			if ( fileExists( tmpCFCPath ) && fileExists( tmpCFMPath ) ) {
+				return { "tempComponentName" : "#arguments.componentName#" };
+			}
 		}
 
 		if ( !directoryExists( tmpDirectory ) ) {
 			directoryCreate( tmpDirectory );
 		}
 
-		var emptyInlineComponent = fileRead( currentDirectory & "EmptyInlineComponent.cfc" );
+		var emptySingleFileComponent = fileRead( currentDirectory & "EmptySingleFileComponent.cfc" );
 
-		emptyInlineComponent = replaceNoCase(
-			emptyInlineComponent,
-			"// Inline Contents Goes Here",
-			arguments.parsedContents.inlineContents,
+		emptySingleFileComponent = replaceNoCase(
+			emptySingleFileComponent,
+			"// Single file contents goes here",
+			arguments.parsedContents.singleFileContents,
 			"one"
 		);
 
 		var uuid = createUUID();
 
-		fileWrite( tmpCFCPath, emptyInlineComponent );
+		fileWrite( tmpCFCPath, emptySingleFileComponent );
 		fileWrite( tmpCFMPath, arguments.parsedContents.remainingContents );
 
 		return { "tempComponentName" : "#arguments.componentName#" };
 	}
 
 	/**
-	 * Returns a inline stub component.
+	 * Returns a single-file stub component.
 	 *
 	 * @componentName string
 	 * @module string
@@ -115,8 +117,8 @@ component accessors="true" singleton {
 	private function loadComponent( required componentName, required tempComponentName, module = "" ){
 		var comp = getWireBox().getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" );
 
-		comp.setInlineComponentType( arguments.componentName );
-		comp.setInlineComponentId( arguments.tempComponentName );
+		comp.setSingleFileComponentType( arguments.componentName );
+		comp.setSingleFileComponentId( arguments.tempComponentName );
 		comp.setModule( arguments.module );
 
 		return comp;

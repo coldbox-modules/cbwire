@@ -272,8 +272,8 @@ component accessors="true" {
 	 */
 	function getComponentTemplatePath(){
 		var templatePath = "";
-		if ( getParent().isInlineComponent() ) {
-			return "/cbwire/models/tmp/" & getParent().getParent().getInlineComponentID() & ".cfm";
+		if ( getParent().isSingleFileComponent() ) {
+			return "/cbwire/models/tmp/" & getParent().getParent().getSingleFileComponentID() & ".cfm";
 		} else if ( len( getTemplate() ) ) {
 			templatePath = getTemplate();
 		} else {
@@ -337,12 +337,12 @@ component accessors="true" {
 	 * @return Struct
 	 */
 	function getInitialData( rendering = "" ){
-		if ( getParent().isInlineComponent() ) {
+		if ( getParent().isSingleFileComponent() ) {
 			var currentModule = getController()
 				.getRenderer()
 				.getRequestContext()
 				.getCurrentModule();
-			var fingerprintName = getParent().getInlineComponentType();
+			var fingerprintName = getParent().getSingleFileComponentType();
 
 			if ( len( currentModule ) ) {
 				// fingerprintName = currentModule & "." & getWiresLocation() & "." & fingerprintName;
@@ -937,7 +937,7 @@ component accessors="true" {
 
 	/**
 	 * Perform any cleanup work such as
-	 * clearing inline component assets.
+	 * clearing single-file component assets.
 	 */
 	function cleanup(){
 		// if ( getParent().isInlineComponent() ) {
