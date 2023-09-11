@@ -167,4 +167,8 @@ component extends="cbwire.models.Component" {
     function actionWithComputedProperty() {
         data.sum = computed.fivePlusFive();
     }
+
+    function actionWithRefresh() {
+        refresh();
+    }
 }
