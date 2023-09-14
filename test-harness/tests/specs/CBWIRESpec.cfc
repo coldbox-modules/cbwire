@@ -859,6 +859,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 		} );
+
+		describe( "Auto injected assets", function() {
+
+			it( "it doesn't auto inject assets by default", function() {
+				var settings = getInstance( dsl="coldbox:modulesettings:cbwire" );
+				settings.autoInjectAssets = false;
+				var event = execute( event="examples.index", renderResults=true );
+				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Styles -->" );
+				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Scripts -->" );
+			} );
+
+
+			xit( "it auto inject assets if 'autoInjectAssets' is enabled", function() {
+				var settings = getInstance( dsl="coldbox:modulesettings:cbwire" );
+				settings.autoInjectAssets = true;
+				var event = execute( event="examples.index", renderResults=true );
+				writeDump( event.getRenderedContent() );
+				abort;
+				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Styles -->" );
+				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Scripts -->" );
+			} );
+		} );
 	}
 
 	private function renderInitial( comp ) {

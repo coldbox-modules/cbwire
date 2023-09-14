@@ -1,4 +1,4 @@
-﻿component{
+component{
 
 	// Configure ColdBox Application
 	function configure(){
@@ -73,6 +73,7 @@
 
 		moduleSettings = {
 			cbwire = {
+				"autoInjectAssets": true,
 				"enableTurbo": true,
 				"cacheSingleFileComponents": false
 			}

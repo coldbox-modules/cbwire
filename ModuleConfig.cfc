@@ -20,6 +20,15 @@ component {
 
 	function configure(){
 		settings = {
+			/**
+			 * Set to true to automatically include CSS and JS 
+			 * assets for CBWIRE. This makes it where you do not
+			 * need to add wireStyles() and wireScripts() to your layout.
+			 */
+			"autoInjectAssets": false,
+			/**
+			 * Capture our module root for use throughout CBWIRE.
+			 */
 			"moduleRootPath": getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ),
 			/**
 			 * Set to true to throw a 'WireSetterNotFound' exception if
@@ -87,6 +96,7 @@ component {
 			// Rendering
 			{ class : "#moduleMapping#.interceptors.InitialComponentRendering" },
 			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
+			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" },
 			// Output
 			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
 		];
