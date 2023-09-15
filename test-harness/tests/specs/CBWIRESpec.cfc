@@ -934,8 +934,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	private function parseInitialData( html ) {
-		var html = trim( html );
-		var regexMatches = reFindNoCase( "wire:initial-data=""([^"">]+)", trim( html ), 1, true );
+		arguments.html = trim( html );
+		var regexMatches = reFindNoCase( "wire:initial-data=""([^"">]+)", trim( arguments.html ), 1, true );
 		return mid( html, regexMatches.pos[ 2 ], regexMatches.len[ 2 ] ).replaceNoCase( "&quot;", """", "all" );
 	}
 
