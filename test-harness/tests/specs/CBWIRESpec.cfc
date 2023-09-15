@@ -47,6 +47,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "Current time: " );
 			} );
 
+			it( "can render a child component", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponent.cfm" );
+				var result = renderInitial( comp );
+				var initialDataJSON = parseInitialData( result );
+				var initialDataStruct = deserializeJSON( initialDataJSON );
+				expect( result ).toContain( "Child Component" );
+				expect( structCount( initialDataStruct.serverMemo.children ) ).toBe( 1 );
+			} );
+
 			it( "throws error if it's unable to find an outer element", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/templateWithoutOuterElement.cfm" );
 				expect( function() {
@@ -747,6 +756,39 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result.effects.html ).notToContain( "multi" );
 			} );
 
+			it( "can render a child component", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponent.cfm" );
+				var result = renderSubsequent( comp );
+				var initialDataJSON = parseInitialData( result.effects.html );
+				var initialDataStruct = deserializeJSON( initialDataJSON );
+				expect( result.effects.html ).toContain( "Child Component" );
+				expect( structCount( result.serverMemo.children ) ).toBe( 1 );
+				expect( arrayLen( reMatchNoCase( "wire:initial-data=", result.effects.html ) ) ).toBe( 1 );
+			} );
+
+			it( "partially renders a child component if it's already an existing child in the incoming payload", function() {
+				
+				rc[ "serverMemo" ] = {
+					"data": {},
+					"children" = {
+						"795Fa90Ff42046178345-4": {
+							"id": "795Fa90Ff42046178345-4",
+							"tag": "div"
+						}
+					}
+				};
+				comp.setID( "795Fa90Ff42046178345" );
+				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponent.cfm" );
+				comp.$( "getChildren", rc.serverMemo.children );
+				var result = renderSubsequent( comp );
+				var initialDataJSON = parseInitialData( result.effects.html );
+				var initialDataStruct = deserializeJSON( initialDataJSON );
+				expect( result.effects.html ).toContain( "Child Component" );
+				expect( structCount( result.serverMemo.children ) ).toBe( 1 );
+				// It shouldn't render initial-data for a child that's already on the client
+				expect( arrayLen( reMatchNoCase( "wire:initial-data=", result.effects.html ) ) ).toBe( 1 );
+			} );
+
 			it( "can call refresh() and generate a new id", function() {
 				rc.fingerprint = { id: "abc123" };
 				rc.updates = [ {
@@ -888,11 +930,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	private function renderSubsequent( comp ) {
-		return comp.hydrate().subsequentRenderIt().getMemento();
+		return comp.hydrate().subsequentRenderIt();
 	}
 
 	private function parseInitialData( html ) {
-		var regexMatches = reFindNoCase( "wire:initial-data=""(.+)""", html, 1, true );
+		var html = trim( html );
+		var regexMatches = reFindNoCase( "wire:initial-data=""([^"">]+)", trim( html ), 1, true );
 		return mid( html, regexMatches.pos[ 2 ], regexMatches.len[ 2 ] ).replaceNoCase( "&quot;", """", "all" );
 	}
 

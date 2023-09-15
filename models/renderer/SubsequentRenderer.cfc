@@ -100,7 +100,7 @@ component extends="BaseRenderer" {
 	 * Returns true if the server memo contains children
 	 */
 	function hasChildren(){
-		return hasServerMemo() && isStruct( getChildren() ) && len(
+		return hasServerMemo() && isStruct( getServerMemoChildren() ) && len(
 			structKeyList( getCollection().serverMemo.children )
 		);
 	}
@@ -108,7 +108,7 @@ component extends="BaseRenderer" {
 	/**
 	 * Returns children in server memo
 	 */
-	function getChildren(){
+	function getServerMemoChildren(){
 		return getCollection().serverMemo.children;
 	}
 
@@ -146,6 +146,41 @@ component extends="BaseRenderer" {
 	 */
 	function getServerMemoData(){
 		return getServerMemo().data;
+	}
+
+	/**
+	 * Invokes renderIt() on the cbwire component and caches the rendered
+	 * results into variables.rendering.
+	 *
+	 * @return String
+	 */
+	function subsequentRenderIt(){
+		setIsInitialRendering( false );
+		var rendering = getNoRendering() ? "" : renderIt();
+
+		// Ensure that comments are removed otherwise it will cause rendering issues
+		rendering = reReplaceNoCase( rendering, "<!--.+-->", "", "all" );
+
+		var memento = {
+			"effects" : {
+				"html" : !len( rendering ) ? javaCast( "null", 0 ) : rendering,
+				"dirty" : getDirtyProperties(),
+				"emits" : getEmittedEvents(),
+				"redirect" : !isNull( getRedirectTo() ) ? getRedirectTo() : javacast( "null", 0 )
+			},
+			"serverMemo" : {
+				"children": getChildren( rendering ),
+				"data" : getState( includeComputed = false ),
+				"checksum" : generateChecksum()
+			}
+		}
+
+		if ( !getFinishedUpload() ) {
+			memento.effects[ "path" ] = getPath();
+			memento.serverMemo[ "htmlHash" ] = generateHash( rendering );
+		}
+
+		return memento;
 	}
 
 }

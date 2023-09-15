@@ -91,7 +91,7 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 			var memento = cbwireComponent
 				.hydrate()
 				.subsequentRenderIt()
-				.getMemento();
+				.getResponse();
 			var html = memento[ "effects" ][ "html" ];
 			setRendering( html );
 			return html;

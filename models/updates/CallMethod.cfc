@@ -37,7 +37,7 @@ component extends="BaseUpdate" {
 		}
 
 		if ( getPayloadMethod() == "$refresh" ) {
-			invoke( arguments.comp, "refresh", getPassedParamsAsArguments() );
+			//invoke( arguments.comp, "refresh", getPassedParamsAsArguments() );
 			return;
 		}
 

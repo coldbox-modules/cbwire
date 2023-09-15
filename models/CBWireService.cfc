@@ -161,8 +161,7 @@ component accessors="true" {
 		return getComponentInstance( wireComponent )
 			.startup( initialRender = false )
 			.hydrate()
-			.subsequentRenderIt()
-			.getMemento();
+			.subsequentRenderIt();
 	}
 
 	function handleFileUpload( event, rc, prc ){
@@ -203,11 +202,11 @@ component accessors="true" {
 	 * @return Component
 	 */
 	function wire( componentName, parameters = {} ){
-		return getComponentInstance( arguments.componentName )
+ 		return getComponentInstance( arguments.componentName )
 			.startup()
-			.mount( arguments.parameters )
-			.renderIt();
-	}
+ 			.mount( arguments.parameters )
+ 			.renderIt();
+ 	}
 
 	function getConcern( concern ){
 		return getWirebox().getInstance( arguments.concern & "Concern@cbwire" );

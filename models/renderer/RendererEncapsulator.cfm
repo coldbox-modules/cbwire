@@ -5,6 +5,8 @@
 
     serverMemoChildren = httpRequestData.content.len() ? deserializeJson( httpRequestData.content ).serverMemo.children : {};
 
+    isSingleFileComponent = attributes.cbwirecomponent.getParent().isSingleFileComponent();
+
     variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
 
     variables[ "data" ] = attributes.cbwireComponent.getDataProperties();
@@ -21,15 +23,20 @@
     } );
 
     variables.wire = function( componentName, parameters = {} ) {
-        childWireInstanceIndex += 1;
-        if ( structKeyExists( serverMemoChildren, attributes.args.parent.getID() & "-" & childWireInstanceIndex ) ) {
-            var element = serverMemoChildren[ attributes.args.parent.getID() & "-" & childWireInstanceIndex ];
-            return "<#element.tag# wire:id=""#element.id#""></#element.tag#>";
-        }
-        return application.wirebox.getInstance( "CBWireService@cbwire" )
+        var lineNumber = callStackGet()[ 2 ].lineNumber;
+        
+        // if ( structKeyExists( serverMemoChildren, attributes.args.parent.getID() & "-" & lineNumber ) ) {
+        //     var element = serverMemoChildren[ attributes.args.parent.getID() & "-" & lineNumber ];
+        //     return "<#element.tag# wire:id=""#element.id#""></#element.tag#>";
+        // }
+
+        var comp = application.wirebox.getInstance( "CBWireService@cbwire" )
                    .getComponentInstance( arguments.componentName )
-                   .startup()
-                   .mount( arguments.parameters )
+                   .startup();
+
+        comp.setID( attributes.args.parent.getID() & "-" & lineNumber );
+
+        return comp.mount( arguments.parameters )
                    .renderIt();
     };
 

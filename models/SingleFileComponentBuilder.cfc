@@ -56,7 +56,7 @@ component accessors="true" singleton {
 			if ( startedWire && !endedWire ) {
 				singleFileContents &= line & chr( 10 );
 			} else {
-				remainingContents &= line;
+				remainingContents &= line & chr( 10 );
 			}
 		}
 

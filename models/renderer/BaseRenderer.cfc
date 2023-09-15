@@ -186,7 +186,7 @@ component accessors="true" {
 	){
 		var templateRendering = _view( argumentCollection = arguments );
 
-		var rendering = applyWiring ? applyWiringToOuterElement( templateRendering ) : templateRendering;
+			var rendering = applyWiring ? applyWiringToOuterElement( templateRendering ) : templateRendering;
 
 		// Add properties to top element to make Livewire actually work.
 		return rendering;
@@ -525,53 +525,8 @@ component accessors="true" {
 		return variables.meta;
 	}
 
-	/**
-	 * Returns the memento for our component which holds the current
-	 * state of our component. This is returned on subsequent XHR requests
-	 * from cbwire.
-	 *
-	 * @return Struct
-	 */
-	function getMemento(){
-		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
-
-		var memento = {
-			"effects" : {
-				"html" : getHTML(),
-				"dirty" : getDirtyProperties(),
-				"emits" : getEmittedEvents(),
-				"redirect" : !isNull( getRedirectTo() ) ? getRedirectTo() : javacast( "null", 0 )
-			},
-			"serverMemo" : {
-				"data" : getState( includeComputed = false ),
-				"checksum" : generateChecksum()
-			}
-		}
-
-		if ( !getFinishedUpload() ) {
-			memento.effects[ "path" ] = getPath();
-			memento.serverMemo[ "htmlHash" ] = generateHash( rendering );
-		}
-
-		return memento;
-	}
-
 	function getRequestContext(){
 		return getController().getRenderer().getRequestContext();
-	}
-
-	/**
-	 * Returns the HTML rendering or null
-	 *
-	 * @return Any
-	 */
-	function getHTML(){
-		var rendering = getRequestContext().getValue( "_cbwire_subsequent_rendering" );
-
-		// Ensure that comments are removed otherwise it will cause rendering issues
-		rendering = reReplaceNoCase( rendering, "<!--.+-->", "", "all" );
-
-		return len( rendering ) ? rendering : javacast( "null", 0 );
 	}
 
 	/**
@@ -780,19 +735,6 @@ component accessors="true" {
 		return renderingResult;
 	}
 
-	/**
-	 * Invokes renderIt() on the cbwire component and caches the rendered
-	 * results into variables.rendering.
-	 *
-	 * @return String
-	 */
-	function subsequentRenderIt(){
-		setIsInitialRendering( false );
-		var result = getNoRendering() ? "" : renderIt();
-		getEvent().setValue( "_cbwire_subsequent_rendering", trim( result ) );
-		return this;
-	}
-
 	function _addDirtyProperty( property ){
 		getDirtyProperties().append( arguments.property );
 	}
@@ -907,18 +849,21 @@ component accessors="true" {
 	 * @return struct
 	 */
 	function getChildren( required string rendering ){
-		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9]+""", rendering ).filter( function( match ){
-			return !findNoCase( getID(), match );
-		} );
+
+		var matches = reMatchNoCase( "<[A-Za-z]+\s*wire:id=""[A-Za-z0-9\-]+""", rendering );
+
+		if ( !getIsInitialRendering() && arrayLen( matches) > 1 ) {
+			matches.deleteAt( 1 ); // remove first match which is the same as the current component
+		}
 
 		return matches.reduce( function( agg, match, index ){
-			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9\-]+)""", match, 1, true );
 			var id = idRegexResult.match[ 2 ];
 
-			var tagRegexResult = reFindNoCase( "<([A-Za-z]+)\s*wire:id=""([A-Za-z0-9]+)""", match, 1, true );
+			var tagRegexResult = reFindNoCase( "<([A-Za-z]+)\s*wire:id=""([A-Za-z0-9\-]+)""", match, 1, true );
 			var tag = tagRegexResult.match[ 2 ];
 
-			agg[ getID() & "-" & index ] = { "id" : id, "tag" : tag };
+			agg[ id ] = { "id" : id, "tag" : tag };
 			return agg;
 		}, {} );
 	}
