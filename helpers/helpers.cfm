@@ -31,9 +31,6 @@
 	 * @return Component
 	 */
     function wire( componentName, parameters = {} ) {
-        return getInstance( "CBWireService@cbwire" )
-                   .getComponentInstance( arguments.componentName )
-                   ._mount( arguments.parameters )
-                   ._renderIt();
+        return getInstance( "CBWireService@cbwire" ).wire( argumentCollection=arguments );
     }
 </cfscript>

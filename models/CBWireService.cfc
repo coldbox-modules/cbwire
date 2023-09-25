@@ -1,9 +1,14 @@
-component accessors="true" singleton {
+component accessors="true" {
 
 	/**
 	 * Injected settings.
 	 */
 	property name="settings" inject="coldbox:modulesettings:cbwire";
+
+	/**
+	 * Module service
+	 */
+	property name="moduleService" inject="coldbox:moduleService";
 
 	/**
 	 * Injected ColdBox controller which we will use to access our app and module settings
@@ -16,19 +21,14 @@ component accessors="true" singleton {
 	property name="wirebox" inject="wirebox";
 
 	/**
-	 * Injection CBWireRequest
-	 */
-	property name="cbwireRequest" inject="CBWireRequest@cbwire";
-
-	/**
 	 * Injected RequestService so that we can access the current ColdBox RequestContext.
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
 	/**
-	 * Inject InlineComopnentBuilder
+	 * Inject SingleFileComponentBuilder
 	 */
-	property name="inlineComponentBuilder" inject="InlineComponentBuilder@cbwire";
+	property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
 
 	/**
 	 * Returns the styles to be placed in our HTML head.
@@ -65,15 +65,12 @@ component accessors="true" singleton {
 	 *
 	 * @componentName String | Name of the cbwire component.
 	 */
-	function getRootComponentPath( required componentName ) {
-
+	function getRootComponentPath( required componentName ){
 		var appMapping = getAppMapping();
 		var wireRoot = ( len( appMapping ) ? appMapping & "." : "" ) & getWiresLocation();
 		var componentPath = "";
 
-		componentPath = reFindNoCase( "#appMapping#\.", arguments.componentName ) ? 
-							arguments.componentName :
-							"#wireRoot#.#arguments.componentName#";
+		componentPath = reFindNoCase( "#appMapping#\.", arguments.componentName ) ? arguments.componentName : "#wireRoot#.#arguments.componentName#";
 
 		var currentModule = getCurrentRequestModule();
 
@@ -91,21 +88,21 @@ component accessors="true" singleton {
 	 *
 	 * @return Component
 	 */
-	function getRootComponent( required componentName ){
+	function getRootComponent( required componentName, required initialRender ){
 		var componentPath = getRootComponentPath( arguments.componentName );
 
 		try {
 			return getWireBox().getInstance( componentPath );
 		} catch ( Injector.InstanceNotFoundException e ) {
-			
-			var inlineComponent = getInlineComponentBuilder()
-									.build( componentPath, arguments.componentName, getCurrentRequestModule() );
+			var singleFileComponent = getSingleFileComponentBuilder()
+				.setInitialRender( arguments.initialRender )
+				.build( componentPath, arguments.componentName, getCurrentRequestModule() );
 
-			if ( isNull( inlineComponent ) ) {
+			if ( isNull( singleFileComponent ) ) {
 				rethrow;
 			}
 
-			return inlineComponent;
+			return singleFileComponent;
 		}
 	}
 
@@ -119,12 +116,12 @@ component accessors="true" singleton {
 	 *
 	 * @componentName String | The name of the component.
 	 */
-	function getComponentInstance( componentName ){
+	function getComponentInstance( componentName, initialRender = true ){
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = getWiresLocation();
 
 		if ( reFindNoCase( wiresLocation & "\.", arguments.componentName ) ) {
-			//arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
+			// arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
 		}
 
 		if ( find( "@", arguments.componentName ) ) {
@@ -134,12 +131,23 @@ component accessors="true" singleton {
 			var comp = getModuleComponent( params[ 1 ], params[ 2 ] );
 		} else {
 			// Look in our root folder for our cbwire component
-			var comp = getRootComponent( arguments.componentName );
+			var comp = getRootComponent( arguments.componentName, arguments.initialRender );
 		}
 
 		return comp;
 	}
 
+	function getModuleComponent( path, module ) {
+		var registry = moduleService.getModuleRegistry();
+
+		// if ( !structKeyExists( registry, module ) ) {
+		// 	throw( type="ModuleNotFound", "CBWIRE cannot locate the module '#arguments.module#'.")
+		// }
+
+		// writeDump( var=moduleService.getModuleRegistry(), top=2 );
+		// abort;
+
+	}
 
 	/**
 	 * Primary entry point for cbwire requests.
@@ -151,9 +159,9 @@ component accessors="true" singleton {
 	function handleIncomingRequest( event, rc, prc ){
 		var wireComponent = event.getValue( "wireComponent" );
 		return getComponentInstance( wireComponent )
-			._hydrate()
-			._subsequentRenderIt()
-			._getMemento();
+			.startup( initialRender = false )
+			.hydrate()
+			.subsequentRenderIt();
 	}
 
 	function handleFileUpload( event, rc, prc ){
@@ -185,19 +193,42 @@ component accessors="true" singleton {
 	}
 
 	/**
+	 * Instantiates our cbwire component, mounts it,
+	 * and then calls it's internal renderIt() method.
+	 *
+	 * @componentName String | The name of the component to load.
+	 * @parameters Struct | The parameters you want mounted initially.
+	 *
+	 * @return Component
+	 */
+	function wire( componentName, parameters = {} ){
+ 		return getComponentInstance( arguments.componentName )
+			.startup()
+ 			.mount( arguments.parameters )
+ 			.renderIt();
+ 	}
+
+	function getConcern( concern ){
+		return getWirebox().getInstance( arguments.concern & "Concern@cbwire" );
+	}
+
+	/**
 	 * Returns the module of the current request.
-	 * 
+	 *
 	 * @return string
 	 */
-	function getCurrentRequestModule() {
-		return cbwireRequest.hasFingerprint() ? cbwireRequest.getFingerprint().module : getRequestService().getContext().getCurrentModule();
+	function getCurrentRequestModule(){
+		var rc = requestService.getContext().getCollection();
+		return structKeyExists( rc, "fingerprint" ) ? rc.fingerprint.module : getRequestService()
+			.getContext()
+			.getCurrentModule();
 	}
 	/**
 	 * Returns the app mapping.
-	 * 
+	 *
 	 * @return string
 	 */
-	function getAppMapping() {
+	function getAppMapping(){
 		return getController().getSetting( "AppMapping" );
 	}
 
@@ -212,19 +243,19 @@ component accessors="true" singleton {
 
 	/**
 	 * Returns the last rendered id.
-	 * 
+	 *
 	 * @return string
 	 */
-	function getLastRenderedId() {
+	function getLastRenderedId(){
 		return getRequestService().getContext().getPrivateValue( "cbwire_lastest_rendered_id" );
 	}
 
 	/**
 	 * Returns the renderer.
-	 * 
+	 *
 	 * @return Renderer
 	 */
-	function getRenderer() {
+	function getRenderer(){
 		return getController().getRenderer();
 	}
 

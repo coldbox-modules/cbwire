@@ -58,7 +58,6 @@
 			border-radius: 10px;
 		}
 	</style>
-	#wireStyles()#
 </head>
 <body>
 	<div class="container pt-3 pb-5">
@@ -79,7 +78,6 @@
 			</div>
 		</div>
 	</div>
-	#wireScripts()#
 	<script src="//unpkg.com/alpinejs" defer></script>
 	<cfif structKeyExists( prc, "viewJavascript" )>
 		#prc.viewJavascript#

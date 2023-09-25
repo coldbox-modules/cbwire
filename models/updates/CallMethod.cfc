@@ -1,6 +1,15 @@
 component extends="BaseUpdate" {
 
-	property name="cbwireRequest" inject="CBWireRequest@cbwire";
+	/**
+	 * Is updating data property? Defaults to false.
+	 */
+	function isUpdatingDataProperty(){
+		return getPayloadMethod() == "$set";
+	}
+
+	function getName(){
+		return getPassedParamsAsArguments()[ 1 ];
+	}
 
 	/**
 	 * Runs the specified action method within the request payload on the provided component.
@@ -8,14 +17,14 @@ component extends="BaseUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
-		arguments.comp._renderComputedProperties();
+		// arguments.comp._renderComputedProperties();
 
 		if ( getPayloadMethod() == "finishUpload" ) {
-			arguments.comp._finishUpload( params = getPassedParamsAsArguments() );
+			arguments.comp.finishUpload( params = getPassedParamsAsArguments() );
 			return;
 		}
 		if ( getPayloadMethod() == "startUpload" ) {
-			var dataProperty = getPassedParamsAsArguments()[ 1 ];
+			var dataProperty = getName();
 			var signature = "someSignature";
 			var signedURL = "/livewire/upload-file?expires=never&signature=#signature#";
 			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ dataProperty, signedURL ] );
@@ -23,28 +32,25 @@ component extends="BaseUpdate" {
 		}
 
 		if ( getPayloadMethod() == "$set" ) {
-			invoke(
-				arguments.comp,
-				"set" & getPassedParamsAsArguments()[ 1 ],
-				[ getPassedParamsAsArguments()[ 2 ] ]
-			);
+			invoke( arguments.comp, "set" & getName(), [ getPassedParamsAsArguments()[ 2 ] ] );
 			return;
 		}
 
 		if ( getPayloadMethod() == "$refresh" ) {
-			invoke( arguments.comp, "refresh", getPassedParamsAsArguments() );
+			//invoke( arguments.comp, "refresh", getPassedParamsAsArguments() );
 			return;
 		}
 
 		if ( hasCallableAction( arguments.comp ) ) {
 			try {
-				invoke( arguments.comp, getPayloadMethod(), getPassedParamsAsArguments() );
+				invoke( arguments.comp.getParent(), getPayloadMethod(), getPassedParamsAsArguments() );
 			} catch ( ValidationException validateException ) {
 				// Silently stop further action processing on validationOrFail() exceptions.
+			} catch ( any e ) {
+				rethrow;
 			}
 			return;
 		}
-
 		// We cannot locate the action, so throw an error.
 		throw(
 			type = "WireActionNotFound",
@@ -61,7 +67,7 @@ component extends="BaseUpdate" {
 	 * @return Boolean
 	 */
 	private function hasCallableAction( required comp ){
-		return hasPayloadMethod() && arguments.comp._hasMethod( getPayloadMethod() );
+		return hasPayloadMethod();
 	}
 
 	/**
@@ -88,9 +94,7 @@ component extends="BaseUpdate" {
 	 * @return Boolean
 	 */
 	private function hasPassedParams(){
-		return hasPayload() && structKeyExists( getPayload(), "params" ) && isArray(
-			getPayload()[ "params" ]
-		);
+		return hasPayload() && structKeyExists( getPayload(), "params" ) && isArray( getPayload()[ "params" ] );
 	}
 
 	/**

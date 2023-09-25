@@ -1,5 +1,5 @@
 component extends="cbwire.models.Component" {
 
-    // Inline Contents Goes Here
+	// Single file contents goes here
 
 }

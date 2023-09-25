@@ -1,4 +1,4 @@
-﻿component{
+component{
 
 	// Configure ColdBox Application
 	function configure(){
@@ -19,6 +19,7 @@
 			requestEndHandler		= "",
 			applicationStartHandler = "",
 			applicationEndHandler	= "",
+			applicationHelper       = "/includes/helpers/applicationHelper.cfm",
 			sessionStartHandler 	= "",
 			sessionEndHandler		= "",
 			missingTemplateHandler	= "",
@@ -73,7 +74,9 @@
 
 		moduleSettings = {
 			cbwire = {
-				"enableTurbo": true
+				"autoInjectAssets": true,
+				"enableTurbo": true,
+				"cacheSingleFileComponents": false
 			}
 		};
 
