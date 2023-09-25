@@ -3,7 +3,7 @@
 
     if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
         configSettings.applicationHelper.each( function( includePath ) {
-            include template=includePath;
+            include "#includePath#";
         } );
     }
 
