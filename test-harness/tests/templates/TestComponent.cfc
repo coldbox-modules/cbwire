@@ -20,7 +20,7 @@ component extends="cbwire.models.Component" {
         "updated": false,
         "listener": false,
         "onDIComplete": false,
-        "getInstance": false,
+        "calledGetInstance": false,
         "validateOrFail": false,
         "validate": false,
         "myFile": "",
@@ -56,7 +56,7 @@ component extends="cbwire.models.Component" {
 
     function callGetInstance() {
         getInstance( "CBWIREService@cbwire" );
-        data.getInstance = true;
+        data.calledGetInstance = true;
     }
 
     function emitEventWithoutArgs() {

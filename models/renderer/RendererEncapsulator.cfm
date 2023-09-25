@@ -1,4 +1,12 @@
 <cfscript>
+    configSettings = attributes.cbwireComponent.getInstance( dsl="coldbox:configSettings" );
+
+    if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
+        configSettings.applicationHelper.each( function( includePath ) {
+            include template=includePath;
+        } );
+    }
+
     variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
 
     variables[ "data" ] = attributes.cbwireComponent.getDataProperties();
@@ -35,6 +43,8 @@
     structAppend( variables, attributes.cbwireComponent.getComputedPropertiesWithCaching() );
 
     structAppend( variables, attributes.args );
+
+    structDelete( variables, "configSettings" );
 
     include "#attributes.cbwireTemplate#";
 </cfscript>

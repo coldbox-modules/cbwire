@@ -19,6 +19,7 @@ component{
 			requestEndHandler		= "",
 			applicationStartHandler = "",
 			applicationEndHandler	= "",
+			applicationHelper       = "/includes/helpers/applicationHelper.cfm",
 			sessionStartHandler 	= "",
 			sessionEndHandler		= "",
 			missingTemplateHandler	= "",

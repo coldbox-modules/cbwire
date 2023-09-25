@@ -188,6 +188,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "rendered with onRender" );
 			} );
 
+			it( "should be able to use global UDFs in application helpers", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/globaludf.cfm" );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "yay!" );
+			} );
+
 			describe( "validation", function() {
 				it( "validates constraints", function() {
 					comp.$( "getComponentTemplatePath", "/tests/templates/validation.cfm" );

@@ -5,7 +5,7 @@
         listener: #listener#<br>
         updated: #updated#<br>
         onDIComplete: #onDIComplete#<br>
-        getInstance: #getInstance#<br>
+        getInstance: #calledGetInstance#<br>
         validateOrFail: #validateOrFail#<br>
         validate: #validate#
     </div>
