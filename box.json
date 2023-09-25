@@ -1,5 +1,5 @@
 {
-    "name":"cbwire",
+    "name":"CBWIRE",
     "version":"3.1.0-snapshot",
     "location":"forgeboxStorage",
     "author":"Ortus Solutions <info@ortussolutions.com",
@@ -9,8 +9,8 @@
         "type":"git",
         "url":"https://github.com/coldbox-modules/cbwire"
     },
-    "bugs":"https://ortussolutions.atlassian.net/browse/CBWIRE",
-    "shortDescription":"CBWIRE is a ColdBox module that makes building modern, reactive CFML apps a breeze without the need for JavaScript frameworks such as Vue or React, and without the hassle of creating unnecessary APIs.",
+    "bugs":"https://github.com/coldbox-modules/cbwire/issues",
+    "shortDescription":"Become a web development hero with CBWIRE! CBWIRE is a ColdBox module that helps you build modern, reactive, single-page CFML applications in record time - without using much JavaScript or building backend APIs.",
     "slug":"cbwire",
     "type":"modules",
     "keywords":"",
