@@ -1,6 +1,6 @@
 {
     "name":"CBWIRE",
-    "version":"3.1.0-snapshot",
+    "version":"3.1.0",
     "location":"forgeboxStorage",
     "author":"Ortus Solutions <info@ortussolutions.com",
     "homepage":"https://github.com/coldbox-modules/cbwire",
