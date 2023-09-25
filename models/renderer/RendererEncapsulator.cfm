@@ -3,7 +3,10 @@
 
     if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
         configSettings.applicationHelper.each( function( includePath ) {
-            include "#includePath#";
+            if ( left( includePath, 1 ) != "/" ) {
+                arguments.includePath = "/" & arguments.includePath;
+            }
+            include "#arguments.includePath#";
         } );
     }
 
