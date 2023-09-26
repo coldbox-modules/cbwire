@@ -161,7 +161,7 @@ component accessors="true" {
 		return getComponentInstance( wireComponent )
 			.startup( initialRender = false )
 			.hydrate()
-			.subsequentRenderIt();
+			.subsequentRenderIt( event=event, rc=rc, prc=prc );
 	}
 
 	function handleFileUpload( event, rc, prc ){

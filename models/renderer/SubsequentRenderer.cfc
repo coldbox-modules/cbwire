@@ -154,9 +154,9 @@ component extends="BaseRenderer" {
 	 *
 	 * @return String
 	 */
-	function subsequentRenderIt(){
+	function subsequentRenderIt( event, rc, prc ){
 		setIsInitialRendering( false );
-		var rendering = getNoRendering() ? "" : renderIt();
+		var rendering = getNoRendering() ? "" : renderIt( event=arguments.event, rc=arguments.rc, prc=arguments.prc );
 
 		// Ensure that comments are removed otherwise it will cause rendering issues
 		rendering = reReplaceNoCase( rendering, "<!--.+-->", "", "all" );

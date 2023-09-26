@@ -755,6 +755,10 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function renderIt(){
+		if ( structKeyExists( getParent(), "onLoad" ) ) {
+			getParent()
+				.onLoad( event=event, rc=arguments.rc, prc=arguments.prc );
+		}
 		var html = view( view = getComponentTemplatePath() );
 		cleanup();
 		return html;

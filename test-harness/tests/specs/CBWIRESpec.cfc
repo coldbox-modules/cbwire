@@ -149,6 +149,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "mounted: true" );
 			} );
 
+			it( "lifecycle onLoad method executes and updates data properties", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/onload.cfm" );
+				comp.$( "getEvent", event );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "loaded: true" );
+			} );
+
 			it( "lifecycle onMount method executes with expected parameters", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/onmount.cfm" );
 				comp.$( "getEvent", event );
@@ -601,6 +608,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
+			it( "executes onLoad", function() {
+				rc.updates = [ {
+					type: "SyncInput",
+					payload: {
+						name: "name",
+						value: "I synced!"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				parent.$( "onLoad" );
+				renderSubsequent( comp );
+				expect( parent.$callLog().onLoad[ 1 ].event ).toBeInstanceOf( "RequestContext" );
+				expect( parent.$callLog().onLoad[ 1 ].rc ).toBeStruct();
+				expect( parent.$callLog().onLoad[ 1 ].prc ).toBeStruct();
+			} );
+
 			describe( "updates", function() {
 				it( "executes onUpdate", function() {
 					rc.updates = [ {
@@ -918,7 +941,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Scripts -->" );
 			} );
 
-
 			xit( "it auto inject assets if 'autoInjectAssets' is enabled", function() {
 				var settings = getInstance( dsl="coldbox:modulesettings:cbwire" );
 				settings.autoInjectAssets = true;
@@ -932,11 +954,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	private function renderInitial( comp ) {
-		return comp.mount().renderIt();
+		var event = getRequestContext();
+		return comp.mount().renderIt(
+			event=event,
+			rc=event.getCollection(),
+			prc=event.getPrivateCollection()
+		);
 	}
 
 	private function renderSubsequent( comp ) {
-		return comp.hydrate().subsequentRenderIt();
+		var event = getRequestContext();
+		return comp.hydrate().subsequentRenderIt(
+			event=event,
+			rc=event.getCollection(),
+			prc=event.getPrivateCollection()
+		);
 	}
 
 	private function parseInitialData( html ) {
