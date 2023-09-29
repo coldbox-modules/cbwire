@@ -9,7 +9,6 @@
             include "#arguments.includePath#";
         } );
     }
-
     
     variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
 
