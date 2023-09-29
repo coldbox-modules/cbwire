@@ -10,6 +10,7 @@
         } );
     }
 
+    
     variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
 
     variables[ "data" ] = attributes.cbwireComponent.getDataProperties();
