@@ -159,7 +159,7 @@ component extends="BaseRenderer" {
 		var rendering = getNoRendering() ? "" : renderIt( event=arguments.event, rc=arguments.rc, prc=arguments.prc );
 
 		// Ensure that comments are removed otherwise it will cause rendering issues
-		rendering = reReplaceNoCase( rendering, "<!--.+-->", "", "all" );
+		rendering = reReplaceNoCase( rendering, "<!--[^-->]+-->", "", "all" );
 
 		var memento = {
 			"effects" : {
