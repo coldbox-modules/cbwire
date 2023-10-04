@@ -176,4 +176,24 @@ component extends="cbwire.models.Component" {
     function actionWithRefresh() {
         refresh();
     }
+
+    function tryResetSingleProperty() {
+        reset( "name" );
+    }
+
+    function tryResetArrayOfProperties() {
+        reset( [ "name", "sum" ] );
+    }
+
+    function tryResetAllProperties() {
+        reset();
+    }
+
+    function tryResetExceptSingleProperty() {
+        resetExcept( "sum" );
+    }
+
+    function tryResetExceptArrayOfProperties() {
+        resetExcept( [ "name", "sum" ] );
+    }
 }

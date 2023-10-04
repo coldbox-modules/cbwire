@@ -20,6 +20,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function run( testResults, testBox ){
 		// all your suites go here.
 		describe( "InitialRender", function(){
+
 			beforeEach( function( currentSpec ){
 				setup();
 				event = getRequestContext();
@@ -266,6 +267,106 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
 				var result = renderSubsequent( comp );
 				expect( result.effects.html ).toContain( "getInstance: true" );
+			} );
+
+			describe( "reset", function() {
+
+				it( "can reset() a single property", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetSingleProperty"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+				} );
+
+				it( "can reset() an array of properties", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetArrayOfProperties"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+					expect( result.effects.html ).toContain( "sum: 0" );
+				} );
+
+				it( "can reset() all properties", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetAllProperties"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+					expect( result.effects.html ).toContain( "sum: 0" );
+				} );
+
+				it( "can resetExcept() a single property", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetExceptSingleProperty"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+					expect( result.effects.html ).toContain( "sum: 10" );
+				} );
+
+				it( "can resetExcept() an array of properties", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetExceptArrayOfProperties"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "sum: 10" );
+				} );
 			} );
 
 			describe( "redirecting", function() {
