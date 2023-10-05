@@ -20,6 +20,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function run( testResults, testBox ){
 		// all your suites go here.
 		describe( "InitialRender", function(){
+
 			beforeEach( function( currentSpec ){
 				setup();
 				event = getRequestContext();
@@ -149,6 +150,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "mounted: true" );
 			} );
 
+			it( "lifecycle onLoad method executes and updates data properties", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/onload.cfm" );
+				comp.$( "getEvent", event );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "loaded: true" );
+			} );
+
 			it( "lifecycle onMount method executes with expected parameters", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/onmount.cfm" );
 				comp.$( "getEvent", event );
@@ -259,6 +267,106 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
 				var result = renderSubsequent( comp );
 				expect( result.effects.html ).toContain( "getInstance: true" );
+			} );
+
+			describe( "reset", function() {
+
+				it( "can reset() a single property", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetSingleProperty"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+				} );
+
+				it( "can reset() an array of properties", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetArrayOfProperties"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+					expect( result.effects.html ).toContain( "sum: 0" );
+				} );
+
+				it( "can reset() all properties", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetAllProperties"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+					expect( result.effects.html ).toContain( "sum: 0" );
+				} );
+
+				it( "can resetExcept() a single property", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetExceptSingleProperty"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).notToContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "name: Grant" );
+					expect( result.effects.html ).toContain( "sum: 10" );
+				} );
+
+				it( "can resetExcept() an array of properties", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "Awesome dev",
+							"sum": "10"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "tryResetExceptArrayOfProperties"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "name: Awesome dev" );
+					expect( result.effects.html ).toContain( "sum: 10" );
+				} );
 			} );
 
 			describe( "redirecting", function() {
@@ -601,6 +709,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
+			it( "executes onLoad", function() {
+				rc.updates = [ {
+					type: "SyncInput",
+					payload: {
+						name: "name",
+						value: "I synced!"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				parent.$( "onLoad" );
+				renderSubsequent( comp );
+				expect( parent.$callLog().onLoad[ 1 ].event ).toBeInstanceOf( "RequestContext" );
+				expect( parent.$callLog().onLoad[ 1 ].rc ).toBeStruct();
+				expect( parent.$callLog().onLoad[ 1 ].prc ).toBeStruct();
+			} );
+
 			describe( "updates", function() {
 				it( "executes onUpdate", function() {
 					rc.updates = [ {
@@ -918,7 +1042,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Scripts -->" );
 			} );
 
-
 			xit( "it auto inject assets if 'autoInjectAssets' is enabled", function() {
 				var settings = getInstance( dsl="coldbox:modulesettings:cbwire" );
 				settings.autoInjectAssets = true;
@@ -932,11 +1055,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	private function renderInitial( comp ) {
-		return comp.mount().renderIt();
+		var event = getRequestContext();
+		return comp.mount().renderIt(
+			event=event,
+			rc=event.getCollection(),
+			prc=event.getPrivateCollection()
+		);
 	}
 
 	private function renderSubsequent( comp ) {
-		return comp.hydrate().subsequentRenderIt();
+		var event = getRequestContext();
+		return comp.hydrate().subsequentRenderIt(
+			event=event,
+			rc=event.getCollection(),
+			prc=event.getPrivateCollection()
+		);
 	}
 
 	private function parseInitialData( html ) {

@@ -23,6 +23,7 @@ component extends="cbwire.models.Component" {
         "calledGetInstance": false,
         "validateOrFail": false,
         "validate": false,
+        "calledLoaded": false,
         "myFile": "",
         "sum": 0
     };
@@ -36,6 +37,10 @@ component extends="cbwire.models.Component" {
             var data.tickCount = getTickCount();
             return data.tickCount;
         }
+    }
+
+    function onLoad() {
+        data.calledLoaded = true;
     }
 
     function onDIComplete() {
@@ -170,5 +175,25 @@ component extends="cbwire.models.Component" {
 
     function actionWithRefresh() {
         refresh();
+    }
+
+    function tryResetSingleProperty() {
+        reset( "name" );
+    }
+
+    function tryResetArrayOfProperties() {
+        reset( [ "name", "sum" ] );
+    }
+
+    function tryResetAllProperties() {
+        reset();
+    }
+
+    function tryResetExceptSingleProperty() {
+        resetExcept( "sum" );
+    }
+
+    function tryResetExceptArrayOfProperties() {
+        resetExcept( [ "name", "sum" ] );
     }
 }

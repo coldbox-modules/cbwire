@@ -92,6 +92,10 @@ component accessors="true" {
 		return getRenderer().reset( argumentCollection = arguments );
 	}
 
+	function resetExcept( property ){
+		return getRenderer().resetExcept( argumentCollection = arguments );
+	}
+
 	function validateOrFail(
 		any target,
 		string fields = "*",

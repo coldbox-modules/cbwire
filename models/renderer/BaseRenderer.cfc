@@ -648,6 +648,23 @@ component accessors="true" {
 		}
 	}
 
+	function resetExcept( property ){
+		if ( isNull( arguments.property ) ) {
+			throw( type="ResetException", message="Cannot reset a null property." );
+		}
+
+		// Reset all properties except what was provided
+		getDataProperties().each( function( key, value ){
+			if ( isArray( property ) ) {
+				if ( !arrayFindNoCase( property, arguments.key ) ) {
+					reset( key );
+				}
+			} else if ( property != key ) {
+				reset( key );
+			}
+		} );
+	}
+
 	/**
 	 * Returns a SHA-256 hash of the passed in content.
 	 *
@@ -755,6 +772,10 @@ component accessors="true" {
 	 * @return Void
 	 */
 	function renderIt(){
+		if ( structKeyExists( getParent(), "onLoad" ) ) {
+			getParent()
+				.onLoad( event=event, rc=arguments.rc, prc=arguments.prc );
+		}
 		var html = view( view = getComponentTemplatePath() );
 		cleanup();
 		return html;
