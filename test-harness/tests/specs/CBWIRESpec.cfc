@@ -319,6 +319,24 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = renderSubsequent( comp );
 					expect( result.effects.html ).toContain( "toggled: false" );
 				} );
+
+				it( "should be able to $set property", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"name": "hello"
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "$set",
+							params: [ "name", "world" ]
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "name: world" );
+				} );
 			} );
 
 			describe( "reset", function() {
