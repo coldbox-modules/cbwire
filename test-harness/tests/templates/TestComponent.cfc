@@ -24,6 +24,7 @@ component extends="cbwire.models.Component" {
         "validateOrFail": false,
         "validate": false,
         "calledLoaded": false,
+        "toggled": false,
         "myFile": "",
         "sum": 0
     };

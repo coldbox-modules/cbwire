@@ -69,6 +69,10 @@ component accessors="true" {
 		return getRenderer().refresh( argumentCollection = arguments );
 	}
 
+	function $toggle(){
+		return getRenderer().$toggle( argumentCollection=arguments );
+	}
+
 	function relocate(
 		event = "",
 		queryString = "",

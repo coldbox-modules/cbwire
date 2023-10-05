@@ -9,6 +9,7 @@
         getInstance: #calledGetInstance#<br>
         validateOrFail: #validateOrFail#<br>
         validate: #validate#<br>
+        toggled: #toggled#
         sum: #sum#
     </div>
 </cfoutput>

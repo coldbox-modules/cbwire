@@ -282,6 +282,45 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result.effects.html ).toContain( "getInstance: true" );
 			} );
 
+			describe( "magicActions", function() {
+
+				it( "should be able to $toggle true", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"toggled": false
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "$toggle",
+							params: [ "toggled" ]
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "toggled: true" );
+				} );
+
+				it( "should be able to $toggle false", function() {
+					rc[ "serverMemo" ] = {
+						"data": {
+							"toggled": true
+						}
+					};
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "$toggle",
+							params: [ "toggled" ]
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "toggled: false" );
+				} );
+			} );
+
 			describe( "reset", function() {
 
 				it( "can reset() a single property", function() {
