@@ -239,6 +239,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( comp ).toBeInstanceOf( "SubsequentRenderer" );
 			} );
 
+			it( "throws an error if we call an action that doesn't exist", function() {
+				rc.updates = [ {
+					type: "CallMethod",
+					payload: {
+						method: "methodThatDoesNotExist"
+					}
+				} ];
+				comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+				expect( function() {
+					renderSubsequent( comp );
+				} ).toThrow( type="WireActionNotFound" );
+			} );
+
 			it( "calling noRender() causes no rendering to be returned", function() {
 				rc.updates = [ {
 					type: "CallMethod",

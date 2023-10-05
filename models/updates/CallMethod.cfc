@@ -41,7 +41,7 @@ component extends="BaseUpdate" {
 			return;
 		}
 
-		if ( hasCallableAction( arguments.comp ) ) {
+		if ( structKeyExists( arguments.comp.getParent(), getPayloadMethod() ) ) {
 			try {
 				invoke( arguments.comp.getParent(), getPayloadMethod(), getPassedParamsAsArguments() );
 			} catch ( ValidationException validateException ) {
@@ -51,6 +51,7 @@ component extends="BaseUpdate" {
 			}
 			return;
 		}
+		
 		// We cannot locate the action, so throw an error.
 		throw(
 			type = "WireActionNotFound",
