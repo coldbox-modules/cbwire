@@ -4,27 +4,27 @@ component accessors="true" singleton {
 	property name="wirebox" inject="wirebox";
 
 	function handle( comp ){
-		var localComponent = arguments.comp;
+		var rendererComponent = arguments.comp;
 
-		if ( localComponent.hasFingerprint() ) {
-			localComponent.setID( localComponent.getFingerPrint()[ "id" ] );
+		if ( rendererComponent.hasFingerprint() ) {
+			rendererComponent.setID( rendererComponent.getFingerPrint()[ "id" ] );
 		}
 
-		localComponent.setBeforeHydrationState( duplicate( localComponent.getState() ) );
+		rendererComponent.setBeforeHydrationState( duplicate( rendererComponent.getState() ) );
 
-		if ( localComponent.hasServerMemoData() ) {
-			localComponent
+		if ( rendererComponent.hasServerMemoData() ) {
+			rendererComponent
 				.getDataProperties()
 				.each( function( key, value ){
-					if ( structKeyExists( localComponent.getServerMemoData(), key ) ) {
-						localComponent.getDataProperties()[ key ] = localComponent.getServerMemoData()[ key ];
+					if ( structKeyExists( rendererComponent.getServerMemoData(), key ) ) {
+						rendererComponent.getDataProperties()[ key ] = rendererComponent.getServerMemoData()[ key ];
 					}
 				} );
 		}
 
 		// Check if our request contains a server memo, and if so update our component state.
-		if ( localComponent.hasServerMemo() ) {
-			var serverMemo = localComponent.getServerMemo();
+		if ( rendererComponent.hasServerMemo() ) {
+			var serverMemo = rendererComponent.getServerMemo();
 
 			serverMemo.data.each( function( key, value ){
 				if (
@@ -38,39 +38,39 @@ component accessors="true" singleton {
 					arguments.value = getWireBox().getInstance(
 						name = "FileUpload@cbwire",
 						initArguments = {
-							comp : localComponent,
+							comp : rendererComponent,
 							params : [ key, [ uuid ] ]
 						}
 					);
 				}
 
-				localComponent.setProperty( arguments.key, isNull( arguments.value ) ? "" : arguments.value );
+				rendererComponent.setProperty( arguments.key, isNull( arguments.value ) ? "" : arguments.value );
 
-				if ( structKeyExists( localComponent.getParent(), "onHydrate#arguments.key#" ) ) {
+				if ( structKeyExists( rendererComponent.getParent(), "onHydrate#arguments.key#" ) ) {
 					invoke(
-						localComponent.getParent(),
+						rendererComponent.getParent(),
 						"onHydrate#arguments.key#",
 						{
 							value : arguments.value,
-							data : localComponent.getDataProperties(),
-							computed : localComponent.getComputedProperties()
+							data : rendererComponent.getDataProperties(),
+							computed : rendererComponent.getComputedProperties()
 						}
 					);
 				}
 			} );
 		}
 
-		if ( structKeyExists( localComponent.getParent(), "onHydrate" ) ) {
-			localComponent
+		if ( structKeyExists( rendererComponent.getParent(), "onHydrate" ) ) {
+			rendererComponent
 				.getParent()
 				.onHydrate(
-					data = localComponent.getDataProperties(),
-					computed = localComponent.getComputedProperties()
+					data = rendererComponent.getDataProperties(),
+					computed = rendererComponent.getComputedProperties()
 				);
 		}
 
 		// Check if our request contains updates, and if so apply them.
-		getCBWIREService().getConcern( "ApplyUpdates" ).handle( comp = localComponent );
+		getCBWIREService().getConcern( "ApplyUpdates" ).handle( comp = rendererComponent );
 	}
 
 }

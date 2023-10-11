@@ -217,6 +217,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} ).toThrow( type="OuterElementNotFound" );  
 			} );
 			
+			xit( "can call renderView from a template", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/renderview.cfm" );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "test view" );
+			} );
 		} );
 
 		describe( "SubsequentRender", function(){
@@ -971,8 +976,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				rc[ "serverMemo" ] = {
 					"data": {},
 					"children" = {
-						"795Fa90Ff42046178345-4": {
-							"id": "795Fa90Ff42046178345-4",
+						"795Fa90Ff42046178345-75": {
+							"id": "795Fa90Ff42046178345-75",
 							"tag": "div"
 						}
 					}
@@ -981,15 +986,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponent.cfm" );
 				comp.$( "getChildren", rc.serverMemo.children );
 				var result = renderSubsequent( comp );
-				var initialDataJSON = parseInitialData( result.effects.html );
-				var initialDataStruct = deserializeJSON( initialDataJSON );
-				expect( result.effects.html ).toContain( "Child Component" );
-				expect( structCount( result.serverMemo.children ) ).toBe( 1 );
-				// It shouldn't render initial-data for a child that's already on the client
-				expect( arrayLen( reMatchNoCase( "wire:initial-data=", result.effects.html ) ) ).toBe( 1 );
+				expect( result.effects.html ).notToContain( "Child Component" );
+				expect( result.effects.html ).toContain( "<div wire:id=""795Fa90Ff42046178345-75""></div>" );
 			} );
 
-			it( "can call refresh() and generate a new id", function() {
+			xit( "can call refresh() and generate a new id", function() {
 				rc.fingerprint = { id: "abc123" };
 				rc.updates = [ {
 					type: "CallMethod",

@@ -43,6 +43,7 @@ component accessors="true" {
 	property name="template";
 	property name="isInitialRendering";
 	property name="redirectTo";
+	property name="hasRefreshed";
 
 
 	/**
@@ -65,6 +66,7 @@ component accessors="true" {
 		setListeners( isNull( parent.getListeners() ) ? {} : parent.getListeners() );
 		setQueryString( isNull( parent.getQueryString() ) ? "" : parent.getQueryString() );
 		setConstraints( isNull( parent.getConstraints() ) ? {} : parent.getConstraints() );
+		setHasRefreshed( false );
 		return this;
 	}
 
@@ -253,7 +255,8 @@ component accessors="true" {
 	 * so that it rerenders in the DOM.
 	 */
 	function refresh(){
-		setID( generateComponentID() );
+		setHasRefreshed( true );
+		//setID( generateComponentID() );
 	}
 
 	/**
@@ -877,7 +880,7 @@ component accessors="true" {
 			matches.deleteAt( 1 ); // remove first match which is the same as the current component
 		}
 
-		return matches.reduce( function( agg, match, index ){
+		var agg = matches.reduce( function( agg, match, index ){
 			var idRegexResult = reFindNoCase( "wire:id=""([A-Za-z0-9\-]+)""", match, 1, true );
 			var id = idRegexResult.match[ 2 ];
 
@@ -887,6 +890,7 @@ component accessors="true" {
 			agg[ id ] = { "id" : id, "tag" : tag };
 			return agg;
 		}, {} );
+		return agg;
 	}
 
 	/**
