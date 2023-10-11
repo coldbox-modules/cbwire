@@ -24,16 +24,6 @@
         };
     } );
 
-    getMetaData( attributes.cbwirecomponent.getParent() ).extends.functions
-        .filter( function( cbwireFunction ) {
-            return arrayFindNoCase( [ "renderView" ], cbwireFunction.name );
-        } )
-        .each( function( cbwireFunction ) {
-            variables[ cbwireFunction.name ] = function() {
-                return invoke( attributes.cbwireComponent.getParent(), cbwireFunction.name, arguments );
-            };
-    } );
-
     variables[ "wire" ] = function( componentName, parameters = {}, key = "" ) {
         var lineNumber = callStackGet()[ 2 ].lineNumber;
         var comp = application.wirebox.getInstance( "CBWireService@cbwire" )
