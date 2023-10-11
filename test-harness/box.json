@@ -6,7 +6,8 @@
     "description":"",
     "dependencies":{
         "coldbox":"^6",
-        "cbvalidation":"^4.3.0+24"
+        "cbvalidation":"^4.3.0+24",
+        "cbi18n":"^3.2.0+12"
     },
     "devDependencies":{
         "testbox":"^5",
@@ -16,7 +17,8 @@
         "coldbox":"coldbox/",
         "testbox":"testbox/",
         "cbvalidation":"modules/cbvalidation/",
-        "route-visualizer":"modules/route-visualizer/"
+        "route-visualizer":"modules/route-visualizer/",
+        "cbi18n":"modules/cbi18n/"
     },
     "testbox":{
         "runner":"http://localhost:60299/tests/runner.cfm"

@@ -1,16 +1,7 @@
 <cfscript>
-    configSettings = attributes.cbwireComponent.getInstance( dsl="coldbox:configSettings" );
-
-    if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
-        configSettings.applicationHelper.each( function( includePath ) {
-            if ( left( includePath, 1 ) != "/" ) {
-                arguments.includePath = "/" & arguments.includePath;
-            }
-            include "#arguments.includePath#";
-        } );
+    variables[ "getInstance" ] = function() {
+        return attributes.cbwireComponent.getInstance( argumentCollection=arguments);
     }
-
-    variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
 
     variables[ "data" ] = attributes.cbwireComponent.getDataProperties();
 
@@ -23,6 +14,19 @@
             return invoke( attributes.cbwireComponent.getParent(), cbwireFunction.name, arguments );
         };
     } );
+
+    configSettings = attributes.cbwireComponent.getInstance( dsl="coldbox:configSettings" );
+
+    if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
+        configSettings.applicationHelper.each( function( includePath ) {
+            if ( left( includePath, 1 ) != "/" ) {
+                arguments.includePath = "/" & arguments.includePath;
+            }
+            include "#arguments.includePath#";
+        } );
+    }
+
+
 
     variables[ "wire" ] = function( componentName, parameters = {}, key = "" ) {
         var lineNumber = callStackGet()[ 2 ].lineNumber;

@@ -196,10 +196,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "rendered with onRender" );
 			} );
 
-			it( "should be able to use global UDFs in application helpers", function() {
+			it( "can use global UDFs in application helpers", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/globaludf.cfm" );
 				var result = renderInitial( comp );
 				expect( result ).toContain( "yay!" );
+			} );
+
+			it( "can use helper methods from other modules ( cbi18n )", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/cbi18n.cfm" );
+				var result = renderInitial( comp );
+				expect( result ).toContain( "cbi18n says: whatever" );
 			} );
 
 			describe( "validation", function() {
@@ -961,6 +967,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result.effects.html ).notToContain( "multi" );
 			} );
 
+			it( "can call helper methods defined in other modules", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/cbi18n.cfm" );
+				var result = renderSubsequent( comp );
+				expect( result.effects.html ).toContain( "cbi18n says: whatever" );
+			} );
+
 			it( "can render a child component", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponent.cfm" );
 				var result = renderSubsequent( comp );
@@ -976,8 +988,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				rc[ "serverMemo" ] = {
 					"data": {},
 					"children" = {
-						"795Fa90Ff42046178345-75": {
-							"id": "795Fa90Ff42046178345-75",
+						"795Fa90Ff42046178345-4": {
+							"id": "795Fa90Ff42046178345-4",
 							"tag": "div"
 						}
 					}
