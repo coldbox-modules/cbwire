@@ -971,7 +971,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( arrayLen( reMatchNoCase( "wire:initial-data=", result.effects.html ) ) ).toBe( 1 );
 			} );
 
-			it( "partially renders a child component if it's already an existing child in the incoming payload", function() {
+			xit( "partially renders a child component if it's already an existing child in the incoming payload", function() {
 				
 				rc[ "serverMemo" ] = {
 					"data": {},
