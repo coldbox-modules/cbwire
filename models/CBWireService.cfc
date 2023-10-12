@@ -73,12 +73,18 @@ component accessors="true" {
 
 		if ( currentModule.len() && currentModule != "cbwire" ) {
 			// incoming request is from a module
-			var moduleRootDotPath = moduleService.getModuleRegistry()[ currentModule ].invocationPath & "." & moduleService.getModuleConfigCache()[ currentModule ].cfmapping;
+
+			// if request is already targeting a module wire 
+			if( left( componentPath, len( wireRoot ) ) != wireRoot ){
+				return componentPath;
+			}
+			
+			// default componentPath to module wire path
+			componentPath = currentModule & "." & componentPath;
+
 			var moduleWiresPath = moduleService.getModuleRegistry()[ currentModule ].physicalPath & "/" & currentModule & "/" & getWiresLocation();
 			var wireName = reReplace( listLast( componentPath, "." ), "[^\w.\-]", "", "all" );
-			// default to module wire path
-			componentPath =  moduleRootDotPath & "." & getWiresLocation() & "." & wireName;
-			// check if module component exists and if it does not default to root wires location
+			// check if module component exists and if it does not, look in root wires location
 			if( !fileExists( moduleWiresPath & "/" & wireName & ".cfc" ) && !fileExists( moduleWiresPath & "/" & wireName & ".cfm" ) ){
 				var wireRootPath = getController().getappRootPath() & "/" & getWiresLocation();
 				if( fileExists( wireRootPath & "/" & wireName & ".cfc" ) || fileExists( wireRootPath & "/" & wireName & ".cfm" ) ){
@@ -88,7 +94,7 @@ component accessors="true" {
 					throw( type="ModuleNotFound", message = "CBWIRE cannot locate the wire using '" & componentPath & "'." );
 				}
 			}
-
+			
 		}
 		return componentPath;
 	}
@@ -118,7 +124,6 @@ component accessors="true" {
 		}
 	}
 
-
 	/**
 	 * Finds and returns our cbwire component by name, either using
 	 * module syntax Component@Module or root sytax, which looks
@@ -131,10 +136,6 @@ component accessors="true" {
 	function getComponentInstance( componentName, initialRender = true ){
 		// Determine our component location from the cbwire settings.
 		var wiresLocation = getWiresLocation();
-
-		if ( reFindNoCase( wiresLocation & "\.", arguments.componentName ) ) {
-			// arguments.componentName = reReplaceNoCase( arguments.componentName, wiresLocation & "\.", "", "one" );
-		}
 
 		if ( find( "@", arguments.componentName ) ) {
 			// This is a module reference, find in our module
@@ -152,12 +153,21 @@ component accessors="true" {
 		return comp;
 	}
 
+	/**
+	 * Returns the full dot notation path to a modules component.
+	 *
+	 * @path String | Name of the cbwire component.
+	 * @module String | Name of the module to look for wire in.
+	 */
 	function getModuleComponentPath( path, module ) {
 		var moduleConfig = moduleService.getModuleConfigCache();
+		var moduleRegistry = moduleService.getModuleRegistry();
+		
 		if ( !moduleConfig.keyExists( module ) ) {
 			throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
 		}
-		return moduleConfig[ module ].CFMAPPING & "." & getWiresLocation() & "." & path;
+
+		return moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & path;
 	}
 
 	/**
@@ -234,6 +244,7 @@ component accessors="true" {
 			.getContext()
 			.getCurrentModule();
 	}
+	
 	/**
 	 * Returns the app mapping.
 	 *
