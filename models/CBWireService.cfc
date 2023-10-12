@@ -75,7 +75,7 @@ component accessors="true" {
 			// incoming request is from a module
 			var moduleRootDotPath = moduleService.getModuleRegistry()[ currentModule ].invocationPath & "." & moduleService.getModuleConfigCache()[ currentModule ].cfmapping;
 			var moduleWiresPath = moduleService.getModuleRegistry()[ currentModule ].physicalPath & "/" & currentModule & "/" & getWiresLocation();
-			var wireName = listLast( componentPath, "." );
+			var wireName = reReplace( listLast( componentPath, "." ), "[^\w.\-]", "", "all" );
 			// default to module wire path
 			componentPath =  moduleRootDotPath & "." & getWiresLocation() & "." & wireName;
 			// check if module component exists and if it does not default to root wires location
