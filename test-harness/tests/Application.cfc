@@ -28,6 +28,7 @@ component {
 	this.mappings[ "/moduleroot" ] = moduleRootPath;
 	this.mappings[ "/#request.MODULE_NAME#" ] = moduleRootPath & "#request.MODULE_NAME#";
 	this.mappings[ "/cbvalidation" ]= rootPath & "modules/cbvalidation";
+	this.mappings[ "/modules" ] = rootPath & "modules";
 
 	// request start
 	public boolean function onRequestStart( String targetPage ){

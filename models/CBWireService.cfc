@@ -167,7 +167,13 @@ component accessors="true" {
 			throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
 		}
 
-		return moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & path;
+		// If there is a dot in our path, then we are referencing a folder within a module.
+		// If not, then use the default wire location.
+		var moduleComponentPath = arguments.path contains "." ?
+			moduleRegistry[ module ].invocationPath & "." & module & "." & arguments.path :
+			moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & arguments.path;
+
+		return moduleComponentPath;
 	}
 
 	/**
