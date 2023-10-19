@@ -72,11 +72,11 @@ component accessors="true" {
 
 		componentPath = reFindNoCase( "#appMapping#\.", arguments.componentName ) ? arguments.componentName : "#wireRoot#.#arguments.componentName#";
 
-		var currentModule = getCurrentRequestModule();
+		// var currentModule = getCurrentRequestModule();
 
-		if ( currentModule.len() && currentModule != "cbwire" ) {
-			componentPath = currentModule & "." & componentPath;
-		}
+		// if ( currentModule.len() && currentModule != "cbwire" ) {
+		// 	componentPath = currentModule & "." & componentPath;
+		// }
 
 		return componentPath;
 	}
