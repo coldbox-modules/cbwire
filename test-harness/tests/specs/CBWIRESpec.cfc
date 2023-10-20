@@ -1075,11 +1075,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "outside component" );
 			} );
 
-			xit( "can render component from nested module folder using wire()", function() {
-				var result = service.wire( "myComponents.NestedFolderComponent@testmodule" );
-				writeDump( result );
-				abort;
-				expect( result ).toContain( "Nested folder component" );
+			it( "throws error if it's unable to find a module component", function() {
+				expect( function() {
+					var result = service.wire( "missing@someModule" );
+				} ).toThrow( type="ModuleNotFound" );  
+			} );
+
+			it( "can render component from nested module folder using wire()", function() {
+				var result = service.wire( "myComponents.NestedModuleComponent@testingmodule" );
+				expect( result ).toContain( "Nested module component" );
+			} );
+
+			it( "can render component from nested module using default wires location", function() {
+				var result = service.wire( "NestedModuleDefaultComponent@testingmodule" );
+				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
 		} );
