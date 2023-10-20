@@ -1082,12 +1082,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			it( "can render component from nested module folder using wire()", function() {
-				var result = service.wire( "myComponents.NestedModuleComponent@testmodule" );
+				var result = service.wire( "myComponents.NestedModuleComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component" );
 			} );
 
 			it( "can render component from nested module using default wires location", function() {
-				var result = service.wire( "NestedModuleDefaultComponent@testmodule" );
+				var result = service.wire( "NestedModuleDefaultComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
