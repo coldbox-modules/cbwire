@@ -713,7 +713,6 @@ component accessors="true" {
 		getRenderingOverrides()[ params[ 1 ] ] = fileUpload;
 		setFinishedUpload( true );
 		getDirtyProperties().append( params[ 1 ] );
-		getDataProperties()[ params[ 1 ] ] = "cbwire-upload:#fileUpload.getUUID()#";
 		emitSelf(
 			eventName = "upload:finished",
 			parameters = [
