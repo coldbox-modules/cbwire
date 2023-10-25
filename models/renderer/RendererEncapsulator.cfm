@@ -1,16 +1,7 @@
 <cfscript>
-    configSettings = attributes.cbwireComponent.getInstance( dsl="coldbox:configSettings" );
-
-    if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
-        configSettings.applicationHelper.each( function( includePath ) {
-            if ( left( includePath, 1 ) != "/" ) {
-                arguments.includePath = "/" & arguments.includePath;
-            }
-            include "#arguments.includePath#";
-        } );
+    variables[ "getInstance" ] = function() {
+        return attributes.cbwireComponent.getInstance( argumentCollection=arguments);
     }
-    
-    variables[ "getInstance" ] = attributes.cbwireComponent.getInstance;
 
     variables[ "data" ] = attributes.cbwireComponent.getDataProperties();
 
@@ -24,13 +15,39 @@
         };
     } );
 
-    variables[ "wire" ] = function( componentName, parameters = {} ) {
+    configSettings = attributes.cbwireComponent.getInstance( dsl="coldbox:configSettings" );
+
+    if ( structKeyExists( configSettings, "applicationHelper" ) && isArray( configSettings.applicationHelper ) ) {
+        configSettings.applicationHelper.each( function( includePath ) {
+            if ( left( includePath, 1 ) != "/" ) {
+                arguments.includePath = "/" & arguments.includePath;
+            }
+            include "#arguments.includePath#";
+        } );
+    }
+
+
+
+    variables[ "wire" ] = function( componentName, parameters = {}, key = "" ) {
         var lineNumber = callStackGet()[ 2 ].lineNumber;
         var comp = application.wirebox.getInstance( "CBWireService@cbwire" )
                    .getComponentInstance( arguments.componentName )
                    .startup();
 
-        comp.setID( attributes.args.parent.getID() & "-" & lineNumber );
+        var componentIdentifier = attributes.args.parent.getID() & "-" & lineNumber;
+        if ( toString( arguments.key ).len() ) {
+            componentIdentifier &= "-" & toString( arguments.key );
+        }
+        comp.setID( componentIdentifier );
+        if ( !attributes.cbwireComponent.getIsInitialRendering() && attributes.cbwireComponent.hasServerMemo() ) {
+            var serverMemo = attributes.cbwireComponent.getServerMemo();
+            if ( structKeyExists( serverMemo.children, comp.getID() ) ) {
+                var tag = serverMemo.children[ comp.getID() ].tag;
+                // We need to partially render this component as it's
+                // already been rendered by the browser.
+                return "<#tag# wire:id=""#componentIdentifier#""></#tag#>";
+            }
+        }
 
         return comp.mount( arguments.parameters )
                    .renderIt();

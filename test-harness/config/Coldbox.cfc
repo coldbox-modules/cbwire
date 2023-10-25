@@ -73,10 +73,26 @@ component{
 		};
 
 		moduleSettings = {
-			cbwire = {
-				"autoInjectAssets": true,
-				"enableTurbo": true,
+			"cbwire" = {
+				"autoInjectAssets"		: true,
+				"enableTurbo"			: true,
 				"cacheSingleFileComponents": false
+			},
+			"cbi18n": {
+				// The default resource to load and aliased as `default`
+				"defaultResourceBundle" : "includes/i18n/",
+				// The locale to use when none defined
+				"defaultLocale"         : "en_US",
+				// The default storage for the locale
+				"localeStorage"         : "cookieStorage@cbstorages",
+				// What to emit to via the resource methods if a translation is not found
+				"unknownTranslation"    : "**NOT FOUND**",
+				// If true, we will log to LogBox the missing translations
+				"logUnknownTranslation" : true,
+				// A-la-carte resources to load by name
+				"resourceBundles"       : {},
+				// Your own CFC instantiation path
+				"customResourceService" : ""
 			}
 		};
 
