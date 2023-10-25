@@ -1113,6 +1113,88 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Scripts -->" );
 			} );
 		} );
+	
+		describe( "Component without onMount", function(){
+			
+			it( "can render with no parameters passed", function() {
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var result = cbwireService.wire( "tests.templates.withoutOnMountEvent" );
+				expect( result ).toContain( "COMPLETED-PROCESSING" );
+			} );
+			
+			it( "can render with empty struct parameters passed", function() {
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var result = cbwireService.wire( "tests.templates.withoutOnMountEvent", {} );
+				expect( result ).toContain( "COMPLETED-PROCESSING" );
+			} );
+
+			it( "throws MissingOnMount when parameters contains value of datatype other than string, boolean, numeric, date, array, or struct (java object)", function(){
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var javaObj = createObject( "java", "java.lang.StringBuilder" ).init( "" );
+				expect( function() {
+						var result = cbwireService.wire( 
+								"tests.templates.withoutOnMountEvent", 
+								{ 
+									"testString" : "String Value",
+									"javaObj" : javaObj
+								} 
+							);
+				}).toThrow( type="MissingOnMount" );  
+			} );
+
+			it( "throws MissingOnMount when parameters contains value of datatype other than string, boolean, numeric, date, array, or struct (cfcomponent)", function(){
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var basicCFComponent = new tests.templates.basicCFComponent();
+				expect( function() {
+						var result = cbwireService.wire( 
+								"tests.templates.withoutOnMountEvent", 
+								{ 
+									"testString" : "String Value",
+									"basicCFComponent" : basicCFComponent
+								} 
+							);
+				}).toThrow( type="MissingOnMount" );  
+			} );
+
+			it( "throws MissingOnMount when parameters contains value of datatype other than string, boolean, numeric, date, array, or struct (user defined function)", function(){
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var myUDF = function(){
+					return "Hello Testbox!";
+				};
+				expect( function() {
+						var result = cbwireService.wire( 
+								"tests.templates.withoutOnMountEvent", 
+								{ 
+									"testString" : "String Value",
+									"myUDF" : myUDF
+								} 
+							);
+				}).toThrow( type="MissingOnMount" );  
+			} );
+
+			it( "can render with parameters of types string, boolean, numeric, date, array, or struct and merge with pre-existing data properties", function() {
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var result = cbwireService.wire( 
+					"tests.templates.withoutOnMountEvent", 
+				    { 
+						"testString" : "String Value", 
+						"testArray" : [ "value1", "value2", "value3" ], 
+						"testStruct" : { "keyOne" : 9, "keyTwo" : true, "keyThree" : "Test struct key three text" }, 
+						"testNumber" : 5678, 
+						"testBoolean" : true, 
+						"testDate" : now()
+					} 
+				);
+				expect( result ).toContain( 'variables.data.testString = "String Value"' );
+				expect( result ).toContain( "variables.data.preDefinedNumber = 1234" );
+				expect( result ).toContain( "variables.data.testNumber = 5678" );
+				expect( result ).toContain( 'variables.testString = "String Value"' );
+				expect( result ).toContain( "variables.preDefinedNumber = 1234" );
+				expect( result ).toContain( "variables.testNumber = 5678" );
+				expect( result ).toContain( "COMPLETED-PROCESSING" );
+			} );
+		
+		});
 	}
 
 	private function renderInitial( comp ) {

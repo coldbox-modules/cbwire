@@ -30,9 +30,13 @@ component accessors="true" singleton {
 
 			// check datatypes parameters and throw error if not string, boolean, numeric, date, array, or struct
 			for( var paramKey IN arguments.parameters.keyArray() ){
-				if( !isSimpleValue( arguments.parameters[ paramKey ] ) 
-					&& !isArray( arguments.parameters[ paramKey ] ) 
-					&& !isStruct( arguments.parameters[ paramKey ] )
+				if( ( 
+						!isSimpleValue( arguments.parameters[ paramKey ] ) 
+						&& !isArray( arguments.parameters[ paramKey ] ) 
+						&& !isStruct( arguments.parameters[ paramKey ] ) 
+					)
+					|| isObject( arguments.parameters[ paramKey ] )
+					|| isCustomFunction( arguments.parameters[ paramKey ] )
 				){
 					throw( 
 						type 		= "MissingOnMount", 
