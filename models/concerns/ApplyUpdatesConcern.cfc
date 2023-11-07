@@ -10,6 +10,12 @@ component accessors="true" singleton {
 
 		var beforeSyncInputState = duplicate( comp.getDataProperties() );
 
+		var hasDataPropertyUpdates = getUpdates().reduce( function( agg, update ) {
+			if ( update.isUpdatingDataProperty() ) {
+				agg = true;
+			}
+			return agg;
+		}, false );
 		/*
 			Run the Sync Input's first and track
 			what fields are being synced. We do this
@@ -54,6 +60,7 @@ component accessors="true" singleton {
 			} );
 
 		// Fire our postUpdate lifecycle event.
+		if ( hasDataPropertyUpdates ) {
 		comp.invokeMethod(
 			methodName = "onUpdate",
 			passThroughParameters = {
@@ -61,6 +68,7 @@ component accessors="true" singleton {
 				"oldValues" : beforeSyncInputState
 			}
 		);
+		}
 
 		// Determine "dirty" properties
 		var dirtyProperties = afterSyncInputState.reduce( function( agg, key, value ){
