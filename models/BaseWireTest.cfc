@@ -6,10 +6,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	 * @componentName Name of cbwire component.
 	 * @return TestComponentSpec
 	 */
-	function wire( required componentName ){
+	function wire( required componentName, params = {} ){
 		return getInstance(
 			name = "TestComponentSpec@cbwire",
-			initArguments = { componentName : arguments.componentName }
+			initArguments = { componentName : arguments.componentName, parameters : arguments.params }
 		);
 	}
 
