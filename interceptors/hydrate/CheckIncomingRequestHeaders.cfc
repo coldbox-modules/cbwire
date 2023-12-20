@@ -4,7 +4,7 @@
  */
 component {
 
-    function preProcess( event ) eventPattern="cbwire.*"{
+    function preProcess( event ) eventPattern="^cbwire.*"{
         if ( isUploadRequest( event ) ) return;
 
         if ( missingLivewireHeader( event ) ) {
