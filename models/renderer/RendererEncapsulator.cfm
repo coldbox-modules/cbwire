@@ -9,6 +9,14 @@
 
     variables[ "prc" ] = attributes.event.getPrivateCollection();
 
+    variables[ "renderView" ] = function() {
+        return attributes.event.getController().getRenderer().renderView( argumentCollection=arguments );
+    };
+
+    variables[ "view" ] = function() {
+        return attributes.event.getController().getRenderer().renderView( argumentCollection=arguments );
+    };
+
     getMetaData( attributes.cbwirecomponent.getParent() ).functions.each( function( cbwireFunction ) {
         variables[ cbwireFunction.name ] = function() {
             return invoke( attributes.cbwireComponent.getParent(), cbwireFunction.name, arguments );
