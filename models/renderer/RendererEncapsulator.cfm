@@ -9,6 +9,8 @@
 
     variables[ "prc" ] = attributes.event.getPrivateCollection();
 
+    variables[ "event" ] = attributes.event;
+
     variables[ "renderView" ] = function() {
         return attributes.event.getController().getRenderer().renderView( argumentCollection=arguments );
     };
