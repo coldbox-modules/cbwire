@@ -26,7 +26,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				event = getRequestContext();
 				rc = event.getCollection();
 				prc = event.getPrivateCollection();
-                comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=true );
+				comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=true );
 				prepareMock( comp );
 				parent = comp.getParent();
 				prepareMock( parent );
@@ -235,7 +235,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				setup();
 				event = getRequestContext();
 				rc = event.getCollection();
-                comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=false );
+				comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=false );
 				comp.setEvent( event );
 				prepareMock( comp );
 				parent = comp.getParent();
@@ -897,9 +897,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						type: "CallMethod",
 						payload: {
 							"id": "ksfh",
-        					"method": "startUpload",
-        					"params": [
-          						"someFile",
+							"method": "startUpload",
+							"params": [
+		  						"someFile",
 								[
 									{
 									"name": "2022-08-21 07.52.50.gif",
@@ -925,9 +925,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						type: "CallMethod",
 						payload: {
 							"id": "ksfh",
-        					"method": "finishUpload",
-        					"params": [
-          						"someFile",
+							"method": "finishUpload",
+							"params": [
+		  						"someFile",
 								[ "37867A38-4DB3-43EC-8FB93DB936302BC5" ],
 								false
 							]
@@ -1063,7 +1063,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				event = getRequestContext();
 				rc = event.getCollection();
 				prc = event.getPrivateCollection();
-                service = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				service = prepareMock( getInstance( "CBWIREService@cbwire" ) );
 			} );
 
 			it( "can getStyles()", function() {
@@ -1207,7 +1207,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
 				var result = cbwireService.wire( 
 					"tests.templates.withoutOnMountEvent", 
-				    { 
+					{ 
 						"testString" : "String Value", 
 						"testArray" : [ "value1", "value2", "value3" ], 
 						"testStruct" : { "keyOne" : 9, "keyTwo" : true, "keyThree" : "Test struct key three text" }, 
