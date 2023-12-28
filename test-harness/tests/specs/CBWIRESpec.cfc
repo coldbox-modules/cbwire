@@ -504,6 +504,38 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
+			describe( "dispatch()", function() {
+				it( "can dispatch an event with no arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "dispatchEventWithoutArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var dispatch = result.effects.dispatches[ 1 ];
+					expect( dispatch.event ).toBe( "Event1" );
+					expect( isStruct( dispatch.data ) ).toBeTrue();
+					expect( structCount( dispatch.data ) ).toBe( 0 );
+				} );
+
+				it( "can dispatch an event with arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "dispatchEventWithArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var dispatch = result.effects.dispatches[ 1 ];
+					expect( dispatch.event ).toBe( "Event1" );
+					expect( isStruct( dispatch.data ) ).toBeTrue();
+					expect( dispatch.data.someVar ).toBeTrue();
+				} );
+			} );
+
 			describe( "emit()", function() {
 				
 				it( "can emit an event with no arguments", function() {

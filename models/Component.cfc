@@ -28,6 +28,9 @@ component accessors="true" {
 	/**
 	 * PUBLIC METHODS for Wires
 	 */
+	function dispatch( required eventName, parameters = {} ){
+		return getRenderer().dispatch( argumentCollection = arguments );
+	}
 
 	function emit( required eventName ){
 		return getRenderer().emit( argumentCollection = arguments );

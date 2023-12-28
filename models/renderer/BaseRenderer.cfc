@@ -35,6 +35,7 @@ component accessors="true" {
 	property name="noRendering";
 	property name="parentCFCPath";
 	property name="beforeHydrationState";
+	property name="dispatchedEvents";
 	property name="emittedEvents";
 	property name="finishedUpload";
 	property name="renderingOverrides";
@@ -57,6 +58,7 @@ component accessors="true" {
 		setFinishedUpload( false );
 		setBeforeHydrationState( {} );
 		setDirtyProperties( [] );
+		setDispatchedEvents( [] );
 		setEmittedEvents( [] );
 		setCache( {} );
 		setNoRendering( false );
@@ -304,11 +306,20 @@ component accessors="true" {
 	}
 
 	/**
+	 * Tracks a dispatch, which is later returned in our API resopnse and
+	 * used by cbwire.
+	 * 
+	 * @dispatcher Struct
+	 */
+	function trackDispatch( required dispatcher ){
+		getDispatchedEvents().append( arguments.dispatcher );
+	}
+
+	/**
 	 * Tracks an emit, which is later returned in our API response and used
 	 * by cbwire.
 	 *
-	 * @emitter cbwire.models.emit.BaseEmit | An instance of an emitter.
-	 * @return Array;
+	 * @emitter Struct
 	 */
 	function trackEmit( required emitter ){
 		getEmittedEvents().append( arguments.emitter );

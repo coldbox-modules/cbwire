@@ -65,6 +65,16 @@ component extends="cbwire.models.Component" {
         data.calledGetInstance = true;
     }
 
+    function dispatchEventWithoutArgs(){
+        dispatch( "Event1" );
+    }
+
+    function dispatchEventWithArgs(){
+        dispatch( "Event1", {
+            "someVar": true
+        } );
+    }
+
     function emitEventWithoutArgs() {
         emit( "Event1" );
     }
