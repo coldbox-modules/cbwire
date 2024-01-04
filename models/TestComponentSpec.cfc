@@ -104,7 +104,8 @@ component extends="testbox.system.BaseSpec" accessors="true" {
 					computedProperties[ key ] = value;
 				} );
 			}
-			var rendering = cbwireComponent.mount( getParameters() ).renderIt();
+			cbwireComponent.onMount( params = getParameters() );
+			var rendering = cbwireComponent.renderIt();
 			setRendering( rendering );
 			return rendering;
 		}

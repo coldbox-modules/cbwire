@@ -19,6 +19,17 @@ component extends="BaseRenderer" {
 	}
 
 	/**
+	 * Dispatches a browser event
+	 *
+	 * @eventName String | The name of the browser event to dispatch.
+	 * @parameters 
+	 */
+	function dispatch( required eventName, parameters = {} ){
+		arguments.comp = this;
+		return getConcern( "Dispatch" ).handle( argumentCollection = arguments );
+	}
+
+	/**
 	 * Emits a global event from our cbwire component.
 	 *
 	 * @eventName String | The name of our event to emit.
@@ -176,6 +187,9 @@ component extends="BaseRenderer" {
 		}
 
 		if ( !getFinishedUpload() ) {
+			if ( arrayLen( getDispatchedEvents() ) ) {
+				memento.effects[ "dispatches" ] = getDispatchedEvents();
+			}
 			memento.effects[ "path" ] = getPath();
 			memento.serverMemo[ "htmlHash" ] = generateHash( rendering );
 		}

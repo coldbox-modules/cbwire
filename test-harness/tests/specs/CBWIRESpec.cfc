@@ -26,7 +26,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				event = getRequestContext();
 				rc = event.getCollection();
 				prc = event.getPrivateCollection();
-                comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=true );
+				comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=true );
 				prepareMock( comp );
 				parent = comp.getParent();
 				prepareMock( parent );
@@ -235,7 +235,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				setup();
 				event = getRequestContext();
 				rc = event.getCollection();
-                comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=false );
+				comp = getInstance( "tests.templates.TestComponent" ).startup( initialRender=false );
 				comp.setEvent( event );
 				prepareMock( comp );
 				parent = comp.getParent();
@@ -502,6 +502,38 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( flashScope.confirm ).toBe( "Redirect successful" );
 				} );
 
+			} );
+
+			describe( "dispatch()", function() {
+				it( "can dispatch an event with no arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "dispatchEventWithoutArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var dispatch = result.effects.dispatches[ 1 ];
+					expect( dispatch.event ).toBe( "Event1" );
+					expect( isStruct( dispatch.data ) ).toBeTrue();
+					expect( structCount( dispatch.data ) ).toBe( 0 );
+				} );
+
+				it( "can dispatch an event with arguments", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "dispatchEventWithArgs"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var dispatch = result.effects.dispatches[ 1 ];
+					expect( dispatch.event ).toBe( "Event1" );
+					expect( isStruct( dispatch.data ) ).toBeTrue();
+					expect( dispatch.data.someVar ).toBeTrue();
+				} );
 			} );
 
 			describe( "emit()", function() {
@@ -897,9 +929,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						type: "CallMethod",
 						payload: {
 							"id": "ksfh",
-        					"method": "startUpload",
-        					"params": [
-          						"someFile",
+							"method": "startUpload",
+							"params": [
+		  						"someFile",
 								[
 									{
 									"name": "2022-08-21 07.52.50.gif",
@@ -925,9 +957,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						type: "CallMethod",
 						payload: {
 							"id": "ksfh",
-        					"method": "finishUpload",
-        					"params": [
-          						"someFile",
+							"method": "finishUpload",
+							"params": [
+		  						"someFile",
 								[ "37867A38-4DB3-43EC-8FB93DB936302BC5" ],
 								false
 							]
@@ -1063,7 +1095,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				event = getRequestContext();
 				rc = event.getCollection();
 				prc = event.getPrivateCollection();
-                service = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				service = prepareMock( getInstance( "CBWIREService@cbwire" ) );
 			} );
 
 			it( "can getStyles()", function() {
@@ -1106,11 +1138,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "outside component" );
 			} );
 
-			xit( "can render component from nested module folder using wire()", function() {
-				var result = service.wire( "myComponents.NestedFolderComponent@testmodule" );
-				writeDump( result );
-				abort;
-				expect( result ).toContain( "Nested folder component" );
+			it( "throws error if it's unable to find a module component", function() {
+				expect( function() {
+					var result = service.wire( "missing@someModule" );
+				} ).toThrow( type="ModuleNotFound" );  
+			} );
+
+			it( "can render component from nested module folder using wire()", function() {
+				var result = service.wire( "myComponents.NestedModuleComponent@testingmodule" );
+				expect( result ).toContain( "Nested module component" );
+			} );
+
+			it( "can render component from nested module using default wires location", function() {
+				var result = service.wire( "NestedModuleDefaultComponent@testingmodule" );
+				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
 		} );
@@ -1135,6 +1176,88 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( event.getRenderedContent() ).notToContain( "<!-- CBWIRE Scripts -->" );
 			} );
 		} );
+	
+		describe( "Component without onMount", function(){
+			
+			it( "can render with no parameters passed", function() {
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var result = cbwireService.wire( "tests.templates.withoutOnMountEvent" );
+				expect( result ).toContain( "COMPLETED-PROCESSING" );
+			} );
+			
+			it( "can render with empty struct parameters passed", function() {
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var result = cbwireService.wire( "tests.templates.withoutOnMountEvent", {} );
+				expect( result ).toContain( "COMPLETED-PROCESSING" );
+			} );
+
+			it( "throws MissingOnMount when parameters contains value of datatype other than string, boolean, numeric, date, array, or struct (java object)", function(){
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var javaObj = createObject( "java", "java.lang.StringBuilder" ).init( "" );
+				expect( function() {
+						var result = cbwireService.wire( 
+								"tests.templates.withoutOnMountEvent", 
+								{ 
+									"testString" : "String Value",
+									"javaObj" : javaObj
+								} 
+							);
+				}).toThrow( type="MissingOnMount" );  
+			} );
+
+			it( "throws MissingOnMount when parameters contains value of datatype other than string, boolean, numeric, date, array, or struct (cfcomponent)", function(){
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var basicCFComponent = new tests.templates.basicCFComponent();
+				expect( function() {
+						var result = cbwireService.wire( 
+								"tests.templates.withoutOnMountEvent", 
+								{ 
+									"testString" : "String Value",
+									"basicCFComponent" : basicCFComponent
+								} 
+							);
+				}).toThrow( type="MissingOnMount" );  
+			} );
+
+			it( "throws MissingOnMount when parameters contains value of datatype other than string, boolean, numeric, date, array, or struct (user defined function)", function(){
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var myUDF = function(){
+					return "Hello Testbox!";
+				};
+				expect( function() {
+						var result = cbwireService.wire( 
+								"tests.templates.withoutOnMountEvent", 
+								{ 
+									"testString" : "String Value",
+									"myUDF" : myUDF
+								} 
+							);
+				}).toThrow( type="MissingOnMount" );  
+			} );
+
+			it( "can render with parameters of types string, boolean, numeric, date, array, or struct and merge with pre-existing data properties", function() {
+				var cbwireService = prepareMock( getInstance( "CBWIREService@cbwire" ) );
+				var result = cbwireService.wire( 
+					"tests.templates.withoutOnMountEvent", 
+					{ 
+						"testString" : "String Value", 
+						"testArray" : [ "value1", "value2", "value3" ], 
+						"testStruct" : { "keyOne" : 9, "keyTwo" : true, "keyThree" : "Test struct key three text" }, 
+						"testNumber" : 5678, 
+						"testBoolean" : true, 
+						"testDate" : now()
+					} 
+				);
+				expect( result ).toContain( 'variables.data.testString = "String Value"' );
+				expect( result ).toContain( "variables.data.preDefinedNumber = 1234" );
+				expect( result ).toContain( "variables.data.testNumber = 5678" );
+				expect( result ).toContain( 'variables.testString = "String Value"' );
+				expect( result ).toContain( "variables.preDefinedNumber = 1234" );
+				expect( result ).toContain( "variables.testNumber = 5678" );
+				expect( result ).toContain( "COMPLETED-PROCESSING" );
+			} );
+		
+		});
 	}
 
 	private function renderInitial( comp ) {
