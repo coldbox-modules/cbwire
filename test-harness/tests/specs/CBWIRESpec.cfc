@@ -883,6 +883,34 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result.effects.html ).toContain( "name: I synced!" );
 			} );
 
+			describe( "Nested data binding", function() {
+				it ( "can sync nested structure data", function(){
+					rc.updates = [ {
+						type: "SyncInput",
+						payload: {
+							name: "someStruct.someKey",
+							value: "I synced a nested data property!"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "someStruct: I synced a nested data property!" );
+				} );
+
+				it ( "can sync nested structure array data", function(){
+					rc.updates = [ {
+						type: "SyncInput",
+						payload: {
+							name: "someArray.0.someKey",
+							value: "I synced a nested array data property!"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					expect( result.effects.html ).toContain( "someArray: I synced a nested array data property!" );
+				} );
+			} );
+
 			describe( "validation", function() {
 
 				it( "can call validateOrFail() from an action and FAIL", function() {

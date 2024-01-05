@@ -2,6 +2,7 @@ component accessors="true" singleton {
 
 	property name="wirebox" inject="wirebox";
 	property name="requestService" inject="coldbox:requestService";
+	property name="dataUtility" inject="DataUtility@cbwire";
 
 	function handle( comp ){
 		if ( !hasUpdates() ) {
@@ -38,8 +39,8 @@ component accessors="true" singleton {
 				return update.isUpdatingDataProperty()
 			} )
 			.each( function( update ){
-				var oldValue = beforeSyncInputState[ update.getName() ];
-				var newValue = afterSyncInputState[ update.getName() ];
+				var oldValue = dataUtility.getValueByPath( beforeSyncInputState, update.getName() );
+				var newValue = dataUtility.getValueByPath( afterSyncInputState, update.getName() );
 
 				comp.invokeMethod(
 					methodName = "onUpdate" & update.getName(),

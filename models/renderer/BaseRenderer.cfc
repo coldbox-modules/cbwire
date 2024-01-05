@@ -25,6 +25,9 @@ component accessors="true" {
 	 */
 	property name="requestService" inject="coldbox:requestService";
 
+	// Data utility for working with data properties
+	property name="dataUtility" inject="DataUtility@cbwire";
+
 	property name="id";
 	property name="parent";
 	property name="constraints";
@@ -469,7 +472,7 @@ component accessors="true" {
 	 */
 	function setProperty( propertyName, value ){
 		var data = getDataProperties();
-		data[ "#arguments.propertyName#" ] = arguments.value;
+		dataUtility.setValueByPath( data, arguments.propertyName, arguments.value );
 	}
 
 	/**

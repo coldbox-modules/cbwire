@@ -26,7 +26,15 @@ component extends="cbwire.models.Component" {
         "calledLoaded": false,
         "toggled": false,
         "myFile": "",
-        "sum": 0
+        "sum": 0,
+        "someStruct": {
+            "someKey": "initial value"
+        },
+        "someArray": [
+            {
+                "someKey": "initial value"
+            }
+        ]
     };
 
     computed = {
