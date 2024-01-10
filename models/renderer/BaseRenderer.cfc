@@ -429,6 +429,12 @@ component accessors="true" {
 		if ( structKeyExists( listeners, eventName ) ) {
 			var listener = listeners[ eventName ];
 
+			if ( !hasMethod( listener ) ){
+				throw(
+					type = "WireActionNotFound",
+					message = "Wire action '" & listener & "' not found on your component."
+				);
+			}
 			if ( len( arguments.eventName ) && hasMethod( listener ) ) {
 				return invokeMethod( methodName = listener, passThroughParameters = arguments.parameters );
 			}

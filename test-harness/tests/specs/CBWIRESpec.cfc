@@ -88,7 +88,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var result = renderInitial( comp );
 				var initialDataJSON = parseInitialData( result );
 				var initialDataStruct = deserializeJSON( initialDataJSON );
-				expect( initialDataStruct.effects.listeners[ 1] ).toBe( "onSuccess" );
+				expect( initialDataStruct.effects.listeners.findNoCase( "onSuccess" ) ).toBeTrue();
 			} );
 
 			it( "wire:initial-data has expected structure", function() {
@@ -96,7 +96,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var result = renderInitial( comp );
 				var initialDataJSON = parseInitialData( result );
 				var initialDataStruct = deserializeJSON( initialDataJSON );
-				expect( initialDataStruct.effects.listeners[ 1 ] ).toBe( "onSuccess" );
+				expect( initialDataStruct.effects.listeners.findNoCase( "onSuccess" ) ).toBeTrue();
 				expect( initialDataStruct.serverMemo.data.mounted ).toBeTrue();
 				expect( initialDataStruct.serverMemo.data.name ).toBe( "Grant" );
 				expect( structKeyExists( initialDataStruct.serverMemo, "checksum" ) ).toBeTrue();
@@ -175,7 +175,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var result = renderInitial( comp );
 				var initialDataJSON = parseInitialData( result );
 				var initialDataStruct = deserializeJSON( initialDataJSON );
-				expect( initialDataStruct.effects.listeners[ 1 ] ).toBe( "onSuccess" );
+				expect( initialDataStruct.effects.listeners.findNoCase( "onSuccess") ).toBeTrue();
 			} );
 
 			it( "can use property injection on component", function() {
@@ -748,6 +748,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = renderSubsequent( comp );
 					expect( result.effects.html ).toContain( "listener: true" );
 				} );
+
+				it( "throws error when executing a listener with a missing action", function() {
+					rc.updates = [ {
+						type: "FireEvent",
+						payload: {
+							event: "missingAction",
+							params: []
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					expect( function() {
+						var result = renderSubsequent( comp );
+					} ).toThrow( type="WireActionNotFound" );
+				} );
+
 			} );
 
 

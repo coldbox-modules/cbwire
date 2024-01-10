@@ -9,7 +9,8 @@ component extends="cbwire.models.Component" {
     queryString = [ "name" ];
 
     listeners = {
-        "onSuccess": "someMethod"
+        "onSuccess": "someMethod",
+        "missingAction": "actionDoesNotExists"
     };
 
     data = {
