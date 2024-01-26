@@ -582,6 +582,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( firstEmit.params[ 2 ] ).toBe( "arg2" );
 					expect( firstEmit.params[ 3 ] ).toBe( "arg3" );
 				} );
+
+				it( "can pass an array as a single argument", function() {
+					rc.updates = [ {
+						type: "CallMethod",
+						payload: {
+							method: "emitEventWithArrayArg"
+						}
+					} ];
+					comp.$( "getComponentTemplatePath", "/tests/templates/dataproperty.cfm" );
+					var result = renderSubsequent( comp );
+					var firstEmit = result.effects.emits[ 1 ];
+					expect( firstEmit.event ).toBe( "Event1" );
+					expect( isArray( firstEmit.params[ 1 ] ) ).toBeTrue();
+				} );
 			} );
 
 			describe( "emitSelf()", function() {
@@ -628,9 +642,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = renderSubsequent( comp );
 					var firstEmit = result.effects.emits[ 1 ];
 					expect( firstEmit.event ).toBe( "Event1" );
-					expect( firstEmit.params[ 1 ] ).toBe( "arg1" );
-					expect( firstEmit.params[ 2 ] ).toBe( "arg2" );
-					expect( firstEmit.params[ 3 ] ).toBe( "arg3" );
+					expect( firstEmit.params[ 1 ][ 1 ] ).toBe( "arg1" );
+					expect( firstEmit.params[ 1 ][ 2 ] ).toBe( "arg2" );
+					expect( firstEmit.params[ 1 ][ 3 ] ).toBe( "arg3" );
 					expect( firstEmit.selfOnly ).toBeTrue();
 				} );
 			} );

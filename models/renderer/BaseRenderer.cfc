@@ -734,11 +734,9 @@ component accessors="true" {
 		setFinishedUpload( true );
 		getDirtyProperties().append( params[ 1 ] );
 		emitSelf(
-			eventName = "upload:finished",
-			parameters = [
-				params[ 1 ],
-				[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
-			]
+			"upload:finished",
+			params[ 1 ],
+			[ "nf48Fr0I6Buvk6DnxBLbDVw7W2NMtO-metaMjAyMi0wOC0yMSAwNy41Mi41MC5naWY=-.gif" ]
 		);
 	}
 

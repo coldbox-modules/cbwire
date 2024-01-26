@@ -17,10 +17,6 @@ component {
 
 			if ( isObject( value ) ) {
 				return agg;
-			} else if ( isArray( value ) ) {
-				value.each( function( nestedArgument ){
-					agg.append( nestedArgument );
-				} );
 			} else {
 				agg.append( value );
 			}

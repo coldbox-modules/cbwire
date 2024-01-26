@@ -93,6 +93,10 @@ component extends="cbwire.models.Component" {
     }
 
     function emitEventWithManyArgs() {
+        emit( "Event1", "arg1", "arg2", "arg3" );
+    }
+
+    function emitEventWithArrayArg(){
         emit( "Event1", [ "arg1", "arg2", "arg3" ] );
     }
     
@@ -117,7 +121,7 @@ component extends="cbwire.models.Component" {
     }
 
     function emitUpEventWithManyArgs() {
-        emitUp( "Event1", [ "arg1", "arg2", "arg3" ] );
+        emitUp( "Event1", "arg1", "arg2", "arg3" );
     }
 
     function emitToEventWithoutArgs() {
@@ -129,7 +133,7 @@ component extends="cbwire.models.Component" {
     }
 
     function emitToEventWithManyArgs() {
-        emitTo( "Component2", "Event1", [ "arg1", "arg2", "arg3" ] );
+        emitTo( "Component2", "Event1", "arg1", "arg2", "arg3" );
     }
 
     function doNotRender() {

@@ -17,8 +17,6 @@ component extends="BaseUpdate" {
 	 * @return Void
 	 */
 	function apply( required comp ){
-		// arguments.comp._renderComputedProperties();
-
 		if ( getPayloadMethod() == "finishUpload" ) {
 			arguments.comp.finishUpload( params = getPassedParamsAsArguments() );
 			return;
@@ -27,7 +25,7 @@ component extends="BaseUpdate" {
 			var dataProperty = getName();
 			var signature = "someSignature";
 			var signedURL = "/livewire/upload-file?expires=never&signature=#signature#";
-			comp.emitSelf( eventName = "upload:generatedSignedUrl", parameters = [ dataProperty, signedURL ] );
+			comp.emitSelf( "upload:generatedSignedUrl", dataProperty, signedURL );
 			return;
 		}
 
