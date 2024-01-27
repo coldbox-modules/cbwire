@@ -991,9 +991,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		  						"someFile",
 								[
 									{
-									"name": "2022-08-21 07.52.50.gif",
-									"size": 424008,
-									"type": "image/gif"
+										"name": "2022-08-21 07.52.50.gif",
+										"size": 424008,
+										"type": "image/gif"
 									}
 								],
 								false

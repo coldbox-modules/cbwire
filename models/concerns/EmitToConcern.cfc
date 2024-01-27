@@ -1,16 +1,16 @@
-component extends="BaseEmitConcern" singleton {
+component extends="BaseEmitConcern" {
 
-	function handle( comp, componentName, eventName ){
-		var localParameters = parseEmitArguments( argumentCollection = arguments );
+	function handle( required componentName, required eventName ){
+		var emitParameters = parseEmitToParameters( argumentCollection = arguments );
 
 		var emitter = {
 			"event" : arguments.eventName,
-			"params" : localParameters,
+			"params" : emitParameters,
 			"to" : arguments.componentName
 		};
 
 		// Capture the emit as we will need to notify the UI in our response
-		arguments.comp.trackEmit( emitter );
+		getCaller().trackEmit( emitter );
 	}
 
 }

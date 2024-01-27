@@ -1,28 +1,70 @@
-component {
+/*
+	There is code duplication here, but I'm not sure how to avoid it.
+	We need to be able to parse the arguments passed to the emit() and emitTo() methods
+	and there are differences between how Lucee and Adobe CF handle the arguments.
 
-	/**
-	 * Parse out emit arguments and parameters
-	 */
-	function parseEmitArguments( required eventName ){
-		var argumentsRef = arguments;
+	Creating separate functions for each method allows us to handle the differences
+	here.
+*/
+component accessors="true" {
 
-		return argumentsRef.reduce( function( agg, argument ){
-			if ( isNull( argumentsRef[ argument ] ) || argument == "ComponentName" ) {
-				return agg;
-			}
+	property name="caller";
 
-			var value = argumentsRef[ argument ];
+	function parseEmitParameters( required eventName ) {
 
-			if ( argument == "eventName" ) return agg;
+		var selfArguments = arguments;
 
-			if ( isObject( value ) ) {
-				return agg;
-			} else {
-				agg.append( value );
-			}
+		return selfArguments
+			.keyList()
+			.listToArray()
+			// Remove any arguments called "eventName" from the list
+			.filter( function( value ) {
+				return value != "eventName" && value != "componentName";
+			} )
+			// Sort the arguments by their numeric value
+			.sort( "numeric" )
+			// Convert the sorted list back to an ordered struct
+			.reduce( function( acc, value, index ) {
+				acc[ value ] = selfArguments[value];
+				return acc;
+			}, [:] )
+			// Filter out any null or object values
+			.filter( function( key, value ) {
+				return !isNull( value ) && !isObject( value );
+			} )
+			// Convert the struct to an array which makes up our parameters
+			.reduce( function( acc, key, value, thisStruct ) {
+				acc.append( value );
+				return acc;
+			}, [] );
+	}
 
-			return agg;
-		}, [] );
+	function parseEmitToParameters( required componentName, required eventName ) {
+		var selfArguments = arguments;
+
+		return selfArguments
+			.keyList()
+			.listToArray()
+			// Remove any arguments called "eventName" from the list
+			.filter( function( value ) {
+				return value != "eventName" && value != "componentName";
+			} )
+			// Sort the arguments by their numeric value
+			.sort( "numeric" )
+			// Convert the sorted list back to an ordered struct
+			.reduce( function( acc, value, index ) {
+				acc[ value ] = selfArguments[value];
+				return acc;
+			}, [:] )
+			// Filter out any null or object values
+			.filter( function( key, value ) {
+				return !isNull( value ) && !isObject( value );
+			} )
+			// Convert the struct to an array which makes up our parameters
+			.reduce( function( acc, key, value, thisStruct ) {
+				acc.append( value );
+				return acc;
+			}, [] );
 	}
 
 }

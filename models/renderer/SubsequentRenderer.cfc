@@ -34,9 +34,10 @@ component extends="BaseRenderer" {
 	 *
 	 * @eventName String | The name of our event to emit.
 	 */
-	function emit( required eventName, parameters ){
-		arguments.comp = this;
-		return getConcern( "Emit" ).handle( argumentCollection = arguments );
+	function emit( required eventName ){
+		return getConcern( "Emit" )
+			.setCaller( this )
+			.handle( argumentCollection = arguments );
 	}
 
 	/**
@@ -48,9 +49,10 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitSelf( required eventName, parameters ){
-		arguments.comp = this;
-		return getConcern( "EmitSelf" ).handle( argumentCollection = arguments );
+	function emitSelf( required eventName ){
+		return getConcern( "EmitSelf" )
+			.setCaller( this )
+			.handle( argumentCollection = arguments );
 	}
 
 	/**
@@ -61,9 +63,10 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitUp( required eventName, parameters ){
-		arguments.comp = this;
-		return getConcern( "EmitUp" ).handle( argumentCollection = arguments );
+	function emitUp( required eventName ){
+		return getConcern( "EmitUp" )
+			.setCaller( this )
+			.handle( argumentCollection = arguments );
 	}
 
 	/**
@@ -74,9 +77,10 @@ component extends="BaseRenderer" {
 	 *
 	 * @return Void
 	 */
-	function emitTo( required componentName, required eventName, parameters ){
-		arguments.comp = this;
-		return getConcern( "EmitTo" ).handle( argumentCollection = arguments );
+	function emitTo( required componentName, required eventName ){
+		return getConcern( "EmitTo" )
+			.setCaller( this )
+			.handle( argumentCollection = arguments );
 	}
 
 	/**
