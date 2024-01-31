@@ -12,11 +12,11 @@
     variables[ "event" ] = attributes.event;
 
     variables[ "renderView" ] = function() {
-        return attributes.event.getController().getRenderer().renderView( argumentCollection=arguments );
+        return attributes.event.getController().getRenderer().view( argumentCollection=arguments );
     };
 
     variables[ "view" ] = function() {
-        return attributes.event.getController().getRenderer().renderView( argumentCollection=arguments );
+        return attributes.event.getController().getRenderer().view( argumentCollection=arguments );
     };
 
     getMetaData( attributes.cbwirecomponent.getParent() ).functions.each( function( cbwireFunction ) {

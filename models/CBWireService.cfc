@@ -36,7 +36,7 @@ component accessors="true" {
 	 * @return String
 	 */
 	function getStyles(){
-		return getRenderer().renderView( view = "styles", module = "cbwire", args = { settings : getSettings() } );
+		return getRenderer().view( view = "styles", module = "cbwire", args = { settings : getSettings() } );
 	}
 
 	/**
@@ -45,7 +45,7 @@ component accessors="true" {
 	 * @return String
 	 */
 	function getScripts(){
-		return getRenderer().renderView( view = "scripts", module = "cbwire", args = { settings : getSettings() } );
+		return getRenderer().view( view = "scripts", module = "cbwire", args = { settings : getSettings() } );
 	}
 
 	/**

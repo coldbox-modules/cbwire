@@ -92,7 +92,7 @@ component accessors="true" {
 	}
 
 	function renderView(){
-		return getRenderer().renderView( argumentCollection = arguments );
+		return getRenderer().view( argumentCollection = arguments );
 	}
 
 	function reset( property ){
