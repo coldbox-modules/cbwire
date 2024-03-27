@@ -48,13 +48,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "Current time: " );
 			} );
 
-			it( "can render a child component", function() {
+			it( "can render a child component with random identifiers", function() {
 				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponent.cfm" );
 				var result = renderInitial( comp );
 				var initialDataJSON = parseInitialData( result );
 				var initialDataStruct = deserializeJSON( initialDataJSON );
+				var regexMatches = rematchnocase( 'wire:id="([^"]+)"', result );
 				expect( result ).toContain( "Child Component" );
 				expect( structCount( initialDataStruct.serverMemo.children ) ).toBe( 1 );
+				expect( regexMatches.len() ).toBe( 2 );
+				expect( regexMatches[ 2 ] ).notToBe( "wire:id=""childComponent""" );
+			} );
+
+			it( "can render a child component with unique keys", function() {
+				comp.$( "getComponentTemplatePath", "/tests/templates/childcomponentwithkey.cfm" );
+				var result = renderInitial( comp );
+				var initialDataJSON = parseInitialData( result );
+				var initialDataStruct = deserializeJSON( initialDataJSON );
+				var regexMatches = rematchnocase( 'wire:id="([^"]+)"', result );
+				expect( result ).toContain( "Child Component" );
+				expect( structCount( initialDataStruct.serverMemo.children ) ).toBe( 1 );
+				expect( regexMatches.len() ).toBe( 2 );
+				expect( regexMatches[ 2 ] ).toBe( "wire:id=""childComponent""" );
 			} );
 
 			it( "throws error if it's unable to find an outer element", function() {

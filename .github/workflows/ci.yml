@@ -132,6 +132,7 @@ jobs:
       - name: Generate Docs
         run: |
           box install commandbox-docbox --system
+          mkdir -p ./.tmp/apidocs
           box "docbox generate mapping=cbwire excludes=test-harness|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbwire"
 
       - name: Setup env.VERSION

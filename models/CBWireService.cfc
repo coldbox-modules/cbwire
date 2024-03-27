@@ -225,12 +225,17 @@ component accessors="true" {
 	 *
 	 * @componentName String | The name of the component to load.
 	 * @parameters Struct | The parameters you want mounted initially.
+	 * @key String | The key to use for the component.
 	 *
 	 * @return Component
 	 */
-	function wire( componentName, parameters = {} ){
- 		return getComponentInstance( arguments.componentName )
-			.startup()
+	function wire( componentName, parameters = {}, key = "" ){
+		var comp = getComponentInstance( arguments.componentName ).startup();
+
+		if ( len( arguments.key ) ) {
+			comp.setId( arguments.key );
+		}
+ 		return comp
  			.mount( arguments.parameters )
  			.renderIt();
  	}

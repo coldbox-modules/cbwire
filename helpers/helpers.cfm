@@ -30,7 +30,7 @@
 	 *
 	 * @return Component
 	 */
-    function wire( componentName, parameters = {} ) {
+    function wire( componentName, parameters = {}, key = "" ) {
         return getInstance( "CBWireService@cbwire" ).wire( argumentCollection=arguments );
     }
 </cfscript>
