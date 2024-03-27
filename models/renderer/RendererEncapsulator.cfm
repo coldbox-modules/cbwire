@@ -36,36 +36,6 @@
         } );
     }
 
-
-
-    // variables[ "wire" ] = function( componentName, parameters = {}, key = "" ) {
-    //     var lineNumber = callStackGet()[ 2 ].lineNumber;
-    //     var comp = application.wirebox.getInstance( "CBWireService@cbwire" )
-    //                .getComponentInstance( arguments.componentName )
-    //                .startup();
-
-    //     var componentIdentifier = createUUID() & "-" & lineNumber;
-    //     if ( toString( arguments.key ).len() ) {
-    //         componentIdentifier = toString( arguments.key ) & "-" & lineNumber;
-    //     }
-    //     comp.setID( componentIdentifier );
-
-    //     if ( attributes.cbwireComponent.getIsInitialRendering() ) {
-    //         return comp.mount( arguments.parameters )
-    //                    .renderIt();
-    //     }
-
-    //     var serverMemo = attributes.cbwireComponent.getServerMemo();
-    //     if ( structKeyExists( serverMemo.children, comp.getID() ) ) {
-    //         // This has already been rendered by the server.
-    //         // Pass in the id and tag so we can partially render it.
-    //         return comp.partiallyRenderIt( id=componentIdentifier, tag=serverMemo.children[ comp.getID() ].tag );
-    //     } else {
-    //         return comp.mount( arguments.parameters )
-    //                    .renderIt();
-    //     }
-    // };
-
     variables[ "entangle" ] = function( required prop ) {
         var cbwireService = application.wirebox.getInstance( "CBWireService@cbwire" );
         return cbwireService.entangle( argumentCollection=arguments );
