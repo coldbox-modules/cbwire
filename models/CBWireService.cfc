@@ -191,16 +191,6 @@ component accessors="true" {
 			.subsequentRenderIt( event=event, rc=rc, prc=prc );
 	}
 
-	function handleFileUpload( event, rc, prc ){
-		var results = fileUploadAll( destination = expandPath( "/" ), onConflict = "makeUnique" );
-		var paths = results.map( function( result ){
-			var id = createUUID();
-			fileWrite( expandPath( "/#id#.json" ), serializeJSON( result ) );
-			return id;
-		} );
-		return { "paths" : paths };
-	}
-
 	function handlePreviewFile( event, rc, prc ){
 		var uuid = event.getValue( "uploadUUID", "" );
 		if ( !len( uuid ) ) {

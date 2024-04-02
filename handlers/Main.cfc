@@ -19,7 +19,7 @@ component {
      * URI: /livewire/upload-file
      */
     function uploadFile( event, rc, prc ) {
-        return cbwireService.handleFileUpload( event, rc, prc );
+        return getInstance( "IncomingFileUpload@cbwire" ).handle( event, rc, prc );
     }
 
     /**
