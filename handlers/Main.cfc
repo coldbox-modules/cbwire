@@ -25,10 +25,10 @@ component {
     /**
      * Endpoint for previewing file uploads
      * 
-     * URI: /livewire/previe-file/:uploadUUID
+     * URI: /livewire/preview-file/:uploadUUID
      */
     function previewFile( event, rc, prc ) {
-        return cbwireService.handlePreviewFile( event, rc, prc );
+        return getInstance( "IncomingFilePreview@cbwire" ).handle( event, rc, prc );
     }
 
 }

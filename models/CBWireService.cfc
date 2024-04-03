@@ -191,24 +191,6 @@ component accessors="true" {
 			.subsequentRenderIt( event=event, rc=rc, prc=prc );
 	}
 
-	function handlePreviewFile( event, rc, prc ){
-		var uuid = event.getValue( "uploadUUID", "" );
-		if ( !len( uuid ) ) {
-			return event.noRender();
-		}
-
-		var metaJSON = deserializeJSON( fileRead( expandPath( "./#uuid#.json" ) ) );
-		var contents = fileReadBinary( expandPath( "./#metaJSON.serverFile#" ) );
-		event
-			.sendFile(
-				file = contents,
-				disposition = "inline",
-				extension = metaJSON.serverFileExt,
-				mimeType = "#metaJSON.contentType#/#metaJSON.contentSubType#"
-			)
-			.noRender();
-	}
-
 	/**
 	 * Instantiates our cbwire component, mounts it,
 	 * and then calls it's internal renderIt() method.
