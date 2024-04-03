@@ -10,7 +10,7 @@ component {
      * URI: /livewire/messages/:wireComponent
      */
     function index( event, rc, prc ){
-        return cbwireService.handleIncomingRequest( event, rc, prc );
+        return getInstance( "IncomingRequest@cbwire" ).handle( event, rc, prc );
     }
 
     /**
