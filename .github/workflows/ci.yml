@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
+        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021", "adobe@2023" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -67,6 +67,9 @@ jobs:
           # Install Adobe 2021 cfpm modules
           if [[ "${{ matrix.cfengine }}" == "adobe@2021" ]] ; then
             box run-script install:2021
+          fi
+          if [[ "${{ matrix.cfengine }}" == "adobe@2023" ]] ; then
+            box run-script install:2023
           fi
           curl http://127.0.0.1:60299
 
