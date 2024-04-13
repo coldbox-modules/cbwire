@@ -21,7 +21,9 @@
         }
     ],
     "contributors": [],
-    "dependencies": {},
+    "dependencies": {
+        "cbjavaloader": "^2.1.1+8"
+    },
     "devDependencies": {
         "commandbox-cfformat": "*",
         "commandbox-docbox": "*"
@@ -42,5 +44,7 @@
     "testbox": {
         "runner": "http://localhost:60299/tests/runner.cfm"
     },
-    "installPaths": {}
+    "installPaths": {
+        "cbjavaloader": "modules/cbjavaloader/"
+    }
 }

@@ -1021,4 +1021,12 @@ component accessors="true" {
 		}
 	}
 
+	function getDataProperties(){
+		var props = variables.dataProperties;
+		// Merge properties defined with property tag
+		getParent().getPropertyTagDataProperties().each( function( prop ) {
+			props[ prop.name ] = getParent().getVariables()[ prop.name ];
+		} );
+		return props;
+	}
 }

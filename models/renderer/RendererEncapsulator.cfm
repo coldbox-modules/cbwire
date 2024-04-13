@@ -19,7 +19,7 @@
         return attributes.event.getController().getRenderer().view( argumentCollection=arguments );
     };
 
-    getMetaData( attributes.cbwirecomponent.getParent() ).functions.each( function( cbwireFunction ) {
+    attributes.cbwirecomponent.getParent().getMetaInfo().functions.each( function( cbwireFunction ) {
         variables[ cbwireFunction.name ] = function() {
             return invoke( attributes.cbwireComponent.getParent(), cbwireFunction.name, arguments );
         };

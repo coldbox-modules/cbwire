@@ -22,15 +22,16 @@
     }
 
     /**
-	 * Instantiates our cbwire component, mounts it,
-	 * and then calls it's internal renderIt() method.
-	 *
-	 * @componentName String | The name of the component to load.
-	 * @parameters Struct | The parameters you want mounted initially.
-	 *
-	 * @return Component
-	 */
-    function wire( componentName, parameters = {}, key = "" ) {
-        return getInstance( "CBWireService@cbwire" ).wire( argumentCollection=arguments );
+     * Instantiates a CBWIRE component, mounts it,
+     * and then calls its internal renderIt() method.
+     *
+     * @param name The name of the component to load.
+     * @param params The parameters you want mounted initially. Defaults to an empty struct.
+     * @param key An optional key parameter. Defaults to an empty string.
+     *
+     * @return An instance of the specified component after rendering.
+     */
+    function wire(required string name, struct params = {}, string key = "") {
+        return getInstance("CBWIREController@cbwire").wire( argumentCollection=arguments );
     }
 </cfscript>

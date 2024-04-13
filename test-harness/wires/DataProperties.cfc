@@ -1,15 +1,16 @@
-component extends="cbwire.models.Component" {
+component extends="cbwire.models.Component" accessors="true" {
 
-    // Data properties
-    data = {
-        "conference": "Into The Box 2022",
-        "toggleValue" : "false"
-    };
+    property name="conference" default="Into the box";
+    property name="toggleValue" default="false";
 
     computed = {
         "someComputedProp": function( data ) {
             return data.conference & " yep ";
         }
+    }
+
+    function getConference(){
+        return "test";
     }
 
 }

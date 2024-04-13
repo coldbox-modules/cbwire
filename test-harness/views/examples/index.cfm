@@ -28,6 +28,10 @@
         <a class="btn btn-primary w-100" href="/examples/OnHydrate">onHydrate</a>
     </div>
     <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/OnUpdate">onUpdate</a>
+    </div>
+
+    <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/Entangle">entangle</a>
     </div>
     <div class="col-3 pt-3">

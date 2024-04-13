@@ -81,7 +81,6 @@ component {
 		interceptorSettings = {
 			customInterceptionPoints : [
 				"onCBWireMount",
-				"onCBWireRenderIt",
 				"onCBWireSubsequentRenderIt"
 			]
 		};
@@ -94,7 +93,6 @@ component {
 			// Mounting
 			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
 			// Rendering
-			{ class : "#moduleMapping#.interceptors.InitialComponentRendering" },
 			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
 			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" },
 			// Output

@@ -24,7 +24,7 @@
         <button wire:click="$set( 'name', 'Elsie')">change name</button>
 
         <cfif toggle>
-            #wire( "ChildComponent" )#
+            #wire( "ChildComponent", {}, "some_id" )#
         <cfelse>
             #wire( "DataBinding" )#
         </cfif>
