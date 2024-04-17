@@ -1,16 +1,14 @@
 component {
 
-    property name="cbwireService" inject="CBWireService@cbwire";
+    property name="cbwireController" inject="CBWIREController@cbwire";
 
     /**
      * Primary entry point for cbwire requests.
      *
-     * Currently uses /livewire URI to support Livewire JS.
-     *
-     * URI: /livewire/messages/:wireComponent
+     * URI: /cbwire/update
      */
     function index( event, rc, prc ){
-        return cbwireService.handleIncomingRequest( event, rc, prc );
+        return cbwireController.handleRequest( getHTTPRequestData() );
     }
 
     /**

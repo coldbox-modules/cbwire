@@ -13,8 +13,7 @@ component {
      * @return An instance of the specified component after rendering.
      */
     function wire(required string name, struct params = {}, string key = "") {
-        return wirebox.getInstance("CBWIREController@cbwire")
-                .createInstance(argumentCollection=arguments)
+        return createInstance(argumentCollection=arguments)
                 ._withParams( arguments.params )
                 ._withKey( arguments.key )
                 ._withHTTPRequestData( getHTTPRequestData() )
@@ -24,26 +23,21 @@ component {
     /**
      * Handles incoming AJAX requests to update or interact with CBWIRE components.
      *
-     * @param payload The JSON string payload of the incoming request.
-     * @return A JSON string representing the response with updated component details or an error message.
+     * @param incomingRequest The JSON struct payload of the incoming request.
+     * @return A struct representing the response with updated component details or an error message.
      */
-    public string function handleRequest(required string payload) {
-        // Implementation of AJAX request handling
-        var data = deserializeJson(arguments.payload);
-        var responseComponents = [];
-        var isValidRequest = true;
+    public struct function handleRequest(required struct incomingRequest ) {
+        // Perform initial deserialization of the incoming request payload
+        var payload = deserializeJSON( arguments.incomingRequest.content );
+        // Perform additional deserialization of the component snapshots
+        payload.components = payload.components.map( function( comp ) {
+            comp.snapshot = deserializeJSON( comp.snapshot );
+            return comp;
+        } );
 
-        // Example logic for processing a request
-        data.components.each(function(componentData) {
-            var componentInstance = createInstance(componentData.memo.name); // This method needs to be defined or adjusted according to your logic for instantiation
-            // Further processing...
-        });
-
-        if (!isValidRequest) {
-            return serializeJson({ "error": "Invalid request detected." });
-        }
-
-        return serializeJson({ "components": responseComponents });
+        return wirebox.getInstance( "CBWIRERequest@cbwire" )
+                .withPayload( payload )
+                .getResponse();
     }
 
     /**

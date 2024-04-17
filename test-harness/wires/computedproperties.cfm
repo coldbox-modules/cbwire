@@ -1,9 +1,9 @@
 <cfoutput>
     <div>
-        <h1>Welcome To #args.computed.conference()#</h1>
+        <h1>Welcome To #conference()#</h1>
         <h2>Speakers</h2>
         <ul>
-            <cfloop query="#args.computed.speakers()#">
+            <cfloop query="#speakers()#">
                 <li>#firstname# #lastname#</li>
             </cfloop>
         </ul>

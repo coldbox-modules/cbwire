@@ -116,6 +116,34 @@ component accessors="true" {
 	}
 
 	/**
+	 * Returns the meta information for the component
+	 *
+	 * @return struct 
+	 */
+	function getMetaInfo(){
+		if ( !variables.keyExists( "metaInfo" ) ) {
+			variables.metaInfo = getMetaData( this );
+		}
+		return variables.metaInfo;
+	}
+
+	/**
+	 * Returns any properties defined on the component using
+	 * the property tag.
+	 *
+	 * @return array 
+	 */
+	function getPropertyTagDataProperties(){
+		var metaInfo = getMetaInfo();
+		return metaInfo.properties.filter( function( prop ) {
+			return !prop.keyExists( "inject" );
+		} );
+	}
+
+	function getVariables() {
+		return variables;
+	}
+	/**
 	 * Catch methods called that don't exist
 	 *
 	 * @missingMethodName

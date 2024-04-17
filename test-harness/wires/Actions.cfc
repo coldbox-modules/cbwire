@@ -1,20 +1,23 @@
-component extends="cbwire.models.Component" {
+component extends="cbwire.models.v4.Component" {
 
-    // Data properties
     data = {
         "conference": "Into The Box"
     };
 
     // Actions
     function changeConference() {
-        data.conference = "CF Summit";
+        conference = "CF Summit";
     }
 
     function addYear( currentYear ) {
-        data.conference &= " " & currentYear;
+        conference &= " " & currentYear;
     }
 
     function resetConference() {
         reset( "conference" );
+    }
+
+    function renderIt(){
+        return view( "wires.actions" );
     }
 }

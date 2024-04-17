@@ -1,7 +1,9 @@
-component extends="cbwire.models.Component" accessors="true" {
+component extends="cbwire.models.v4.Component" accessors="true" {
 
-    property name="conference" default="Into the box";
-    property name="toggleValue" default="false";
+    data = {
+        "conference": "Into the box",
+        "toggleValue": false
+    };
 
     computed = {
         "someComputedProp": function( data ) {

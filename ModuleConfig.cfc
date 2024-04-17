@@ -5,13 +5,7 @@ component {
 	this.author = "";
 	this.webUrl = "https://github.com/coldbox-modules/cbwire";
 	this.dependencies = [];
-
-	/**
-	 * This entry point remain as "livewire" as the underlining
-	 * Livewire JS library has a hard dependency on this endpoint.
-	 */
-	this.entryPoint = "livewire";
-
+	this.entryPoint = "cbwire";
 	this.layoutParentLookup = false;
 	this.viewParentLookup = false;
 	this.cfmapping = "cbwire";
@@ -51,11 +45,6 @@ component {
 			 */
 			"cacheSingleFileComponents": false,
 			/**
-			 * Cache Livewire's manifest for the livewire.js path
-			 * with it's hashing as a setting that we can use elsewhere.
-			 */
-			"manifest" : getLivewireManifest(),
-			/**
 			 * Trims string properties if set to true
 			 */
 			"trimStringValues" : false
@@ -73,8 +62,9 @@ component {
 				"action" : "uploadFile"
 			},
 			{
-				"pattern" : "message/:wireComponent",
-				"handler" : "Main"
+				"pattern" : "update",
+				"handler" : "Main",
+				"action": "index"
 			}
 		];
 

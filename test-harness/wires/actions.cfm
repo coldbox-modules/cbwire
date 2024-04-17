@@ -1,7 +1,7 @@
 <cfoutput>
     <div>
         <div>
-            <h1>#args.conference#</h1>
+            <h1>#conference#</h1>
         </div>
         <div class="mt-4">
             <a href="##" wire:click.prevent="changeConference" type="button" class="btn btn-primary me-2">Change Conference</button>
