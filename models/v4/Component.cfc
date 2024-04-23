@@ -205,19 +205,61 @@ component accessors="true" {
      * Captures a dispatch to be executed later
      * by the browser.
      * 
-     * @method string | The method to dispatch.
-     * @params struct | The parameters to dispatch.
+     * @event string | The event to dispatch.
+     * @args* | The parameters to pass to the listeners.
      *
      * @return void
      */
-    function dispatch( method, params = {} ) {
+    function dispatch( event ) {
+       // Convert params to an array first
+       var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
+       // Append the dispatch to our dispatches array
+       get_Dispatches().append( { "name": arguments.event, "params": paramsAsArray } );
+    }
+
+    /**
+     * Dispatches an event to the current component.
+     *
+     * @event string | The event to dispatch.
+     * @return void 
+     */
+    function dispatchSelf( event ) {
+       // Convert params to an array first
+       var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
+       // Append the dispatch to our dispatches array
+       get_Dispatches().append( { "name": arguments.event, "params": paramsAsArray, "self": true } );
+
+    }
+
+    /**
+     * Dispatches a event to another component
+     * 
+     * @name string | The component to dispatch to.
+     * @event string | The method to dispatch.
+     * 
+     * @return void
+     */
+    function dispatchTo( name, event ) {
         // Convert params to an array first
-        var paramsAsArray = params.reduce( function( agg, key, value ) {
-            agg.append( value );
-            return agg;
-        }, [] );
+        var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
         // Append the dispatch to our dispatches array
-        get_Dispatches().append( { "name": arguments.method, "params": paramsAsArray } );
+        get_Dispatches().append( { "name": arguments.event, "params": paramsAsArray, "component": arguments.component } );
+    }
+
+    /**
+     * Parses the dispatch parameters into an array.
+     *
+     * @return array
+     */
+    private function _parseDispatchParams() {
+        return arguments
+            .filter( function( key, value ) {
+                return key != "event";
+            } )
+            .reduce( function( agg, key, value ) {
+                agg.append( value );
+                return agg;
+            }, [] );
     }
 
     /**

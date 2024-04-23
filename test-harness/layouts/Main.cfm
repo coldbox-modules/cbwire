@@ -78,10 +78,13 @@
 			</div>
 		</div>
 	</div>
-	<cfif structKeyExists( prc, "viewJavascript" )>
-		#prc.viewJavascript#
-	</cfif>
 	<script>
+		document.addEventListener("livewire:initialized", function() {
+			Livewire.on( 'success', function( payload ) {
+				alert( 'Message sent at' );
+			} );
+		} );
+
 		document.addEventListener("turbo:load", () => {
 			hljs.highlightAll();
 		} );

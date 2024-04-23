@@ -8,6 +8,6 @@ component extends="cbwire.models.v4.Component" {
     // Action
     function sendMessage() {
         // Emit event from CBWIRE
-        emit( "success", [ now() ] );
+        dispatch( "success", now() );
     }
 }

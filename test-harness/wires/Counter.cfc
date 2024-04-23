@@ -28,6 +28,25 @@ component extends="cbwire.models.v4.Component" accessors="true" {
     }
 
     /**
+     * Increments and dispatches to another component.
+     * 
+     * @return void
+     */
+    function incrementDispatchTo() {
+        count += 1;
+        dispatchTo( "anotherComponent", "incremented" );
+    }
+
+    /**
+     * Increments and dispatches self
+     * @return void
+     */
+    function incrementDispatchSelf() {
+        count += 1;
+        dispatchSelf( "incremented" );
+    }
+
+    /**
      * Decrements the counter by 1.
      */
     function decrement() {

@@ -320,7 +320,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
             } );
 
-            fit( "can dispatch an event with params", function() {
+            it( "can dispatch an event with params", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
@@ -341,7 +341,57 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var response = cbwireController.handleRequest( payload );
                 expect( response.components[1].effects.dispatches ).toBeArray();
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incrementedBy" );
-                expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 1 );
+                expect( response.components[1].effects.dispatches[1].params[1] ).toBe( 10 );
+            } );
+
+            it( "can dispatchSelf()", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "counter",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                    },
+                    data = {
+                        "count": 1
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "incrementDispatchSelf",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload );
+                expect( response.components[1].effects.dispatches ).toBeArray();
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
+                expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
+                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
+            } );
+
+            xit( "can dispatchTo()", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "counter",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                    },
+                    data = {
+                        "count": 1
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "incrementDispatchTo",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload );
+                expect( response.components[1].effects.dispatches ).toBeArray();
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
+                expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
+                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
             } );
         } );
 
