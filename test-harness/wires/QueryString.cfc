@@ -1,4 +1,4 @@
-component extends="cbwire.models.Component" {
+component extends="cbwire.models.v4.Component" {
 
     data = { "search" : "" };
 
@@ -10,7 +10,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return this.renderView( "wires/queryString" );
+        return view( "wires.queryString" );
     }
 
 }

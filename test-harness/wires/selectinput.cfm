@@ -1,6 +1,6 @@
 <cfoutput>
     <div>
-        <select wire:model="hero">
+        <select wire:model.live="hero">
             <option value=""></option>
             <option value="Batman">Batman</option>
             <option value="Superman">Superman</option>

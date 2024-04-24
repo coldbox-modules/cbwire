@@ -9,7 +9,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // Assuming setup() initializes application environment
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
-                comp = getInstance("wires.Counter");
+                comp = getInstance("wires.SuperHeroes");
                 prepareMock( comp );
             });
 
@@ -18,27 +18,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("has generated getter", function() {
-                expect(comp.getCount()).toBe(1);
+                expect(comp.getHeroes()).toBeArray();
             });
 
             it("has generated setter", function() {
-                comp.setCount( 10 );
-                expect(comp.getCount()).toBe(10);
+                comp.setHeroes( [ "iron man", "superman" ] );
+                expect(comp.getHeroes().len()).toBe(2);
             });
 
             it( "can call getInstance()", function() {
-                var result = comp.getInstance( "wires.Counter" );
-                expect( result ).toBeInstanceOf( "Counter" );
+                var result = comp.getInstance( "wires.SuperHeroes" );
+                expect( result ).toBeInstanceOf( "SuperHeroes" );
             } );
 
-            it("increments count", function() {
-                comp.increment();
-                expect(comp.getCount()).toBe(2);
-            });
-
-            it("decrements count", function() {
-                comp.decrement();
-                expect(comp.getCount()).toBe(0);
+            it("can call action", function() {
+                comp.setVillians( [ "joker", "lex luthor" ] );
+                comp.defeatVillians();
+                expect(comp.getVillians().len()).toBe(0);
             });
 
             it("renders with correct snapshot, effects, and id attribute", function() {
@@ -50,12 +46,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it("renders string booleans as booleans", function() {
                 var renderedHtml = comp.renderIt();
-                expect(renderedHTML.contains('submitted&quot;:false') ).toBeTrue();
+                expect(renderedHTML.contains('isMarvel&quot;:true') ).toBeTrue();
             });
 
             it("can render a view template", function() {
-                var viewContent = comp.view("wires.Counter"); // Adjust based on your view's location
-                expect(viewContent).toInclude("Counter: 1");
+                comp.addHero("Iron Man");
+                var viewContent = comp.view("wires.superheroes");
+                expect(viewContent).toInclude("Super Heroes");
+                expect(viewContent).toInclude("Iron Man");
             });
 
             it("can implicitly render a view template", function() {
@@ -65,80 +63,84 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("can pass additional data to the view", function() {
-                var viewContent = comp.view("wires.Counter", { count: 5 });
-                expect(viewContent).toInclude("Counter: 5");
+                var viewContent = comp.view("wires.SuperHeroes", { heroes: [ "Wonder Woman"] });
+                expect(viewContent).toInclude("Wonder Woman");
             });
 
             it( "supports computed properties", function() {
-                expect( comp.countPlusTen() ).toBe( 11 );
+                expect( comp.numberOfHeroes() ).toBe( 0 );
             } );
 
             it( "computed properties are cached", function() {
-                var result1 = comp.tick();
+                var strength1 = comp.calculateStrength();
                 sleep( 10 );
-                var result2 = comp.tick();
-                expect( result1 ).toBe( result2 );
+                var strength2 = comp.calculateStrength();
+                expect( strength1 ).toBe( strength2 );
             } );
 
             it( "computed properties can accept false flag to prevent caching", function() {
-                var result1 = comp.tick();
+                var strength1 = comp.calculateStrength();
                 sleep( 10 );
-                var result2 = comp.tick( false );
-                expect( result1 ).notToBe( result2 );
+                var strength2 = comp.calculateStrength( false );
+                expect( strength1 ).notToBe( strength2 );
             } );
 
             it( "returns a snapshot that contains the proper memo name", function() {
                 var snapshot = comp._getSnapshot();
-                expect( snapshot.memo.name ).toBe( "Counter" );
-                expect( snapshot.memo.path ).toBe( "Counter" );
-
+                expect( snapshot.memo.name ).toBe( "SuperHeroes" );
+                expect( snapshot.memo.path ).toBe( "SuperHeroes" );
             } );
 
             it( "computed property can be accessed from view", function() {
-                var viewContent = comp.view("wires.CounterUsingComputedProperty" );
-                expect(viewContent).toInclude("Counter: 11");
+                comp.addHero( "Iron Man" );
+                comp.addHero( "Superman" );
+                var viewContent = comp.view("wires.superheroes" );
+                expect(viewContent).toInclude("Number Of Heroes: 2");
+            } );
+
+            it( "throws error if we try to set a dataproperty that doesn't exist", function() {
+                expect(function() {
+                    comp.setCount( 1000 );
+                }).toThrow();
             } );
 
             it( "can reset all data properties", function() {
-                comp.setCount( 1000 );
-                comp.setSubmitted( true );
+                comp.addHero( "Captain America" );
                 comp.reset();
-                expect( comp.getCount() ).toBe( 1 );
-                expect( comp.getSubmitted() ).toBe( false );
+                expect( comp.numberOfHeroes() ).toBe( 0 );
             } );
 
             it( "can reset a single data property", function() {
-                comp.setCount( 1000 );
-                comp.setSubmitted( true );
-                comp.reset( "count" );
-                expect( comp.getCount() ).toBe( 1 );
-                expect( comp.getSubmitted() ).toBe( true );
+                comp.addHero( "Thor" );
+                comp.addVillian( "Loki" );
+                comp.reset( "heroes" );
+                expect( comp.numberOfHeroes() ).toBe( 0 );
+                expect( comp.numberOfVillians() ).toBe( 1 );
             } );
 
             it( "can reset multiple data properties", function() {
-                comp.setCount( 1000 );
-                comp.setSubmitted( true );
-                comp.reset( [ "count", "submitted" ] );
-                expect( comp.getCount() ).toBe( 1 );
-                expect( comp.getSubmitted() ).toBe( false );
+                comp.addHero( "Thor" );
+                comp.addVillian( "Loki" );
+                comp.reset( [ "heroes", "villians" ] );
+                expect( comp.numberOfHeroes() ).toBe( 0 );
+                expect( comp.numberOfVillians() ).toBe( 0 );
             } );
 
             it( "can resetExcept a single data property", function() {
-                comp.setCount( 1000 );
-                comp.setSubmitted( true );
-                comp.resetExcept( "count" );
-                expect( comp.getCount() ).toBe( 1000 );
-                expect( comp.getSubmitted() ).toBe( false );
+                comp.addHero( "Thor" );
+                comp.addVillian( "Loki" );
+                comp.resetExcept( "heroes" );
+                expect( comp.numberOfHeroes() ).toBe( 1 );
+                expect( comp.numberOfVillians() ).toBe( 0 );
             } );
 
             it( "can resetExcept multiple data properties", function() {
-                comp.setCount( 1000 );
-                comp.setSubmitted( true );
-                comp.resetExcept( [ "count" ] );
-                expect( comp.getCount() ).toBe( 1000 );
-                expect( comp.getSubmitted() ).toBe( false );
+                comp.addHero( "Thor" );
+                comp.addVillian( "Loki" );
+                comp.resetExcept( [ "heroes" ] );
+                expect( comp.numberOfHeroes() ).toBe( 1 );
+                expect( comp.numberOfVillians() ).toBe( 0 );
             } );
-
 
             xit("throws an exception for a non-existent view", function() {
                 expect(function() {
@@ -164,6 +166,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
                 cbwireController = getInstance("CBWIREController@cbwire");
+                event = getRequestContext();
                 prepareMock( cbwireController );
             });
 
@@ -185,7 +188,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( isStruct( response ) ).toBeTrue();
             } );
 
@@ -207,7 +210,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( deserializeJson( response.components[1].snapshot ).memo.id ).toBe( "Z1Ruz1tGMPXSfw7osBW2" );
             } );
 
@@ -229,7 +232,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "Counter: 2" );
             } );
 
@@ -252,7 +255,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     updates = {}
                 );
                 
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "Counter: 11" );
             } );
 
@@ -274,7 +277,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "id=""Z1Ruz1tGMPXSfw7osBW2""" );
             } );
 
@@ -292,7 +295,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "count": 100
                     }
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "Counter: 100" );
             } );
 
@@ -314,7 +317,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
                 expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
@@ -338,7 +341,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incrementedBy" );
                 expect( response.components[1].effects.dispatches[1].params[1] ).toBe( 10 );
@@ -362,7 +365,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
                 expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
@@ -387,7 +390,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ],
                     updates = {}
                 );
-                var response = cbwireController.handleRequest( payload );
+                var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
                 expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
