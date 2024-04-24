@@ -1,6 +1,9 @@
-component {
+component singleton {
 
     property name="wirebox" inject="wirebox";
+
+	// Injected RequestService so that we can access the current ColdBox RequestContext.
+	property name="requestService" inject="coldbox:requestService";
 
     /**
      * Instantiates a CBWIRE component, mounts it,
@@ -14,6 +17,7 @@ component {
      */
     function wire(required string name, struct params = {}, string key = "") {
         return createInstance(argumentCollection=arguments)
+                ._withEvent( getEvent() )
                 ._withParams( arguments.params )
                 ._withKey( arguments.key )
                 ._withHTTPRequestData( getHTTPRequestData() )
@@ -23,10 +27,12 @@ component {
     /**
      * Handles incoming AJAX requests to update or interact with CBWIRE components.
      *
-     * @param incomingRequest The JSON struct payload of the incoming request.
+     * @incomingRequest The JSON struct payload of the incoming request.
+     * @event The event object.
+     * 
      * @return A struct representing the response with updated component details or an error message.
      */
-    public struct function handleRequest(required struct incomingRequest ) {
+    public struct function handleRequest(required struct incomingRequest, required event ) {
         // Perform initial deserialization of the incoming request payload
         var payload = deserializeJSON( arguments.incomingRequest.content );
         // Perform additional deserialization of the component snapshots
@@ -37,6 +43,7 @@ component {
 
         return wirebox.getInstance( "CBWIRERequest@cbwire" )
                 .withPayload( payload )
+                .withEvent( arguments.event )
                 .getResponse();
     }
 
@@ -67,6 +74,15 @@ component {
             // Log error or handle it as needed
             throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
         }
+    }
+
+    /**
+     * Returns the ColdBox RequestContext object.
+     * 
+     * @return The ColdBox RequestContext object.
+     */
+    function getEvent(){
+        return requestService.getContext();
     }
 
 }

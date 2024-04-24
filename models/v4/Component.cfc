@@ -8,6 +8,7 @@ component accessors="true" {
     property name="_dataPropertyNames";
     property name="_params";
     property name="_key";
+    property name="_event";
     property name="_httpRequestData";
     property name="_metaData";
     property name="_dispatches";
@@ -76,6 +77,17 @@ component accessors="true" {
      */
     function renderIt() {
         return view( _getViewPath() );
+    }
+
+    /**
+     * Passes the current event into our component.
+     * 
+     * @return Component
+     * 
+     */
+    function _withEvent( event ) {
+        set_Event( arguments.event );
+        return this;
     }
 
     /**

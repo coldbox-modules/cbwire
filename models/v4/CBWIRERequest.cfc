@@ -4,6 +4,8 @@ component accessors="true"{
 
     property name="payload";
 
+    property name="event";
+
     /**
      * Passes in a payload sent by the browser.
      * 
@@ -11,6 +13,16 @@ component accessors="true"{
      */
     function withPayload( required struct payload ){
         setPayload( arguments.payload );
+        return this;
+    }
+
+    /**
+     * Passes in the ColdBox event context.
+     * 
+     * @return void.
+     */
+    function withEvent( required event ){
+        setEvent( arguments.event );
         return this;
     }
 
@@ -28,6 +40,7 @@ component accessors="true"{
                                             .createInstance( _componentPayload.snapshot.memo.name );
                 // Return the response for this component
                 return componentInstance
+                            ._withEvent( getEvent() )
                             ._asSubsequentRequest()
                             ._getHTTPResponse( _componentPayload );
             } )

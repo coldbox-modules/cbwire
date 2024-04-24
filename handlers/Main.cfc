@@ -8,7 +8,7 @@ component {
      * URI: /cbwire/update
      */
     function index( event, rc, prc ){
-        return cbwireController.handleRequest( getHTTPRequestData() );
+        return cbwireController.handleRequest( getHTTPRequestData(), arguments.event );
     }
 
     /**
