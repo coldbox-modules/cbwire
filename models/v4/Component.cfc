@@ -155,6 +155,8 @@ component accessors="true" {
 
     /**
      * Apply updates to the component
+     * 
+     * @return void
      */
     function _applyUpdates( updates ) {
         arguments.updates.each( function( key, value ) {
