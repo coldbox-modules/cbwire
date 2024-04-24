@@ -100,7 +100,12 @@ component accessors="true" {
 
         // Fire onMount if it exists
         if (structKeyExists(this, "onMount")) {
-            onMount( params=arguments.params );
+            onMount( 
+                event=get_Event(),
+                rc=get_Event().getCollection(),
+                prc=get_Event().getPrivateCollection(),    
+                params=arguments.params         
+            );
         } else {
             // Loop over our params and set them as variables
             arguments.params.each( function( key, value ) {
