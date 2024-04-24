@@ -339,8 +339,8 @@ component accessors="true" {
             var propertyName = arguments.missingMethodName.reReplaceNoCase( "^set", "" );
             // Ensure data property exists before setting it
             if ( data.keyExists( propertyName ) ) {
-            variables[ propertyName ] = arguments.missingMethodArguments[ 1 ];
-            return;
+                variables[ propertyName ] = arguments.missingMethodArguments[ 1 ];
+                return;
             }
         }
 
