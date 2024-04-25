@@ -1,30 +1,36 @@
 component extends="cbwire.models.v4.Component" {
 
     data = {
+        "mailinglist": "x-men at marvel.com",
         "heroes": [],
         "villians": [],
         "isMarvel": true,
-        "isDC": false
+        "isDC": false,
+        "showStats": false
+    };
+
+    constraints = {
+        "mailingList": { required: true, type: "email" }
     };
 
     function defeatVillians(){
-        villians = [];
+        data.villians = [];
     }
 
     function addHero(hero){
-        heroes.append(hero);
+        data.heroes.append(hero);
     }
 
     function addVillian(villian){
-        villians.append(villian);
+        data.villians.append(villian);
     }
 
     function numberOfHeroes() computed {
-        return heroes.len();
+        return data.heroes.len();
     }
 
     function numberOfVillians() computed {
-        return villians.len();
+        return data.villians.len();
     }
 
     function calculateStrength() computed {

@@ -11,5 +11,10 @@
                 </cfloop>
             </ul>
         </cfif>
+
+        <cfif showStats>
+            #wire( "SuperHeroStats", {}, "super-hero" )#
+            #wire( "SuperHeroStats" )#
+        </cfif>
     </div>
 </cfoutput>

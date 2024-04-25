@@ -40,6 +40,9 @@
     <div class="col-3 pt-3">
         <a class="btn btn-primary w-100" href="/examples/ParentChildComponent">Parent/Child Component</a>
     </div>
+    <div class="col-3 pt-3">
+        <a class="btn btn-primary w-100" href="/examples/Teleport">Teleport</a>
+    </div>
 
     <div class="col-12 mt-4">
         <h2>Forms</h2>

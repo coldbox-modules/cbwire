@@ -20,7 +20,6 @@ component singleton {
                 ._withEvent( getEvent() )
                 ._withParams( arguments.params )
                 ._withKey( arguments.key )
-                ._withHTTPRequestData( getHTTPRequestData() )
                 .renderIt();
     }
 
@@ -40,11 +39,18 @@ component singleton {
             comp.snapshot = deserializeJSON( comp.snapshot );
             return comp;
         } );
-
-        return wirebox.getInstance( "CBWIRERequest@cbwire" )
-                .withPayload( payload )
-                .withEvent( arguments.event )
-                .getResponse();
+        // Iterate over each component in the payload and process it
+        return {
+            "components": payload.components.map( ( _componentPayload ) => {
+                // Locate the component and instantiate it.
+                var componentInstance = createInstance( _componentPayload.snapshot.memo.name );
+                // Return the response for this component
+                return componentInstance
+                            ._withEvent( event )
+                            ._withIncomingPayload( _componentPayload )
+                            ._getHTTPResponse( _componentPayload );
+            } )
+        };
     }
 
     /**

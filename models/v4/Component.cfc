@@ -1,56 +1,48 @@
-component accessors="true" {
+component {
 
-    property name="wirebox" inject="wirebox";
+    property name="_CBWIREController" inject="CBWIREController@cbwire";
+
+    property name="_wirebox" inject="wirebox";
 
     property name="_id";
-    property name="_initialLoad" default="true";
+    property name="_parent";
+    property name="_initialLoad";
     property name="_initialDataProperties";
+    property name="_incomingPayload";
     property name="_dataPropertyNames";
+    property name="_validationResult";
     property name="_params";
     property name="_key";
     property name="_event";
-    property name="_httpRequestData";
+    property name="_children";
     property name="_metaData";
     property name="_dispatches";
     property name="_cache"; // internal cache for storing data
-    property name="data"; // Used for backwards compatibility
-    property name="args"; // Used for backwards compatibility
 
     /**
      * Initializes the component, setting a unique ID if not already set.
      * This method should be called by any extending component's init method if overridden.
      * Extending components should invoke super.init() to ensure the base initialization is performed.
+     * 
      * @return The initialized component instance.
      */
     function init() {
-        if (len(trim(get_Id())) == 0) {
-            set_Id(createUUID());
+        if ( isNull( variables._id ) ) {
+            variables._id = createUUID();
         }
-        set_Params( {} );
-        set_Key( "" );
-        set_HttpRequestData( {} );
-        set_Cache( {} );
-        set_Dispatches( [] );
-        
-        /*
-            Create a reference to the variables scope called 
-            'data' to preserve backwards compatibility with
-            prior versions of CBWIRE.
-        */
-        //setData( variables );
-        
-        /* 
-            Create a reference to the variables scope called
-            'args' to preserve backwards compatibility with
-            prior versions of CBWIRE.
-        */
-        setArgs( variables );
+
+        variables._params = {};
+        variables._key = "";
+        variables._cache = {};
+        variables._dispatches = [];
+        variables._children = {};
+        variables._initialLoad = true;
         
         /* 
             Cache the component's meta data on initialization
             for fast access where needed.
         */
-        set_MetaData( getMetaData( this ) );
+        variables._metaData = getMetaData( this );
 
         /*
             Prep our data properties
@@ -70,13 +62,36 @@ component accessors="true" {
         return this;
     }
 
+    /*
+        ==================================================================
+        Public API
+        ==================================================================
+    */
+    include "ComponentPublicAPI.cfm";
+
+    /* 
+        ==================================================================
+        Internal API
+        ==================================================================
+    */
+
     /**
-     * Renders the component's HTML output.
-     * This method should be overridden by subclasses to implement specific rendering logic.
-     * If not overridden, this method will simply render the view.
+     * Returns the id of the component.
+     * 
+     * @return string
      */
-    function renderIt() {
-        return view( _getViewPath() );
+    function _getId() {
+        return variables._id;
+    }
+
+    /**
+     * Passes a reference to the parent of a child component.
+     * 
+     * @return Component
+     */
+    function _withParent( parent ) {
+        variables._parent = arguments.parent;
+        return this;
     }
 
     /**
@@ -86,7 +101,18 @@ component accessors="true" {
      * 
      */
     function _withEvent( event ) {
-        set_Event( arguments.event );
+        variables._event = arguments.event;
+        return this;
+    }
+
+    /**
+     * Passes in incoming payload to the component
+     * 
+     * @return Component
+     */
+    function _withIncomingPayload( payload ) {
+        variables._incomingPayload = arguments.payload;
+        variables._initialLoad = false;
         return this;
     }
 
@@ -96,14 +122,14 @@ component accessors="true" {
      * @return Component
      */
     function _withParams( params ) {
-        set_Params( arguments.params );
+        variables._params = arguments.params;
 
         // Fire onMount if it exists
         if (structKeyExists(this, "onMount")) {
             onMount( 
-                event=get_Event(),
-                rc=get_Event().getCollection(),
-                prc=get_Event().getPrivateCollection(),    
+                event=variables._event,
+                rc=variables._event.getCollection(),
+                prc=variables._event.getPrivateCollection(),    
                 params=arguments.params         
             );
         } else {
@@ -117,26 +143,13 @@ component accessors="true" {
     }
 
     /**
-     * Passes HTTP request data to the component to be used with onMount.
-     * This method is useful for passing request data to the component for use in rendering.
-     * 
-     * @param httpRequestData A struct containing the HTTP request data.
-     * @return Component
-     */
-    function _withHTTPRequestData( httpRequestData ) {
-        set_HttpRequestData( arguments.httpRequestData );
-        return this;
-    }
-
-    /**
      * Passes a key to the component to be used to identify the component
      * on subsequent requests.
      *
      * @return Component
      */
     function _withKey( key ) {
-        set_Key( arguments.key );
-
+        variables._key = arguments.key;
         return this;
     }
 
@@ -148,14 +161,9 @@ component accessors="true" {
      */
     function _hydrate( componentPayload ) {
         // Set our component's id to the incoming memo id
-        set_Id( arguments.componentPayload.snapshot.memo.id );
-
-        // Loop over the data and set the variables
-        arguments.componentPayload.snapshot.data.each( function( key, value ) {
-            if ( variables.keyExists( key ) ) {
-                variables[ key ] = value;
-            }
-        } );
+        variables._id = arguments.componentPayload.snapshot.memo.id;
+        // Append the incoming data to our component's data
+        variables.data.append( arguments.componentPayload.snapshot.data, true );
     }
 
     /**
@@ -165,7 +173,7 @@ component accessors="true" {
      */
     function _applyUpdates( updates ) {
         arguments.updates.each( function( key, value ) {
-            variables[ key ] = value;
+            variables.data[ key ] = value;
         } );
     }
 
@@ -177,92 +185,40 @@ component accessors="true" {
      */
     function _applyCalls( calls ) {
         arguments.calls.each( function( call ) {
-            invoke( this, call.method, call.params );
+            try {
+                invoke( this, call.method, call.params );
+            } catch ( ValidationException e ) {
+                // silently fail so the component can continue to render
+            } catch( any e ) {
+                rethrow;
+            }
         } );
     }
 
     /**
-     * Renders a specified view by converting dot notation to path notation and appending .cfm if necessary.
-     * Then, it returns the HTML content.
-     *
-     * @param viewPath The dot notation path to the view template to be rendered, without the .cfm extension.
-     * @param params A struct containing the parameters to be passed to the view template.
-     * @return The rendered HTML content as a string.
+     * Returns the validation manager if it's available.
+     * Otherwise throws error.
+     * 
+     * @return ValidationManager
      */
-    function view( viewPath, params = {} ) {
-        // Normalize the view path
-        var normalizedPath = _getNormalizedViewPath( viewPath );
-        // Render the view content and trim the result
-        var trimmedHTML = trim( _renderViewContent( normalizedPath, arguments.params ) );
-        // Validate the HTML content to ensure it has a single outer element
-        _validateSingleOuterElement( trimmedHTML);
-        // If this is the initial load, encode the snapshot and insert Livewire attributes
-        if ( get_initialLoad() ) {
-            // Encode the snapshot for HTML attribute inclusion and process the view content
-            var snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
-            return _insertInitialLivewireAttributes( trimmedHTML, snapshotEncoded, get_Id() );
-        } else {
-            // Return the trimmed HTML content
-            return _insertSubsequentLivewireAttributes( trimmedHTML );
+    private function _getValidationManager(){
+        try {
+    		return getInstance( dsl="provider:ValidationManager@cbvalidation" );
+        } catch ( any e ) {
+            throw( type="CBWIREException", message="ValidationManager not found. Make sure the 'cbvalidation' module is installed." );
         }
     }
 
-	/**
-	 * Get a instance object from WireBox
-	 *
-	 * @name The mapping name or CFC path or DSL to retrieve
-	 * @initArguments The constructor structure of arguments to passthrough when initializing the instance
-	 * @dsl The DSL string to use to retrieve an instance
-	 *
-	 * @return The requested instance
-	 */
-	function getInstance( name, initArguments = {}, dsl ){
-        return getWirebox().getInstance( argumentCollection=arguments );
-    }
-
     /**
-     * Captures a dispatch to be executed later
-     * by the browser.
+     * Returns a struct of cbvalidation constraints.
      * 
-     * @event string | The event to dispatch.
-     * @args* | The parameters to pass to the listeners.
-     *
-     * @return void
+     * @return struct
      */
-    function dispatch( event ) {
-       // Convert params to an array first
-       var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
-       // Append the dispatch to our dispatches array
-       get_Dispatches().append( { "name": arguments.event, "params": paramsAsArray } );
-    }
-
-    /**
-     * Dispatches an event to the current component.
-     *
-     * @event string | The event to dispatch.
-     * @return void 
-     */
-    function dispatchSelf( event ) {
-       // Convert params to an array first
-       var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
-       // Append the dispatch to our dispatches array
-       get_Dispatches().append( { "name": arguments.event, "params": paramsAsArray, "self": true } );
-
-    }
-
-    /**
-     * Dispatches a event to another component
-     * 
-     * @name string | The component to dispatch to.
-     * @event string | The method to dispatch.
-     * 
-     * @return void
-     */
-    function dispatchTo( name, event ) {
-        // Convert params to an array first
-        var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
-        // Append the dispatch to our dispatches array
-        get_Dispatches().append( { "name": arguments.event, "params": paramsAsArray, "component": arguments.component } );
+    private function _getConstraints(){
+        if ( variables.keyExists( "constraints" ) ) {
+            return variables.constraints;
+        }
+        return {};
     }
 
     /**
@@ -320,8 +276,7 @@ component accessors="true" {
             Check the component's meta data for functions 
             labeled as computed.
         */
-        var meta = get_MetaData();
-
+        var meta = variables._metaData;
         /* 
             Handle generated getters and setters for data properties.
             You see we are also preparing the getters and setters in the init method.
@@ -330,16 +285,16 @@ component accessors="true" {
         */
         if ( arguments.missingMethodName.reFindNoCase( "^get[A-Z].*" ) ) {
             var propertyName = arguments.missingMethodName.reReplaceNoCase( "^get", "" );
-            if ( variables.keyExists( propertyName ) ) {
-                return variables[ propertyName ];
+            if ( variables.data.keyExists( propertyName ) ) {
+                return variables.data[ propertyName ];
             }
         }
 
         if ( arguments.missingMethodName.reFindNoCase( "^set[A-Z].*" ) ) {
             var propertyName = arguments.missingMethodName.reReplaceNoCase( "^set", "" );
             // Ensure data property exists before setting it
-            if ( data.keyExists( propertyName ) ) {
-                variables[ propertyName ] = arguments.missingMethodArguments[ 1 ];
+            if ( variables.data.keyExists( propertyName ) ) {
+                variables.data[ propertyName ] = arguments.missingMethodArguments[ 1 ];
                 return;
             }
         }
@@ -355,7 +310,7 @@ component accessors="true" {
      *
      * @return String The generated checksum.
      */
-    private function _generate_checksum() {
+    private function _generateChecksum() {
         return "f9f66fa895026e389a10ce006daf3f59afaec8db50cdb60f152af599b32f9192";
         var secretKey = "YourSecretKey"; // This key should be securely retrieved
         return hash(serializeJson(arguments.snapshot) & secretKey, "SHA-256");
@@ -381,7 +336,7 @@ component accessors="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     private function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
-        var livewireAttributes = ' wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="[]" wire:id="Z1Ruz1tGMPXSfw7osBW2"';
+        var livewireAttributes = ' wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="[]" wire:id="#variables._id#"';
         
         // Insert attributes into the opening tag
         return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
@@ -395,7 +350,7 @@ component accessors="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     private function _insertSubsequentLivewireAttributes( html ) {
-        var livewireAttributes = " wire:id=""#get_Id()#""";
+        var livewireAttributes = " wire:id=""#variables._id#""";
         return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
     }
     
@@ -406,23 +361,39 @@ component accessors="true" {
      * @return The rendered content of the view template.
      */
     private function _renderViewContent( normalizedPath, params = {} ){
-        
+        /* 
+            Create reference to local scope for the method.
+        */
+        var localScope = local;
+        /* 
+            Take our data properties and make them available as variables
+            to the view.
+        */
+        variables.data.each( function( key, value ) {
+            localScope[ key ] = value;
+        } );
+
         /* 
             Take any params passed to the view method and make them available as variables
             within the view template. This allows for dynamic content to be rendered based on
             the parameters passed to the view method.
         */
         params.each( function( key, value ) {
-            variables[ key ] = value;
+            localScope[ key ] = value;
         } );
 
-        var viewContent = "";
-        savecontent variable="viewContent" {
+        // Auto validate whenever rendering the view
+        validate();
+
+        // Provide 'validation.' variable to the view
+        localScope.validation = variables._validationResult;
+
+        savecontent variable="localScope.viewContent" {
             // The leading slash in the include path might need to be removed depending on your server setup
             // or application structure, as cfinclude paths are relative to the application root.
             include "#arguments.normalizedPath#"; // Dynamically includes the CFML file for processing.
         }
-        return viewContent;
+        return localScope.viewContent;
     }
 
     /**
@@ -469,6 +440,10 @@ component accessors="true" {
         _applyUpdates( arguments.componentPayload.updates );
         // Apply any calls
         _applyCalls( arguments.componentPayload.calls );
+        // Re-validate, silently moving along if it fails
+        try {
+            validate();
+        } catch ( any e ) {}
         // Return the HTML response
         var response = {
             "snapshot": serializeJson( _getSnapshot() ),
@@ -480,8 +455,8 @@ component accessors="true" {
             }
         };
         // Add any dispatches
-        if ( get_Dispatches().len() ) {
-            response.effects["dispatches"] = get_Dispatches();
+        if ( variables._dispatches.len() ) {
+            response.effects["dispatches"] = variables._dispatches;
         }
 
         return response;
@@ -496,64 +471,8 @@ component accessors="true" {
         return {
             "data": _getDataProperties(),
             "memo": _getMemo(),
-            "checksum": _generate_checksum()
+            "checksum": _generateChecksum()
         };
-    }
-
-    /**
-     * Indicate that this component is being loaded from subsequent requests.
-     * 
-     * @return void
-     */
-    function _asSubsequentRequest(){
-        set_InitialLoad( false );
-        return this;
-    }
-
-    /**
-     * Resets a data property to it's initial value.
-     * Can be used to reset all data properties, a single data property, or an array of data properties.
-     * 
-     * @return 
-     */
-    function reset( property ){
-		if ( isNull( arguments.property ) ) {
-			// Reset all properties
-			_getDataProperties().each( function( key, value ){
-				reset( key );
-			} );
-		} else if ( isArray( arguments.property ) ) {
-			// Reset each property in our array individually
-			arguments.property.each( function( prop ){
-				reset( prop );
-			} );
-		} else {
-			var initialState = get_initialDataProperties();
-			// Reset individual property
-            variables[ arguments.property ] = initialState[ arguments.property ];
-		}
-	}
-
-    /**
-     * Resets all data properties except the ones specified.
-     * 
-     * @return void
-     */
-    function resetExcept( property ){
-        if ( isNull( arguments.property ) ) {
-			throw( type="ResetException", message="Cannot reset a null property." );
-		}
-
-		// Reset all properties except what was provided
-		_getDataProperties().each( function( key, value ){
-			if ( isArray( property ) ) {
-				if ( !arrayFindNoCase( property, arguments.key ) ) {
-					reset( key );
-				}
-			} else if ( property != key ) {
-				reset( key );
-			}
-		} );
     }
 
     /**
@@ -583,16 +502,11 @@ component accessors="true" {
 
     /**
      * Prepare our data properties
+     * 
+     * @return void
      */
     private function _prepareDataProperties() {
-
-        if ( variables.keyExists( "data" ) ) {
-            /*
-                Copy any data properties defined using 
-                'data.' into our variables scope.
-            */
-            variables.append( data );
-        } else {
+        if ( !variables.keyExists( "data" ) ) {
             variables.data = {};
         }
 
@@ -600,26 +514,24 @@ component accessors="true" {
             Determine our data property names by inspecting
             both the data struct and the components property tags.
         */
-        var names = [];
-        data.each( function( key, value ) {
-            names.append( key );
-        } );
+        variables._dataPropertyNames = variables.data.reduce( function( acc, key, value ) {
+            acc.append( key );
+            return acc;
+        }, [] );
 
-        get_metaData().properties
+        variables._metaData.properties
             .filter( function( prop ) {
                 return !prop.keyExists( "inject" );
             } )
             .each( function( prop ) {
-                names.append( prop.name );
+                variables._dataPropertyNames.append( prop.name );
             } );
-
-        set_dataPropertyNames( names );
 
         /*
             Capture our initial data properties for use in
             calls like reset().
         */
-        set_initialDataProperties( duplicate( _getDataProperties() ) );
+        variables._initialDataProperties = duplicate( _getDataProperties() );
     }
      
     /**
@@ -634,7 +546,7 @@ component accessors="true" {
             For each computed function, generate a computed property
             that caches the result of the computed function.
         */
-        get_MetaData().functions.filter( function( func ) {
+        variables._metaData.functions.filter( function( func ) {
             return structKeyExists(func, "computed");
         } ).each( function( func ) {
             _generateComputedProperty( func.name, this[func.name] );
@@ -664,7 +576,7 @@ component accessors="true" {
             Determine our data property names by inspecting
             both the data struct and the components property tags.
         */
-        var dataPropertyNames = get_DataPropertyNames();
+        var dataPropertyNames = variables._dataPropertyNames;
 
         /* 
             Loop over our data property names and generate
@@ -697,11 +609,11 @@ component accessors="true" {
      * @return struct
      */
     private function _getDataProperties(){
-        return get_dataPropertyNames().reduce( function( acc, key, value ) {
-            if ( isBoolean( variables[ key ] ) && !isNumeric( variables[ key ] ) ) {
-                acc[ key ] = variables[ key ] ? true : false;
+        return variables.data.reduce( function( acc, key, value ) {
+            if ( isBoolean( variables.data[ key ] ) && !isNumeric( variables.data[ key ] ) ) {
+                acc[ key ] = variables.data[ key ] ? true : false;
             } else {
-                acc[ key ] = variables[ key ];
+                acc[ key ] = variables.data[ key ];
             }
             return acc;
         }, {} );
@@ -715,11 +627,11 @@ component accessors="true" {
     private function _getMemo(){
         var name = _getComponentName();
         return {
-            "id":"Z1Ruz1tGMPXSfw7osBW2",
+            "id":"#variables._id#",
             "name":name,
             "path":name,
             "method":"GET",
-            "children":[],
+            "children": variables._children.count() ? variables._children : [],
             "scripts":[],
             "assets":[],
             "errors":[],
@@ -734,6 +646,30 @@ component accessors="true" {
      
      */
     private function _getComponentName(){
-        return getMetaData().name.replaceNoCase( "wires.", "", "one" );
+        return variables._metaData.name.replaceNoCase( "wires.", "", "one" );
+    }
+
+    /**
+     * Take an incoming rendering and determine the outer component tag.
+     * <div>...</div> would return 'div'
+     * 
+     * @return string
+     */
+    private function _getComponentTag( rendering ){
+        var tag = "";
+        var regexMatches = reFindNoCase( "^<([a-zA-Z0-9]+)", arguments.rendering.trim(), 1, true );
+        if ( regexMatches.match.len() == 2 ) {
+            return regexMatches.match[ 2 ];
+        }
+        throw( type="CBWIREException", message="Cannot determine component tag." );
+    }
+
+    /**
+     * Returns a generated key for the component.
+     * 
+     * @return string
+     */
+    private function _generateWireKey(){
+        return variables._id & "-" & variables._children.count();
     }
 }

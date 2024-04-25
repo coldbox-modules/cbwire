@@ -15,7 +15,7 @@ component extends="cbwire.models.v4.Component" accessors="true" {
      * Increments the counter by 1.
      */
     function increment() {
-        variables.count += 1;
+        data.count += 1;
         dispatch( "incremented" );
     }
 
@@ -23,7 +23,7 @@ component extends="cbwire.models.v4.Component" accessors="true" {
      * Increments the counter by a specified amount.
      */
     function incrementBy( amount ) {
-        count += amount;
+        data.count += amount;
         dispatch( "incrementedBy", 10 );
     }
 
@@ -33,7 +33,7 @@ component extends="cbwire.models.v4.Component" accessors="true" {
      * @return void
      */
     function incrementDispatchTo() {
-        count += 1;
+        data.count += 1;
         dispatchTo( "anotherComponent", "incremented" );
     }
 
@@ -42,7 +42,7 @@ component extends="cbwire.models.v4.Component" accessors="true" {
      * @return void
      */
     function incrementDispatchSelf() {
-        count += 1;
+        data.count += 1;
         dispatchSelf( "incremented" );
     }
 
@@ -57,7 +57,7 @@ component extends="cbwire.models.v4.Component" accessors="true" {
      * Decrements the counter by 1.
      */
     function decrementWithDataDot(){
-        count -= 1;
+        data.count -= 1;
     }
 
     /**

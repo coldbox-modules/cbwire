@@ -1,4 +1,4 @@
-component extends="cbwire.models.Component" {
+component extends="cbwire.models.v4.Component" {
 
     constraints = {
         "email": { required: true, type: "email" }
@@ -11,6 +11,6 @@ component extends="cbwire.models.Component" {
 
     function addEmail() {
         validateOrFail();
-        data.success = true;
+        success = true;
     }
 }

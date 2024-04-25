@@ -10,6 +10,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
                 comp = getInstance("wires.SuperHeroes");
+                comp._withEvent( getRequestContext( ) );
                 prepareMock( comp );
             });
 
@@ -91,7 +92,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.memo.path ).toBe( "SuperHeroes" );
             } );
 
-            it( "computed property can be accessed from view", function() {
+            fit( "computed property can be accessed from view", function() {
                 comp.addHero( "Iron Man" );
                 comp.addHero( "Superman" );
                 var viewContent = comp.view("wires.superheroes" );
@@ -140,6 +141,48 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 comp.resetExcept( [ "heroes" ] );
                 expect( comp.numberOfHeroes() ).toBe( 1 );
                 expect( comp.numberOfVillians() ).toBe( 0 );
+            } );
+
+            it( "can render child components", function() {
+                comp.setShowStats( true );
+                var result = comp.view( "wires.superheroes" );
+                expect( result ).toInclude( "&quot;super-hero" );
+            } );
+
+            it( "provide teleport and endTeleport methods", function() {
+                expect( comp.teleport( 'body' ) ).toBe( "<template x-teleport=""body"">" );
+                expect( comp.endTeleport() ).toBe( "</template>" );
+            } );
+
+            it( "can validate()", function() {
+                var result = comp.validate();
+                expect( result ).toBeInstanceOf( "ValidationResult" );
+                expect( result.hasErrors() ).toBeTrue();
+            } );
+
+            it("can access validation from view", function() {
+                var result = comp.validate();
+                var viewContent = comp.view("wires.superheroesvalidation");
+                expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
+            });
+
+            it( "auto validates", function() {
+                var viewContent = comp.view("wires.superheroesvalidation");
+                expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
+            } );
+
+            it( "can validateOrFail", function() {
+                expect(function() {
+                    comp.validateOrFail();
+                }).toThrow( type="ValidationException" );
+
+                comp.setMailingList( "x-men@somedomain.com" );
+                expect( comp.validateOrFail() ).toBeInstanceOf( "ValidationResult" );
+            } );
+
+            it( "can hasError( field)", function() {
+                comp.validate();
+                expect( comp.hasErrors( "mailingList" ) ).toBeTrue();
             } );
 
             xit("throws an exception for a non-existent view", function() {
