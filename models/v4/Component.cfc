@@ -302,7 +302,7 @@ component {
         /* 
             Throw an exception if the missing method is not a computed property.
         */
-        throw( type="MissingMethodException", message="The method '#arguments.missingMethodName#' does not exist." );
+        throw( type="CBWIREException", message="The method '#arguments.missingMethodName#' does not exist." );
     }
 
     /**
@@ -388,6 +388,9 @@ component {
         // Provide 'validation.' variable to the view
         localScope.validation = variables._validationResult;
 
+        // Provide 'args' scope to the view
+        localScope.args = localScope;
+
         savecontent variable="localScope.viewContent" {
             // The leading slash in the include path might need to be removed depending on your server setup
             // or application structure, as cfinclude paths are relative to the application root.
@@ -444,6 +447,12 @@ component {
         try {
             validate();
         } catch ( any e ) {}
+        /*
+            Return the html response first. It's important that we do
+            this before calling _getSnapshot() because otherwise any 
+            child objects will not have been tracked yet.
+        */
+        var html = renderIt();
         // Return the HTML response
         var response = {
             "snapshot": serializeJson( _getSnapshot() ),
@@ -451,7 +460,7 @@ component {
                 "returns": [
                     javaCast( "null", 0 )
                 ],
-                "html": renderIt()
+                "html": html
             }
         };
         // Add any dispatches
@@ -483,20 +492,20 @@ component {
      * @return void
      */
     private function _generateComputedProperty( name, method ) {
-        var computedPropName = arguments.name;
-        var computedMethodRef = arguments.method;
-        variables[computedPropName] = function( cacheMethod = true ) {
-            if ( !variables._cache.keyExists(computedPropName ) || !arguments.cacheMethod ) {
-                variables._cache[computedPropName] = computedMethodRef( argumentCollection=arguments );
+        var name = arguments.name;
+        var methodRef = arguments.method;
+        variables[name] = function( cacheMethod = true ) {
+            if ( !variables._cache.keyExists(name ) || !arguments.cacheMethod ) {
+                variables._cache[name] = methodRef( argumentCollection=arguments );
             }
-            return variables._cache[computedPropName];
+            return variables._cache[name];
         };
         // Do the same for when calling outside the component
-        this[computedPropName] = function( cacheMethod = true ) {
-            if ( !variables._cache.keyExists(computedPropName ) || !arguments.cacheMethod ) {
-                variables._cache[computedPropName] = computedMethodRef( argumentCollection=arguments );
+        this[name] = function( cacheMethod = true ) {
+            if ( !variables._cache.keyExists(name ) || !arguments.cacheMethod ) {
+                variables._cache[name] = methodRef( argumentCollection=arguments );
             }
-            return variables._cache[computedPropName];
+            return variables._cache[name];
         };
     }
 

@@ -5,7 +5,7 @@ component extends="cbwire.models.v4.Component" {
     };
 
     function toggleComps() {
-        toggle = !toggle;
+        data.toggle = !data.toggle;
     }
 
     function reload() {

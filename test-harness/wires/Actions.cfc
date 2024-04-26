@@ -6,11 +6,11 @@ component extends="cbwire.models.v4.Component" {
 
     // Actions
     function changeConference() {
-        conference = "CF Summit";
+        data.conference = "CF Summit";
     }
 
     function addYear( currentYear ) {
-        conference &= " " & currentYear;
+        data.conference &= " " & currentYear;
     }
 
     function resetConference() {

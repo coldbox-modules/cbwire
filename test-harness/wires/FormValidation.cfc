@@ -11,6 +11,6 @@ component extends="cbwire.models.v4.Component" {
 
     function addEmail() {
         validateOrFail();
-        success = true;
+        data.success = true;
     }
 }

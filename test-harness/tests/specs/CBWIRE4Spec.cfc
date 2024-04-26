@@ -92,17 +92,24 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.memo.path ).toBe( "SuperHeroes" );
             } );
 
-            fit( "computed property can be accessed from view", function() {
+            it( "computed property can be accessed from view", function() {
                 comp.addHero( "Iron Man" );
                 comp.addHero( "Superman" );
                 var viewContent = comp.view("wires.superheroes" );
                 expect(viewContent).toInclude("Number Of Heroes: 2");
             } );
 
+            it( "data properties can be accessed from view using args.", function() {
+                comp.addHero( "Iron Man" );
+                comp.addHero( "Superman" );
+                var viewContent = comp.view("wires.superheroesusingargs" );
+                expect(viewContent).toInclude("Number Of Heroes: 2");
+            } );
+
             it( "throws error if we try to set a dataproperty that doesn't exist", function() {
                 expect(function() {
                     comp.setCount( 1000 );
-                }).toThrow();
+                }).toThrow( type="CBWIREException" );
             } );
 
             it( "can reset all data properties", function() {
@@ -217,7 +224,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -239,7 +247,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -261,7 +270,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -283,7 +293,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -306,7 +317,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -328,7 +340,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -346,7 +359,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -370,7 +384,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -394,7 +409,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
                     data = {
                         "count": 1
@@ -413,6 +429,32 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
                 expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
                 expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
+            } );
+
+            it( "should track child components on the response", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "counter",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": {
+                            "data-binding": [ "div", "dsfsadfasdfsdf" ]
+                        }
+                    },
+                    data = {
+                        "count": 1
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "incrementDispatchSelf",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                var snapshot = deserializeJson( response.components[ 1 ].snapshot );
+                expect( snapshot.memo.children.count() ).toBe( 1 );
             } );
 
             xit( "can dispatchTo()", function() {

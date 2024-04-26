@@ -118,10 +118,11 @@
             check if the child has already been rendered.
         */
         if ( !variables._initialLoad ) {
-            var incomingPayload = get_IncomingPayload();
+            var incomingPayload = variables._incomingPayload;
             var children = incomingPayload.snapshot.memo.children;
             // Are we trying to render a child that has already been rendered?
-            if ( children.keyExists( arguments.key ) ) {
+            if ( isStruct( children ) && children.keyExists( arguments.key ) ) {
+    
                 var componentTag = children[ arguments.key ][1]; 
                 var componentId = children[ arguments.key ][2];
                 // Re-track the rendered child
