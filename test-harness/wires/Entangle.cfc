@@ -1,7 +1,4 @@
-component extends="cbwire.models.Component" {
-
-
-    this.template = "wires/entangle";
+component extends="cbwire.models.v4.Component" {
 
     data = {
         "counter": 0,

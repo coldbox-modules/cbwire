@@ -198,6 +198,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "entangle( 'mailingList' )");
             } );
 
+            it( "can reference application helper methods", function() {
+                var result = comp.view( "wires.superheroes_with_helper_methods" );
+                expect( result ).toInclude( "someGlobalUDF: yay!" );
+            } );
+
             xit("throws an exception for a non-existent view", function() {
                 expect(function() {
                     comp.view("nonExistentView.cfm");

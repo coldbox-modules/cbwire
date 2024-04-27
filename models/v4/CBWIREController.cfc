@@ -31,7 +31,7 @@ component singleton {
      * 
      * @return A struct representing the response with updated component details or an error message.
      */
-    public struct function handleRequest(required struct incomingRequest, required event ) {
+    function handleRequest( incomingRequest, event ) {
         // Perform initial deserialization of the incoming request payload
         var payload = deserializeJSON( arguments.incomingRequest.content );
         // Perform additional deserialization of the component snapshots
@@ -63,7 +63,7 @@ component singleton {
      * @return The instantiated component object.
      * @throws ApplicationException If the component cannot be found or instantiated.
      */
-    public any function createInstance(required string name ) {
+    function createInstance( name ) {
         // Determine if the component name traverses a valid namespace or directory structure
         var fullComponentPath = arguments.name;
         
@@ -73,7 +73,7 @@ component singleton {
         
         try {
             // Attempt to create an instance of the component
-            return wirebox.getInstance(fullComponentPath);
+            return variables.wirebox.getInstance(fullComponentPath);
         } catch (Any e) {
             writeDump( e );
             abort;
@@ -88,7 +88,16 @@ component singleton {
      * @return The ColdBox RequestContext object.
      */
     function getEvent(){
-        return requestService.getContext();
+        return variables.requestService.getContext();
+    }
+
+    /**
+     * Returns the ColdBox ConfigSettings object.
+     * 
+     * @return struct
+     */
+    function getConfigSettings(){
+        return variables.wirebox.getInstance( dsl="coldbox:configSettings" );
     }
 
 }

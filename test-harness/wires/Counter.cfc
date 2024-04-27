@@ -1,7 +1,9 @@
-component extends="cbwire.models.v4.Component" accessors="true" {
+component extends="cbwire.models.v4.Component" {
 
-    property name="count" default="1";
-    property name="submitted" default="false";
+    data = {
+        "count": 1,
+        "submitted": false
+    };
 
     function countPlusTen() computed {
         return getCount() + 10;
