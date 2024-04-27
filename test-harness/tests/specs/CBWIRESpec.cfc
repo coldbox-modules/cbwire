@@ -192,6 +192,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( comp.hasErrors( "mailingList" ) ).toBeTrue();
             } );
 
+            it( "can entangle", function() {
+                var result = comp.entangle( "mailingList" );
+                expect( result ).toInclude( "window.Livewire.find" );
+                expect( result ).toInclude( "entangle( 'mailingList' )");
+            } );
+
             xit("throws an exception for a non-existent view", function() {
                 expect(function() {
                     comp.view("nonExistentView.cfm");

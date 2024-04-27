@@ -259,4 +259,16 @@
 			}
 		} );
     }
+
+    /**
+	 * Returns a reference to the LivewireJS entangle method
+	 * which provides model binding between AlpineJS and CBWIRE.
+	 *
+	 * @prop The data property you want to bind client and server side.
+	 *
+	 * @returns string
+	 */
+	function entangle( required prop ){
+		return "window.Livewire.find( '#variables._id#' ).entangle( '#arguments.prop#' )";
+	}
 </cfscript>
