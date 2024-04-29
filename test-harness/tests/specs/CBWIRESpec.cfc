@@ -468,6 +468,64 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.memo.children.count() ).toBe( 1 );
             } );
 
+            it( "should call onHydrate() if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "OnHydrate",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "hydrated": false,
+                        "hydratedProperty": false
+                    },
+                    calls = [],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "Hydrated: true" );
+            } );
+
+            it( "should call onHydrate[Property] if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "OnHydrate",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "hydrated": false,
+                        "hydratedProperty": false
+                    },
+                    calls = [],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "Hydrated Property: true" );
+            } );
+
+            it( "should be able to return javascript to return", () => {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "runJSMethod",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.xjs ).toBeArray();
+                expect( response.components[1].effects.xjs.first() ).toBe( "alert('Hello from CBWIRE!');" );
+            } );
+
             xit( "can dispatchTo()", function() {
                 var payload = incomingRequest(
                     memo = {

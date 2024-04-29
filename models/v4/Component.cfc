@@ -7,6 +7,7 @@ component {
     property name="_id";
     property name="_parent";
     property name="_initialLoad";
+    property name="_lazyLoad";
     property name="_initialDataProperties";
     property name="_incomingPayload";
     property name="_dataPropertyNames";
@@ -18,6 +19,7 @@ component {
     property name="_metaData";
     property name="_dispatches";
     property name="_cache"; // internal cache for storing data
+    property name="xjs";
 
     /**
      * Initializes the component, setting a unique ID if not already set.
@@ -37,6 +39,8 @@ component {
         variables._dispatches = [];
         variables._children = {};
         variables._initialLoad = true;
+        variables._lazyLoad = false;
+        variables._xjs = [];
         
         /* 
             Cache the component's meta data on initialization
@@ -58,6 +62,11 @@ component {
             Prep generated getters and setters for data properties
         */
         _prepareGeneratedGettersAndSetters();
+
+        /* 
+            Prep for lazy loading
+        */
+        _prepareLazyLoading();
 
         return this;
     }
@@ -349,6 +358,16 @@ component {
 		return "window.Livewire.find( '#variables._id#' ).entangle( '#arguments.prop#' )";
 	}
 
+    /**
+     * Provide ability to return and execute Javascript 
+     * in the browser.
+     * 
+     * @return void
+     */
+    function js( code ) {
+        variables._xjs.append( arguments.code );
+    }
+
     /* 
         ==================================================================
         Internal API
@@ -445,7 +464,16 @@ component {
         // Set our component's id to the incoming memo id
         variables._id = arguments.componentPayload.snapshot.memo.id;
         // Append the incoming data to our component's data
-        variables.data.append( arguments.componentPayload.snapshot.data, true );
+        arguments.componentPayload.snapshot.data.each( function( key, value ) {
+            variables.data[ key ] = value;
+            if ( structKeyExists( this, "onHydrate#key#") ) {
+                invoke( this, "onHydrate#key#", { value: value });
+            }
+        } );
+        // Run onHydrate if it exists
+        if ( structKeyExists( this, "onHydrate" ) ) {
+            invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+        }
     }
 
     /**
@@ -724,6 +752,10 @@ component {
         if ( variables._dispatches.len() ) {
             response.effects["dispatches"] = variables._dispatches;
         }
+        // Add any xjs
+        if ( variables._xjs.len() ) {
+            response.effects["xjs"] = variables._xjs;
+        }
 
         return response;
     }
@@ -860,6 +892,17 @@ component {
                 }
             }
         } );
+    }
+
+    /**
+     * Prepares the component for lazy loading.
+     * 
+     * @return void
+     */
+    function _prepareLazyLoading() {
+        // If the component has a lazyLoad method, call it
+        variables._lazyLoad = variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ? 
+            true : false;
     }
 
     /**

@@ -53,26 +53,40 @@
     /*
         Provide CBWIRE methods from the component to the view.
     */
-    variables.CBWIREViewMethods = [ "getInstance", "wire" ];
-    arrayEach( variables.CBWIREViewMethods, function( methodName ) {
-        variables[ methodName ] = function() {
-            return invoke( attributes.CBWIREComponent, methodName, arguments );
-        };
-    } );
-
-    structDelete( variables, "CBWIREViewMethods" );
+    function addPublicMethods( _metaData ) {
+        arrayEach(_metaData.functions, function(cbwireFunction) {
+            if (cbwireFunction.keyExists("computed")) {
+                return;
+            }
+            variables[cbwireFunction.name] = function() {
+                return invoke(attributes.CBWIREComponent, cbwireFunction.name, arguments );
+            };
+        });
+        if (_metaData.keyExists( "extends" ) ) {
+            addPublicMethods( _metaData.extends );
+        }
+    }
+    
+    addPublicMethods( attributes.CBWIREComponent._getMetaData() );
 
     /*
-        Provide computed properties to view.
+        Provide computed property methods to the view.
     */
-    arrayEach( attributes.CBWIREComponent._getMetaData().functions, function( cbwireFunction ) {
-        if ( !cbwireFunction.keyExists( "computed" ) ) {
-            return;
+    function addComputedProperties( _metaData ) {
+        arrayEach(_metaData.functions, function(cbwireFunction) {
+            if (!cbwireFunction.keyExists("computed")) {
+                return;
+            }
+            variables[cbwireFunction.name] = function(cacheMethod = true) {
+                return invoke(attributes.CBWIREComponent, cbwireFunction.name, arguments );
+            };
+        });
+        if (_metaData.keyExists( "extends" ) ) {
+            addComputedProperties( _metaData.extends );
         }
-        variables[ cbwireFunction.name ] = function( cacheMethod = true ) {
-            return invoke( attributes.CBWIREComponent, cbwireFunction.name, { cacheMethod2 = cacheMethod } );
-        };
-    } );
+    }
+     
+    addComputedProperties( attributes.CBWIREComponent._getMetaData() );
 
     /*
         Auto-validate and provide validation methods to view.

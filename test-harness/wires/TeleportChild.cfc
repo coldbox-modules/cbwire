@@ -5,6 +5,6 @@ component extends="cbwire.models.v4.Component" {
     };
 
     function runTeleport() {
-        ran = true;
+        data.ran = true;
     }
 }

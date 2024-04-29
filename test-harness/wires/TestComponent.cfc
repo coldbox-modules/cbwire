@@ -1,4 +1,4 @@
-component extends="cbwire.models.Component" {
+component extends="cbwire.models.v4.Component" {
 
     data = {
         "title": "CBWIRE Rocks!"
@@ -7,6 +7,11 @@ component extends="cbwire.models.Component" {
     listeners = {
         "someEvent": "someListener"
     };
+
+    function runJSMethod(){
+        js( "alert('Hello from CBWIRE!');" );
+        js( "console.log('Hello from CBWIRE!');" );
+    }
 
     function changeTitle() {
         data.title = "CBWIRE Slays!";
