@@ -63,7 +63,7 @@
 	<div class="container pt-3 pb-5">
 		<div class="row">
 			<div class="col-6">
-				<h1><a href="/" class="text-decoration-none">CBWIRE Examples</a></h1>
+				<h1><a wire:navigate href="/" class="text-decoration-none">CBWIRE Examples</a></h1>
 			</div>
 			<div class="col-6">
 				<div class="d-flex flex-row-reverse mt-3">
