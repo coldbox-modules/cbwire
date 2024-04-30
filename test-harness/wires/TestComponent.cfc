@@ -13,6 +13,14 @@ component extends="cbwire.models.v4.Component" {
         js( "console.log('Hello from CBWIRE!');" );
     }
 
+    function runActionWithReturnValue() {
+        return "Return from CBWIRE!";
+    }
+
+    function runStream() {
+        stream( "target", "someValue", true );
+    }
+
     function changeTitle() {
         data.title = "CBWIRE Slays!";
     }

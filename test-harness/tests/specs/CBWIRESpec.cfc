@@ -526,6 +526,53 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.xjs.first() ).toBe( "alert('Hello from CBWIRE!');" );
             } );
 
+            it( "it should track return values", () => {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "runActionWithReturnValue",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.returns ).toBeArray();
+                expect( response.components[1].effects.returns.first() ).toBe( "Return from CBWIRE!" );
+            } );
+
+            xit( "should be able to stream()", () => {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "runStream",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+
+                writeDump( response );
+                abort;
+                expect( response.components[1].effects.streams ).toBeArray();
+                expect( response.components[1].effects.streams.first() ).toBe( "streaming" );
+            } );
+
             xit( "can dispatchTo()", function() {
                 var payload = incomingRequest(
                     memo = {

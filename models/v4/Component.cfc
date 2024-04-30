@@ -19,7 +19,8 @@ component {
     property name="_metaData";
     property name="_dispatches";
     property name="_cache"; // internal cache for storing data
-    property name="xjs";
+    property name="_xjs";
+    property name="_returnValues";
 
     /**
      * Initializes the component, setting a unique ID if not already set.
@@ -41,6 +42,7 @@ component {
         variables._initialLoad = true;
         variables._lazyLoad = false;
         variables._xjs = [];
+        variables._returnValues = [];
         
         /* 
             Cache the component's meta data on initialization
@@ -368,6 +370,43 @@ component {
         variables._xjs.append( arguments.code );
     }
 
+    /**
+     * Streams content to the client.
+     * 
+     * @target string | The target to stream to.
+     * @content string | The content to stream.
+     * @replace boolean | Whether to replace the content.
+     * 
+     * @return void
+     */
+    function stream( target, content, replace ) {
+        if ( !variables._event.privateValueExists( "_cbwire_stream" ) ) {
+            cfcontent( reset=true );
+            variables._event.setPrivateValue( "_cbwire_stream", true );
+            cfheader( statusCode=200, statustext="OK" );
+            cfheader( name="Cache-Control", value="no-cache, private" );
+            cfheader( name="Host", value=cgi.http_host );
+            cfheader( name="Content-Type", value="text/event-stream" );
+            cfheader( name="Connection", value="close" );
+            cfheader( name="X-Accel-Buffering", value="no" );
+            cfheader( name="X-Livewire-Stream", value=1 );
+        }
+
+        local.streamResponse = [
+            "stream": true,
+            "body": {
+                "name": arguments.target,
+                "content": arguments.content,
+                "replace": arguments.replace
+            },
+            "endStream": true
+        ];
+
+        writeOutput( serializeJson( local.streamResponse ) );
+
+        cfflush();
+    }
+
     /* 
         ==================================================================
         Internal API
@@ -496,7 +535,9 @@ component {
     function _applyCalls( calls ) {
         arguments.calls.each( function( call ) {
             try {
-                invoke( this, call.method, call.params );
+                local.result = invoke( this, call.method, call.params );
+                // Capture the return value in case it's needed by the front-end
+                variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
             } catch ( ValidationException e ) {
                 // silently fail so the component can continue to render
             } catch( any e ) {
@@ -742,9 +783,7 @@ component {
         var response = {
             "snapshot": serializeJson( _getSnapshot() ),
             "effects": {
-                "returns": [
-                    javaCast( "null", 0 )
-                ],
+                "returns": variables._returnValues,
                 "html": html
             }
         };

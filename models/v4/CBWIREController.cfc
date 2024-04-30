@@ -40,7 +40,7 @@ component singleton {
             return comp;
         } );
         // Iterate over each component in the payload and process it
-        return {
+        local.componentsResult = {
             "components": payload.components.map( ( _componentPayload ) => {
                 // Locate the component and instantiate it.
                 var componentInstance = createInstance( _componentPayload.snapshot.memo.name );
@@ -51,6 +51,14 @@ component singleton {
                             ._getHTTPResponse( _componentPayload );
             } )
         };
+
+        // Set the response headers to prevent caching
+        event.setHTTPHeader( name="Pragma", value="no-cache" );
+        event.setHTTPHeader( name="Expires", value="Fri, 01 Jan 1990 00:00:00 GMT" );
+        event.setHTTPHeader( name="Cache-Control", value="no-cache, must-revalidate, no-store, max-age=0, private" );
+
+
+        return local.componentsResult;
     }
 
     /**

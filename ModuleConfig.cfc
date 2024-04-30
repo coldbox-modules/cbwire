@@ -84,9 +84,7 @@ component {
 			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
 			// Rendering
 			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
-			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" },
-			// Output
-			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
+			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" }
 		];
 	}
 
