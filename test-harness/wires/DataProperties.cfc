@@ -1,4 +1,4 @@
-component extends="cbwire.models.v4.Component" accessors="true" {
+component extends="cbwire.models.Component" accessors="true" {
 
     data = {
         "conference": "Into the box",

@@ -9,18 +9,26 @@ component singleton {
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its internal renderIt() method.
      *
-     * @param name The name of the component to load.
-     * @param params The parameters you want mounted initially. Defaults to an empty struct.
-     * @param key An optional key parameter. Defaults to an empty string.
+     * @name The name of the component to load.
+     * @params The parameters you want mounted initially. Defaults to an empty struct.
+     * @key An optional key parameter. Defaults to an empty string.
+     * @lazy Whether the component should be lazy loaded or not. Defaults to false.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required string name, struct params = {}, string key = "") {
-        return createInstance(argumentCollection=arguments)
+    function wire(required name, params = {}, key = "", lazy = false ) {
+        local.instance = createInstance(argumentCollection=arguments)
                 ._withEvent( getEvent() )
-                ._withParams( arguments.params )
-                ._withKey( arguments.key )
-                .renderIt();
+                ._withParams( arguments.params, arguments.lazy )
+                ._withKey( arguments.key );
+
+        // Check if lazy loading is enabled
+        if ( arguments.lazy ) {
+            return local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
+        } else {
+            return local.instance.renderIt();
+        }
+
     }
 
     /**

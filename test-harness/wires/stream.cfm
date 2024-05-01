@@ -2,10 +2,14 @@
     <div>
         <h1>Stream</h1>
 
-        <button wire:click="startStream">Start Stream</button>
+        <button class="btn btn-primary" wire:click="start">Start Processing</button>
 
-        <div wire:stream="count">
-            Response will be here....
-        </div>
+        <cfif finished>
+            <div wire:key="finish" wire:transition.opacity.duration.3000ms>
+                Finished!
+            </div>
+        <cfelse>
+            <div wire:key="response" wire:stream="response"></div>
+        </cfif>
     </div>
 </cfoutput>

@@ -1,16 +1,16 @@
-component extends="cbwire.models.v4.Component" {
+component extends="cbwire.models.Component" {
 
     data = {
-        "start": 10,
-        "response": ""
+        "finished": false
     };
 
-    function startStream() {
-        while( data.start >= 0 ) {
-            stream( "count", data.start, true );
-            data.start--;
-            sleep( 1000 );
-        }
-
+    function start() {
+        stream( "response", "Fetching report data...", true );
+        sleep( 3000 );
+        stream( "response", "Inspecting for errors...", true );
+        sleep( 3000 );
+        stream( "response", "Parsing records...", true );
+        sleep( 3000 );
+        data.finished = true;
     }
 }

@@ -98,8 +98,10 @@
         Provide data properties to view.
     */
     variables.args = {};
+    variables.data = {};
     variables.CBWIREComponent._getDataProperties().each( function( key, value ) {
         variables[ key ] = value;
+        variables.data[ key ] = value;
         variables.args[ key ] = value;
     } );
 

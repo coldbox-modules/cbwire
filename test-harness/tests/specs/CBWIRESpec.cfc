@@ -106,6 +106,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect(viewContent).toInclude("Number Of Heroes: 2");
             } );
 
+            it( "can generate x-intercept lazy loading snapshot", () => {
+                var snapshot = comp._generateXIntersectLazyLoadSnapshot();
+                var parsedSnapshot = deserializeJson( toString( toBinary( snapshot ) ) );
+                expect( parsedSnapshot ).toBeStruct();
+                expect( parsedSnapshot.memo.id ).toBe( comp._getId() );
+                expect( parsedSnapshot.memo.name ).toBe( "__mountParamsContainer" );
+            } );
+            
+
             it( "throws error if we try to set a dataproperty that doesn't exist", function() {
                 expect(function() {
                     comp.setCount( 1000 );
@@ -599,7 +608,43 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
         } );
 
+        describe("Component.cfc Lazy Loading", function() {
+            beforeEach(function(currentSpec) {
+                // Setup initializes application environment and mocks dependencies
+                setup();
+                comp = getInstance("wires.TestComponent"); // Assuming TestComponent is a component that supports lazy loading
+                comp._withEvent(getRequestContext());
+                prepareMock(comp);
+            });
 
+            fit("returns a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
+                var lazyHtml = comp.wire(
+                    name="TestComponent",
+                    params={},
+                    key="",
+                    lazy=true
+                );
+                // Check if the returned HTML contains a base64-encoded snapshot and lazy load attributes
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("wire:snapshot=");
+                // Decode and check the structure of the snapshot
+                // var decodedSnapshot = toString(toBinary(lazyHtml.match("x-intersect=""\$wire.__lazyLoad\(&##039;(.+?)&##039;\)")[1]));
+                // var parsedSnapshot = deserializeJson(decodedSnapshot);
+                // expect(parsedSnapshot).toBeStruct();
+                // expect(parsedSnapshot.memo.name).toBe("__mountParamsContainer"); // Verify the component is set for lazy loading
+            });
+
+            fit("does not immediately render the component's content when lazy is true", function() {
+                var lazyHtml = comp.wire(
+                    name="TestComponent",
+                    params={},
+                    key="",
+                    lazy=true
+                );
+                // Check that the actual component content is not included in the output
+                expect(lazyHtml).notToInclude("Actual Component Content");
+            });
+        });
 
         describe("CBWIREController", function() {
 

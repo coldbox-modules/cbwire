@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    data = {
-        "isChecked": ""
-    };
+    data = [
+        "username": ""
+    ];
 }

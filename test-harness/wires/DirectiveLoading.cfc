@@ -1,4 +1,4 @@
-component extends="cbwire.models.v4.Component" {
+component extends="cbwire.models.Component" {
 
     function start() {
         // Simulate some long running process
