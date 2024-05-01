@@ -5,11 +5,15 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>CBWIRE Examples</title>
+	<!-- Fonts -->
 	<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+	<!-- Stylesheets -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css" rel="stylesheet">
+	<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/github-dark.min.css" rel="stylesheet">
+	<!-- Scripts -->
 	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
 	<script src="https://kit.fontawesome.com/7e32a713f5.js" crossorigin="anonymous"></script>
+	<!-- Inline CSS -->
 	<style>
 		html, body {
             height: 100%;
@@ -26,7 +30,7 @@
 		}
 		.navcol {
 			padding: 20px;
-			background-image: linear-gradient(to bottom, ##333, ##222); /* Darker gradient */
+			background-image: linear-gradient(to bottom, ##333, ##0d1117); /* Darker gradient */
 			color: ##fff;
 			min-height: 100vh;
 			overflow-y: auto;
@@ -42,6 +46,10 @@
 		.navcol a:hover {
 			background-color: rgba(255, 215, 0, 0.2); /* Lighter yellow on hover */
 			text-decoration: none;
+		}
+		.code-preview {
+			border-radius: 5px;
+			font-size: 1rem !important;
 		}
 		.btn {
 			min-width: 120px; /* Ensures a minimum width for buttons */
@@ -70,7 +78,8 @@
             border-radius: 5px;
             transition: background-color 0.3s ease;
 			box-shadow: none;
-        }
+			font-size: 1.5rem !important;
+		}
 		.btn:not(:disabled):not(.disabled):active {
 			border-color: transparent !important; /* Ensures the gray border is removed, even if other styles are applied */
 			box-shadow: none !important;  /* Ensures no shadow appears */
@@ -90,8 +99,12 @@
             margin-bottom: 20px;
         }
 		.right-content {
+			font-size: 1rem;
 			flex: 1; /* Takes up the remaining space */
 		}
+		.right-content h1 {
+			font-size: 4rem !important;
+		},
 		.form-container {
             background: white;
             padding: 20px;
@@ -100,9 +113,12 @@
             max-width: 400px;
             margin: auto;
         }
+		.form-control {
+			font-size: 1.5rem;
+		}
         .form-control:focus {
-            border-color: ##FF6B6B;
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+			border-color: inherit;
+            box-shadow: none;
         }
 	</style>
 </head>
@@ -112,6 +128,7 @@
 			<div class="col-3 navcol">
 				<h2>CBWIRE 4</h2>
 				<ul>
+					<li><a wire:navigate href="/examples/ChatGPT">ChatGPT</a></li>
 					<li><a wire:navigate href="/examples/Form">Form</a></li>
 					<li><a wire:navigate href="/examples/DataProperties">Data Properties</a></li>
 					<li><a wire:navigate href="/examples/Actions">Actions</a></li>					
@@ -160,9 +177,8 @@
 			</div>
 		</div>
 	</div>
-	<script>
-		hljs.highlightAll();
-		document.addEventListener("turbo:load", () => {
+	<script data-navigate-once>
+		document.addEventListener("livewire:navigated", () => {
 			hljs.highlightAll();
 		});
 	</script>

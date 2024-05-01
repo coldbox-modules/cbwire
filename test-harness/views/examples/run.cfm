@@ -1,5 +1,5 @@
 <cfoutput>
-    <div class="pt-5">
-        #wire( name=rc.component, lazy=true )#
+    <div class="pt-5 px-5">
+        #wire( name=rc.component )#
     </div>
 </cfoutput>

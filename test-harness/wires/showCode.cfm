@@ -8,8 +8,8 @@
 </cfscript>
 
 <cfoutput>
-    <h2 class="pt-4">Component</h2>
-    <pre><code class="language-html">#htmlEditFormat( componentCode )#</code></pre>
-
-    <pre><code class="language-html">#htmlEditFormat( viewCode )#</code></pre>
+    <div>
+        <pre><code class="code-preview language-js">// File: ./wires/Test.cfc#chr( 10 )##htmlEditFormat( componentCode )#</code></pre>
+        <pre><code class="code-preview language-html">&lt;!-- File: ./wires/test.cfm --&gt;#chr(10)##htmlEditFormat( viewCode )#</code></pre>
+    </div>
 </cfoutput>

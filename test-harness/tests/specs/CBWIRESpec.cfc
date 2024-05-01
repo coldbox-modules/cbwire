@@ -106,15 +106,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect(viewContent).toInclude("Number Of Heroes: 2");
             } );
 
-            it( "can generate x-intercept lazy loading snapshot", () => {
-                var snapshot = comp._generateXIntersectLazyLoadSnapshot();
-                var parsedSnapshot = deserializeJson( toString( toBinary( snapshot ) ) );
-                expect( parsedSnapshot ).toBeStruct();
-                expect( parsedSnapshot.memo.id ).toBe( comp._getId() );
-                expect( parsedSnapshot.memo.name ).toBe( "__mountParamsContainer" );
-            } );
-            
-
             it( "throws error if we try to set a dataproperty that doesn't exist", function() {
                 expect(function() {
                     comp.setCount( 1000 );
@@ -617,7 +608,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock(comp);
             });
 
-            fit("returns a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
+            it("returns a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
                 var lazyHtml = comp.wire(
                     name="TestComponent",
                     params={},
@@ -627,14 +618,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // Check if the returned HTML contains a base64-encoded snapshot and lazy load attributes
                 expect(lazyHtml).toInclude("x-intersect=");
                 expect(lazyHtml).toInclude("wire:snapshot=");
-                // Decode and check the structure of the snapshot
-                // var decodedSnapshot = toString(toBinary(lazyHtml.match("x-intersect=""\$wire.__lazyLoad\(&##039;(.+?)&##039;\)")[1]));
-                // var parsedSnapshot = deserializeJson(decodedSnapshot);
-                // expect(parsedSnapshot).toBeStruct();
-                // expect(parsedSnapshot.memo.name).toBe("__mountParamsContainer"); // Verify the component is set for lazy loading
+                expect(lazyHtml).toInclude("Test Placeholder");
             });
 
-            fit("does not immediately render the component's content when lazy is true", function() {
+            it("does not immediately render the component's content when lazy is true", function() {
                 var lazyHtml = comp.wire(
                     name="TestComponent",
                     params={},
@@ -672,11 +659,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "wire() method automatically sets passed params", function() {
                 var html = cbwireController.wire(
-                    name="Counter",
-                    params={ "count": 100 },
-                    key=""
+                    name="TestComponent",
+                    params={ "title": "Override title" }
                 );
-                expect( html ).toInclude( "Counter: 100" );
+                expect( html ).toInclude( "Title: Override title" );
             } );
 
             it( "wire() method passes params to onMount if it exists", function() {

@@ -1,37 +1,3 @@
-<!--- 
-/* 
-            Create reference to local scope for the method.
-        */
-        local.localScope = local;
-        /* 
-            Take our data properties and make them available as variables
-            to the view.
-        */
-        variables.data.each( function( key, value ) {
-            local.localScope[ key ] = value;
-        } );
-
-        /* 
-            Take any params passed to the view method and make them available as variables
-            within the view template. This allows for dynamic content to be rendered based on
-            the parameters passed to the view method.
-        */
-        params.each( function( key, value ) {
-            local.localScope[ key ] = value;
-        } );
-
-        // Provide 'args' scope to the view
-        local.localScope.args = localScope;
-
-        savecontent variable="local.localScope.viewContent" {
-            // The leading slash in the include path might need to be removed depending on your server setup
-            // or application structure, as cfinclude paths are relative to the application root.
-            include "#arguments.normalizedPath#"; // Dynamically includes the CFML file for processing.
-        }
-        return local.localScope.viewContent;
-
---->
-
 <cfscript>
     
     variables.CBWIREComponent = attributes.CBWIREComponent;

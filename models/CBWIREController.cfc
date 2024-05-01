@@ -22,13 +22,10 @@ component singleton {
                 ._withParams( arguments.params, arguments.lazy )
                 ._withKey( arguments.key );
 
-        // Check if lazy loading is enabled
-        if ( arguments.lazy ) {
-            return local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
-        } else {
-            return local.instance.renderIt();
-        }
-
+        // If the component is lazy loaded, we need to generate an x-intersect snapshot of the component
+        return arguments.lazy ? 
+            local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params ) : 
+            local.instance.renderIt();
     }
 
     /**

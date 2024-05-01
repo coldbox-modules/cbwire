@@ -6,6 +6,5 @@ component extends="cbwire.models.Component" {
 
     function onMount( params ) {
         data.component = params.wire;
-        js( "alert('hi')");
     }
 }

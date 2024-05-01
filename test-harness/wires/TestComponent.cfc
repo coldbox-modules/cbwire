@@ -40,4 +40,8 @@ component extends="cbwire.models.Component" {
     function performRedirect() {
         relocate( event="main.index" );
     }
+
+    function placeholder() {
+        return "Test Placeholder";
+    }
 }

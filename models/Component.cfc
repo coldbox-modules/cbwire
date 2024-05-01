@@ -21,7 +21,6 @@ component output="true" {
     property name="_cache"; // internal cache for storing data
     property name="_xjs";
     property name="_returnValues";
-    property name="_lazyLoad";
 
     /**
      * Initializes the component, setting a unique ID if not already set.
@@ -491,22 +490,21 @@ component output="true" {
 
         if ( arguments.lazy ) return this; // Skip onMount here for lazy loaded components
 
+        // Loop over our params and set them as data properties
+        arguments.params.each( function( key, value ) {
+            if ( variables.data.keyExists( key ) ) {
+                variables.data[ key ] = value;
+            }
+        } );
+
         // Fire onMount if it exists
-        if (structKeyExists(this, "onMount")) {
-            onMount( 
-                event=variables._event,
-                rc=variables._event.getCollection(),
-                prc=variables._event.getPrivateCollection(),    
-                params=arguments.params         
-            );
-        } else {
-            // Loop over our params and set them as data properties
-            arguments.params.each( function( key, value ) {
-                if ( variables.data.keyExists( key ) ) {
-                    variables.data[ key ] = value;
-                }
-            } );
-        }
+        onMount( 
+            event=variables._event,
+            rc=variables._event.getCollection(),
+            prc=variables._event.getPrivateCollection(),    
+            params=arguments.params         
+        );
+
 
         return this;
     }
@@ -751,7 +749,7 @@ component output="true" {
      */
     function _lazyMount( snapshot ) {
         // Decode the base 64 encoded snapshot
-        local.decodedSnapshot = deserializeJson( toBinary( arguments.snapshot ) );
+        local.decodedSnapshot = deserializeJson( toString( toBinary( arguments.snapshot ) ) );
         // Loop through the forMount array and set the data properties
         local.mountParams = local.decodedSnapshot.data.forMount.reduce( ( acc, item ) => {
             for ( var key in item ) {
