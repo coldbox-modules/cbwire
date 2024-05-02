@@ -1,5 +1,6 @@
 component singleton {
 
+    // Injected WireBox instance so that we can dynamically create instances of components.
     property name="wirebox" inject="wirebox";
 
     // Injected RequestService so that we can access the current ColdBox RequestContext.
