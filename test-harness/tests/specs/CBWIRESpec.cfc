@@ -156,9 +156,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "&quot;super-hero" );
             } );
 
-            it( "provide teleport and endTeleport methods", function() {
-                expect( comp.teleport( 'body' ) ).toBe( "<template x-teleport=""body"">" );
-                expect( comp.endTeleport() ).toBe( "</template>" );
+            describe( "Preprocessors", function() {               
+                it( "provide teleport and endTeleport methods", function() {
+                    var result = comp.view( "wires.testing.teleport" );
+                    expect( result ).toInclude( "<template x-teleport=""##someId"">" );
+                    expect( result ).toInclude( "</template>" );
+                } );
             } );
 
             it( "can validate()", function() {

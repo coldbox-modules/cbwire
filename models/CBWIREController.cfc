@@ -113,4 +113,26 @@ component singleton {
         return variables.wirebox.getInstance( dsl="coldbox:configSettings" );
     }
 
+    function getPreprocessors(){
+        // Check if we've already scanned the folder
+        if( structKeyExists( variables, "preprocessors" ) ){
+            return variables.preprocessors;
+        }
+        // Scan the folder 'preprocessor' for all CFCs and return an array
+        local.files = directoryList( 
+            path=getDirectoryFromPath(getCurrentTemplatePath()) & "preprocessor",
+            recurse=false,
+            listInfo="name",
+            filter="*.cfc",
+            type="file"
+        );
+        // Map the files to their getInstance path
+        variables.preprocessors = local.files.map( ( _file ) => {
+            local.getInstancePath = replace( _file, ".cfc", "" ) & "@cbwire";
+            return wirebox.getInstance( dsl=getInstancePath );
+        } );
+
+        return variables.preprocessors;
+    }
+
 }

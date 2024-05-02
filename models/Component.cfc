@@ -261,26 +261,6 @@ component output="true" {
     }
 
     /**
-     * Provides the teleport() method to be used in views.
-     * 
-     * @selector string | The selector to teleport to.
-     * 
-     * @return string
-     */
-    function teleport( selector ) {
-        return "<template x-teleport=""#arguments.selector#"">";
-    }
-
-    /**
-     * Provides the endTeleport() method to be used in views.
-     * 
-     * @return string
-     */
-    function endTeleport() {
-        return "</template>";
-    }
-
-    /**
      * Provides cbvalidation method to be used in actions and views.
      * 
      * @return ValidationResult

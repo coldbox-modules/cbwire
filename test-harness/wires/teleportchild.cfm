@@ -5,9 +5,9 @@
         </button>
 
         <cfif ran>
-            #teleport( "##teleport-div" )#
+            @teleport("##teleport-div")
                 <div>#now()#</div>
-            #endTeleport()#
+            @endTeleport
         </cfif>
     </div>
 </cfoutput>
