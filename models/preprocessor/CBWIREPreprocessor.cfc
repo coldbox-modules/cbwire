@@ -4,7 +4,7 @@
  * checks for any malformed attributes, and replaces the cbwire tags with the appropriate wire tags.
  * The resulting content is then returned.
  */
-component {
+component singleton {
 
     function handle( content ) {
         // Find all the cbwire tags in the content.
