@@ -3,8 +3,8 @@ component extends="cbwire.models.Component" {
     data = [
         "title": "CBWIRE Rocks!",
         "mailinglist": "x-men at marvel.com",
-        "heroes": [],
-        "villians": [],
+        "modules": [],
+        "frameworks": [],
         "isMarvel": true,
         "isDC": false,
         "showStats": false
@@ -55,24 +55,24 @@ component extends="cbwire.models.Component" {
         return "Test Placeholder";
     }
 
-    function defeatVillians(){
-        data.villians = [];
+    function clearFrameworks(){
+        data.frameworks = [];
     }
 
-    function addHero(hero){
-        data.heroes.append(hero);
+    function addModule(module){
+        data.modules.append(module);
     }
 
-    function addVillian(villian){
-        data.villians.append(villian);
+    function addFramework(framework){
+        data.frameworks.append(framework);
     }
 
-    function numberOfHeroes() computed {
-        return data.heroes.len();
+    function numberOfModules() computed {
+        return data.modules.len();
     }
 
-    function numberOfVillians() computed {
-        return data.villians.len();
+    function numberOfFrameworks() computed {
+        return data.frameworks.len();
     }
 
     function calculateStrength() computed {

@@ -19,12 +19,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("has generated getter", function() {
-                expect(testComponent.getHeroes()).toBeArray();
+                expect(testComponent.getModules()).toBeArray();
             });
 
             it("has generated setter", function() {
-                testComponent.setHeroes( [ "iron man", "superman" ] );
-                expect(testComponent.getHeroes().len()).toBe(2);
+                testComponent.setModules( [ "cbwire", "quickorm" ] );
+                expect(testComponent.getModules().len()).toBe(2);
             });
 
             it( "can call getInstance()", function() {
@@ -33,9 +33,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it("can call action", function() {
-                testComponent.setVillians( [ "joker", "lex luthor" ] );
-                testComponent.defeatVillians();
-                expect(testComponent.getVillians().len()).toBe(0);
+                testComponent.setFrameworks( [ "cbwire", "coldbox" ] );
+                testComponent.clearFrameworks();
+                expect(testComponent.getFrameworks().len()).toBe(0);
             });
 
             it("renders with correct snapshot, effects, and id attribute", function() {
@@ -51,10 +51,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("can render a view template", function() {
-                testComponent.addHero("Iron Man");
-                var viewContent = testComponent.view("wires.TestComponent");
-                expect(viewContent).toInclude("Super Heroes");
-                expect(viewContent).toInclude("Iron Man");
+                testComponent.addModule("CBWIRE");
+                var viewContent = testComponent.view("wires.testcomponent");
+                expect(viewContent).toInclude("Modules");
+                expect(viewContent).toInclude("CBWIRE");
             });
 
             it("can implicitly render a view template", function() {
@@ -64,12 +64,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("can pass additional data to the view", function() {
-                var viewContent = testComponent.view("wires.TestComponent", { heroes: [ "Wonder Woman"] });
-                expect(viewContent).toInclude("Wonder Woman");
+                var viewContent = testComponent.view("wires.TestComponent", { modules: [ "wirebox"] });
+                expect(viewContent).toInclude("wirebox");
             });
 
             it( "supports computed properties", function() {
-                expect( testComponent.numberOfHeroes() ).toBe( 0 );
+                expect( testComponent.numberOfModules() ).toBe( 0 );
             } );
 
             it( "computed properties are cached", function() {
@@ -93,17 +93,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "computed property can be accessed from view", function() {
-                testComponent.addHero( "Iron Man" );
-                testComponent.addHero( "Superman" );
+                testComponent.addModule( "CBWIRE" );
+                testComponent.addModule( "CBORM" );
                 var viewContent = testComponent.view("wires.TestComponent" );
-                expect(viewContent).toInclude("Number Of Heroes: 2");
+                expect(viewContent).toInclude("Number Of Modules: 2");
             } );
 
             it( "data properties can be accessed from view using args.", function() {
-                testComponent.addHero( "Iron Man" );
-                testComponent.addHero( "Superman" );
-                var viewContent = testComponent.view("wires.superheroesusingargs" );
-                expect(viewContent).toInclude("Number Of Heroes: 2");
+                testComponent.addModule( "CBWIRE" );
+                testComponent.addModule( "CBORM" );
+                var viewContent = testComponent.view("wires.TestComponentUsingArgs" );
+                expect(viewContent).toInclude("Number Of Modules: 2");
             } );
 
             it( "throws error if we try to set a dataproperty that doesn't exist", function() {
@@ -113,41 +113,41 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "can reset all data properties", function() {
-                testComponent.addHero( "Captain America" );
+                testComponent.addModule( "ContentBox" );
                 testComponent.reset();
-                expect( testComponent.numberOfHeroes() ).toBe( 0 );
+                expect( testComponent.numberOfModules() ).toBe( 0 );
             } );
 
             it( "can reset a single data property", function() {
-                testComponent.addHero( "Thor" );
-                testComponent.addVillian( "Loki" );
-                testComponent.reset( "heroes" );
-                expect( testComponent.numberOfHeroes() ).toBe( 0 );
-                expect( testComponent.numberOfVillians() ).toBe( 1 );
+                testComponent.addModule( "CBWIRE" );
+                testComponent.addFramework( "ColdBox" );
+                testComponent.reset( "modules" );
+                expect( testComponent.numberOfModules() ).toBe( 0 );
+                expect( testComponent.numberOfFrameworks() ).toBe( 1 );
             } );
 
             it( "can reset multiple data properties", function() {
-                testComponent.addHero( "Thor" );
-                testComponent.addVillian( "Loki" );
-                testComponent.reset( [ "heroes", "villians" ] );
-                expect( testComponent.numberOfHeroes() ).toBe( 0 );
-                expect( testComponent.numberOfVillians() ).toBe( 0 );
+                testComponent.addModule( "CBWIRE" );
+                testComponent.addFramework( "ColdBox" );
+                testComponent.reset( [ "modules", "frameworks" ] );
+                expect( testComponent.numberOfModules() ).toBe( 0 );
+                expect( testComponent.numberOfFrameworks() ).toBe( 0 );
             } );
 
             it( "can resetExcept a single data property", function() {
-                testComponent.addHero( "Thor" );
-                testComponent.addVillian( "Loki" );
-                testComponent.resetExcept( "heroes" );
-                expect( testComponent.numberOfHeroes() ).toBe( 1 );
-                expect( testComponent.numberOfVillians() ).toBe( 0 );
+                testComponent.addModule( "CBWIRE" );
+                testComponent.addFramework( "ColdBox" );
+                testComponent.resetExcept( "modules" );
+                expect( testComponent.numberOfModules() ).toBe( 1 );
+                expect( testComponent.numberOfFrameworks() ).toBe( 0 );
             } );
 
             it( "can resetExcept multiple data properties", function() {
-                testComponent.addHero( "Thor" );
-                testComponent.addVillian( "Loki" );
-                testComponent.resetExcept( [ "heroes" ] );
-                expect( testComponent.numberOfHeroes() ).toBe( 1 );
-                expect( testComponent.numberOfVillians() ).toBe( 0 );
+                testComponent.addModule( "CBWIRE" );
+                testComponent.addFramework( "ColdBox" );
+                testComponent.resetExcept( [ "modules" ] );
+                expect( testComponent.numberOfModules() ).toBe( 1 );
+                expect( testComponent.numberOfFrameworks() ).toBe( 0 );
             } );
 
             it( "can render child components", function() {
@@ -186,7 +186,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     testComponent.validateOrFail();
                 }).toThrow( type="ValidationException" );
 
-                testComponent.setMailingList( "x-men@somedomain.com" );
+                testComponent.setMailingList( "user@somedomain.com" );
                 expect( testComponent.validateOrFail() ).toBeInstanceOf( "ValidationResult" );
             } );
 
@@ -202,7 +202,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "can reference application helper methods", function() {
-                var result = testComponent.view( "wires.superheroes_with_helper_methods" );
+                var result = testComponent.view( "wires.testcomponentwithhelpermethods" );
                 expect( result ).toInclude( "someGlobalUDF: yay!" );
             } );
 
@@ -731,6 +731,70 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 });
 
             } );
+
+            describe("Teleport Preprocessing Tests", function() {
+
+                beforeEach(function() {
+                    // Create an instance of the component that handles teleport preprocessing
+                    preprocessor = getInstance( "TeleportPreprocessor@cbwire" );
+                });
+    
+                it("should replace @teleport with the correct template tag", function() {
+                    var content = "@teleport(selector) content @endteleport";
+                    var expected = '<template x-teleport="selector"> content </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should handle single quotes around the selector", function() {
+                    var content = "@teleport('selector') content @endteleport";
+                    var expected = '<template x-teleport="selector"> content </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should handle double quotes around the selector", function() {
+                    var content = '@teleport("selector") content @endteleport';
+                    var expected = '<template x-teleport="selector"> content </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should handle no quotes around the selector", function() {
+                    var content = "@teleport(selector) content @endteleport";
+                    var expected = '<template x-teleport="selector"> content </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should handle spaces within the parentheses", function() {
+                    var content = "@teleport(   selector   ) content @endteleport";
+                    var expected = '<template x-teleport="selector"> content </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should handle multiple teleport directives in the same content", function() {
+                    var content = "@teleport(selector1) content1 @endteleport @teleport(selector2) content2 @endteleport";
+                    var expected = '<template x-teleport="selector1"> content1 </template> <template x-teleport="selector2"> content2 </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should handle nested teleport directives", function() {
+                    var content = "@teleport(outer) @teleport(inner) content @endteleport @endteleport";
+                    var expected = '<template x-teleport="outer"> <template x-teleport="inner"> content </template> </template>';
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(expected);
+                });
+    
+                it("should not alter content without teleport directives", function() {
+                    var content = "Normal content without directives";
+                    var result = preprocessor.handle(content);
+                    expect(result).toBe(content);
+                });
+            });
+
         } );
     }
 

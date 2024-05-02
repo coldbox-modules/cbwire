@@ -2,14 +2,14 @@
     <div>
         <div>Title: #args.title#</div>
 
-        <h1>Super Heroes</h1>
+        <h1>Modules</h1>
 
-        <p>Number Of Heroes: #heroes.len()#</p>
+        <p>Number Of Modules: #modules.len()#</p>
 
-        <cfif heroes.len()>
+        <cfif modules.len()>
             <ul>
-                <cfloop array="#heroes#" index="hero">
-                    <li>#hero#</li>
+                <cfloop array="#modules#" index="module">
+                    <li>#module#</li>
                 </cfloop>
             </ul>
         </cfif>

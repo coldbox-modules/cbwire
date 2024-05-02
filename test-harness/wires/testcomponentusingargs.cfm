@@ -1,13 +1,13 @@
 <cfoutput>
     <div>
-        <h1>Super Heroes</h1>
+        <h1>Modules</h1>
 
-        <p>Number Of Heroes: #args.heroes.len()#</p>
+        <p>Number Of Modules: #args.modules.len()#</p>
 
-        <cfif args.heroes.len()>
+        <cfif args.modules.len()>
             <ul>
-                <cfloop array="#args.heroes#" index="hero">
-                    <li>#hero#</li>
+                <cfloop array="#args.modules#" index="module">
+                    <li>#module#</li>
                 </cfloop>
             </ul>
         </cfif>
