@@ -14,5 +14,12 @@
         <cfelse>
             #wire( "DataBinding" )#
         </cfif>
+
+        Counter goes here
+        <cbwire:counter
+            :count="10"
+            anothervalue="test" />
+        <cbwire:counter :count="10" :anothervalue="name" />
+
     </div>
 </cfoutput>

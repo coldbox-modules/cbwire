@@ -1,12 +1,22 @@
 component extends="cbwire.models.Component" {
 
-    data = {
-        "title": "CBWIRE Rocks!"
-    };
+    data = [
+        "title": "CBWIRE Rocks!",
+        "mailinglist": "x-men at marvel.com",
+        "heroes": [],
+        "villians": [],
+        "isMarvel": true,
+        "isDC": false,
+        "showStats": false
+    ];
 
-    listeners = {
+    listeners = [
         "someEvent": "someListener"
-    };
+    ];
+
+    constraints = [
+        "mailingList": { required: true, type: "email" }
+    ];
 
     function runJSMethod(){
         js( "alert('Hello from CBWIRE!');" );
@@ -44,4 +54,29 @@ component extends="cbwire.models.Component" {
     function placeholder() {
         return "Test Placeholder";
     }
+
+    function defeatVillians(){
+        data.villians = [];
+    }
+
+    function addHero(hero){
+        data.heroes.append(hero);
+    }
+
+    function addVillian(villian){
+        data.villians.append(villian);
+    }
+
+    function numberOfHeroes() computed {
+        return data.heroes.len();
+    }
+
+    function numberOfVillians() computed {
+        return data.villians.len();
+    }
+
+    function calculateStrength() computed {
+        return getTickCount();
+    }
+
 }

@@ -9,215 +9,215 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // Assuming setup() initializes application environment
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
-                comp = getInstance("wires.SuperHeroes");
-                comp._withEvent( getRequestContext( ) );
-                prepareMock( comp );
+                testComponent = getInstance("wires.TestComponent");
+                testComponent._withEvent( getRequestContext( ) );
+                prepareMock( testComponent );
             });
 
             it("is an object", function() {
-                expect(isObject(comp)).toBeTrue();
+                expect(isObject(testComponent)).toBeTrue();
             });
 
             it("has generated getter", function() {
-                expect(comp.getHeroes()).toBeArray();
+                expect(testComponent.getHeroes()).toBeArray();
             });
 
             it("has generated setter", function() {
-                comp.setHeroes( [ "iron man", "superman" ] );
-                expect(comp.getHeroes().len()).toBe(2);
+                testComponent.setHeroes( [ "iron man", "superman" ] );
+                expect(testComponent.getHeroes().len()).toBe(2);
             });
 
             it( "can call getInstance()", function() {
-                var result = comp.getInstance( "wires.SuperHeroes" );
-                expect( result ).toBeInstanceOf( "SuperHeroes" );
+                var result = testComponent.getInstance( "wires.TestComponent" );
+                expect( result ).toBeInstanceOf( "TestComponent" );
             } );
 
             it("can call action", function() {
-                comp.setVillians( [ "joker", "lex luthor" ] );
-                comp.defeatVillians();
-                expect(comp.getVillians().len()).toBe(0);
+                testComponent.setVillians( [ "joker", "lex luthor" ] );
+                testComponent.defeatVillians();
+                expect(testComponent.getVillians().len()).toBe(0);
             });
 
             it("renders with correct snapshot, effects, and id attribute", function() {
-                var renderedHtml = comp.renderIt();
+                var renderedHtml = testComponent.renderIt();
                 expect(renderedHtml.contains('<div wire:snapshot="{')).toBeTrue();
                 expect(renderedHtml.contains('wire:effects="[]')).toBeTrue();
                 expect(renderedHtml.contains('id="')).toBeTrue();
             });
 
             it("renders string booleans as booleans", function() {
-                var renderedHtml = comp.renderIt();
+                var renderedHtml = testComponent.renderIt();
                 expect(renderedHTML.contains('isMarvel&quot;:true') ).toBeTrue();
             });
 
             it("can render a view template", function() {
-                comp.addHero("Iron Man");
-                var viewContent = comp.view("wires.superheroes");
+                testComponent.addHero("Iron Man");
+                var viewContent = testComponent.view("wires.TestComponent");
                 expect(viewContent).toInclude("Super Heroes");
                 expect(viewContent).toInclude("Iron Man");
             });
 
             it("can implicitly render a view template", function() {
-                comp = getInstance("wires.ImplicitRender");
-                var viewContent = comp.renderIt();
+                testComponent = getInstance("wires.ImplicitRender");
+                var viewContent = testComponent.renderIt();
                 expect(viewContent).toInclude("I rendered implicitly");
             });
 
             it("can pass additional data to the view", function() {
-                var viewContent = comp.view("wires.SuperHeroes", { heroes: [ "Wonder Woman"] });
+                var viewContent = testComponent.view("wires.TestComponent", { heroes: [ "Wonder Woman"] });
                 expect(viewContent).toInclude("Wonder Woman");
             });
 
             it( "supports computed properties", function() {
-                expect( comp.numberOfHeroes() ).toBe( 0 );
+                expect( testComponent.numberOfHeroes() ).toBe( 0 );
             } );
 
             it( "computed properties are cached", function() {
-                var strength1 = comp.calculateStrength();
+                var strength1 = testComponent.calculateStrength();
                 sleep( 10 );
-                var strength2 = comp.calculateStrength();
+                var strength2 = testComponent.calculateStrength();
                 expect( strength1 ).toBe( strength2 );
             } );
 
             it( "computed properties can accept false flag to prevent caching", function() {
-                var strength1 = comp.calculateStrength();
+                var strength1 = testComponent.calculateStrength();
                 sleep( 10 );
-                var strength2 = comp.calculateStrength( false );
+                var strength2 = testComponent.calculateStrength( false );
                 expect( strength1 ).notToBe( strength2 );
             } );
 
             it( "returns a snapshot that contains the proper memo name", function() {
-                var snapshot = comp._getSnapshot();
-                expect( snapshot.memo.name ).toBe( "SuperHeroes" );
-                expect( snapshot.memo.path ).toBe( "SuperHeroes" );
+                var snapshot = testComponent._getSnapshot();
+                expect( snapshot.memo.name ).toBe( "TestComponent" );
+                expect( snapshot.memo.path ).toBe( "TestComponent" );
             } );
 
             it( "computed property can be accessed from view", function() {
-                comp.addHero( "Iron Man" );
-                comp.addHero( "Superman" );
-                var viewContent = comp.view("wires.superheroes" );
+                testComponent.addHero( "Iron Man" );
+                testComponent.addHero( "Superman" );
+                var viewContent = testComponent.view("wires.TestComponent" );
                 expect(viewContent).toInclude("Number Of Heroes: 2");
             } );
 
             it( "data properties can be accessed from view using args.", function() {
-                comp.addHero( "Iron Man" );
-                comp.addHero( "Superman" );
-                var viewContent = comp.view("wires.superheroesusingargs" );
+                testComponent.addHero( "Iron Man" );
+                testComponent.addHero( "Superman" );
+                var viewContent = testComponent.view("wires.superheroesusingargs" );
                 expect(viewContent).toInclude("Number Of Heroes: 2");
             } );
 
             it( "throws error if we try to set a dataproperty that doesn't exist", function() {
                 expect(function() {
-                    comp.setCount( 1000 );
+                    testComponent.setCount( 1000 );
                 }).toThrow( type="CBWIREException" );
             } );
 
             it( "can reset all data properties", function() {
-                comp.addHero( "Captain America" );
-                comp.reset();
-                expect( comp.numberOfHeroes() ).toBe( 0 );
+                testComponent.addHero( "Captain America" );
+                testComponent.reset();
+                expect( testComponent.numberOfHeroes() ).toBe( 0 );
             } );
 
             it( "can reset a single data property", function() {
-                comp.addHero( "Thor" );
-                comp.addVillian( "Loki" );
-                comp.reset( "heroes" );
-                expect( comp.numberOfHeroes() ).toBe( 0 );
-                expect( comp.numberOfVillians() ).toBe( 1 );
+                testComponent.addHero( "Thor" );
+                testComponent.addVillian( "Loki" );
+                testComponent.reset( "heroes" );
+                expect( testComponent.numberOfHeroes() ).toBe( 0 );
+                expect( testComponent.numberOfVillians() ).toBe( 1 );
             } );
 
             it( "can reset multiple data properties", function() {
-                comp.addHero( "Thor" );
-                comp.addVillian( "Loki" );
-                comp.reset( [ "heroes", "villians" ] );
-                expect( comp.numberOfHeroes() ).toBe( 0 );
-                expect( comp.numberOfVillians() ).toBe( 0 );
+                testComponent.addHero( "Thor" );
+                testComponent.addVillian( "Loki" );
+                testComponent.reset( [ "heroes", "villians" ] );
+                expect( testComponent.numberOfHeroes() ).toBe( 0 );
+                expect( testComponent.numberOfVillians() ).toBe( 0 );
             } );
 
             it( "can resetExcept a single data property", function() {
-                comp.addHero( "Thor" );
-                comp.addVillian( "Loki" );
-                comp.resetExcept( "heroes" );
-                expect( comp.numberOfHeroes() ).toBe( 1 );
-                expect( comp.numberOfVillians() ).toBe( 0 );
+                testComponent.addHero( "Thor" );
+                testComponent.addVillian( "Loki" );
+                testComponent.resetExcept( "heroes" );
+                expect( testComponent.numberOfHeroes() ).toBe( 1 );
+                expect( testComponent.numberOfVillians() ).toBe( 0 );
             } );
 
             it( "can resetExcept multiple data properties", function() {
-                comp.addHero( "Thor" );
-                comp.addVillian( "Loki" );
-                comp.resetExcept( [ "heroes" ] );
-                expect( comp.numberOfHeroes() ).toBe( 1 );
-                expect( comp.numberOfVillians() ).toBe( 0 );
+                testComponent.addHero( "Thor" );
+                testComponent.addVillian( "Loki" );
+                testComponent.resetExcept( [ "heroes" ] );
+                expect( testComponent.numberOfHeroes() ).toBe( 1 );
+                expect( testComponent.numberOfVillians() ).toBe( 0 );
             } );
 
             it( "can render child components", function() {
-                comp.setShowStats( true );
-                var result = comp.view( "wires.superheroes" );
+                testComponent.setShowStats( true );
+                var result = testComponent.view( "wires.TestComponent" );
                 expect( result ).toInclude( "&quot;super-hero" );
             } );
 
             describe( "Preprocessors", function() {               
                 it( "provide teleport and endTeleport methods", function() {
-                    var result = comp.view( "wires.testing.teleport" );
+                    var result = testComponent.view( "wires.testing.teleport" );
                     expect( result ).toInclude( "<template x-teleport=""##someId"">" );
                     expect( result ).toInclude( "</template>" );
                 } );
             } );
 
             it( "can validate()", function() {
-                var result = comp.validate();
+                var result = testComponent.validate();
                 expect( result ).toBeInstanceOf( "ValidationResult" );
                 expect( result.hasErrors() ).toBeTrue();
             } );
 
             it("can access validation from view", function() {
-                var result = comp.validate();
-                var viewContent = comp.view("wires.superheroesvalidation");
+                var result = testComponent.validate();
+                var viewContent = testComponent.view("wires.superheroesvalidation");
                 expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
             });
 
             it( "auto validates", function() {
-                var viewContent = comp.view("wires.superheroesvalidation");
+                var viewContent = testComponent.view("wires.superheroesvalidation");
                 expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
             } );
 
             it( "can validateOrFail", function() {
                 expect(function() {
-                    comp.validateOrFail();
+                    testComponent.validateOrFail();
                 }).toThrow( type="ValidationException" );
 
-                comp.setMailingList( "x-men@somedomain.com" );
-                expect( comp.validateOrFail() ).toBeInstanceOf( "ValidationResult" );
+                testComponent.setMailingList( "x-men@somedomain.com" );
+                expect( testComponent.validateOrFail() ).toBeInstanceOf( "ValidationResult" );
             } );
 
             it( "can hasError( field)", function() {
-                comp.validate();
-                expect( comp.hasErrors( "mailingList" ) ).toBeTrue();
+                testComponent.validate();
+                expect( testComponent.hasErrors( "mailingList" ) ).toBeTrue();
             } );
 
             it( "can entangle", function() {
-                var result = comp.entangle( "mailingList" );
+                var result = testComponent.entangle( "mailingList" );
                 expect( result ).toInclude( "window.Livewire.find" );
                 expect( result ).toInclude( "entangle( 'mailingList' )");
             } );
 
             it( "can reference application helper methods", function() {
-                var result = comp.view( "wires.superheroes_with_helper_methods" );
+                var result = testComponent.view( "wires.superheroes_with_helper_methods" );
                 expect( result ).toInclude( "someGlobalUDF: yay!" );
             } );
 
             xit("throws an exception for a non-existent view", function() {
                 expect(function() {
-                    comp.view("nonExistentView.cfm");
+                    testComponent.view("nonExistentView.cfm");
                 }).toThrow();
             });
 
             xit("throws an error for HTML without a single outer element", function() {
                 // Override MyComponent's view method to return HTML without a single outer element for this test
-                comp.$("_renderViewContent", "<div>First Element</div><div>Second Element</div>" );
+                testComponent.$("_renderViewContent", "<div>First Element</div><div>Second Element</div>" );
 
                 expect(function() {
-                    comp.renderIt();
+                    testComponent.renderIt();
                 }).toThrow("The rendered HTML must have a single outer element.");
             });
 
@@ -606,13 +606,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
             beforeEach(function(currentSpec) {
                 // Setup initializes application environment and mocks dependencies
                 setup();
-                comp = getInstance("wires.TestComponent"); // Assuming TestComponent is a component that supports lazy loading
-                comp._withEvent(getRequestContext());
-                prepareMock(comp);
+                testComponent = getInstance("wires.TestComponent"); // Assuming TestComponent is a component that supports lazy loading
+                testComponent._withEvent(getRequestContext());
+                prepareMock(testComponent);
             });
 
             it("returns a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
-                var lazyHtml = comp.wire(
+                var lazyHtml = testComponent.wire(
                     name="TestComponent",
                     params={},
                     key="",
@@ -625,7 +625,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("does not immediately render the component's content when lazy is true", function() {
-                var lazyHtml = comp.wire(
+                var lazyHtml = testComponent.wire(
                     name="TestComponent",
                     params={},
                     key="",
@@ -677,6 +677,61 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( html ).toInclude( "Counter: 1000" );
             } );
         });
+
+        describe( "Preprocessors", function() {
+            describe( "CBWIREPreprocessor", function() {
+                beforeEach(function(currentSpec) {
+                    // Assuming setup() initializes application environment
+                    // and prepareMock() is a custom method to mock any dependencies, if necessary.
+                    setup();
+                    preprocessor = getInstance("CBWIREPreprocessor@cbwire");
+                    prepareMock( preprocessor );
+                });
+    
+                it("parses and replaces single cbwire tag with no arguments", function() {
+                    var input = "<cbwire:testComponent/>";
+                    var expected = "##wire( name=""testComponent"", params={ }, lazy=false )##";
+                    var result = preprocessor.handle(input);
+                    expect(result).toBe(expected);
+                });
+    
+                it("parses and replaces cbwire tag with multiple arguments", function() {
+                    var input = "<cbwire:testComponent :param1='value1' param2='value2'/>";
+                    var expected = "##wire( name=""testComponent"", params={ param1=value1, param2='value2' }, lazy=false )##";
+                    var result = preprocessor.handle(input);
+                    expect(result).toBe(expected);
+                });
+    
+                it("correctly handles arguments with expressions", function() {
+                    var input = "<cbwire:testComponent :expr='someExpression'/>";
+                    var expected = "##wire( name=""testComponent"", params={ expr=someExpression }, lazy=false )##";
+                    var result = preprocessor.handle(input);
+                    expect(result).toBe(expected);
+                });
+    
+                it("maintains order and syntax of multiple attributes", function() {
+                    var input = "<cbwire:testComponent attr1='foo' :expr='bar' attr2='baz'/>";
+                    var expected = "##wire( name=""testComponent"", params={ attr1='foo', expr=bar, attr2='baz' }, lazy=false )##";
+                    var result = preprocessor.handle(input);
+                    expect(result).toBe(expected);
+                });
+    
+                it("replaces multiple cbwire tags in a single content string", function() {
+                    var input = "Here is a test <cbwire:firstComponent attr='value'/> and another <cbwire:secondComponent :expr='expression'/>";
+                    var expected = "Here is a test ##wire( name=""firstComponent"", params={ attr='value' }, lazy=false )## and another ##wire( name=""secondComponent"", params={ expr=expression }, lazy=false )##";
+                    var result = preprocessor.handle(input);
+                    expect(result).toBe(expected);
+                }); 
+
+                it("throws an exception for unparseable tags", function() {
+                    var input = "<cbwire:testComponent :broken='noEndQuote>";
+                    expect(function() {
+                        preprocessor.handle(input);
+                    }).toThrow( message="Parsing error: unable to process cbwire tag due to malformed attributes.");
+                });
+
+            } );
+        } );
     }
 
     /**
@@ -709,9 +764,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
             }
         };
 
-        response.content.components = response.content.components.map( function( comp ) {
-            comp.snapshot = serializeJson( comp.snapshot );
-            return comp;
+        response.content.components = response.content.components.map( function( _comp ) {
+            _comp.snapshot = serializeJson( _comp.snapshot );
+            return _comp;
         } );
 
         response.content = serializeJson( response.content );
