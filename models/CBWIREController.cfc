@@ -2,8 +2,8 @@ component singleton {
 
     property name="wirebox" inject="wirebox";
 
-	// Injected RequestService so that we can access the current ColdBox RequestContext.
-	property name="requestService" inject="coldbox:requestService";
+    // Injected RequestService so that we can access the current ColdBox RequestContext.
+    property name="requestService" inject="coldbox:requestService";
 
     /**
      * Instantiates a CBWIRE component, mounts it,
@@ -62,7 +62,6 @@ component singleton {
         event.setHTTPHeader( name="Expires", value="Fri, 01 Jan 1990 00:00:00 GMT" );
         event.setHTTPHeader( name="Cache-Control", value="no-cache, must-revalidate, no-store, max-age=0, private" );
 
-
         return local.componentsResult;
     }
 
@@ -70,9 +69,10 @@ component singleton {
      * Dynamically creates an instance of a CBWIRE component based on the provided name.
      * Assumes components are located within a specific namespace or directory structure.
      *
-     * @param componentName The name of the component to instantiate, possibly including a namespace.
-     * @param params Optional parameters to pass to the component constructor.
-     * @param key Optional key to use when retrieving the component from WireBox.
+     * @componentName The name of the component to instantiate, possibly including a namespace.
+     * @params Optional parameters to pass to the component constructor.
+     * @key Optional key to use when retrieving the component from WireBox.
+     * 
      * @return The instantiated component object.
      * @throws ApplicationException If the component cannot be found or instantiated.
      */
@@ -113,6 +113,11 @@ component singleton {
         return variables.wirebox.getInstance( dsl="coldbox:configSettings" );
     }
 
+    /**
+     * Returns an array of preprocessor instances.
+     * 
+     * @return An array of preprocessor instances.
+     */
     function getPreprocessors(){
         // Check if we've already scanned the folder
         if( structKeyExists( variables, "preprocessors" ) ){
