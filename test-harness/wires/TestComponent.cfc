@@ -2,12 +2,11 @@ component extends="cbwire.models.Component" {
 
     data = [
         "title": "CBWIRE Rocks!",
-        "mailinglist": "x-men at marvel.com",
+        "mailinglist": "user at domain.com",
         "modules": [],
         "frameworks": [],
-        "isMarvel": true,
-        "isDC": false,
-        "showStats": false
+        "stringBooleanValue": "true",
+        "showChildComponent": false,
     ];
 
     listeners = [

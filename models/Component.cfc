@@ -280,7 +280,15 @@ component output="true" {
      * 
      * @throws ValidationException
      */
-    function validateOrFail( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
+    function validateOrFail(
+        target,
+		fields        = "*",
+		constraints   = {},
+		locale        = "",
+		excludeFields = "",
+		includeFields = "",
+		profiles      = ""
+    ){
 		arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
 		arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
         _getValidationManager().validateOrFail( argumentCollection = arguments )
@@ -571,7 +579,7 @@ component output="true" {
      */
     function _getValidationManager(){
         try {
-    		return getInstance( dsl="provider:ValidationManager@cbvalidation" );
+    		return getInstance( dsl="ValidationManager@cbvalidation" );
         } catch ( any e ) {
             throw( type="CBWIREException", message="ValidationManager not found. Make sure the 'cbvalidation' module is installed." );
         }
@@ -774,27 +782,49 @@ component output="true" {
      * @throws ApplicationException When the HTML does not meet the single outer element criteria.
      */
     function _validateSingleOuterElement( trimmedHtml ) {
-        return; // Skip validation for now
-        // Load Jsoup and parse the HTML content
-        var jsoup = createObject("java", "org.jsoup.Jsoup");
-        var doc = jsoup.parse(trimmedHtml);
-        var body = doc.body();
+        // Define void elements
+        local.voidTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+
+        // Trim and remove any extra spaces between tags for accurate matching
+        local.cleanHtml = trim(arguments.trimmedHtml).replaceAll("\s+>", ">");
         
-        // Jsoup treats both text nodes and element nodes as Elements, so filter only for element nodes
-        var elements = body.children();
-        var count = 0;
+        // Regex to find all tags
+        local.tags = reMatch("<\/?[a-z]+[^>]*>", local.cleanHtml);
 
-        // Iterate over child elements of the body, counting non-script elements
-        for (var element in elements) {
-            if (!element.tagName().equalsIgnoreCase("script")) {
-                count++;
+        // Ensure there is at least one tag
+        if (arrayLen(local.tags) == 0) {
+            throw("ApplicationException", "Template must contain at least one HTML tag.");
+        }
+
+        // Check for single outer element by comparing the first and last tag
+        local.firstTag = tags.first().replaceAll("<\/?([a-z]+)[^>]*>", "$1");
+        local.lastTag = tags.last().replaceAll("<\/?([a-z]+)[^>]*>", "$1");
+        
+        // Check if the first and last tags match and are properly nested
+        if ( local.firstTag != local.lastTag ) {
+            throw("CBWIRETemplateException", "Template does not have matching outer tags.");
+        }
+
+        // Additional check to ensure no other top-level tags are present
+        local.depth = 0;
+        local.tags.each( function( tag, index ) {
+            local.tagName = tag.replaceAll("<\/?([a-z]+)[^>]*>", "$1");
+
+            // Skip depth modification for void elements
+            if (arrayFindNoCase(voidTags, local.tagName) && left( arguments.tag, 2) != "</") {
+                return;
             }
-        }
 
-        // If more than one non-script child element is found, throw an exception
-        if (count > 1) {
-            throw("ApplicationException", "Multiple root elements detected.");
-        }
+            if (left( arguments.tag, 2) == "</") {
+                depth--;
+            } else {
+                depth++;
+            }
+            // If depth returns to zero before last tag, or if depth is not zero after last tag, throw exception
+            if (depth == 0 && index != tags.len() || index == tags.len() && depth != 0 ) {
+                throw("CBWIRETemplateException", "Template has more than one outer element, or is missing an end tag </element>.");
+            }
+        });
     }
 
     /**

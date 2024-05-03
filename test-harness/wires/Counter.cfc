@@ -1,5 +1,9 @@
 component extends="cbwire.models.Component" {
 
+    remember = [
+        "count"
+    ];
+
     data = {
         "count": 1,
         "submitted": false

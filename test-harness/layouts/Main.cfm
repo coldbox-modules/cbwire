@@ -29,6 +29,7 @@
 			padding-left: 20px;
 		}
 		.navcol {
+			font-size: 1.5rem;
 			padding: 20px;
 			background-image: linear-gradient(to bottom, ##333, ##0d1117); /* Darker gradient */
 			color: ##fff;
@@ -99,7 +100,7 @@
             margin-bottom: 20px;
         }
 		.right-content {
-			font-size: 1rem;
+			font-size: 1.5rem;
 			flex: 1; /* Takes up the remaining space */
 		}
 		.right-content h1 {
@@ -128,6 +129,7 @@
 			<div class="col-3 navcol">
 				<h2>CBWIRE 4</h2>
 				<ul>
+					<li><a wire:navigate href="/examples/SignupForm">Signup Form</a></li>
 					<li><a wire:navigate href="/examples/ChatGPT">ChatGPT</a></li>
 					<li><a wire:navigate href="/examples/Form">Form</a></li>
 					<li><a wire:navigate href="/examples/DataProperties">Data Properties</a></li>

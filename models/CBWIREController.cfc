@@ -141,4 +141,40 @@ component singleton {
         return variables.preprocessors;
     }
 
+    /**
+     * Returns CSS styling needed by Livewire.
+     * 
+     * @return string
+     */
+    function getStyles() {
+        if (structKeyExists(variables, "styles")) {
+            return variables.styles;
+        }
+        
+        savecontent variable="local.html" {
+            include "styles.cfm";
+        }
+        
+        variables.styles = local.html;
+        return variables.styles;
+    }
+
+    /**
+     * Returns JavaScript needed by Livewire.
+     * 
+     * @return string
+     */
+    function getScripts() {
+        if (structKeyExists(variables, "scripts")) {
+            return variables.scripts;
+        }
+        
+        savecontent variable="local.html" {
+            include "scripts.cfm";
+        }
+        
+        variables.scripts = local.html;
+        return variables.scripts;
+    }
+
 }

@@ -14,10 +14,8 @@
             </ul>
         </cfif>
 
-        <cfif showStats>
-            #wire( "SuperHeroStats", {}, "super-hero" )#
-            #wire( "SuperHeroStats" )#
+        <cfif showChildComponent>
+            <cbwire:TestChildComponent />
         </cfif>
-
     </div>
 </cfoutput>

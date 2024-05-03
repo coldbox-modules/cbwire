@@ -3,14 +3,14 @@
     * Returns the styles to be placed in HTML head
     */
     function wireStyles() {
-        return getInstance( "CBWireService@cbwire" ).getStyles();
+        return getInstance( "CBWIREController@cbwire" ).getStyles();
     }
 
     /**
     * Returns the JS to be placed in HTML body
     */
     function wireScripts() {
-        return getInstance( "CBWireService@cbwire" ).getScripts();
+        return getInstance( "CBWIREController@cbwire" ).getScripts();
     }
 
     /**
@@ -18,7 +18,7 @@
      * which provides model binding between AlpineJS and CBWIRE.
      */
     function entangle() {
-        return getInstance( "CBWireService@cbwire" ).entangle( argumentCollection=arguments );
+        return getInstance( "CBWIREController@cbwire" ).entangle( argumentCollection=arguments );
     }
 
     /**

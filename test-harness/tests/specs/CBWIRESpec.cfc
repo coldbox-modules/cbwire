@@ -47,7 +47,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it("should render string booleans as booleans", function() {
                 var renderedHtml = testComponent.renderIt();
-                expect(renderedHTML.contains('isMarvel&quot;:true') ).toBeTrue();
+                expect(renderedHTML.contains('stringBooleanValue&quot;:true') ).toBeTrue();
             });
 
             it("should render a view template", function() {
@@ -102,15 +102,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should be able to access data properties from view using 'args.'", function() {
                 testComponent.addModule( "CBWIRE" );
                 testComponent.addModule( "CBORM" );
-                var viewContent = testComponent.view("wires.TestComponentUsingArgs" );
+                var viewContent = testComponent.view("wires.testcomponentusingargs" );
                 expect(viewContent).toInclude("Number Of Modules: 2");
             } );
 
-            it( "should throw error if we try to set a dataproperty that doesn't exist", function() {
+            it( "should set a single data property", function() {
+                testComponent.setTitle( "CBWIRE" );
+                expect(testComponent.getTitle()).toBe( "CBWIRE" );
+            });
+
+            it( "should set multiple data properties", function() {
+                testComponent.setTitle( "CBWIRE" );
+                testComponent.setStringBooleanValue( "false" );
+                expect(testComponent.getTitle()).toBe( "CBWIRE" );
+                expect(testComponent.getStringBooleanValue()).toBe("false");
+            });
+
+            it( "should throw an error if we try to set a data property that doesn't exist", function() {
                 expect(function() {
-                    testComponent.setCount( 1000 );
-                }).toThrow( type="CBWIREException" );
-            } );
+                    testComponent.setInvalidProperty("value");
+                }).toThrow(type="CBWIREException");
+            });
 
             it( "should reset all data properties", function() {
                 testComponent.addModule( "ContentBox" );
@@ -151,9 +163,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "should render child components", function() {
-                testComponent.setShowStats( true );
+                testComponent.setShowChildComponent( true );
                 var result = testComponent.view( "wires.TestComponent" );
-                expect( result ).toInclude( "&quot;super-hero" );
+                expect( result ).toInclude( "<h2>Child component</h2>" );
             } );
 
             it( "should validate()", function() {
@@ -173,13 +185,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
             } );
 
-            it( "should validateOrFail", function() {
+            it( "should thrown exception for validateOrFail()", function() {
                 expect(function() {
-                    testComponent.validateOrFail();
+                    testComponent.validateOrFail(
+                        target = { "module": "" },
+                        constraints = { "module": { "required": true } }
+                    );
                 }).toThrow( type="ValidationException" );
 
                 testComponent.setMailingList( "user@somedomain.com" );
                 expect( testComponent.validateOrFail() ).toBeInstanceOf( "ValidationResult" );
+            } );
+
+            it( "should pass validation with validateOrFail()", function() {
+                var result = testComponent.validateOrFail(
+                    target = { "module": "CBWIRE" },
+                    constraints = { "module": { "required": true } }
+                );
+                expect( result ).toBeInstanceOf( "ValidationResult" );
+                expect( result.getAllErrors().len() ).toBe( 0 );
             } );
 
             it( "should hasError( field)", function() {
@@ -198,20 +222,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "someGlobalUDF: yay!" );
             } );
 
-            xit("should throw an exception for a non-existent view", function() {
+            it("should throw an exception for a non-existent view", function() {
                 expect(function() {
-                    testComponent.view("nonExistentView.cfm");
+                    testComponent.view("nonExistentView");
                 }).toThrow();
             });
 
-            xit("should throw an error for HTML without a single outer element", function() {
-                // Override MyComponent's view method to return HTML without a single outer element for this test
-                testComponent.$("_renderViewContent", "<div>First Element</div><div>Second Element</div>" );
-
+            it("should throw an error for HTML without a single outer element", function() {
                 expect(function() {
-                    testComponent.renderIt();
-                }).toThrow("The rendered HTML must have a single outer element.");
+                    testComponent.view( "wires.testing.multipleouterelements" );
+                }).toThrow("Template has more than one outer element, or is missing an end tag </element>.");
             });
+
+            it("should render complex HTML structures", function() {
+                testComponent.view( "wires.testing.complexhtml" );
+            } );
 
         });
 
@@ -562,8 +587,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
 
-                writeDump( response );
-                abort;
                 expect( response.components[1].effects.streams ).toBeArray();
                 expect( response.components[1].effects.streams.first() ).toBe( "streaming" );
             } );
@@ -667,6 +690,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     key=""
                 );
                 expect( html ).toInclude( "Counter: 1000" );
+            } );
+
+            it( "should return getStyles()", function() {
+                var styles = cbwireController.getStyles();
+                expect( styles ).toBeString();
+                expect( styles ).toInclude( "<!-- CBWIRE STYLES -->" );
+            } );
+
+            it( "should return getScripts()", function() {
+                var scripts = cbwireController.getScripts();
+                expect( scripts ).toBeString();
+                expect( scripts ).toInclude( "<!-- CBWIRE SCRIPTS -->" );
             } );
         });
 
