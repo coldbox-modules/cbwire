@@ -177,4 +177,22 @@ component singleton {
         return variables.scripts;
     }
 
+    /**
+     * Returns HTML to persist the state of anything inside the call.
+     * 
+     * @return string
+     */
+    function persist( name ) {
+        return "<div x-persist=""player"">";
+    }
+
+    /**
+     * Ends the persistence of the state of anything inside the call.
+     * 
+     * @return string
+     */
+    function endPersist() {
+        return "</div>";
+    }
+
 }

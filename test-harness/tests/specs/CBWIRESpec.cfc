@@ -703,6 +703,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( scripts ).toBeString();
                 expect( scripts ).toInclude( "<!-- CBWIRE SCRIPTS -->" );
             } );
+
+            fit( "should provide a wirePersist() method", function() {
+                var result = cbwireController.persist( "player" );
+                expect( result.trim() ).toBe( "<div x-persist=""player"">" );
+            } );
+
+            fit( "should provide a endWirePersist() method", function() {
+                var result = cbwireController.endPersist();
+                expect( result.trim() ).toBe( "</div>" );
+            } );
+
         });
 
         describe( "Preprocessors", function() {

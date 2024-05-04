@@ -34,4 +34,23 @@
     function wire(required string name, struct params = {}, string key = "") {
         return getInstance("CBWIREController@cbwire").wire( argumentCollection=arguments );
     }
+
+
+    /**
+     * Returns HTML to persist the state of anything inside the call.
+     * 
+     * @return string
+     */
+    function persist( name ) {
+        return getInstance("CBWIREController@cbwire").persist( argumentCollection=arguments );
+    }
+
+    /**
+     * Ends the persistence of the state of anything inside the call.
+     * 
+     * @return string
+     */
+    function endPersist() {
+        return getInstance("CBWIREController@cbwire").endPersist();
+    }
 </cfscript>
