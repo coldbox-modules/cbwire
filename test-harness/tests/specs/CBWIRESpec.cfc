@@ -251,6 +251,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock( cbwireController );
             });
 
+            it( "should throw a 403 forbidden error if the CSRF token doesn't match", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = {},
+                    csrfToken = "badToken"
+                );
+                expect( function() {
+                    cbwireController.handleRequest( payload, event );
+                } ).toThrow( type="CBWIREException", message="Invalid CSRF token." );
+            } );
+
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {
                 var payload = incomingRequest(
                     memo = {
@@ -389,7 +406,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should dispatch an event without params", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -399,7 +416,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "increment",
+                            "method": "dispatchWithoutParams",
                             "params": []
                         }
                     ],
@@ -407,14 +424,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
-                expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
-                expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "someEvent" );
+                expect( response.components[1].effects.dispatches[1].params ).toBeStruct();
+                expect( structCount( response.components[1].effects.dispatches[1].params ) ).toBe(0);
+
             } );
 
             it( "should dispatch an event with params", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -424,19 +443,45 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "incrementBy",
-                            "params": [10]
+                            "method": "dispatchWithParams",
+                            "params": []
                         }
                     ],
                     updates = {}
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
-                expect( response.components[1].effects.dispatches[1].name ).toBe( "incrementedBy" );
-                expect( response.components[1].effects.dispatches[1].params[1] ).toBe( 10 );
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "someEvent" );
+                expect( response.components[1].effects.dispatches[1].params[ "name" ] ).toBe( "CBWIRE" );
             } );
 
             it( "should dispatchSelf()", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "count": 1
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "dispatchToSelf",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.dispatches ).toBeArray();
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "someEvent" );
+                expect( response.components[1].effects.dispatches[1].params[ "name"] ).toBe( "CBWIRE" );
+                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
+            } );
+
+            it( "should dispatchTo()", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "counter",
@@ -449,7 +494,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "incrementDispatchSelf",
+                            "method": "incrementDispatchTo",
                             "params": []
                         }
                     ],
@@ -458,8 +503,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
                 expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
-                expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
-                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
+                expect( structCount( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
+                expect( response.components[1].effects.dispatches[1].to ).toBe( "anotherComponent" );
             } );
 
             it( "should track child components on the response", function() {
@@ -568,7 +613,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.returns.first() ).toBe( "Return from CBWIRE!" );
             } );
 
-            xit( "should be able to stream()", () => {
+        } );
+
+        describe("File Uploads", function() {
+
+            beforeEach(function(currentSpec) {
+                // Assuming setup() initializes application environment
+                // and prepareMock() is a custom method to mock any dependencies, if necessary.
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                event = getRequestContext();
+                prepareMock( cbwireController );
+            });
+
+            it( "should _startUpload() and return a generated signed URL", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "TestComponent",
@@ -579,45 +637,50 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "runStream",
-                            "params": []
+                            "method": "_startUpload",
+                            "params": [
+                                "testFile",
+                                [ "name": "image.png", "size": 118672, "type": "image/png" ],
+                                false
+                            ]
                         }
                     ],
                     updates = {}
                 );
                 var response = cbwireController.handleRequest( payload, event );
-
-                expect( response.components[1].effects.streams ).toBeArray();
-                expect( response.components[1].effects.streams.first() ).toBe( "streaming" );
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "upload:generatedSignedUrl" );
+                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
+                expect( response.components[1].effects.dispatches[1].params.name ).toBe( "testFile" );
+                expect( response.components[1].effects.dispatches[1].params.url ).toInclude( "/cbwire/upload" );
+                expect( reFindNoCase( "http://localhost:60299/cbwire/upload\?expires=[0-9]+&signature=[A-Za-z0-9]+$", response.components[1].effects.dispatches[1].params.url ) ).toBeGT( 0 );
             } );
 
-            xit( "should dispatchTo()", function() {
+            xit( "should _finishUpload()", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2"
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
                     },
-                    data = {
-                        "count": 1
-                    },
+                    data = {},
                     calls = [
                         {
                             "path": "",
-                            "method": "incrementDispatchTo",
-                            "params": []
+                            "method": "_finishUpload",
+                            "params": [
+                                "testFile",
+                                [ "/GEnKdSxTGWhp2jG5VyDQLxBW1zq79T-metaaW1hZ2UucG5n-.png" ],
+                                false
+                            ]
                         }
                     ],
                     updates = {}
                 );
                 var response = cbwireController.handleRequest( payload, event );
-                expect( response.components[1].effects.dispatches ).toBeArray();
-                expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
-                expect( arrayLen( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
-                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
             } );
         } );
 
-        describe("Component.cfc Lazy Loading", function() {
+        describe("Lazy Loading", function() {
             beforeEach(function(currentSpec) {
                 // Setup initializes application environment and mocks dependencies
                 setup();
@@ -704,12 +767,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( scripts ).toInclude( "<!-- CBWIRE SCRIPTS -->" );
             } );
 
-            fit( "should provide a wirePersist() method", function() {
+            it( "should include a data-csrf token when calling getScripts()", function() {
+                var scripts = cbwireController.getScripts();
+                expect( scripts ).toInclude( "data-csrf" );
+                expect( reFindNoCase( "data-csrf=""[A-Za-z0-9]+""", scripts ) ).toBeGT( 0 );
+            } );
+
+            it( "should provide a wirePersist() method", function() {
                 var result = cbwireController.persist( "player" );
                 expect( result.trim() ).toBe( "<div x-persist=""player"">" );
             } );
 
-            fit( "should provide a endWirePersist() method", function() {
+            it( "should provide a endWirePersist() method", function() {
                 var result = cbwireController.endPersist();
                 expect( result.trim() ).toBe( "</div>" );
             } );
@@ -848,11 +917,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
         memo = {},
         data = {},
         calls = [],
-        updates = {}
+        updates = {},
+        csrfToken = ""
     ){
 
         var response = {
             "content": {
+                "_token": arguments.csrfToken.len() ? arguments.csrfToken : getInstance( "CBWIREController@cbwire" ).generateCSRFToken(),
                 "components": [
                     {
                         "calls": arguments.calls,

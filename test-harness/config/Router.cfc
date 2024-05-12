@@ -8,6 +8,7 @@
 		route( pattern="/examples/passParameters", target="examples.passParameters" );
 		route( pattern="/examples/passedParametersProvidedToMount", target="examples.passedParametersProvidedToMount" );
 		route( pattern="/examples/:component", target="examples.run" );
+		route( ":handler/:action?" ).end();
 	}
 
 }

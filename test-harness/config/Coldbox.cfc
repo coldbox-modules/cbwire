@@ -14,7 +14,7 @@ component{
 			modulesExternalLocation = [],
 
 			//Implicit Events
-			defaultEvent			= "examples.index",
+			defaultEvent			= "main.index",
 			requestStartHandler		= "",
 			requestEndHandler		= "",
 			applicationStartHandler = "",
@@ -52,6 +52,10 @@ component{
 		//Register interceptors as an array, we need order
 		interceptors = [
 		];
+
+		layoutSettings = {
+			"defaultLayout" = "Main"
+		};
 
 		// LogBox DSL
 		logBox = {

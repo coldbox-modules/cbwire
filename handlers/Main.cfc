@@ -14,16 +14,16 @@ component {
     /**
      * Endpoint for file uploads
      * 
-     * URI: /livewire/upload-file
+     * URI: /cbwire/upload-file
      */
     function uploadFile( event, rc, prc ) {
-        return cbwireService.handleFileUpload( event, rc, prc );
+        return cbwireController.handleFileUpload( getHTTPRequestData(), event );
     }
 
     /**
      * Endpoint for previewing file uploads
      * 
-     * URI: /livewire/previe-file/:uploadUUID
+     * URI: /cbwire/preview-file/:uploadUUID
      */
     function previewFile( event, rc, prc ) {
         return cbwireService.handlePreviewFile( event, rc, prc );

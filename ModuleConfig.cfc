@@ -57,7 +57,7 @@ component {
 				"action" : "previewFile"
 			},
 			{
-				"pattern" : "upload-file",
+				"pattern" : "upload",
 				"handler" : "Main",
 				"action" : "uploadFile"
 			},
@@ -84,7 +84,8 @@ component {
 			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
 			// Rendering
 			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
-			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" }
+			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" },
+			{ class : "#moduleMapping#.interceptors.Preprocessor" }
 		];
 	}
 

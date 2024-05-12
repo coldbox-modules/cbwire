@@ -6,6 +6,12 @@ component singleton {
     // Injected RequestService so that we can access the current ColdBox RequestContext.
     property name="requestService" inject="coldbox:requestService";
 
+    // Inject CBCSRF for CSRF token generation and verification
+    property name="cbcsrf" inject="provider:@cbcsrf";
+
+    // Inject module settings
+    property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
+
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its internal renderIt() method.
@@ -14,10 +20,11 @@ component singleton {
      * @params The parameters you want mounted initially. Defaults to an empty struct.
      * @key An optional key parameter. Defaults to an empty string.
      * @lazy Whether the component should be lazy loaded or not. Defaults to false.
+     * @lazyIsolated Whether the component should be lazy loaded in an isolated manner. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required name, params = {}, key = "", lazy = false ) {
+    function wire(required name, params = {}, key = "", lazy = false, lazyIsolated = true ) {
         local.instance = createInstance(argumentCollection=arguments)
                 ._withEvent( getEvent() )
                 ._withParams( arguments.params, arguments.lazy )
@@ -39,19 +46,28 @@ component singleton {
      */
     function handleRequest( incomingRequest, event ) {
         // Perform initial deserialization of the incoming request payload
-        var payload = deserializeJSON( arguments.incomingRequest.content );
+        local.payload = deserializeJSON( arguments.incomingRequest.content );
+        // Set the CSRF token for the request
+        local.csrfToken = local.payload._token;
+        // Validate the CSRF token
+        local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
+        // Check the CSRF token, throw 403 if invalid
+        if( !local.csrfTokenVerified ){
+            cfheader( statusCode="403", statusText="Forbidden" ); 
+            throw( type="CBWIREException", message="Invalid CSRF token." );
+        }
         // Perform additional deserialization of the component snapshots
-        payload.components = payload.components.map( function( comp ) {
-            comp.snapshot = deserializeJSON( comp.snapshot );
-            return comp;
+        local.payload.components = local.payload.components.map( function( _comp ) {
+            arguments._comp.snapshot = deserializeJSON( arguments._comp.snapshot );
+            return arguments._comp;
         } );
         // Iterate over each component in the payload and process it
         local.componentsResult = {
-            "components": payload.components.map( ( _componentPayload ) => {
+            "components": local.payload.components.map( ( _componentPayload ) => {
                 // Locate the component and instantiate it.
-                var componentInstance = createInstance( _componentPayload.snapshot.memo.name );
+                local.componentInstance = createInstance( _componentPayload.snapshot.memo.name );
                 // Return the response for this component
-                return componentInstance
+                return local.componentInstance
                             ._withEvent( event )
                             ._withIncomingPayload( _componentPayload )
                             ._getHTTPResponse( _componentPayload );
@@ -64,6 +80,43 @@ component singleton {
         event.setHTTPHeader( name="Cache-Control", value="no-cache, must-revalidate, no-store, max-age=0, private" );
 
         return local.componentsResult;
+    }
+
+    /**
+     * Uploads all files from the request to the specified destination
+     * after verifying the signed URL.
+     * 
+     * @incomingRequest The JSON struct payload of the incoming request.
+     * @event The event object.
+     * 
+     * @return A struct representing the response with updated component details or an error message.
+     */
+    function handleFileUpload( incomingRequest, event ) {
+        // Determine our storage path for temporary files
+        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/.tmp" );
+        // Ensure the storage path exists
+        if( !directoryExists( local.storagePath ) ){
+            directoryCreate( local.storagePath );
+        }
+        // Cleanup files in the storage path by checking for files older than 1 days
+        local.files = directoryList( path=local.storagePath, recurse=true, type="file", listInfo="query" );
+        local.files.each( function( _file ) {
+            if( dateDiff( "d", _file.DateLastModified, now() ) > 1 ){
+                fileDelete( _file );
+            }
+        } );
+        // Verify the signed URL, throw 403 if invalid
+        if( !verifySignedUploadURL( expires=event.getValue( "expires" ), signature=event.getValue( "signature" ) ) ){
+            return event.renderData( statusCode=403, statusText="Forbidden", data="Invalid signed URL." );
+        }
+        // Perform actual upload of files
+        local.results = fileUploadAll( destination=local.storagePath, onConflict="makeUnique" );
+        local.paths = local.results.map( function( _result ) {
+            local.id = createUUID();
+            fileWrite( getCanonicalPath( storagePath & "/#local.id#.json" ), serializeJSON( arguments._result ) );
+            return id;
+        } );
+        return { "paths": local.paths };
     }
 
     /**
@@ -161,20 +214,17 @@ component singleton {
 
     /**
      * Returns JavaScript needed by Livewire.
+     * We don't cache the results like we do with
+     * styles because we need to generate a unique
+     * CSRF token for each request.
      * 
      * @return string
      */
-    function getScripts() {
-        if (structKeyExists(variables, "scripts")) {
-            return variables.scripts;
-        }
-        
+    function getScripts() {       
         savecontent variable="local.html" {
             include "scripts.cfm";
         }
-        
-        variables.scripts = local.html;
-        return variables.scripts;
+        return local.html;
     }
 
     /**
@@ -193,6 +243,75 @@ component singleton {
      */
     function endPersist() {
         return "</div>";
+    }
+
+    /**
+     * Generates a secure signature for the upload URL.
+     * 
+     * @baseURL string | The base URL for the upload request.
+     * @expires string | The expiration time for the request.
+     * 
+     * @return string
+     */
+    function generateSignature(baseUrl, expires) {
+        // Get secret key from CBCSRF
+        local.secretKey = generateCSRFToken();
+        // Example of generating a HMAC SHA-256 signature
+        local.stringToSign = arguments.baseUrl & arguments.expires;
+        // Using HMAC with SHA-256 to generate the signature
+        return hash(local.stringToSign & local.secretKey, "SHA-256");
+    }
+
+    /**
+     * Generates a CSRF token for the current request.
+     * 
+     * @return string
+     */
+    function generateCSRFToken() {
+        // Generate the CSRF token using the cbcsrf library
+        return variables.cbcsrf.generate();
+    }
+
+    /**
+     * Returns the base URL for incoming requests.
+     * 
+     * @return string
+     */
+    function getBaseURL() {
+        local.requestURL = CGI.HTTP_REFERER;
+        local.regexMatches = reFindNoCase( "https*://[^/]+", local.requestURL, 1, true );
+        return local.regexMatches.match[1];
+    }
+
+    /**
+     * Generates a signed upload URL.
+     *
+     * @return string
+     */
+    function generateSignedUploadURL() {
+        // Get our base URL
+        local.baseURL = getBaseURL();
+        // Set the expiration time to 1 hour from now and convert it to a Unix timestamp
+        local.expires = dateConvert( "local2Utc", now() );
+        local.expires = dateDiff( "s", createDate( 1970, 1, 1 ), local.expires ) + 3600; // Adding 3600 seconds (1 hour)
+        // Generate a secure signature. You'll need to define the `generateSignature` method
+        local.signature = generateSignature( local.baseURL, local.expires );
+        // Construct the upload URL with the query parameters
+        return local.baseURL & "/cbwire/upload?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
+    }
+
+    /**
+     * Verifies signed upload URL.
+     * 
+     * @return boolean
+     */
+    function verifySignedUploadURL( expires, signature ) {
+        // Get our base URL
+        local.baseURL = getBaseURL();
+        // Generate a secure signature. You'll need to define the `generateSignature` method
+        local.generatedSignature = generateSignature( local.baseURL, arguments.expires );
+        // Compare the generated signature with the one from the URL
+        return arguments.signature == local.generatedSignature;
     }
 
 }

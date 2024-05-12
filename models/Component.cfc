@@ -8,6 +8,7 @@ component output="true" {
     property name="_parent";
     property name="_initialLoad";
     property name="_lazyLoad";
+    property name="_lazyIsolated";
     property name="_initialDataProperties";
     property name="_incomingPayload";
     property name="_dataPropertyNames";
@@ -31,7 +32,7 @@ component output="true" {
      */
     function init() {
         if ( isNull( variables._id ) ) {
-            variables._id = createUUID();
+            variables._id = hash( createUUID() );
         }
 
         variables._params = [:];
@@ -41,6 +42,7 @@ component output="true" {
         variables._children = [:];
         variables._initialLoad = true;
         variables._lazyLoad = false;
+        variables._lazyIsolated = true;
         variables._xjs = [];
         variables._returnValues = [];
         
@@ -107,8 +109,9 @@ component output="true" {
      * Renders a specified view by converting dot notation to path notation and appending .cfm if necessary.
      * Then, it returns the HTML content.
      *
-     * @param viewPath The dot notation path to the view template to be rendered, without the .cfm extension.
-     * @param params A struct containing the parameters to be passed to the view template.
+     * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
+     * @params struct | A struct containing the parameters to be passed to the view template.
+     *
      * @return The rendered HTML content as a string.
      */
     function view( viewPath, params = {} ) {
@@ -132,9 +135,9 @@ component output="true" {
 	/**
 	 * Get a instance object from WireBox
 	 *
-	 * @name The mapping name or CFC path or DSL to retrieve
-	 * @initArguments The constructor structure of arguments to passthrough when initializing the instance
-	 * @dsl The DSL string to use to retrieve an instance
+	 * @name string | The mapping name or CFC path or DSL to retrieve
+	 * @initArguments struct | The constructor structure of arguments to passthrough when initializing the instance
+	 * @dsl string | The DSL string to use to retrieve an instance
 	 *
 	 * @return The requested instance
 	 */
@@ -147,44 +150,44 @@ component output="true" {
      * by the browser.
      * 
      * @event string | The event to dispatch.
-     * @args* | The parameters to pass to the listeners.
+     * @params | The parameters to pass to the listeners.
      *
      * @return void
      */
-    function dispatch( event ) {
+    function dispatch( event, params = [:] ) {
        // Convert params to an array first
-       var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
+       local.params = _parseDispatchParams( arguments.params );
        // Append the dispatch to our dispatches array
-       variables._dispatches.append( [ "name": arguments.event, "params": paramsAsArray ] );
+       variables._dispatches.append( [ "name": arguments.event, "params": local.params ] );
     }
 
     /**
      * Dispatches an event to the current component.
      *
      * @event string | The event to dispatch.
+     * @params struct | The parameters to pass to the method.
+     * 
      * @return void 
      */
-    function dispatchSelf( event ) {
-       // Convert params to an array first
-       var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
+    function dispatchSelf( event, params = [:] ) {
+       local.params = _parseDispatchParams( arguments.params );
        // Append the dispatch to our dispatches array
-       variables._dispatches.append( [ "name": arguments.event, "params": paramsAsArray, "self": true ] );
-
+       variables._dispatches.append( [ "name": arguments.event, "params": local.params, "self": true ] );
     }
 
     /**
      * Dispatches a event to another component
      * 
-     * @name string | The component to dispatch to.
+     * @to string | The component to dispatch to.
      * @event string | The method to dispatch.
+     * @params struct | The parameters to pass to the method.
      * 
      * @return void
      */
-    function dispatchTo( name, event ) {
-        // Convert params to an array first
-        var paramsAsArray = _parseDispatchParams( argumentCollection=arguments );
+    function dispatchTo( to, event, params = [:]) {
+        local.params = _parseDispatchParams( arguments.params );
         // Append the dispatch to our dispatches array
-        variables._dispatches.append( [ "name": arguments.event, "params": paramsAsArray, "component": arguments.component ] );
+        variables._dispatches.append( [ "name": arguments.event, "params": local.params, "to": arguments.to ] );
     }
 
     /**
@@ -196,14 +199,15 @@ component output="true" {
      * to provide the wire() method when including nested components
      * and provides tracking of the child.
      *
-     * @name The name of the component to load.
-     * @params The parameters you want mounted initially. Defaults to an empty struct.
-     * @key An optional key parameter. Defaults to an empty string.
-     * @lazy | Optional parameter to lazy load the component. Defaults to false.
+     * @name string | The name of the component to load.
+     * @params struct | The parameters you want mounted initially. Defaults to an empty struct.
+     * @key string | An optional key parameter. Defaults to an empty string.
+     * @lazy boolean | Optional parameter to lazy load the component. Defaults to false.
+     * @lazyIsolated boolean | Optional parameter to lazy load the component in an isolated scope. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required string name, struct params = {}, string key = "", lazy = false ) {
+    function wire(required string name, struct params = {}, string key = "", lazy = false, lazyIsolated = true ) {
         // Generate a key if one is not provided
         if ( !arguments.key.len() ) {
             arguments.key = _generateWireKey();
@@ -355,7 +359,7 @@ component output="true" {
 	 * Returns a reference to the LivewireJS entangle method
 	 * which provides model binding between AlpineJS and CBWIRE.
 	 *
-	 * @prop The data property you want to bind client and server side.
+	 * @prop string | The data property you want to bind client and server side.
 	 *
 	 * @returns string
 	 */
@@ -471,7 +475,10 @@ component output="true" {
     /**
      * Passes params to the component to be used with onMount.
      *
-     * @return Component
+     * @params struct | The parameters to be passed to the component.
+     * @lazy boolean | (Optional) A boolean value indicating whether the component should be lazily loaded. Default is false.
+     * 
+     * @return Component The updated component with the specified parameters.
      */
     function _withParams( params, lazy = false ) {
         variables._params = arguments.params;
@@ -501,6 +508,8 @@ component output="true" {
      * Passes a key to the component to be used to identify the component
      * on subsequent requests.
      *
+     * @key string | The key to be used to identify the component.
+     * 
      * @return Component
      */
     function _withKey( key ) {
@@ -510,6 +519,8 @@ component output="true" {
 
     /**
      * Passes a lazy load flag to the component.
+     * 
+     * @lazy boolean | A boolean value indicating whether the component should be lazily loaded.
      * 
      * @return Component
      */
@@ -521,7 +532,8 @@ component output="true" {
     /**
      * Hydrate the component
      * 
-     * @param componentPayload A struct containing the payload to hydrate the component with.
+     * @componentPayload struct | A struct containing the payload to hydrate the component with.
+     * 
      * @return void
      */
     function _hydrate( componentPayload ) {
@@ -543,6 +555,8 @@ component output="true" {
     /**
      * Apply updates to the component
      * 
+     * @updates struct | A struct containing the updates to apply to the component.
+     * 
      * @return void
      */
     function _applyUpdates( updates ) {
@@ -554,13 +568,14 @@ component output="true" {
     /**
      * Apply calls to the component
      * 
-     * @param calls A struct containing the calls to apply to the component.
+     * @calls array | An array of calls to apply to the component.
+     * 
      * @return void
      */
     function _applyCalls( calls ) {
         arguments.calls.each( function( call ) {
             try {
-                local.result = invoke( this, call.method, call.params );
+                local.result = invoke( this, arguments.call.method, arguments.call.params );
                 // Capture the return value in case it's needed by the front-end
                 variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
             } catch ( ValidationException e ) {
@@ -600,42 +615,83 @@ component output="true" {
     /**
      * Parses the dispatch parameters into an array.
      *
+     * @params struct | The parameters to parse.
+     * 
      * @return array
      */
-    function _parseDispatchParams() {
-        return arguments
-            .filter( function( key, value ) {
-                return key != "event";
-            } )
-            .reduce( function( agg, key, value ) {
-                agg.append( value );
-                return agg;
-            }, [] );
+    function _parseDispatchParams( params ) {
+        // Leaving here for future expansion
+        return arguments.params;
     }
 
     /**
      * Returns the normalized view path.
      *
      * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
+     * 
      * @return string
      */
     function _getNormalizedViewPath( viewPath ) {
         // Replace all dots with slashes to normalize the path
-        var normalizedPath = replace( arguments.viewPath, ".", "/", "all");
+        local.normalizedPath = replace( arguments.viewPath, ".", "/", "all" );
         // Check if ".cfm" is present; if not, append it.
-        if (not findNoCase(".cfm", normalizedPath)) {
-            normalizedPath &= ".cfm";
+        if (not findNoCase(".cfm", local.normalizedPath)) {
+            local.normalizedPath &= ".cfm";
         }
         // Ensure the path starts with "/wires/" without duplicating it
-        if (left(normalizedPath, 6) != "wires/") {
-            normalizedPath = "wires/" & normalizedPath;
+        if (left(local.normalizedPath, 6) != "wires/") {
+            local.normalizedPath = "wires/" & local.normalizedPath;
         }
         // Prepend a leading slash if not present
-        if (left(normalizedPath, 1) != "/") {
-            normalizedPath = "/" & normalizedPath;
+        if (left(local.normalizedPath, 1) != "/") {
+            local.normalizedPath = "/" & local.normalizedPath;
         }
 
-        return normalizedPath;
+        return local.normalizedPath;
+    }
+
+    /**
+     * Method that is invoke when a file upload is first requested.
+     *
+     * @prop string | The property for the file input.
+     * @params struct | The parameters to pass to the upload method.
+     * @self boolean | Whether to dispatch to self.
+     */
+    function _startUpload( prop, params, self ) {
+        // Generate upload URL
+        local.uploadURL = variables._CBWIREController.generateSignedUploadURL( arguments.prop );
+        // Dispatch the upload URL
+        dispatchSelf(
+            event="upload:generatedSignedUrl",
+            params=[
+                "name"=arguments.prop,
+                "url"=local.uploadURL 
+            ]
+        );
+    }
+
+    /**
+     * Method that is invoked when a file upload is finished.
+     *
+     * @prop string | The property for the file input.
+     * @params struct | The parameters to pass to the upload method.
+     * @self boolean | Whether to dispatch to self.
+     * 
+     * @return void 
+     */
+    function _finishUpload( prop, params, self ) {
+        local.fileUpload = new FileUpload(
+            wire = this,
+            dataPropertyName = arguments.params[ 1 ]
+        );
+        // Dispatch the upload URL
+        dispatchSelf(
+            event="upload:finished",
+            params=[
+                "name"=arguments.prop,
+                "params"=arguments.params
+            ]
+        );
     }
 
     /**
@@ -695,7 +751,8 @@ component output="true" {
     /**
      * Encodes a given string for safe usage within an HTML attribute.
      *
-     * @param value The string to be encoded.
+     * @value string | The string to be encoded.
+     * 
      * @return String The encoded string suitable for HTML attribute inclusion.
      */
     function _encodeAttribute( value ) {
@@ -706,9 +763,10 @@ component output="true" {
     /**
      * Inserts Livewire-specific attributes into the given HTML content, ensuring Livewire can manage the component.
      *
-     * @param html The original HTML content to be processed.
-     * @param snapshotEncoded The encoded snapshot data for Livewire's consumption.
-     * @param id The component's unique identifier.
+     * @html string | The original HTML content to be processed.
+     * @snapshotEncoded string | The encoded snapshot data for Livewire's consumption.
+     * @id string | The component's unique identifier.
+     * 
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
@@ -721,7 +779,7 @@ component output="true" {
     /**
      * Inserts subsequent Livewire-specific attributes into the given HTML content.
      * 
-     * @html The original HTML content to be processed.
+     * @html string | The original HTML content to be processed.
      * 
      * @return String The HTML content with Livewire attributes properly inserted.
      */
@@ -732,6 +790,8 @@ component output="true" {
 
     /**
      * Provides on subsequent mounting for lazy loaded components.
+     * 
+     * @snapshot string | The base64 encoded snapshot.
      * 
      * @return void
      */
@@ -757,7 +817,10 @@ component output="true" {
     /**
      * Renders the content of a view template file.
      * This method is used internally by the view method to render the content of a view template.
-     * @param normalizedPath The normalized path to the view template file.
+     * 
+     * @normalizedPath string | The normalized path to the view template file.
+     * @params struct | The parameters to pass to the view template.
+     * 
      * @return The rendered content of the view template.
      */
     function _renderViewContent( normalizedPath, params = {} ){
@@ -778,7 +841,7 @@ component output="true" {
      * Validates that the HTML content has a single outer element.
      * Ensures the first and last tags match and that the total number of tags is even.
      *
-     * @param trimmedHtml The trimmed HTML content to validate.
+     * @trimmedHtml string | The trimmed HTML content to validate.
      * @throws ApplicationException When the HTML does not meet the single outer element criteria.
      */
     function _validateSingleOuterElement( trimmedHtml ) {
@@ -831,6 +894,8 @@ component output="true" {
      * Returns a base64 encoded string of the component's snapshot
      * for lazy loading.
      *
+     * @params struct | The parameters to pass to the snapshot.
+     * 
      * @return string
      */
     function _generateXIntersectLazyLoadSnapshot( params = {} ) {
@@ -880,9 +945,12 @@ component output="true" {
      * Get the HTTP response for the component
      * for subsequent requests.
      * 
+     * @componentPayload struct | The payload to hydrate the component with.
+     * 
      * @return struct
      */
     function _getHTTPResponse( componentPayload ){
+
         // Hydrate the component
         _hydrate( arguments.componentPayload );
         // Apply any updates
@@ -935,8 +1003,9 @@ component output="true" {
     /**
      * Generates a computed property that caches the result of the computed method.
      * 
-     * @param name The name of the computed property.
-     * @param method The method to compute the property.
+     * @name string | The name of the computed property.
+     * @method string | The method to compute the property.
+     * 
      * @return void
      */
     function _generateComputedProperty( name, method ) {
@@ -975,14 +1044,6 @@ component output="true" {
             acc.append( key );
             return acc;
         }, [] );
-
-        variables._metaData.properties
-            .filter( function( prop ) {
-                return !prop.keyExists( "inject" );
-            } )
-            .each( function( prop ) {
-                variables._dataPropertyNames.append( prop.name );
-            } );
 
         /*
             Capture our initial data properties for use in
@@ -1103,7 +1164,7 @@ component output="true" {
             "scripts":[],
             "assets":[],
             "lazyLoaded": false,
-            "lazyIsolated": variables._lazyLoad,
+            "lazyIsolated": true,
             "errors":[],
             "locale":"en"
         ]
@@ -1122,6 +1183,8 @@ component output="true" {
     /**
      * Take an incoming rendering and determine the outer component tag.
      * <div>...</div> would return 'div'
+     * 
+     * @rendering string | The rendering to parse.
      * 
      * @return string
      */

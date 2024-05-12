@@ -6,7 +6,7 @@ component extends="cbwire.models.Component" {
         "modules": [],
         "frameworks": [],
         "stringBooleanValue": "true",
-        "showChildComponent": false,
+        "showChildComponent": false
     ];
 
     listeners = [
@@ -76,6 +76,18 @@ component extends="cbwire.models.Component" {
 
     function calculateStrength() computed {
         return getTickCount();
+    }
+
+    function dispatchWithoutParams() {
+        dispatch( event="someEvent" );
+    }
+
+    function dispatchWithParams() {
+        dispatch( event="someEvent", params={ "name": "CBWIRE" } );
+    }
+
+    function dispatchToSelf() {
+        dispatchSelf( event="someEvent", params={ "name": "CBWIRE" } );
     }
 
 }

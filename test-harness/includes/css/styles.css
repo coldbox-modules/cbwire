@@ -1,0 +1,189 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Nunito', sans-serif;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures the footer is at the bottom of the page */
+    margin: 0;
+}
+.container {
+    flex: 1; /* Takes up the remaining space */
+}
+.btn-primary {
+    color: #000; /* Black text */
+    background-color: #FFD700; /* Gold background */
+    border-color: #FFD700; /* Gold border */
+}
+.btn-primary:hover {
+    color: #fff; /* White text on hover */
+    background-color: #FFD700; /* Gold background on hover */
+    border-color: #FFD700; /* Gold border on hover */
+}
+.navcol {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    overflow-x: hidden;
+    transition: 0.5s;
+    background-color: #333;
+    color: #fff;
+    padding-top: 60px;
+}
+.navcol ul {
+    list-style-type: none;
+    padding: 0;
+}
+.navcol ul li a {
+    padding-left: 20px;
+}
+.navbar {
+    background-image: linear-gradient(to right, #333, #0d1117); /* Darker gradient */
+    color: #fff;
+    font-size: 1.5rem;
+}
+.navcol {
+    font-size: 1.5rem;
+    padding: 20px;
+    background-image: linear-gradient(to bottom, #333, #0d1117); /* Darker gradient */
+    color: #fff;
+    min-height: 100vh;
+    overflow-y: auto;
+    width: 350px;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(-100%);
+}
+.navbar-brand {
+    font-size: 2rem;
+    color: #FFD700; /* Gold for the logo */
+}
+.navcol a {
+    color: #FFD700; /* Gold for links to match the logo's yellow */
+    text-decoration: none;
+    display: block;
+    padding: 10px 0;
+}
+.navcol a:hover {
+    background-color: rgba(255, 215, 0, 0.2); /* Lighter yellow on hover */
+    text-decoration: none;
+}
+.nav-toggler {
+    background-color: #FFD700;
+    color: #333;
+    font-size: 1.5rem;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+.nav-toggler:hover {
+    background-color: #FFEA00;
+}
+.nav-toggler:focus {
+    outline: none;
+    box-shadow: none;
+}
+.btn-outline-success {
+    color: #FFD700; /* Gold color for the text */
+    border-color: #FFD700; /* Gold color for the border */
+}
+.btn-outline-success:hover {
+    color: #fff; /* White text on hover */
+    background-color: #FFD700; /* Gold background on hover */
+    border-color: #FFD700; /* Gold border on hover */
+}
+.code-preview {
+    border-radius: 5px;
+    font-size: 1rem !important;
+}
+.btn {
+    min-width: 120px; /* Ensures a minimum width for buttons */
+}
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+.card-title {
+    font-size: 2rem;
+}
+.right-content {
+    font-size: 1.2rem;
+    flex: 1; /* Takes up the remaining space */
+}
+.right-content h1 {
+    font-size: 4rem !important;
+}
+.form-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-width: 400px;
+    margin: auto;
+}
+.form-control {
+    font-size: 1.5rem;
+}
+.form-control:focus {
+    border-color: inherit;
+    box-shadow: none;
+}
+.footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    font-size: 1rem;
+    flex-shrink: 0; /* Prevents footer from shrinking */
+}
+/* Adjusts spacing between navigation links on desktop */
+.navbar-nav .nav-item {
+    margin-right: 1rem; /* Adjust as needed, e.g., 0.5rem, 1.5rem */
+}
+
+.navbar-nav .nav-item:last-child {
+    margin-right: 0; /* Remove margin on the last item to avoid extra spacing */
+}
+
+.audio-player {
+    position: fixed;
+    bottom: -100px;
+    left: 0;
+    width: 100%;
+    background-color: #FFD700;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+    transition: bottom 1.3s ease-in-out;
+}
+
+.audio-player.show {
+    bottom: 0;
+}
+
+.audio-player audio {
+    width: 90%;
+}
+
+
+
+@media(max-width: 991px) {
+    .navbar-nav .nav-item {
+        margin-right: 1rem;
+    }
+    .navbar-nav .nav-item:last-child {
+        margin-right: 0;
+    }
+    .right-content {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}

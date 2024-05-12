@@ -1,50 +1,50 @@
 {
-    "name": "CBWIRE",
-    "version": "4.0.0-snapshot",
-    "location": "forgeboxStorage",
-    "author": "Ortus Solutions <info@ortussolutions.com",
-    "homepage": "https://github.com/coldbox-modules/cbwire",
-    "documentation": "https://cbwire.ortusbooks.com/",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/coldbox-modules/cbwire"
+    "name":"CBWIRE",
+    "version":"4.0.0-snapshot",
+    "location":"forgeboxStorage",
+    "author":"Ortus Solutions <info@ortussolutions.com",
+    "homepage":"https://github.com/coldbox-modules/cbwire",
+    "documentation":"https://cbwire.ortusbooks.com/",
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/coldbox-modules/cbwire"
     },
-    "bugs": "https://github.com/coldbox-modules/cbwire/issues",
-    "shortDescription": "Become a dev hero with CBWIRE! CBWIRE is a ColdBox module that helps you build modern, reactive, single-page CFML applications in record time, without using much JavaScript or building backend APIs.",
-    "slug": "cbwire",
-    "type": "modules",
-    "keywords": "",
-    "license": [
+    "bugs":"https://github.com/coldbox-modules/cbwire/issues",
+    "shortDescription":"Become a dev hero with CBWIRE! CBWIRE is a ColdBox module that helps you build modern, reactive, single-page CFML applications in record time, without using much JavaScript or building backend APIs.",
+    "slug":"cbwire",
+    "type":"modules",
+    "keywords":"",
+    "license":[
         {
-            "type": "Apache2",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "type":"Apache2",
+            "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     ],
-    "contributors": [],
-    "dependencies": {
-        "cbjavaloader": "^2.1.1+8"
+    "contributors":[],
+    "dependencies":{
+        "cbcsrf":"^3.1.0+16"
     },
-    "devDependencies": {
-        "commandbox-cfformat": "*",
-        "commandbox-docbox": "*"
+    "devDependencies":{
+        "commandbox-cfformat":"*",
+        "commandbox-docbox":"*"
     },
-    "ignore": [
+    "ignore":[
         "**/.*",
         "test-harness"
     ],
-    "scripts": {
-        "setupTemplate": "task run taskFile=build/SetupTemplate.cfc",
-        "build:module": "task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
-        "build:docs": "task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
-        "release": "recipe build/release.boxr",
-        "format": "cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
-        "format:watch": "cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
-        "format:check": "cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc"
+    "scripts":{
+        "setupTemplate":"task run taskFile=build/SetupTemplate.cfc",
+        "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
+        "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
+        "release":"recipe build/release.boxr",
+        "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
+        "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
+        "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc"
     },
-    "testbox": {
-        "runner": "http://localhost:60299/tests/runner.cfm"
+    "testbox":{
+        "runner":"http://localhost:60299/tests/runner.cfm"
     },
-    "installPaths": {
-        "cbjavaloader": "modules/cbjavaloader/"
+    "installPaths":{
+        "cbcsrf":"modules/cbcsrf/"
     }
 }

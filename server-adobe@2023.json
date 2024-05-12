@@ -1,0 +1,29 @@
+{
+    "name":"cbwire-adobe@2023",
+    "app":{
+        "serverHomeDirectory":".engine/adobe2023",
+        "cfengine":"adobe@2023"
+    },
+    "web":{
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbwire":"../"
+        }
+    },
+    "openBrowser":"false",
+    "cfconfig":{
+        "file":".cfconfig.json"
+    },
+    "fusionreactor":{
+        "enable":false
+    },
+    "scripts":{
+        "onServerInstall":"cfpm install zip,debugger"
+    }
+}
