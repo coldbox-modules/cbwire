@@ -1,7 +1,6 @@
 component extends="coldbox.system.testing.BaseTestCase" {
 
     // Lifecycle methods and BDD suites as before...
-
     function run(testResults, testBox) {
         describe("Component.cfc", function() {
 
@@ -41,7 +40,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it("should render with correct snapshot, effects, and id attribute", function() {
                 var renderedHtml = testComponent.renderIt();
                 expect(renderedHtml.contains('<div wire:snapshot="{')).toBeTrue();
-                expect(renderedHtml.contains('wire:effects="[]')).toBeTrue();
+                expect(renderedHtml.contains('wire:effects="{')).toBeTrue();
                 expect(renderedHtml.contains('id="')).toBeTrue();
             });
 
@@ -236,6 +235,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it("should render complex HTML structures", function() {
                 testComponent.view( "wires.testing.complexhtml" );
+            } );
+
+            it( "should include listeners within wire:effects on initial render", function() {
+                var result = testComponent.view( "wires.TestComponent" );
+                expect( result ).toInclude( "wire:effects=""{&quot;listeners&quot;:[&quot;someEvent&quot;]}""" );
+            } );
+
+            xit( "should throw error if a listener is defined but the method does not exist", function() {
+                try {
+                    var result = getInstance( "wires.TestComponentWithInvalidListener" );
+                } catch ( CBWIREException e ) {
+                    expect( e.message ).toBe( "The listener 'someEvent' references a method 'someMethod' but this method does not exist. Please implement 'someMethod()' on your component." );
+                }
             } );
 
         });

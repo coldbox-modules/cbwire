@@ -24,13 +24,22 @@ component output="true" {
     property name="_returnValues";
 
     /**
-     * Initializes the component, setting a unique ID if not already set.
+     * Constructor
+     * 
+     * @return The initialized component instance.
+     */
+    function init() {
+        return this;
+    }
+
+    /**
+     * Initializes the component after dependency injection, setting a unique ID if not already set.
      * This method should be called by any extending component's init method if overridden.
      * Extending components should invoke super.init() to ensure the base initialization is performed.
      * 
      * @return The initialized component instance.
      */
-    function init() {
+    function onDIComplete() {
         if ( isNull( variables._id ) ) {
             variables._id = hash( createUUID() );
         }
@@ -71,6 +80,11 @@ component output="true" {
             Prep for lazy loading
         */
         _prepareLazyLoading();
+
+        /* 
+            Prep listeners
+        */
+        _prepareListeners();
 
         return this;
     }
@@ -770,7 +784,7 @@ component output="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
-        var livewireAttributes = ' wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="[]" wire:id="#variables._id#"';
+        var livewireAttributes = ' wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
         
         // Insert attributes into the opening tag
         return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
@@ -935,7 +949,7 @@ component output="true" {
 
         // Build the final <div> element with appropriate attributes
         var lazyLoadDiv = '<div wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" ' &
-                          'wire:effects="[]" wire:id="#variables._id#" ' &
+                          'wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#" ' &
                           'x-intersect="$wire._lazyMount(&##039;' & base64EncodedSnapshot & '&##039;)">#placeHolder()#</div>';
     
         return lazyLoadDiv;
@@ -1126,6 +1140,30 @@ component output="true" {
     }
 
     /**
+     * Prepares the component for listening to events.
+     * 
+     * @return void
+     */
+    function _prepareListeners() {
+        /* 
+            listers = {
+                'eventName': 'methodName'
+            }
+        */
+        if ( !variables.keyExists( "listeners" ) ) {
+            variables.listeners = [:];
+        }
+
+        // Loop through the listeners and check the methods exists, throw error if not
+        // TODO: add tests (having issues getting testbox to assert this error)
+        variables.listeners.each( function( key, value ) {
+            if ( !variables.keyExists( arguments.value ) ) {
+                throw( type="CBWIREException", message="The listener '#arguments.key#' references a method '#arguments.value#' but this method does not exist. Please implement '#arguments.value#()' on your component." );
+            }
+        } );
+    }
+
+    /**
      * Returns the path to the view template file.
      */
     function _getViewPath(){
@@ -1222,5 +1260,27 @@ component output="true" {
      */
     function _getValidationResult(){
         return variables._validationResult;
+    }
+
+    /**
+     * Returns the wire:effects attribute contents.
+     * 
+     * @return string
+     */
+    function _generateWireEffectsAttribute() {
+        local.listenersAsArray = variables.listeners.reduce( function( acc, key, value ) {
+            acc.append( key );
+            return acc;
+        }, [] );
+
+        
+        if ( local.listenersAsArray.len() ) {
+            local.effects = {
+                "listeners": local.listenersAsArray
+            };
+            return _encodeAttribute( serializeJson( local.effects ) );
+        }
+
+        return "[]";
     }
 }
