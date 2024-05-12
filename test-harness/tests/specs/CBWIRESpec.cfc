@@ -664,7 +664,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
                 expect( response.components[1].effects.dispatches[1].params.name ).toBe( "testFile" );
                 expect( response.components[1].effects.dispatches[1].params.url ).toInclude( "/cbwire/upload" );
-                expect( reFindNoCase( "http://localhost:60299/cbwire/upload\?expires=[0-9]+&signature=[A-Za-z0-9]+$", response.components[1].effects.dispatches[1].params.url ) ).toBeGT( 0 );
+                expect( reFindNoCase( "/cbwire/upload\?expires=[0-9]+&signature=[A-Za-z0-9]+$", response.components[1].effects.dispatches[1].params.url ) ).toBeGT( 0 );
             } );
 
             xit( "should _finishUpload()", function() {
