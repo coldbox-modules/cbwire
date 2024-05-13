@@ -107,6 +107,10 @@
     variables.relativeCachePath = "tmp/" & hash(attributes.normalizedPath) & ".cfm";
     variables.cachePath = getCurrentTemplatePath().replaceNoCase( "RendererEncapsulator.cfm", "" ) & variables.relativeCachePath;
 
+    if (!directoryExists(getDirectoryFromPath(variables.cachePath))) {
+        directoryCreate(getDirectoryFromPath(variables.cachePath));
+    }
+
     /*
         Check if cached file exists and is up-to-date, if not, preprocess and cache.
     */
