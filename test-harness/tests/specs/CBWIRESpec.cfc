@@ -38,14 +38,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it("should render with correct snapshot, effects, and id attribute", function() {
-                var renderedHtml = testComponent.renderIt();
+                var renderedHtml = testComponent._render();
                 expect(renderedHtml.contains('<div wire:snapshot="{')).toBeTrue();
                 expect(renderedHtml.contains('wire:effects="{')).toBeTrue();
                 expect(renderedHtml.contains('id="')).toBeTrue();
             });
 
             it("should render string booleans as booleans", function() {
-                var renderedHtml = testComponent.renderIt();
+                var renderedHtml = testComponent._render();
                 expect(renderedHTML.contains('stringBooleanValue&quot;:true') ).toBeTrue();
             });
 
@@ -229,17 +229,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it("should throw an error for HTML without a single outer element", function() {
                 expect(function() {
-                    testComponent.view( "wires.testing.multipleouterelements" );
+                    testComponent._render( testComponent.view( "wires.testing.multipleouterelements" ) );
                 }).toThrow("Template has more than one outer element, or is missing an end tag </element>.");
             });
 
             it("should render complex HTML structures", function() {
-                testComponent.view( "wires.testing.complexhtml" );
+                testComponent._render( testComponent.view( "wires.testing.complexhtml" ) );
             } );
 
             it( "should include listeners within wire:effects on initial render", function() {
-                var result = testComponent.view( "wires.TestComponent" );
+                var result = testComponent._render( testComponent.view( "wires.TestComponent" ) );
                 expect( result ).toInclude( "wire:effects=""{&quot;listeners&quot;:[&quot;someEvent&quot;]}""" );
+            } );
+
+            it( "should support single file components", function() {
+                var cbwireController = getInstance("CBWIREController@cbwire");
+                var result = cbwireController.wire( "wires.TestSingleFileComponent" );
+                expect( result ).toInclude( "<div wire:snapshot" );
             } );
 
             xit( "should throw error if a listener is defined but the method does not exist", function() {

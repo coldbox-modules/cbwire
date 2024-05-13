@@ -104,7 +104,7 @@
 
     structDelete(variables, "configSettings");
 
-    variables.relativeCachePath = ".tmp/" & hash(attributes.normalizedPath) & ".cfm";
+    variables.relativeCachePath = "tmp/" & hash(attributes.normalizedPath) & ".cfm";
     variables.cachePath = getCurrentTemplatePath().replaceNoCase( "RendererEncapsulator.cfm", "" ) & variables.relativeCachePath;
 
     /*

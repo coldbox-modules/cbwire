@@ -23,7 +23,7 @@ component {
 			/**
 			 * Capture our module root for use throughout CBWIRE.
 			 */
-			"moduleRootPath": getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ),
+			"moduleRootPath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) ),
 			/**
 			 * Set to true to throw a 'WireSetterNotFound' exception if
 			 * the incoming cbwire request tries to update a property

@@ -12,6 +12,9 @@ component singleton {
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
 
+    // Inject SingleFileComponentBuilder
+    property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
+
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its internal renderIt() method.
@@ -33,7 +36,7 @@ component singleton {
         // If the component is lazy loaded, we need to generate an x-intersect snapshot of the component
         return arguments.lazy ? 
             local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params ) : 
-            local.instance.renderIt();
+            local.instance._render();
     }
 
     /**
@@ -93,7 +96,7 @@ component singleton {
      */
     function handleFileUpload( incomingRequest, event ) {
         // Determine our storage path for temporary files
-        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/.tmp" );
+        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/tmp" );
         // Ensure the storage path exists
         if( !directoryExists( local.storagePath ) ){
             directoryCreate( local.storagePath );
@@ -132,15 +135,27 @@ component singleton {
      */
     function createInstance( name ) {
         // Determine if the component name traverses a valid namespace or directory structure
-        var fullComponentPath = arguments.name;
+        local.fullComponentPath = arguments.name;
         
-        if (!fullComponentPath contains "wires.") {
-            fullComponentPath = "wires." & fullComponentPath;
+        if ( !local.fullComponentPath contains "wires." ) {
+            local.fullComponentPath = "wires." & local.fullComponentPath;
         }
         
         try {
             // Attempt to create an instance of the component
-            return variables.wirebox.getInstance(fullComponentPath);
+            return variables.wirebox.getInstance(local.fullComponentPath);
+        } catch( Injector.InstanceNotFoundException e ) {
+            local.singleFileComponent = variables.singleFileComponentBuilder
+                .setInitialRender( true )
+                .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
+
+            if ( isNull( local.singleFileComponent ) ) {
+                writeDump( local );
+                abort;
+                rethrow;
+            }
+
+            return local.singleFileComponent;
         } catch (Any e) {
             writeDump( e );
             abort;
@@ -312,6 +327,16 @@ component singleton {
         local.generatedSignature = generateSignature( local.baseURL, arguments.expires );
         // Compare the generated signature with the one from the URL
         return arguments.signature == local.generatedSignature;
+    }
+
+    /**
+     * Returns the module of the current request.
+     *
+     * @return string
+     */
+    public function getCurrentRequestModule(){
+        local.rc = requestService.getContext().getCollection();
+        return structKeyExists( local.rc, "fingerprint" ) ? local.rc.fingerprint.module : variables.requestService.getContext().getCurrentModule();
     }
 
 }

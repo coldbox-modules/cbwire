@@ -130,20 +130,9 @@ component output="true" {
      */
     function view( viewPath, params = {} ) {
         // Normalize the view path
-        var normalizedPath = _getNormalizedViewPath( viewPath );
+        local.normalizedPath = _getNormalizedViewPath( viewPath );
         // Render the view content and trim the result
-        var trimmedHTML = trim( _renderViewContent( normalizedPath, arguments.params ) );
-        // Validate the HTML content to ensure it has a single outer element
-        _validateSingleOuterElement( trimmedHTML);
-        // If this is the initial load, encode the snapshot and insert Livewire attributes
-        if ( variables._initialLoad ) {
-            // Encode the snapshot for HTML attribute inclusion and process the view content
-            var snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
-            return _insertInitialLivewireAttributes( trimmedHTML, snapshotEncoded, variables._id );
-        } else {
-            // Return the trimmed HTML content
-            return _insertSubsequentLivewireAttributes( trimmedHTML );
-        }
+        return _renderViewContent( local.normalizedPath, arguments.params );
     }
 
 	/**
@@ -263,7 +252,7 @@ component output="true" {
             return local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
         } else {
             // Render it out normally
-            local.rendering = local.instance.renderIt();
+            local.rendering = local.instance._render();
             // Based on the rendering, determine our outer component tag
             local.componentTag = _getComponentTag( local.rendering );
             // Track the rendered child
@@ -274,7 +263,7 @@ component output="true" {
                 ]
             ] );
 
-            return local.instance.renderIt();
+            return local.instance._render();
         }
     }
 
@@ -648,6 +637,10 @@ component output="true" {
     function _getNormalizedViewPath( viewPath ) {
         // Replace all dots with slashes to normalize the path
         local.normalizedPath = replace( arguments.viewPath, ".", "/", "all" );
+
+        if ( local.normalizedPath contains "cbwire/models/tmp/" ) {
+            return "/" & local.normalizedPath & ".cfm";
+        }
         // Check if ".cfm" is present; if not, append it.
         if (not findNoCase(".cfm", local.normalizedPath)) {
             local.normalizedPath &= ".cfm";
@@ -980,25 +973,25 @@ component output="true" {
             this before calling _getSnapshot() because otherwise any 
             child objects will not have been tracked yet.
         */
-        var html = renderIt();
+        local.html = _render();
         // Return the HTML response
-        var response = [
+        local.response = [
             "snapshot": serializeJson( _getSnapshot() ),
             "effects": {
-                "returns": variables._returnValues,
-                "html": html
+            "returns": variables._returnValues,
+            "html": local.html
             }
         ];
         // Add any dispatches
         if ( variables._dispatches.len() ) {
-            response.effects["dispatches"] = variables._dispatches;
+            local.response.effects["dispatches"] = variables._dispatches;
         }
         // Add any xjs
         if ( variables._xjs.len() ) {
-            response.effects["xjs"] = variables._xjs;
+            local.response.effects["xjs"] = variables._xjs;
         }
 
-        return response;
+        return local.response;
     }
 
     /**
@@ -1215,6 +1208,9 @@ component output="true" {
      
      */
     function _getComponentName(){
+        if ( variables._metaData.name contains "cbwire.models.tmp." ) {
+            return variables._metaData.name.replaceNoCase( "cbwire.models.tmp.", "", "one" );
+        }
         return variables._metaData.name.replaceNoCase( "wires.", "", "one" );
     }
 
@@ -1282,5 +1278,23 @@ component output="true" {
         }
 
         return "[]";
+    }
+
+    /**
+     * Response for actually starting rendering of a component.
+     */
+    function _render( rendering ) {
+        local.trimmedHTML = isNull( arguments.rendering ) ? trim( renderIt() ) : trim( arguments.rendering );
+        // Validate the HTML content to ensure it has a single outer element
+        _validateSingleOuterElement( local.trimmedHTML);
+        // If this is the initial load, encode the snapshot and insert Livewire attributes
+        if ( variables._initialLoad ) {
+            // Encode the snapshot for HTML attribute inclusion and process the view content
+            local.snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
+            return _insertInitialLivewireAttributes( local.trimmedHTML, local.snapshotEncoded, variables._id );
+        } else {
+            // Return the trimmed HTML content
+            return _insertSubsequentLivewireAttributes( local.trimmedHTML );
+        }
     }
 }

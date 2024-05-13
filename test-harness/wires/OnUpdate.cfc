@@ -14,11 +14,11 @@ component extends="cbwire.models.Component" {
         data.onUpdateMessage = true;
     }
 
-    function onRender( args ) {
+    function renderIt() {
         return "
             <div>
-                <div>onUpdate() called: #args.onUpdate#</div>
-                <div>onUpdateMessage() called: #args.onUpdateMessage#</div>
+                <div>onUpdate() called: #data.onUpdate#</div>
+                <div>onUpdateMessage() called: #data.onUpdateMessage#</div>
                 <div><input type='text' wire:model='message'></div>
             </div>
         ";
