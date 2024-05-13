@@ -96,7 +96,8 @@ component singleton {
      */
     function handleFileUpload( incomingRequest, event ) {
         // Determine our storage path for temporary files
-        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/tmp" );
+        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
+
         // Ensure the storage path exists
         if( !directoryExists( local.storagePath ) ){
             directoryCreate( local.storagePath );
@@ -120,6 +121,34 @@ component singleton {
             return id;
         } );
         return { "paths": local.paths };
+    }
+
+    /**
+     * Handles the preview of a file by reading the file metadata and sending it back to the client.
+     * 
+     * @incomingRequest The JSON struct payload of the incoming request.
+     * @event The event object.
+     * 
+     * @return file contents
+     */
+    function handleFilePreview( incomingRequest, event ){
+        local.uuid = event.getValue( "uploadUUID", "" );
+        if ( !len( local.uuid ) ) {
+            return event.noRender();
+        }
+
+        local.metaPath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp/#local.uuid#.json" );
+
+        local.metaJSON = deserializeJSON( fileRead( local.metaPath ) );
+        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp/#local.metaJSON.serverFile#" ) );
+        event
+            .sendFile(
+                file = local.contents,
+                disposition = "inline",
+                extension = local.metaJSON.serverFileExt,
+                mimeType = "#local.metaJSON.contentType#/#local.metaJSON.contentSubType#"
+            )
+            .noRender();
     }
 
     /**
@@ -334,7 +363,7 @@ component singleton {
      *
      * @return string
      */
-    public function getCurrentRequestModule(){
+    function getCurrentRequestModule(){
         local.rc = requestService.getContext().getCollection();
         return structKeyExists( local.rc, "fingerprint" ) ? local.rc.fingerprint.module : variables.requestService.getContext().getCurrentModule();
     }

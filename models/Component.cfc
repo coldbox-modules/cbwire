@@ -553,6 +553,43 @@ component output="true" {
         if ( structKeyExists( this, "onHydrate" ) ) {
             invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
         }
+
+        if ( arguments.componentPayload.calls.len() && arguments.componentPayload.calls[1].method == "_finishUpload" ) {
+            local.files = arguments.componentPayload.calls[ 1 ].params[ 2 ];
+            local.dataProp = componentPayload.calls[1].params[1];
+            local.files.each( function( uuid ) {
+                if ( isArray( variables.data[ dataProp ] ) ) {
+                    variables.data[ componentPayload.calls[1].params[1] ].append( "fileupload:" & uuid );
+                } else {
+                    variables.data[ componentPayload.calls[1].params[1] ] = "fileupload:" & uuid;
+                }
+            } );
+        }
+
+        /*
+            Provide file uploads to view
+        */
+        variables.data.each( function( key, value ) {
+            if ( isArray( arguments.value ) && arguments.value.len() && arguments.value[ 1 ] contains "fileupload:" ) {
+                // This property is holding an array of file uploads.
+                value.each( function( uuid, index ) {
+                    local.fileUpload = getInstance( dsl="FileUpload@cbwire" ).load(
+                        wire = this,
+                        dataPropertyName = key,
+                        uuid = uuid.replaceNoCase( "fileupload:", "" )
+                    );
+                    variables.data[ key ][ index ] = local.fileUpload;
+                } );
+            } else if ( isSimpleValue( arguments.value ) && arguments.value contains "fileupload:" ) {
+                // This property is holding a single file upload.
+                variables.data[ arguments.key ] = getInstance( dsl="FileUpload@cbwire" ).load(
+                    wire = this,
+                    dataPropertyName = key,
+                    uuid = arguments.value.replaceNoCase( "fileupload:", "" )
+                );
+            }
+        } );
+
     }
 
     /**
@@ -686,17 +723,13 @@ component output="true" {
      * 
      * @return void 
      */
-    function _finishUpload( prop, params, self ) {
-        local.fileUpload = new FileUpload(
-            wire = this,
-            dataPropertyName = arguments.params[ 1 ]
-        );
+    function _finishUpload( prop, files, self ) {
         // Dispatch the upload URL
         dispatchSelf(
             event="upload:finished",
             params=[
                 "name"=arguments.prop,
-                "params"=arguments.params
+                "params"=arguments.files
             ]
         );
     }
@@ -974,9 +1007,23 @@ component output="true" {
             child objects will not have been tracked yet.
         */
         local.html = _render();
+        // Get snapshot 
+        local.snapshot = _getSnapshot();
+        // Check snapshot for FileUploads, serialize them if found
+        local.snapshot.data.each( function( key, value ) {
+            if ( isInstanceOf( arguments.value, "FileUpload" ) ) {
+                snapshot.data[ arguments.key ] = arguments.value.serializeIt();
+            }
+            if ( isArray( arguments.value) && arguments.value.len() && isInstanceOf( arguments.value[ 1 ], "FileUpload" ) ) {
+                arguments.value.each( function( multiFileUpload, index ) {
+                    snapshot.data[ key ][ arguments.index ] = arguments.multiFileUpload.serializeIt();
+                } );
+            }
+        } );
+
         // Return the HTML response
         local.response = [
-            "snapshot": serializeJson( _getSnapshot() ),
+            "snapshot": serializeJson( local.snapshot ),
             "effects": {
             "returns": variables._returnValues,
             "html": local.html

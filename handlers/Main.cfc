@@ -26,7 +26,7 @@ component {
      * URI: /cbwire/preview-file/:uploadUUID
      */
     function previewFile( event, rc, prc ) {
-        return cbwireService.handlePreviewFile( event, rc, prc );
+        return cbwireController.handleFilePreview( getHTTPRequestData(), event );
     }
 
 }

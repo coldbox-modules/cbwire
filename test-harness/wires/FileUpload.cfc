@@ -1,7 +1,8 @@
 component extends="cbwire.models.Component" {
 
     data = {
-        "photo": ""
+        "photo": "",
+        "photos": []
     };
 
     function save() {
@@ -9,5 +10,9 @@ component extends="cbwire.models.Component" {
         if ( isObject( data.photo ) ) {
             data.photo.destroy();
         }
+    }
+
+    function update() {
+        
     }
 }

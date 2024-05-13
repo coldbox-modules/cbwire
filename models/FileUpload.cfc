@@ -5,18 +5,24 @@
  */
 component {
 
+
+    // Inject module settings
+    property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
+
     /**
      * Constructor
      */
-    function init( wire, dataPropertyName, uuid ){
+    function load( wire, dataPropertyName, uuid ){
         // Our CBWIRe Component
         variables.wire = arguments.wire;
         // The data property name the file upload is for
         variables.dataPropertyName = arguments.dataPropertyName; // getParams()[ 1 ]
         // The UUID of the file upload we provided after the upload was complete
         variables.uuid = arguments.uuid; // getParams()[ 2 ][ 1 ]
+        // The temp directory 
+        local.tempDirectory = getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp" );
         // The file upload metadata JSON file path
-        variables.metaPath = expandPath( "./#variables.uuid#.json" );
+        variables.metaPath = getCanonicalPath( local.tempDirectory & "/#variables.uuid#.json" );
         // Load the metadata, throw and exception if fails
         if ( fileExists( variables.metaPath ) ) {
             local.metaJSON = fileRead( variables.metaPath );
@@ -25,7 +31,9 @@ component {
             throw( type="CBWIREException", message="File upload metadata not found." );
         }
         // The file upload temporary storage path
-        variables.temporaryStoragePath = expandPath( "./#variables.meta#.serverFile" );
+        variables.temporaryStoragePath = getCanonicalPath( variables.meta.serverDirectory & "/#variables.meta.serverFile#" );
+        // Return fileupload
+        return this;
     }
 
     /**
@@ -61,7 +69,7 @@ component {
      * @return numeric
      */
     function getSize(){
-        return getMeta().fileSize;
+        return variables.meta.fileSize;
     }
 
     /** 
@@ -70,7 +78,7 @@ component {
      * @return string
      */
     function getMIMEType(){
-        return getMeta().contentType & "/" & getMeta().contentSubType;
+        return variables.meta.contentType & "/" & variables.meta.contentSubType;
     }
 
     /** 
@@ -79,7 +87,7 @@ component {
      * @return boolean
      */
     function isImage(){
-        return getMeta().contentType == "image";
+        return variables.meta.contentType == "image";
     }
 
     /** 
@@ -88,7 +96,7 @@ component {
      * @return string
      */
     function getPreviewURL(){
-        return "/livewire/preview-file/#variables.uuid#";
+        return "/cbwire/preview-file/#variables.uuid#";
     }
 
     /** 
@@ -102,4 +110,13 @@ component {
         variables.wire.reset( variables.dataPropertyName );
     }
 
+
+    /* 
+     * Serialize the file upload
+     * 
+     * @return string
+     */
+    function serializeIt() {
+        return "fileupload:" & variables.uuid;
+    }
 }
