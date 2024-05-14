@@ -600,8 +600,29 @@ component output="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+        // Array to track which array props were updated
+        local.updatedArrayProps = [];
+        // Loop over the updates and apply them
         arguments.updates.each( function( key, value ) {
-            variables.data[ key ] = value;
+            // Determine if this is an array update
+            if ( reFindNoCase( "\.[0-9]+", arguments.key ) ) {
+                local.regexMatch = reFindNoCase( "(.+)\.([0-9]+)", arguments.key, 1, true );
+                local.propertyName = local.regexMatch.match[ 2 ];
+                local.arrayIndex = local.regexMatch.match[ 3 ];
+                variables.data[ local.propertyName][ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
+                // Track that we updated an array property
+                if ( !arrayFindNoCase( updatedArrayProps, local.propertyName ) ) {
+                    updatedArrayProps.append( local.propertyName );
+                }
+            } else {
+                variables.data[ key ] = value;
+            }
+        } );
+        
+        local.updatedArrayProps.each( function( prop ) {
+            variables.data[ arguments.prop ] = variables.data[ arguments.prop ].filter( function( value ) {
+                return arguments.value != "__rm__";
+            } );
         } );
     }
 

@@ -13,6 +13,7 @@
 		<!-- Scripts -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
 		<script src="https://kit.fontawesome.com/7e32a713f5.js" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		<!-- Inline CSS -->
 		<style>
 			html, body {
@@ -113,9 +114,10 @@
 			<div class="row h-100">
 				<div class="col-3 navcol" id="sidebar">
 					<button class="nav-toggler" id="navbarToggler">
-						<i class="fas fa-bars"></i>&nbsp; CBWIRE 4
+						<i class="fas fa-bars"></i>&nbsp; CBWIRE Workshop
 					</button>
 					<ul>
+						<li><a wire:navigate href="/examples/Counter">Counter</a></li>
 						<li><a wire:navigate href="/examples/SignupForm">Signup Form</a></li>
 						<li><a wire:navigate href="/examples/ChatGPT">ChatGPT</a></li>
 						<li><a wire:navigate href="/examples/Form">Form</a></li>

@@ -335,7 +335,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should run action we pass it", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -345,20 +345,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "increment",
+                            "method": "changeTitle",
                             "params": []
                         }
                     ],
                     updates = {}
                 );
                 var response = cbwireController.handleRequest( payload, event );
-                expect( response.components[1].effects.html ).toInclude( "Counter: 2" );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slays!" );
             } );
 
             it( "should run action we pass it with parameters", function() {  
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -368,15 +368,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "incrementBy",
-                            "params": [ 10 ]
+                            "method": "runActionWithParams",
+                            "params": [ 'world' ]
                         }
                     ],
                     updates = {}
                 );
                 
                 var response = cbwireController.handleRequest( payload, event );
-                expect( response.components[1].effects.html ).toInclude( "Counter: 11" );
+                expect( response.components[1].effects.html ).toInclude( "Title: Hello world from CBWIRE!" );
             } );
 
             it( "should return an outer element with the same id that we passed in", function() {
@@ -405,20 +405,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should provide updates to data properties", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
                     data = {
-                        "count": 1
+                        "title": "CBWIRE Rocks!"
                     },
                     calls = [],
                     updates = {
-                        "count": 100
+                        "title": "CBWIRE Slaps!"
                     }
                 );
                 var response = cbwireController.handleRequest( payload, event );
-                expect( response.components[1].effects.html ).toInclude( "Counter: 100" );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
             } );
 
             it( "should dispatch an event without params", function() {
@@ -486,7 +486,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "dispatchToSelf",
+                            "method": "runDispatchSelf",
                             "params": []
                         }
                     ],
@@ -502,7 +502,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should dispatchTo()", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -512,7 +512,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "incrementDispatchTo",
+                            "method": "runDispatchTo",
                             "params": []
                         }
                     ],
@@ -520,15 +520,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.dispatches ).toBeArray();
-                expect( response.components[1].effects.dispatches[1].name ).toBe( "incremented" );
-                expect( structCount( response.components[1].effects.dispatches[1].params ) ).toBe( 0 );
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "someEvent" );
+                expect( response.components[1].effects.dispatches[1].params.hello ).toBe( "world" );
                 expect( response.components[1].effects.dispatches[1].to ).toBe( "anotherComponent" );
             } );
 
             it( "should track child components on the response", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "TestComponent",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": {
                             "data-binding": [ "div", "dsfsadfasdfsdf" ]
@@ -540,7 +540,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     calls = [
                         {
                             "path": "",
-                            "method": "incrementDispatchSelf",
+                            "method": "runDispatchSelf",
                             "params": []
                         }
                     ],
@@ -629,6 +629,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.returns ).toBeArray();
                 expect( response.components[1].effects.returns.first() ).toBe( "Return from CBWIRE!" );
+            } );
+
+            it( "should support multi select dropdowns and the incoming array values", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = [
+                        "modules.0": "CBWIRE",
+                        "modules.1": "CBORM",
+                        "modules.2": "__rm__"
+                    ]
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                var snapshot = deserializeJson( response.components[ 1 ].snapshot );
+                expect( snapshot.data.modules ).toBeArray();
+                expect( snapshot.data.modules.len() ).toBe( 2 );
+                expect( snapshot.data.modules[ 1 ] ).toBe( "CBWIRE" );
+                expect( snapshot.data.modules[ 2 ] ).toBe( "CBORM" );
             } );
 
         } );
@@ -764,13 +787,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( html ).toInclude( "Title: Override title" );
             } );
 
-            it( "should passes params to onMount if it exists", function() {
+            it( "should pass params to onMount if it exists", function() {
                 var html = cbwireController.wire(
-                    name="CounterWithOnMount",
-                    params={ "count": 1000 },
+                    name="TestComponent",
+                    params={ "title": "Whatever" },
                     key=""
                 );
-                expect( html ).toInclude( "Counter: 1000" );
+                expect( html ).toInclude( "Title: Whatever" );
             } );
 
             it( "should return getStyles()", function() {

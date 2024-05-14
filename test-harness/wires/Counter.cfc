@@ -1,77 +1,38 @@
 component extends="cbwire.models.Component" {
-
-    remember = [
-        "count"
-    ];
-
     data = {
-        "count": 1,
-        "submitted": false
+        "counter": 0,
+        "counters": []
     };
 
-    function countPlusTen() computed {
-        return getCount() + 10;
+    function onMount() {
+        data.counter = 5;
+        data.counters = [1,2,3];
     }
-
-    function tick() computed {
-        return getTickCount();
-    }
-
-    /**
-     * Increments the counter by 1.
-     */
     function increment() {
-        data.count += 1;
-        dispatch( "incremented" );
+        data.counter++;
+        if ( data.counter > 10 ) {
+            js( "
+                Swal.fire({
+                    title: 'Good job!',
+                    text: 'You clicked the button 10 times!',
+                    icon: 'success'
+                })
+            ");
+        }
+        return data.counter;
     }
 
-    /**
-     * Increments the counter by a specified amount.
-     */
     function incrementBy( amount ) {
-        data.count += amount;
-        dispatch( "incrementedBy", 10 );
+        data.counter += amount;
     }
 
-    /**
-     * Increments and dispatches to another component.
-     * 
-     * @return void
-     */
-    function incrementDispatchTo() {
-        data.count += 1;
-        dispatchTo( "anotherComponent", "incremented" );
+    function startOver() {
+        reset( [ "counter" ] );
     }
 
-    /**
-     * Increments and dispatches self
-     * @return void
-     */
-    function incrementDispatchSelf() {
-        data.count += 1;
-        dispatchSelf( "incremented" );
-    }
-
-    /**
-     * Decrements the counter by 1.
-     */
-    function decrement() {
-        setCount(getCount() - 1);
-    }
-
-    /**
-     * Decrements the counter by 1.
-     */
-    function decrementWithDataDot(){
-        data.count -= 1;
-    }
-
-    /**
-     * Renders the component's HTML output with Livewire-compatible attributes.
-     * @return The HTML representation of the component, including Livewire data attributes.
-     */
     function renderIt() {
-        return view("wires.Counter");
+        return view( "wires.Counter", {
+            "isEven": ( data.counter % 2 == 0 )
+        } );
     }
-
 }

@@ -14,8 +14,6 @@
             </ul>
         </cfif>
 
-        <cfif showChildComponent>
-            <cbwire:TestChildComponent />
-        </cfif>
+        #wire( name="TestChildComponent" )#
     </div>
 </cfoutput>

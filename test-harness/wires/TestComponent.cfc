@@ -34,6 +34,10 @@ component extends="cbwire.models.Component" {
         data.title = "CBWIRE Slays!";
     }
 
+    function runActionWithParams( name ) {
+        data.title = "Hello #name# from CBWIRE!";
+    }
+
     function resetTitle() {
         reset( "title" );
     }
@@ -86,8 +90,12 @@ component extends="cbwire.models.Component" {
         dispatch( event="someEvent", params={ "name": "CBWIRE" } );
     }
 
-    function dispatchToSelf() {
+    function runDispatchSelf() {
         dispatchSelf( event="someEvent", params={ "name": "CBWIRE" } );
+    }
+
+    function runDispatchTo() {
+        dispatchTo( to="anotherComponent", event="someEvent", params={ "hello": "world" } );
     }
 
 }
