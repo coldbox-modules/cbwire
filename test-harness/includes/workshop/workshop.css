@@ -1,0 +1,159 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+.navcol ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.navcol ul li a {
+    padding-left: 20px;
+}
+
+.navcol {
+    font-size: 1.5rem;
+    padding: 20px;
+    background-image: linear-gradient(to bottom, #333, #0d1117);
+    /* Darker gradient */
+    color: #fff;
+    min-height: 100vh;
+    overflow-y: auto;
+    width: 350px;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(0);
+}
+
+.navcol a {
+    color: #FFD700;
+    /* Gold for links to match the logo's yellow */
+    text-decoration: none;
+    display: block;
+    padding: 10px 0;
+}
+
+.navcol a:hover {
+    background-color: rgba(255, 215, 0, 0.2);
+    /* Lighter yellow on hover */
+    text-decoration: none;
+}
+
+.nav-toggler {
+    background-color: #FFD700;
+    color: #333;
+    font-size: 1.5rem;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-toggler:hover {
+    background-color: #FFEA00;
+}
+
+.nav-toggler:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.code-preview {
+    border-radius: 5px;
+    font-size: 1rem !important;
+}
+
+.btn {
+    min-width: 120px;
+    /* Ensures a minimum width for buttons */
+    font-size: 1.25rem;
+    border: none !important;
+    padding: 10px 30px;
+}
+
+.btn.disabled,
+.btn:disabled,
+fieldset:disabled .btn {
+    background-color: #ccc;
+    color: #333;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: #FFD700;
+    border: none;
+    /* Remove border */
+    color: #333;
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #FFD700;
+    --bs-btn-border-color: #0d6efd;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #0b5ed7;
+    --bs-btn-hover-border-color: #0a58ca;
+}
+
+.btn-primary:hover {
+    background-color: #e6c200;
+    /* Slightly darker color on hover */
+    color: #333;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #FFD700;
+    /* Keep the original color */
+    border: none;
+    /* Ensure no border on focus or active */
+    box-shadow: none;
+    /* Remove any shadow */
+    outline: none;
+    /* Remove focus outline */
+    color: #333;
+    /* Ensure text color remains the same */
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.right-content {
+    font-size: 1.5rem;
+    flex: 1;
+    /* Takes up the remaining space */
+}
+
+.right-content h1 {
+    font-size: 4rem !important;
+}
+
+.form-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: auto;
+}
+
+.form-control {
+    font-size: 1.5rem;
+}
+
+.form-control:focus {
+    border-color: inherit;
+    box-shadow: none;
+}
+
+.border-green {
+    border: 3px solid #00FF00 !important;
+}
+
+.border-yellow {
+    border: 3px solid #FFD700 !important;
+}

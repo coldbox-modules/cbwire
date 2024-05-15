@@ -5,5 +5,8 @@
         <div class="mt-5">
             <a href="/beatbox/loops" class="btn btn-primary btn-lg d-block w-100">Browse Loops</a>
         </div>
+        #wire( name="Counter" )#
+        #wire( name="Counter2" )#
+
     </div>
 </cfoutput>

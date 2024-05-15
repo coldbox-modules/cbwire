@@ -2,22 +2,12 @@ component extends="cbwire.models.Component" {
 
     data = {
         "name": "",
-        "zip": "",
         "email": "",
+        "zip": "",
         "submitted": false
     };
 
-    constraints = {
-        "name": { "required": true }
-    };
-
     function submitForm() {
-        validateOrFail();
         data.submitted = true;
-    }
-
-    function resetForm() {
-        reset();
-        data.submitted = false;
     }
 }
