@@ -1,1 +1,1 @@
-<cfoutput>#wire( "SignupFormComplete" )#</cfoutput>
+<cfoutput>#wire( "SignupForm" )#</cfoutput>
