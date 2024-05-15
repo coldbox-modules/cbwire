@@ -283,24 +283,14 @@ component output="true" {
      * Provides cbvalidation method to be used in actions and views,
      * throwing an exception if validation fails.
      * 
-     * @return ValidationResult
      * 
      * @throws ValidationException
      */
-    function validateOrFail(
-        target,
-		fields        = "*",
-		constraints   = {},
-		locale        = "",
-		excludeFields = "",
-		includeFields = "",
-		profiles      = ""
-    ){
-		arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
-		arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
-        _getValidationManager().validateOrFail( argumentCollection = arguments )
-		variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
-		return variables._validationResult;
+    function validateOrFail(){
+        local.validationResults = validate();
+        if ( local.validationResults.hasErrors() ) {
+            throw( type="ValidationException", message="Validation failed" );
+        }
     }
 
     /**
@@ -309,7 +299,32 @@ component output="true" {
      * @return boolean
      */
     function hasErrors( field ) {
+        if ( isNull( arguments.field ) ) {
+            return variables._validationREsult.hasErrors();
+        }
         return variables._validationResult.hasErrors( arguments.field );
+    }
+
+    /**
+     * Returns the first error message for a given field.
+     * 
+     * @return string
+     */
+    function getError( field) {
+        local.allErrors = variables._validationResult.getAllErrors( arguments.field );
+        if ( local.allErrors.len() ) {
+            return local.allErrors.first();
+        }
+        return "";
+    }
+
+    /**
+     * Returns true if property passes validation.
+     * 
+     * @return boolean
+     */
+    function validates( prop ) {
+        return !hasErrors( arguments.prop );
     }
 
     /**
@@ -716,6 +731,16 @@ component output="true" {
     }
 
     /**
+     * Handles a dispatched event 
+     * 
+     * @return void
+     */
+    function __dispatch( event, params ) {
+        local.methodToCall = variables.listeners[ arguments.event ];
+        invoke( this, local.methodToCall, arguments.params );
+    }
+
+    /**
      * Method that is invoke when a file upload is first requested.
      *
      * @prop string | The property for the file input.
@@ -750,7 +775,7 @@ component output="true" {
             event="upload:finished",
             params=[
                 "name"=arguments.prop,
-                "params"=arguments.files
+                "tmpFilenames"=arguments.files
             ]
         );
     }

@@ -447,13 +447,13 @@
     }
     function handleFileUpload(el, property, component, cleanup3) {
       let manager = getUploadManager(component);
-      let start3 = () => el.dispatchEvent(new CustomEvent("livewire-upload-start", { bubbles: true, detail: { id: component.id, property } }));
-      let finish = () => el.dispatchEvent(new CustomEvent("livewire-upload-finish", { bubbles: true, detail: { id: component.id, property } }));
-      let error2 = () => el.dispatchEvent(new CustomEvent("livewire-upload-error", { bubbles: true, detail: { id: component.id, property } }));
-      let cancel = () => el.dispatchEvent(new CustomEvent("livewire-upload-cancel", { bubbles: true, detail: { id: component.id, property } }));
+      let start3 = () => el.dispatchEvent(new CustomEvent("cbwire-upload-start", { bubbles: true, detail: { id: component.id, property } }));
+      let finish = () => el.dispatchEvent(new CustomEvent("cbwire-upload-finish", { bubbles: true, detail: { id: component.id, property } }));
+      let error2 = () => el.dispatchEvent(new CustomEvent("cbwire-upload-error", { bubbles: true, detail: { id: component.id, property } }));
+      let cancel = () => el.dispatchEvent(new CustomEvent("cbwire-upload-cancel", { bubbles: true, detail: { id: component.id, property } }));
       let progress = (progressEvent) => {
         var percentCompleted = Math.round(progressEvent.loaded * 100 / progressEvent.total);
-        el.dispatchEvent(new CustomEvent("livewire-upload-progress", {
+        el.dispatchEvent(new CustomEvent("cbwire-upload-progress", {
           bubbles: true,
           detail: { progress: percentCompleted }
         }));
@@ -480,7 +480,7 @@
         el.value = null;
       };
       el.addEventListener("click", clearFileInputValue);
-      el.addEventListener("livewire-upload-cancel", clearFileInputValue);
+      el.addEventListener("cbwire-upload-cancel", clearFileInputValue);
       cleanup3(() => {
         el.removeEventListener("change", eventHandler);
         el.removeEventListener("click", clearFileInputValue);
@@ -9371,17 +9371,17 @@
           return true;
         return false;
       };
-      let cleanupA = listen(window, "livewire-upload-start", (e) => {
+      let cleanupA = listen(window, "cbwire-upload-start", (e) => {
         if (eventMismatch(e))
           return;
         startLoading();
       });
-      let cleanupB = listen(window, "livewire-upload-finish", (e) => {
+      let cleanupB = listen(window, "cbwire-upload-finish", (e) => {
         if (eventMismatch(e))
           return;
         endLoading();
       });
-      let cleanupC = listen(window, "livewire-upload-error", (e) => {
+      let cleanupC = listen(window, "cbwire-upload-error", (e) => {
         if (eventMismatch(e))
           return;
         endLoading();
