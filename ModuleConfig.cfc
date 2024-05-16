@@ -19,7 +19,7 @@ component {
 			 * assets for CBWIRE. This makes it where you do not
 			 * need to add wireStyles() and wireScripts() to your layout.
 			 */
-			"autoInjectAssets": false,
+			"autoInjectAssets": true,
 			/**
 			 * Capture our module root for use throughout CBWIRE.
 			 */
