@@ -275,6 +275,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock( cbwireController );
             });
 
+            it( "should support array of struct data properties", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_support_array_of_struct_data_properties",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "setFirst",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                var html = result.components.first().effects.html;
+                expect( html ).toInclude( '<a href="index.cfm">Home Updated</a>' );
+                expect( html ).toInclude( '<a href="about.cfm">About</a>' );
+                expect( html ).toInclude( '<a href="contact.cfm">Contact</a>' );
+            } );
+
             it( "should throw a 403 forbidden error if the CSRF token doesn't match", function() {
                 var payload = incomingRequest(
                     memo = {
