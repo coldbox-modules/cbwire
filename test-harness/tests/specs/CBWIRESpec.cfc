@@ -10,12 +10,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 testComponent = getInstance("wires.TestComponent");
                 testComponent._withEvent( getRequestContext( ) );
+                CBWIREController = getInstance( "CBWIREController@cbwire" );
                 prepareMock( testComponent );
             });
 
-            it("should be an object", function() {
-                expect(isObject(testComponent)).toBeTrue();
-            });
+            it( "should return a rendered component", function () {
+                var result = CBWIREController.wire( "test.should_render_a_component" );
+                expect( result ).toBeString();
+            } );
+
+            it( "should raise error if markers are not found in single-file component", function() {
+                expect( function() {
+                    var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
+                } ).toThrow( type="CBWIREMarkerException" );
+            } );
+
 
             it("should have generated getter", function() {
                 expect(testComponent.getModules()).toBeArray();
