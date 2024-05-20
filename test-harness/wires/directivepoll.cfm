@@ -1,13 +1,11 @@
 <cfoutput>
-    <div>
-        <!-- wire:key is important here so Livewire does proper teardown -->
-        <div wire:poll.#args.seconds#s wire:key="#createUUID()#">
-            Result: <span class="fw-bold">#createUUID()#</span>
-        </div>
-        <select wire:model.defer="seconds">
-            <option value="2">2 seconds</option>
-            <option value="5">5 seconds</option>
-            <option value="10">10 seconds</option>
-        </select>
+    <div wire:poll.5s="incrementLoop">
+        <h1>Polling</h1>
+
+        <cfloop from="1" to="#loop#" index="i">
+            <div wire:key="loop_#i#" wire:transition.duration.3000ms>
+                #now()#
+            </div>
+        </cfloop>
     </div>
 </cfoutput>

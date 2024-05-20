@@ -1,6 +1,5 @@
 component extends="cbwire.models.Component" {
 
-    // Data properties
     data = {
         "conference": "Into The Box"
     };
@@ -16,5 +15,9 @@ component extends="cbwire.models.Component" {
 
     function resetConference() {
         reset( "conference" );
+    }
+
+    function renderIt(){
+        return view( "wires.actions" );
     }
 }

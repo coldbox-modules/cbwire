@@ -1,7 +1,7 @@
-component accessors="true"{
+component singleton {
 
 	property name="settings" inject="coldbox:modulesettings:cbwire";
-    property name="cbwireService" inject="CBWIREService@cbwire";
+    property name="CBWIREController" inject="CBWIREController@cbwire";
 
     function preRender( event ) {
         if ( shouldInject( arguments.event ) ) {
@@ -11,14 +11,14 @@ component accessors="true"{
     }
 
     private function getStyles() {
-        return cbwireService.getStyles();
+        return variables.CBWIREController.getStyles();
     }
 
     private function getScripts() {
-        return cbwireService.getScripts();
+        return variables.CBWIREController.getScripts();
     }
 
     private function shouldInject( event ) {
-        return arguments.event.getCurrentModule() != "cbwire" && getSettings().autoInjectAssets == true;
+        return arguments.event.getCurrentModule() != "cbwire" && variables.settings.autoInjectAssets == true;
     }
 }

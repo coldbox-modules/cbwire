@@ -6,12 +6,3 @@
         <h2>#getTick( false )#</h2>
     </div>
 </cfoutput>
-
-<cfscript>
-    computed = {
-        "getTick": function() {
-            sleep( 1000 );
-            return getTickCount();
-        }
-    }
-</cfscript>

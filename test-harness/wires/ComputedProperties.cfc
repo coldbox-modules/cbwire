@@ -1,17 +1,14 @@
 component extends="cbwire.models.Component" {
 
-    // Computed properties
-    computed = {
-        "conference": function() {
-            return "Into The Box " & year( now() );
-        },
-        "speakers": getSpeakers,
-        "nullComputedProperty": function() {
-            return;
-        }
+    function nullComputedProperty() computed{
+        return;
     }
 
-    function getSpeakers() {
+    function conference() computed{
+        return "Into The Box " & year( now() );
+    }
+
+    function speakers() computed{
         return queryNew( 
             "firstname,lastname",
             "varchar,varchar",

@@ -1,34 +1,32 @@
 component {
 
-    property name="cbwireService" inject="CBWireService@cbwire";
+    property name="cbwireController" inject="CBWIREController@cbwire";
 
     /**
      * Primary entry point for cbwire requests.
      *
-     * Currently uses /livewire URI to support Livewire JS.
-     *
-     * URI: /livewire/messages/:wireComponent
+     * URI: /cbwire/update
      */
     function index( event, rc, prc ){
-        return getInstance( "IncomingRequest@cbwire" ).handle( event, rc, prc );
+        return cbwireController.handleRequest( getHTTPRequestData(), arguments.event );
     }
 
     /**
      * Endpoint for file uploads
      * 
-     * URI: /livewire/upload-file
+     * URI: /cbwire/upload-file
      */
     function uploadFile( event, rc, prc ) {
-        return getInstance( "IncomingFileUpload@cbwire" ).handle( event, rc, prc );
+        return cbwireController.handleFileUpload( getHTTPRequestData(), event );
     }
 
     /**
      * Endpoint for previewing file uploads
      * 
-     * URI: /livewire/preview-file/:uploadUUID
+     * URI: /cbwire/preview-file/:uploadUUID
      */
     function previewFile( event, rc, prc ) {
-        return getInstance( "IncomingFilePreview@cbwire" ).handle( event, rc, prc );
+        return cbwireController.handleFilePreview( getHTTPRequestData(), event );
     }
 
 }

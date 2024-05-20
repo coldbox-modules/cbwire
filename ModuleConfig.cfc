@@ -5,13 +5,7 @@ component {
 	this.author = "";
 	this.webUrl = "https://github.com/coldbox-modules/cbwire";
 	this.dependencies = [];
-
-	/**
-	 * This entry point remain as "livewire" as the underlining
-	 * Livewire JS library has a hard dependency on this endpoint.
-	 */
-	this.entryPoint = "livewire";
-
+	this.entryPoint = "cbwire";
 	this.layoutParentLookup = false;
 	this.viewParentLookup = false;
 	this.cfmapping = "cbwire";
@@ -25,11 +19,11 @@ component {
 			 * assets for CBWIRE. This makes it where you do not
 			 * need to add wireStyles() and wireScripts() to your layout.
 			 */
-			"autoInjectAssets": false,
+			"autoInjectAssets": true,
 			/**
 			 * Capture our module root for use throughout CBWIRE.
 			 */
-			"moduleRootPath": getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ),
+			"moduleRootPath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) ),
 			/**
 			 * Set to true to throw a 'WireSetterNotFound' exception if
 			 * the incoming cbwire request tries to update a property
@@ -51,11 +45,6 @@ component {
 			 */
 			"cacheSingleFileComponents": false,
 			/**
-			 * Cache Livewire's manifest for the livewire.js path
-			 * with it's hashing as a setting that we can use elsewhere.
-			 */
-			"manifest" : getLivewireManifest(),
-			/**
 			 * Trims string properties if set to true
 			 */
 			"trimStringValues" : false
@@ -68,20 +57,20 @@ component {
 				"action" : "previewFile"
 			},
 			{
-				"pattern" : "upload-file",
+				"pattern" : "upload",
 				"handler" : "Main",
 				"action" : "uploadFile"
 			},
 			{
-				"pattern" : "message/:wireComponent",
-				"handler" : "Main"
+				"pattern" : "update",
+				"handler" : "Main",
+				"action": "index"
 			}
 		];
 
 		interceptorSettings = {
 			customInterceptionPoints : [
 				"onCBWireMount",
-				"onCBWireRenderIt",
 				"onCBWireSubsequentRenderIt"
 			]
 		};
@@ -94,11 +83,9 @@ component {
 			// Mounting
 			{ class : "#moduleMapping#.interceptors.ComponentMounting" },
 			// Rendering
-			{ class : "#moduleMapping#.interceptors.InitialComponentRendering" },
 			{ class : "#moduleMapping#.interceptors.SubsequentComponentRendering" },
 			{ class : "#moduleMapping#.interceptors.AutoInjectAssets" },
-			// Output
-			{ class : "#moduleMapping#.interceptors.DisableBrowserCaching" }
+			{ class : "#moduleMapping#.interceptors.Preprocessor" }
 		];
 	}
 

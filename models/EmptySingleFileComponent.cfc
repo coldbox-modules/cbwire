@@ -1,5 +1,9 @@
 component extends="cbwire.models.Component" {
 
-	// Single file contents goes here
+    {{ CFC_CONTENTS }}
+
+    function renderIt() {
+        return view( "{{ TEMPLATE_PATH }}" );
+    }
 
 }

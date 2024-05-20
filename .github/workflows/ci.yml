@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - development
+      - next
       - master
 
 env:
   MODULE_ID: cbwire
-  VERSION: 
+  VERSION:
 
 jobs:
   #############################################
@@ -102,7 +103,7 @@ jobs:
           SLACK_CHANNEL: coding
           SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
           SLACK_ICON_EMOJI: ":bell:"
-          SLACK_MESSAGE: '${{ env.MODULE_ID }} tests failed :cry:'
+          SLACK_MESSAGE: "${{ env.MODULE_ID }} tests failed :cry:"
           SLACK_TITLE: ${{ env.MODULE_ID }} Tests For ${{ matrix.cfengine }} failed
           SLACK_USERNAME: CI
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,21 +1,18 @@
 component extends="cbwire.models.Component" {
 
     data = {
-        "hydrated": false
+        "hydrated": false,
+        "hydratedProperty": false
     };
 
     function clicked() {}
 
-    function onHydrate( data, computed ) {
+    function onHydrate() {
         data.hydrated = true;
     }
 
-    function onRender( args ) {
-        return "
-            <div>
-                <div>Hydrated: #args.hydrated#</div>
-                <button wire:click='clicked'>Click me</button>
-            </div>
-        ";
+    function onHydrateHydrated(){
+        data.hydratedProperty = true;
     }
+
 }

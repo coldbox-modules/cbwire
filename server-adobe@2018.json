@@ -19,5 +19,8 @@
     "openBrowser":"false",
     "cfconfig":{
         "file":".cfconfig.json"
+    },
+    "fusionreactor":{
+        "enable":false
     }
 }

@@ -1,9 +1,9 @@
 <cfoutput>
     <div x-data="{ 
-        counter: #entangle( 'counter' )#.defer,
-        name: #entangle( 'name' )#.defer
+        counter: #entangle( 'counter' )#.live,
+        name: #entangle( 'name' )#.live
     }">
-        <div>CBWIRE value: #args.counter#</div>
+        <div>CBWIRE value: #counter#</div>
         <div>AlpineJS value: <span x-html="counter"></span></div>
         <button wire:click="increment" type="button">Increment with CBWIRE</button>
         <button @click="counter += 1" type="button">Increment with AlpineJS</button>
@@ -15,7 +15,7 @@
                 <div x-html="name.length"></div>
             </template>
             <br>
-            CBWIRE value: #args.name#
+            CBWIRE value: #name#
         </div>
     </div>
 </cfoutput>

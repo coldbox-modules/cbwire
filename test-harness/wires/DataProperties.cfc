@@ -1,15 +1,18 @@
-component extends="cbwire.models.Component" {
+component extends="cbwire.models.Component" accessors="true" {
 
-    // Data properties
     data = {
-        "conference": "Into The Box 2022",
-        "toggleValue" : "false"
+        "conference": "Into the box",
+        "toggleValue": false
     };
 
     computed = {
         "someComputedProp": function( data ) {
             return data.conference & " yep ";
         }
+    }
+
+    function getConference(){
+        return "test";
     }
 
 }
