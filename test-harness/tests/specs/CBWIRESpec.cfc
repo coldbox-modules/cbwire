@@ -22,12 +22,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should raise error if markers are not found in single-file component", function() {
                 expect( function() {
                     var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
-                } ).toThrow( type="CBWIREMarkerException" );
+                } ).toThrow( type="CBWIREException" );
             } );
 
+            it("should have generated setters available in onMount", function() {
+                var result = CBWIREController.wire( "test.should_have_generated_setters_and_getters_available_in_onmount" );
+                expect( result ).toInclude( "<p>Name: Jane Doe</p>" );
+                expect( result ).toInclude( "<p>Copied name: John Doe</p>" );
+            });
 
-            it("should have generated getter", function() {
-                expect(testComponent.getModules()).toBeArray();
+            it("should have generated getter available in template", function() {
+                var result = CBWIREController.wire( "test.should_have_generated_getter_accessible_in_template" );
+                expect( result ).toInclude( "<p>Name: John</p>" );
+                expect( result ).toInclude( "<p>Age: 30</p>" );
+                expect( result ).toInclude( "<p>City: New York</p>" );
             });
 
             it("should have generated setter", function() {

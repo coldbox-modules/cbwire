@@ -60,7 +60,7 @@ component accessors="true" singleton {
         }
 
         if ( !local.startedWire || !local.endedWire ) {
-            throw( type="CBWIREMarkerException", message="The CBWIRE component '#arguments.cfmPath#' is missing '//@startWire' and '//@endWire' markers. Please place these in your CFSCRIPT block and place each one on a single line." );
+            throw( type="CBWIREException", message="The CBWIRE component '#arguments.cfmPath#' is missing '//@startWire' and '//@endWire' markers. Please place these in your CFSCRIPT block and place each one on a single line." );
         }
 
         return {

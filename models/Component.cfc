@@ -1203,12 +1203,12 @@ component output="true" {
         dataPropertyNames.each( function ( prop ) {
             if ( !variables.keyExists( "get" & prop ) ) {
                 variables[ "get" & prop ] = function() {
-                    return variables[ prop ];
+                    return variables.data[ prop ];
                 }
             }
             if ( !variables.keyExists( "set" & prop ) ) {
                 variables[ "set" & prop ] = function( value ) {
-                    return variables[ prop ] = value;
+                    return variables.data[ prop ] = value;
                 }
             }
         } );

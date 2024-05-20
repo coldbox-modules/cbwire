@@ -92,6 +92,12 @@
         variables[key] = value;
         variables.data[key] = value;
         variables.args[key] = value;
+        /* 
+            Provided getters for data properties.
+        */
+        variables["get" & key] = function() {
+            return variables[key];
+        };
     });
 
     /*
