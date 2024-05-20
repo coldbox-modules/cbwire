@@ -585,7 +585,7 @@ component output="true" {
             Provide file uploads to view
         */
         variables.data.each( function( key, value ) {
-            if ( isArray( arguments.value ) && arguments.value.len() && arguments.value[ 1 ] contains "fileupload:" ) {
+            if ( isArray( arguments.value ) && arguments.value.len() && isSimpleValue( arguments.value.first() ) && arguments.value[ 1 ] contains "fileupload:" ) {
                 // This property is holding an array of file uploads.
                 value.each( function( uuid, index ) {
                     local.fileUpload = getInstance( dsl="FileUpload@cbwire" ).load(
