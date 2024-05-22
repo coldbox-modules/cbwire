@@ -420,7 +420,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should return an outer element with the same id that we passed in", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "counter",
+                        "name": "Counter",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
