@@ -51,6 +51,7 @@ component{
 
 		//Register interceptors as an array, we need order
 		interceptors = [
+			{ class="cbwire.interceptors.CBWIRE" }
 		];
 
 		layoutSettings = {

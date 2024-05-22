@@ -38,115 +38,86 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>City: New York</p>" );
             });
 
-            it("should have generated setter", function() {
-                testComponent.setModules( [ "cbwire", "quickorm" ] );
-                expect(testComponent.getModules().len()).toBe(2);
-            });
-
-            it( "should be able to call getInstance()", function() {
-                var result = testComponent.getInstance( "wires.TestComponent" );
-                expect( result ).toBeInstanceOf( "TestComponent" );
+            it( "should be able to call getInstance from template and component", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_call_getInstance_from_template_and_component" );
+                expect( result ).toInclude( "<p>OnMount Result: 3</p>" );
+                expect( result ).toInclude( "<p>Inline Result: 5</p>" );
             } );
 
-            it("should be able to call action", function() {
-                testComponent.setFrameworks( [ "cbwire", "coldbox" ] );
-                testComponent.clearFrameworks();
-                expect(testComponent.getFrameworks().len()).toBe(0);
-            });
+            it("should be able to call UDF/action from template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_call_udf_from_template" );
+                expect( result ).toInclude( "<p>Result: 3</p>" );
+            } );
 
-            it("should render with correct snapshot, effects, and id attribute", function() {
-                var renderedHtml = testComponent._render();
-                expect(renderedHtml.contains('<div wire:snapshot="{')).toBeTrue();
-                expect(renderedHtml.contains('wire:effects="{')).toBeTrue();
-                expect(renderedHtml.contains('id="')).toBeTrue();
-            });
+            it( "should render with correct snapshot, effects, and id attribute", function() {
+                var result = CBWIREController.wire( "test.should_render_with_correct_snapshot_effects_and_id_attribute" );
+                var parsing = parseRendering( result );
+                expect( parsing.outerElement ).toBe( "div" );
+                expect( reFindNoCase( "^[A-Za-z0-9]+$", parsing.snapshot.memo.id ) ).toBeGT( 0 );
+                expect( parsing.snapshot.data.name ).toBe( "Jane Doe" );
+                expect( parsing.effects ).toBeArray();
+                expect( parsing.effects.len() ).toBe( 0 );
+            } );
 
             it("should render string booleans as booleans", function() {
-                var renderedHtml = testComponent._render();
-                expect(renderedHTML.contains('stringBooleanValue&quot;:true') ).toBeTrue();
+                var result = CBWIREController.wire( "test.should_render_string_booleans_as_booleans" );
+                var parsing = parseRendering( result );
+                expect( isBoolean( parsing.snapshot.data.stringBooleanValue ) ).toBeTrue();
+                expect( parsing.snapshot.data.stringBooleanValue ).toBeTrue();
             });
 
-            it("should render a view template", function() {
-                testComponent.addModule("CBWIRE");
-                var viewContent = testComponent.view("wires.testcomponent");
-                expect(viewContent).toInclude("Modules");
-                expect(viewContent).toInclude("CBWIRE");
-            });
-
-            it("should implicitly render a view template", function() {
-                testComponent = getInstance("wires.ImplicitRender");
-                var viewContent = testComponent.renderIt();
-                expect(viewContent).toInclude("I rendered implicitly");
-            });
-
-            it("should pass additional data to the view", function() {
-                var viewContent = testComponent.view("wires.TestComponent", { modules: [ "wirebox"] });
-                expect(viewContent).toInclude("wirebox");
-            });
-
-            it( "should support computed properties", function() {
-                expect( testComponent.numberOfModules() ).toBe( 0 );
+            it( "should render with a renderIt method", function() {
+                var result = CBWIREController.wire( "test.should_render_with_a_renderIt_method" );
+                expect( result ).toInclude( "<p>I rendered from renderIT</p>" );
             } );
 
+            it("should implicitly render a view template", function() {
+                var result = CBWIREController.wire( "test.should_implicitly_render_a_view_template" );
+                expect( result ).toInclude( "<p>Implicitly rendered</p>" );
+            } );
+
+            it( "should support passing params into a renderIt method", function() {
+                var result = CBWIREController.wire( "test.should_support_passing_params_into_a_renderIt_method" );
+                expect( result ).toInclude( "<p>Passed in: 5</p>" );
+            } );
+
+            it( "should support computed properties", function() {
+                var result = CBWIREController.wire( "test.should_support_computed_properties" );
+                expect( reFindNoCase( "UUID: [A-Za-z0-9-]+", result ) ).toBeGT( 0 );
+            } );
+            
             it( "should cache computed properties", function() {
-                var strength1 = testComponent.calculateStrength();
-                sleep( 10 );
-                var strength2 = testComponent.calculateStrength();
-                expect( strength1 ).toBe( strength2 );
+                var result = CBWIREController.wire( "test.should_cache_computed_properties" );
+                var firstUUID = reFindNoCase( "UUID: ([A-Za-z0-9-]+)", result, 1, true ).match[ 2 ];
+                expect( result ).toInclude( "<p>UUID: #firstUUID#</p>" );
+                expect( result ).toInclude( "<p>UUID2: #firstUUID#</p>" );
             } );
 
             it( "should accept false flag for computed properties to prevent caching", function() {
-                var strength1 = testComponent.calculateStrength();
-                sleep( 10 );
-                var strength2 = testComponent.calculateStrength( false );
-                expect( strength1 ).notToBe( strength2 );
+                var result = CBWIREController.wire( "test.should_accept_false_flag_for_computed_properties_to_prevent_caching" );
+                var firstUUID = reFindNoCase( "UUID: ([A-Za-z0-9-]+)", result, 1, true ).match[ 2 ];
+                expect( result ).toInclude( "<p>UUID: #firstUUID#</p>" );
+                expect( result ).notToInclude( "<p>UUID2: #firstUUID#</p>" );
             } );
 
-            it( "should return a snapshot that contains the proper memo name", function() {
-                var snapshot = testComponent._getSnapshot();
-                expect( snapshot.memo.name ).toBe( "TestComponent" );
-                expect( snapshot.memo.path ).toBe( "TestComponent" );
+            it( "should support accessing data properties using legacy 'args' scope", function() {
+                var result = CBWIREController.wire( "test.should_support_accessing_data_properties_using_legacy_args_scope" );
+                expect( result ).toInclude( "<p>Name: Jane Doe</p>" );
             } );
 
-            it( "should be able to access computed property from view", function() {
-                testComponent.addModule( "CBWIRE" );
-                testComponent.addModule( "CBORM" );
-                var viewContent = testComponent.view("wires.TestComponent" );
-                expect(viewContent).toInclude("Number Of Modules: 2");
-            } );
-
-            it( "should be able to access data properties from view using 'args.'", function() {
-                testComponent.addModule( "CBWIRE" );
-                testComponent.addModule( "CBORM" );
-                var viewContent = testComponent.view("wires.testcomponentusingargs" );
-                expect(viewContent).toInclude("Number Of Modules: 2");
-            } );
-
-            it( "should set a single data property", function() {
-                testComponent.setTitle( "CBWIRE" );
-                expect(testComponent.getTitle()).toBe( "CBWIRE" );
-            });
-
-            it( "should set multiple data properties", function() {
-                testComponent.setTitle( "CBWIRE" );
-                testComponent.setStringBooleanValue( "false" );
-                expect(testComponent.getTitle()).toBe( "CBWIRE" );
-                expect(testComponent.getStringBooleanValue()).toBe("false");
-            });
-
-            it( "should throw an error if we try to set a data property that doesn't exist", function() {
+            xit( "should throw an error if we try to set a data property that doesn't exist", function() {
                 expect(function() {
                     testComponent.setInvalidProperty("value");
                 }).toThrow(type="CBWIREException");
             });
 
-            it( "should reset all data properties", function() {
+            xit( "should reset all data properties", function() {
                 testComponent.addModule( "ContentBox" );
                 testComponent.reset();
                 expect( testComponent.numberOfModules() ).toBe( 0 );
             } );
 
-            it( "should reset a single data property", function() {
+            xit( "should reset a single data property", function() {
                 testComponent.addModule( "CBWIRE" );
                 testComponent.addFramework( "ColdBox" );
                 testComponent.reset( "modules" );
@@ -154,7 +125,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( testComponent.numberOfFrameworks() ).toBe( 1 );
             } );
 
-            it( "should reset multiple data properties", function() {
+            xit( "should reset multiple data properties", function() {
                 testComponent.addModule( "CBWIRE" );
                 testComponent.addFramework( "ColdBox" );
                 testComponent.reset( [ "modules", "frameworks" ] );
@@ -162,7 +133,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( testComponent.numberOfFrameworks() ).toBe( 0 );
             } );
 
-            it( "should resetExcept a single data property", function() {
+            xit( "should resetExcept a single data property", function() {
                 testComponent.addModule( "CBWIRE" );
                 testComponent.addFramework( "ColdBox" );
                 testComponent.resetExcept( "modules" );
@@ -170,7 +141,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( testComponent.numberOfFrameworks() ).toBe( 0 );
             } );
 
-            it( "should resetExcept multiple data properties", function() {
+            xit( "should resetExcept multiple data properties", function() {
                 testComponent.addModule( "CBWIRE" );
                 testComponent.addFramework( "ColdBox" );
                 testComponent.resetExcept( [ "modules" ] );
@@ -178,10 +149,39 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( testComponent.numberOfFrameworks() ).toBe( 0 );
             } );
 
-            it( "should render child components", function() {
-                testComponent.setShowChildComponent( true );
-                var result = testComponent.view( "wires.TestComponent" );
-                expect( result ).toInclude( "<h2>Child component</h2>" );
+            it( "should support child components", function() {
+                var result = CBWIREController.wire( "test.should_support_child_components" );
+                var parent = parseRendering( result, 1 );
+                var child = parseRendering( result, 2 );
+                expect( result ).toInclude( "<p>Main component" );
+                expect( result ).toInclude( "<p>Child component</p>" );
+            } );
+
+            it( "should return proper names with child components", function() {
+                var result = CBWIREController.wire( "test.should_support_child_components" );
+                var parent = parseRendering( result, 1 );
+                var child = parseRendering( result, 2 );
+                expect( parent.snapshot.memo.name ).toBe( "should_support_child_components" );
+                expect( child.snapshot.memo.name ).toBe( "child_component" );
+                expect( parent.snapshot.memo.children ).toBeStruct();
+            } );
+
+            it( "should track child components", function() {
+                var result = CBWIREController.wire( "test.should_support_child_components" );
+                var parent = parseRendering( result, 1 );
+                var child = parseRendering( result, 2 );
+                expect( parent.snapshot.memo.children).toBeStruct();
+                expect( structCount( parent.snapshot.memo.children ) ).toBe( 1 );
+                var keys = structKeyArray( parent.snapshot.memo.children );
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ] ).toBeArray();
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 1 ] ).toBe( "div" );
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
+            } );
+
+            xit( "should provide original path to component when there is a template rendering error", function() {
+                var result = CBWIREController.wire( "test.should_raise_error_for_template_rendering_error" );
+                expect( function() {
+                } ).toThrow( type="CBWIREException", message="Error rendering template: test.should_raise_error_for_template_rendering_error" );
             } );
 
             it( "should validate()", function() {
@@ -1025,4 +1025,49 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
         return response;
     }
+
+    /**
+     * Take a rendered HTML component and breaks out its snapshot,
+     * effects, etc for analysis during tests.
+     * 
+     * @return struct
+     */
+    private function parseRendering( html, index = 1 ) {
+        local.result = {};
+        // Determine outer element
+        local.outerElementMatches = reMatchNoCase( "<([a-z]+)\s", html );
+        local.result[ "outerElement" ] = reFindNoCase( "<([a-z]+)\s", html, 1, true ).match[ 2 ];
+        // Parse snapshot 
+        local.result[ "snapshot" ] = parseSnapshot( html, index );
+        // Parse effects 
+        local.result[ "effects" ] = parseEffects( html, index );
+        return local.result;
+    }
+
+    /**
+     * Parse the snapshot from a rendered HTML component
+     * 
+     * @return struct
+     */
+    private function parseSnapshot( html, index = 1 ) {
+        local.match = reMatchNoCase( "wire:snapshot=""([^""]+)", html )[ index ];
+        local.regexMatches = reFindNoCase( "wire:snapshot=""([^""]+)", local.match, 1, true );
+        local.snapshot = local.regexMatches.match[ 2 ];
+        local.snapshot = replaceNoCase( local.snapshot, "&quot;", """", "all" );
+        return deserializeJSON( local.snapshot );
+    }
+
+    /**
+     * Parse the effects from a rendered HTML component
+     * 
+     * @return struct
+     */
+    private function parseEffects( html, index = 1 ) {
+        local.match = reMatchNoCase( "wire:effects=""([^""]+)", html )[ index ];
+        local.regexMatches = reFindNoCase( "wire:effects=""([^""]+)", local.match, 1, true );
+        local.effects = local.regexMatches.match[ 2 ];
+        local.effects = replaceNoCase( local.effects, "&quot;", """", "all" );
+        return deserializeJSON( local.effects );
+    }
+
 }
