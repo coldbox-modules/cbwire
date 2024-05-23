@@ -49,6 +49,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "<p>Component ID: [A-Za-z0-9]+</p>", result ) ).toBeGT( 0 );
             } );
 
+            it( "should support rendering wires with x-data and arrow functions", function() {
+                var result = CBWIREController.wire( "test.should_support_rendering_wires_with_xdata_and_arrow_functions" );
+                expect( reFindNoCase( "<div wire:snapshot=""\{(.*)\}"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
+            } );
+
             it("should be able to call UDF/action from template", function() {
                 var result = CBWIREController.wire( "test.should_be_able_to_call_udf_from_template" );
                 expect( result ).toInclude( "<p>Result: 3</p>" );
@@ -1040,8 +1045,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
     private function parseRendering( html, index = 1 ) {
         local.result = {};
         // Determine outer element
-        local.outerElementMatches = reMatchNoCase( "<([a-z]+)\s", html );
-        local.result[ "outerElement" ] = reFindNoCase( "<([a-z]+)\s", html, 1, true ).match[ 2 ];
+        local.outerElementMatches = reMatchNoCase( "<([a-z]+)\s*", html );
+        local.result[ "outerElement" ] = reFindNoCase( "<([a-z]+)\s*", html, 1, true ).match[ 2 ];
         // Parse snapshot 
         local.result[ "snapshot" ] = parseSnapshot( html, index );
         // Parse effects 

@@ -856,10 +856,14 @@ component output="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
-        var livewireAttributes = ' wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
-        
+        // Trim our html 
+        arguments.html = arguments.html.trim();
+        // Define the wire attributes to append
+        local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
+        // Determine our outer element 
+        local.outerElement = _getOuterElement( arguments.html );
         // Insert attributes into the opening tag
-        return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
+        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
     }
 
     /**
@@ -1389,5 +1393,17 @@ component output="true" {
             // Return the trimmed HTML content
             return _insertSubsequentLivewireAttributes( local.trimmedHTML );
         }
+    }
+
+    /**
+     * Returns the first outer element from the provided html.
+     * "<div x-data=""></div>" returns "div";
+     * 
+     * @return string
+     */
+    function _getOuterElement( html ) {
+        local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
+        local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
+        return local.outerElement.trim();
     }
 }
