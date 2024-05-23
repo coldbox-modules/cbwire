@@ -293,6 +293,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock( cbwireController );
             });
 
+            it( "should support rendering wires with x-data and arrow functions", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_support_rendering_wires_with_xdata_and_arrow_functions",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = {}
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( reFindNoCase( "<div wire:id=""([A-Za-z0-9]+)"" x-data=""{", result.components.first().effects.html ) ).toBeGT( 0 );
+            } );
+
             it( "should support array of struct data properties", function() {
                 var payload = incomingRequest(
                     memo = {

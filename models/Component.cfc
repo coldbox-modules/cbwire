@@ -874,8 +874,14 @@ component output="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     function _insertSubsequentLivewireAttributes( html ) {
-        var livewireAttributes = " wire:id=""#variables._id#""";
-        return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
+        // Trim our html
+        arguments.html = arguments.html.trim();
+        // Define the wire attributes to append
+        local.wireAttributes = "wire:id=""#variables._id#""";
+        // Determine our outer element
+        local.outerElement = _getOuterElement( arguments.html );
+        // Insert attributes into the opening tag
+        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
     }
 
     /**
