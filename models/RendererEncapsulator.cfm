@@ -100,6 +100,11 @@
         };
     });
 
+    /* 
+        Provide _id variable to view
+    */
+    variables["_id"] = attributes.CBWIREComponent._getId();
+
     /*
         Provide params to view.
         Make sure to run this last so we always overwrite data properties with params.

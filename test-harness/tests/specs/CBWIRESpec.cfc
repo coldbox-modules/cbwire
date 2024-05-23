@@ -44,6 +44,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Inline Result: 5</p>" );
             } );
 
+            it( "should provide _id variable to template", function() {
+                var result = CBWIREController.wire( "test.should_provide_id_variable_to_template" );
+                expect( reFindNoCase( "<p>Component ID: [A-Za-z0-9]+</p>", result ) ).toBeGT( 0 );
+            } );
+
             it("should be able to call UDF/action from template", function() {
                 var result = CBWIREController.wire( "test.should_be_able_to_call_udf_from_template" );
                 expect( result ).toInclude( "<p>Result: 3</p>" );
