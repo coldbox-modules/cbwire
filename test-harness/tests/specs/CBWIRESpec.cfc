@@ -293,6 +293,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock( cbwireController );
             });
 
+            it( "should support $refresh action", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_support_refresh_action",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "$refresh",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                var html = result.components.first().effects.html;
+                expect( reFindNoCase( "<p>Refreshed at [0-9]+</p>", html ) ).toBeGT( 0 );
+            } );
+
             it( "should support rendering wires with x-data and arrow functions", function() {
                 var payload = incomingRequest(
                     memo = {

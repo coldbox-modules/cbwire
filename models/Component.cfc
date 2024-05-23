@@ -443,6 +443,14 @@ component output="true" {
         return "";
     }
 
+    /**
+     * Built in action that does nothing but causes the template 
+     * to re-render on subsequent requests.
+     * 
+     * @return void
+     */
+    function $refresh() {}
+
     /* 
         ==================================================================
         Internal API
