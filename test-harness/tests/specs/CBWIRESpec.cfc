@@ -133,6 +133,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Error: The 'name' field is required</p>" );
             } );
 
+            it( "should be able to render colbox views using view() from a template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_render_colbox_views_using_view_from_a_template" );
+                expect( result ).toInclude( "<p>Rendered using view()!</p>" );
+            } );
+
             xit( "should throw an error if we try to set a data property that doesn't exist", function() {
                 expect(function() {
                     testComponent.setInvalidProperty("value");

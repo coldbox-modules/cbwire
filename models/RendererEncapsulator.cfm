@@ -105,6 +105,13 @@
     */
     variables["_id"] = attributes.CBWIREComponent._getId();
 
+    /* 
+        Provide ColdBox view() method to view
+    */
+    variables["view"] = function() {
+        return variables.CBWIREComponent.getCBWIREController().view( argumentCollection=arguments );
+    };
+
     /*
         Provide params to view.
         Make sure to run this last so we always overwrite data properties with params.
