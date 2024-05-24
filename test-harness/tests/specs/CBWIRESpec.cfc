@@ -115,6 +115,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Name: Jane Doe</p>" );
             } );
 
+            it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
+                var result = CBWIREController.wire( "test.should_support_hasErrors_hasError_getError_for_validation" );
+                expect( result ).toInclude( "<p>Has errors: true</p>" );
+                expect( result ).toInclude( "<p>Has error: true</p>" );
+                expect( result ).toInclude( "<p>Get errors length: 1</p>" );
+                expect( result ).toInclude( "<p>Error: The 'name' field is required</p>" );
+            } );
+
             xit( "should throw an error if we try to set a data property that doesn't exist", function() {
                 expect(function() {
                     testComponent.setInvalidProperty("value");

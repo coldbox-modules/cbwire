@@ -298,11 +298,26 @@ component output="true" {
      * 
      * @return boolean
      */
-    function hasErrors( field ) {
-        if ( isNull( arguments.field ) ) {
-            return variables._validationREsult.hasErrors();
-        }
-        return variables._validationResult.hasErrors( arguments.field );
+    function hasErrors() {
+        return variables._validationResult.hasErrors();
+    }
+
+    /**
+     * Returns true if a specific property has errors.
+     * 
+     * @return boolean
+     */
+    function hasError( prop ) {
+        return variables._validationResult.hasErrors( arguments.prop );
+    }
+
+    /**
+     * Returns array of ValidationError objects containing all of theerrors.
+     * 
+     * @return array
+     */
+    function getErrors() {
+        return variables._validationResult.getErrors();
     }
 
     /**
@@ -310,8 +325,8 @@ component output="true" {
      * 
      * @return string
      */
-    function getError( field) {
-        local.allErrors = variables._validationResult.getAllErrors( arguments.field );
+    function getError( prop ) {
+        local.allErrors = variables._validationResult.getAllErrors( arguments.prop );
         if ( local.allErrors.len() ) {
             return local.allErrors.first();
         }
