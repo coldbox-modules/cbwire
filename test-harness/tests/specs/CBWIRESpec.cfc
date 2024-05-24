@@ -115,6 +115,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Name: Jane Doe</p>" );
             } );
 
+            it( "should support onBoot() firing when the component is initially rendered", function() {
+                var result = CBWIREController.wire( "test.should_support_onBoot_firing_when_the_component_is_initially_rendered" );
+                expect( result ).toInclude( "<p>OnBoot Fired</p>" );
+            } );
+
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
                 var result = CBWIREController.wire( "test.should_support_hasErrors_hasError_getError_for_validation" );
                 expect( result ).toInclude( "<p>Has errors: true</p>" );
@@ -745,6 +750,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.data.modules.len() ).toBe( 2 );
                 expect( snapshot.data.modules[ 1 ] ).toBe( "CBWIRE" );
                 expect( snapshot.data.modules[ 2 ] ).toBe( "CBORM" );
+            } );
+
+            it( "should support firing onBoot on subsequent requests", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_support_onBoot_firing_when_the_component_is_initially_rendered",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "booted": false
+                    },
+                    calls = [],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "<p>OnBoot fired</p>" );
             } );
 
         } );

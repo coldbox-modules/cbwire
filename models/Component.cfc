@@ -86,6 +86,14 @@ component output="true" {
         */
         _prepareListeners();
 
+        /* 
+            Fire onBoot lifecycle method
+            if it exists
+        */
+        if ( structKeyExists( this, "onBoot" ) ) {
+            invoke( this, "onBoot" );
+        }
+
         return this;
     }
 
