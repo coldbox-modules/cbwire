@@ -120,6 +120,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>OnBoot Fired</p>" );
             } );
 
+            it( "should be able to call inherited methods from template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_call_inherited_methods_from_template" );
+                expect( result ).toInclude( "<p>Result: Hello World!</p>" );
+            } );
+
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
                 var result = CBWIREController.wire( "test.should_support_hasErrors_hasError_getError_for_validation" );
                 expect( result ).toInclude( "<p>Has errors: true</p>" );
