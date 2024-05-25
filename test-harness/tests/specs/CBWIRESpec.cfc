@@ -133,9 +133,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Error: The 'name' field is required</p>" );
             } );
 
-            it( "should be able to render colbox views using view() from a template", function() {
-                var result = CBWIREController.wire( "test.should_be_able_to_render_colbox_views_using_view_from_a_template" );
+            xit( "should display component errors in a CBWIRE custom exception page", function() {
+                var result = CBWIREController.wire( "test.should_display_component_errors_in_a_CBWIRE_custom_exception_page" );
+            } );
+
+            it( "should be able to render coldbox views using view() from a template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_render_coldbox_views_using_view_from_a_template" );
                 expect( result ).toInclude( "<p>Rendered using view()!</p>" );
+            } );
+
+            it( "should be able to render coldbox views using view() from a component", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_render_coldbox_views_using_view_from_a_component" );
+                expect( result ).toInclude( "<p>Rendered from component!</p>" );
             } );
 
             xit( "should throw an error if we try to set a data property that doesn't exist", function() {
@@ -225,12 +234,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it("should access validation from view", function() {
                 var result = testComponent.validate();
-                var viewContent = testComponent.view("wires.superheroesvalidation");
+                var viewContent = testComponent.template("wires.superheroesvalidation");
                 expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
             });
 
             it( "should auto validate", function() {
-                var viewContent = testComponent.view("wires.superheroesvalidation");
+                var viewContent = testComponent.template("wires.superheroesvalidation");
                 expect(viewContent).toInclude("The 'mailingList' has an invalid type, expected type is email");
             } );
 
@@ -264,28 +273,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "should reference application helper methods", function() {
-                var result = testComponent.view( "wires.testcomponentwithhelpermethods" );
+                var result = testComponent.template( "wires.testcomponentwithhelpermethods" );
                 expect( result ).toInclude( "someGlobalUDF: yay!" );
             } );
 
             it("should throw an exception for a non-existent view", function() {
                 expect(function() {
-                    testComponent.view("nonExistentView");
+                    testComponent.template("nonExistentView");
                 }).toThrow();
             });
 
             it("should throw an error for HTML without a single outer element", function() {
                 expect(function() {
-                    testComponent._render( testComponent.view( "wires.testing.multipleouterelements" ) );
+                    testComponent._render( testComponent.template( "wires.testing.multipleouterelements" ) );
                 }).toThrow("Template has more than one outer element, or is missing an end tag </element>.");
             });
 
             it("should render complex HTML structures", function() {
-                testComponent._render( testComponent.view( "wires.testing.complexhtml" ) );
+                testComponent._render( testComponent.template( "wires.testing.complexhtml" ) );
             } );
 
             it( "should include listeners within wire:effects on initial render", function() {
-                var result = testComponent._render( testComponent.view( "wires.TestComponent" ) );
+                var result = testComponent._render( testComponent.template( "wires.TestComponent" ) );
                 expect( result ).toInclude( "wire:effects=""{&quot;listeners&quot;:[&quot;someEvent&quot;]}""" );
             } );
 

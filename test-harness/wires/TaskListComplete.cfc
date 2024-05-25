@@ -28,7 +28,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt() {
-        return view( "wires.TaskListComplete" );
+        return template( "wires.TaskListComplete" );
     }
 
 }

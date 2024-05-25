@@ -10,7 +10,7 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return view( "wires.queryString" );
+        return template( "wires.queryString" );
     }
 
 }

@@ -1,9 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    {{ CFC_CONTENTS }}
-
     function renderIt() {
-        return template( "{{ TEMPLATE_PATH }}" );
+        return view( "testView", { input: "Rendered from component!" } );
     }
-
 }

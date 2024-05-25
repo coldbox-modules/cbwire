@@ -5,6 +5,6 @@ component extends="cbwire.models.Component" {
     };
 
     function renderIt() {
-        return view( "wires.test.should_support_passing_params_into_a_renderIt_method", { "value": 5 } );
+        return template( "wires.test.should_support_passing_params_into_a_renderIt_method", { "value": 5 } );
     }
 }

@@ -31,8 +31,13 @@ component {
      * 
      * @return boolean
      */
-    function onException() eventPattern="^cbwire.*" {
-        return true;
+    function onException() {
+        local.exception = arguments.interceptData.exception;
+        if ( local.exception.type contains "CBWIRE:" ) {
+            writeDump( var=buffer, top=2 );
+            abort;
+            return true;
+        }
     }
 
     function onRequestCapture() eventPattern="^cbwire.*" {

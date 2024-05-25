@@ -20,6 +20,6 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt() {
-        return view( "wires.CounterComplete", { isEven: isEven() } );
+        return template( "wires.CounterComplete", { isEven: isEven() } );
     }
 }

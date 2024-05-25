@@ -124,19 +124,60 @@ component output="true" {
      * If not overridden, this method will simply render the view.
      */
     function renderIt() {
-        return view( _getViewPath() );
+        return template( _getViewPath() );
     }
 
     /**
-     * Renders a specified view by converting dot notation to path notation and appending .cfm if necessary.
+     * Pass-through method for ColdBox's view() method.
+     *
+	 * @view                   The the view to render, if not passed, then we look in the request context for the current set view.
+	 * @args                   A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+	 * @module                 The module to render the view from explicitly
+	 * @cache                  Cached the view output or not, defaults to false
+	 * @cacheTimeout           The time in minutes to cache the view
+	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+	 * @cacheSuffix            The suffix to add into the cache entry for this view rendering
+	 * @cacheProvider          The provider to cache this view in, defaults to 'template'
+	 * @collection             A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+	 * @collectionAs           The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+	 * @collectionStartRow     The start row to limit the collection rendering with
+	 * @collectionMaxRows      The max rows to iterate over the collection rendering with
+	 * @collectionDelim        A string to delimit the collection renderings by
+	 * @prePostExempt          If true, pre/post view interceptors will not be fired. By default they do fire
+	 * @name                   The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+	 *
+	 * @return The rendered view
+     */
+    function view(
+        view                   = "",
+		struct args            = {},
+		module                 = "",
+		boolean cache          = false,
+		cacheTimeout           = "",
+		cacheLastAccessTimeout = "",
+		cacheSuffix            = "",
+		cacheProvider          = "template",
+		collection,
+		collectionAs               = "",
+		numeric collectionStartRow = "1",
+		numeric collectionMaxRows  = 0,
+		collectionDelim            = "",
+		boolean prePostExempt      = false,
+		name
+    ) {
+        return variables._CBWIREController.view( argumentCollection=arguments );
+    }
+
+    /**
+     * Renders a specified template by converting dot notation to path notation and appending .cfm if necessary.
      * Then, it returns the HTML content.
      *
-     * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
+     * @viewPath string | The dot notation path to the template to be rendered, without the .cfm extension.
      * @params struct | A struct containing the parameters to be passed to the view template.
      *
      * @return The rendered HTML content as a string.
      */
-    function view( viewPath, params = {} ) {
+    function template( viewPath, params = {} ) {
         // Normalize the view path
         local.normalizedPath = _getNormalizedViewPath( viewPath );
         // Render the view content and trim the result
@@ -541,14 +582,17 @@ component output="true" {
             }
         } );
 
-        // Fire onMount if it exists
-        onMount( 
-            event=variables._event,
-            rc=variables._event.getCollection(),
-            prc=variables._event.getPrivateCollection(),    
-            params=arguments.params         
-        );
-
+        try {
+            // Fire onMount if it exists
+            onMount( 
+                event=variables._event,
+                rc=variables._event.getCollection(),
+                prc=variables._event.getPrivateCollection(),    
+                params=arguments.params         
+            );
+        } catch ( any e ) {
+            throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
+        }
 
         return this;
     }
