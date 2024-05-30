@@ -13,7 +13,7 @@
         },
         "webroot":"test-harness",
         "aliases":{
-            "/moduleroot/cbwire":"./"
+            "/moduleroot/cbwire":"../"
         }
     },
     "openBrowser":"false",
