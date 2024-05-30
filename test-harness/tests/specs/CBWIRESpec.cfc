@@ -788,6 +788,49 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.html ).toInclude( "<p>OnBoot fired</p>" );
             } );
 
+            it( "should redirect the user", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_redirect_the_user",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "someMethod",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.redirect ).toBe( "/some-uri" );
+                expect( response.components[1].effects.redirectUsingNavigate ).toBeFalse();
+            } );
+
+            it( "should redirect the user using navigate = true", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_redirect_the_user_using_navigate",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "someMethod",
+                            "params": []
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.redirect ).toBe( "/some-uri" );
+                expect( response.components[1].effects.redirectUsingNavigate ).toBeTrue();
+            } );
         } );
 
         describe("File Uploads", function() {

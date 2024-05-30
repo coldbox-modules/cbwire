@@ -22,6 +22,8 @@ component output="true" {
     property name="_cache"; // internal cache for storing data
     property name="_xjs";
     property name="_returnValues";
+    property name="_redirect";
+    property name="_redirectUsingNavigate";
 
     /**
      * Constructor
@@ -54,6 +56,8 @@ component output="true" {
         variables._lazyIsolated = true;
         variables._xjs = [];
         variables._returnValues = [];
+        variables._redirect = "";
+        variables._redirectUsingNavigate = false;
         
         /* 
             Cache the component's meta data on initialization
@@ -195,6 +199,17 @@ component output="true" {
      */
     function getInstance( name, initArguments = {}, dsl ) {
         return variables._wirebox.getInstance( argumentCollection=arguments );
+    }
+
+    /**
+     * Redirects a user to a specified URL or URI.
+     *
+     * @redirectURL string | The URL or URI to redirect the user to.
+     * @redirectUsingNavigate boolean | Whether to use the navigate method to redirect.
+     */
+    function redirect( redirectURL, redirectUsingNavigate = false ) {
+        variables._redirect = arguments.redirectURL;
+        variables._redirectUsingNavigate = arguments.redirectUsingNavigate;
     }
 
     /**
@@ -1156,17 +1171,22 @@ component output="true" {
         local.response = [
             "snapshot": serializeJson( local.snapshot ),
             "effects": {
-            "returns": variables._returnValues,
-            "html": local.html
+                "returns": variables._returnValues,
+                "html": local.html
             }
         ];
         // Add any dispatches
         if ( variables._dispatches.len() ) {
-            local.response.effects["dispatches"] = variables._dispatches;
+            local.response.effects[ "dispatches" ] = variables._dispatches;
         }
         // Add any xjs
         if ( variables._xjs.len() ) {
-            local.response.effects["xjs"] = variables._xjs;
+            local.response.effects[ "xjs" ] = variables._xjs;
+        }
+        // Add any redirects
+        if ( variables._redirect.len() ) {
+            local.response.effects[ "redirect" ] = variables._redirect;
+            local.response.effects[ "redirectUsingNavigate" ] = variables._redirectUsingNavigate;
         }
 
         return local.response;
