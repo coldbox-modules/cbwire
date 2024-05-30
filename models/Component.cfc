@@ -130,40 +130,40 @@ component output="true" {
     /**
      * Pass-through method for ColdBox's view() method.
      *
-	 * @view                   The the view to render, if not passed, then we look in the request context for the current set view.
-	 * @args                   A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
-	 * @module                 The module to render the view from explicitly
-	 * @cache                  Cached the view output or not, defaults to false
-	 * @cacheTimeout           The time in minutes to cache the view
-	 * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
-	 * @cacheSuffix            The suffix to add into the cache entry for this view rendering
-	 * @cacheProvider          The provider to cache this view in, defaults to 'template'
-	 * @collection             A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
-	 * @collectionAs           The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
-	 * @collectionStartRow     The start row to limit the collection rendering with
-	 * @collectionMaxRows      The max rows to iterate over the collection rendering with
-	 * @collectionDelim        A string to delimit the collection renderings by
-	 * @prePostExempt          If true, pre/post view interceptors will not be fired. By default they do fire
-	 * @name                   The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
-	 *
-	 * @return The rendered view
+     * @view                   The the view to render, if not passed, then we look in the request context for the current set view.
+     * @args                   A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+     * @module                 The module to render the view from explicitly
+     * @cache                  Cached the view output or not, defaults to false
+     * @cacheTimeout           The time in minutes to cache the view
+     * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+     * @cacheSuffix            The suffix to add into the cache entry for this view rendering
+     * @cacheProvider          The provider to cache this view in, defaults to 'template'
+     * @collection             A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+     * @collectionAs           The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+     * @collectionStartRow     The start row to limit the collection rendering with
+     * @collectionMaxRows      The max rows to iterate over the collection rendering with
+     * @collectionDelim        A string to delimit the collection renderings by
+     * @prePostExempt          If true, pre/post view interceptors will not be fired. By default they do fire
+     * @name                   The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+     *
+     * @return The rendered view
      */
     function view(
         view                   = "",
-		struct args            = {},
-		module                 = "",
-		boolean cache          = false,
-		cacheTimeout           = "",
-		cacheLastAccessTimeout = "",
-		cacheSuffix            = "",
-		cacheProvider          = "template",
-		collection,
-		collectionAs               = "",
-		numeric collectionStartRow = "1",
-		numeric collectionMaxRows  = 0,
-		collectionDelim            = "",
-		boolean prePostExempt      = false,
-		name
+        struct args            = {},
+        module                 = "",
+        boolean cache          = false,
+        cacheTimeout           = "",
+        cacheLastAccessTimeout = "",
+        cacheSuffix            = "",
+        cacheProvider          = "template",
+        collection,
+        collectionAs               = "",
+        numeric collectionStartRow = "1",
+        numeric collectionMaxRows  = 0,
+        collectionDelim            = "",
+        boolean prePostExempt      = false,
+        name
     ) {
         return variables._CBWIREController.view( argumentCollection=arguments );
     }
@@ -184,16 +184,16 @@ component output="true" {
         return _renderViewContent( local.normalizedPath, arguments.params );
     }
 
-	/**
-	 * Get a instance object from WireBox
-	 *
-	 * @name string | The mapping name or CFC path or DSL to retrieve
-	 * @initArguments struct | The constructor structure of arguments to passthrough when initializing the instance
-	 * @dsl string | The DSL string to use to retrieve an instance
-	 *
-	 * @return The requested instance
-	 */
-	function getInstance( name, initArguments = {}, dsl ) {
+    /**
+     * Get a instance object from WireBox
+     *
+     * @name string | The mapping name or CFC path or DSL to retrieve
+     * @initArguments struct | The constructor structure of arguments to passthrough when initializing the instance
+     * @dsl string | The DSL string to use to retrieve an instance
+     *
+     * @return The requested instance
+     */
+    function getInstance( name, initArguments = {}, dsl ) {
         return variables._wirebox.getInstance( argumentCollection=arguments );
     }
 
@@ -322,10 +322,10 @@ component output="true" {
      * @return ValidationResult
      */
     function validate( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
-		arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
-		arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
-		variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
-		return variables._validationResult;
+        arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
+        arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
+        variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
+        return variables._validationResult;
     }
 
     /**
@@ -398,22 +398,22 @@ component output="true" {
      * @return 
      */
     function reset( property ){
-		if ( isNull( arguments.property ) ) {
-			// Reset all properties
-			variables.data.each( function( key, value ){
-				reset( key );
-			} );
-		} else if ( isArray( arguments.property ) ) {
-			// Reset each property in our array individually
-			arguments.property.each( function( prop ){
-				reset( prop );
-			} );
-		} else {
-			var initialState = variables._initialDataProperties;
-			// Reset individual property
+        if ( isNull( arguments.property ) ) {
+            // Reset all properties
+            variables.data.each( function( key, value ){
+                reset( key );
+            } );
+        } else if ( isArray( arguments.property ) ) {
+            // Reset each property in our array individually
+            arguments.property.each( function( prop ){
+                reset( prop );
+            } );
+        } else {
+            var initialState = variables._initialDataProperties;
+            // Reset individual property
             variables.data[ arguments.property ] = initialState[ arguments.property ];
-		}
-	}
+        }
+    }
 
     /**
      * Resets all data properties except the ones specified.
@@ -422,32 +422,32 @@ component output="true" {
      */
     function resetExcept( property ){
         if ( isNull( arguments.property ) ) {
-			throw( type="ResetException", message="Cannot reset a null property." );
-		}
+            throw( type="ResetException", message="Cannot reset a null property." );
+        }
 
-		// Reset all properties except what was provided
-		_getDataProperties().each( function( key, value ){
-			if ( isArray( property ) ) {
-				if ( !arrayFindNoCase( property, arguments.key ) ) {
-					reset( key );
-				}
-			} else if ( property != key ) {
-				reset( key );
-			}
-		} );
+        // Reset all properties except what was provided
+        _getDataProperties().each( function( key, value ){
+            if ( isArray( property ) ) {
+                if ( !arrayFindNoCase( property, arguments.key ) ) {
+                    reset( key );
+                }
+            } else if ( property != key ) {
+                reset( key );
+            }
+        } );
     }
 
     /**
-	 * Returns a reference to the LivewireJS entangle method
-	 * which provides model binding between AlpineJS and CBWIRE.
-	 *
-	 * @prop string | The data property you want to bind client and server side.
-	 *
-	 * @returns string
-	 */
-	function entangle( required prop ) {
-		return "window.Livewire.find( '#variables._id#' ).entangle( '#arguments.prop#' )";
-	}
+     * Returns a reference to the LivewireJS entangle method
+     * which provides model binding between AlpineJS and CBWIRE.
+     *
+     * @prop string | The data property you want to bind client and server side.
+     *
+     * @returns string
+     */
+    function entangle( required prop ) {
+        return "window.Livewire.find( '#variables._id#' ).entangle( '#arguments.prop#' )";
+    }
 
     /**
      * Provide ability to return and execute Javascript 
@@ -745,7 +745,7 @@ component output="true" {
      */
     function _getValidationManager(){
         try {
-    		return getInstance( dsl="ValidationManager@cbvalidation" );
+            return getInstance( dsl="ValidationManager@cbvalidation" );
         } catch ( any e ) {
             throw( type="CBWIREException", message="ValidationManager not found. Make sure the 'cbvalidation' module is installed." );
         }
