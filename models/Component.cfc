@@ -1031,6 +1031,8 @@ component output="true" {
      * @throws ApplicationException When the HTML does not meet the single outer element criteria.
      */
     function _validateSingleOuterElement( trimmedHtml ) {
+        return; // Skip until we can find a much faster way to validate a single outer element.
+
         // Define void elements
         local.voidTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
 

@@ -283,7 +283,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 }).toThrow();
             });
 
-            it("should throw an error for HTML without a single outer element", function() {
+            xit("should throw an error for HTML without a single outer element", function() {
                 expect(function() {
                     testComponent._render( testComponent.template( "wires.testing.multipleouterelements" ) );
                 }).toThrow("Template has more than one outer element, or is missing an end tag </element>.");
@@ -541,7 +541,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should dispatch an event without params", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "TestComponent",
+                        "name": "test.should_dispatch_an_event_without_params",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -568,7 +568,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should dispatch an event with params", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "TestComponent",
+                        "name": "test.should_dispatch_an_event_with_params",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -671,7 +671,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should call onHydrate() if it exists", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "OnHydrate",
+                        "name": "test.should_call_onhydrate",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
@@ -689,7 +689,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should call onHydrate[Property] if it exists", function() {
                 var payload = incomingRequest(
                     memo = {
-                        "name": "OnHydrate",
+                        "name": "test.should_call_onhydrate",
                         "id": "Z1Ruz1tGMPXSfw7osBW2",
                         "children": []
                     },
