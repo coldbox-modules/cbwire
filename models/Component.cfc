@@ -1509,4 +1509,18 @@ component output="true" {
         local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
         return local.outerElement.trim();
     }
+
+    /**
+     * Returns true if the cbvalidation module is installed.
+     * 
+     * @return boolean
+     */
+    function _isCBValidationInstalled() {
+        try {
+            _getValidationManager();
+            return true;
+        } catch ( any e ) {
+            return false;
+        }
+    }
 }
