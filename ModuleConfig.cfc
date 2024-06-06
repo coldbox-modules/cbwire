@@ -68,6 +68,11 @@ component {
             }
         ];
 
+        interceptors = [
+            // Init
+            { class : "#moduleMapping#.interceptors.CBWIRE" }
+        ];
+
         interceptorSettings = {
             customInterceptionPoints : []
         };
