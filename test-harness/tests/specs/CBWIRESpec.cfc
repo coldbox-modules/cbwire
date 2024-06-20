@@ -1001,6 +1001,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result.trim() ).toBe( "</div>" );
             } );
 
+			it( "can render component from ./wires folder using wire()", function() {
+				var result = cbwireController.wire( "TestComponent" );
+				expect( result ).toContain( "Title: CBWIRE Rocks!" );
+			} );
+
+			it( "can render component from nested folder using wire()", function() {
+				var result = cbwireController.wire( "wires.nestedComponent.NestedFolderComponent" );
+				expect( result ).toContain( "Nested folder component" );
+			} );
+
+			it( "throws error if it's unable to find a module component", function() {
+				expect( function() {
+					var result = cbwireController.wire( "missing@someModule" );
+				} ).toThrow( type="ModuleNotFound" );  
+			} );
+
+			it( "can render component from nested module using default wires location", function() {
+				var result = cbwireController.wire( "NestedModuleDefaultComponent@testingmodule" );
+				expect( result ).toContain( "Nested module component using default wires location" );
+			} );
+
+
         });
 
         describe( "Preprocessors", function() {
