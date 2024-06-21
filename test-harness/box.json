@@ -1,33 +1,35 @@
 {
-    "name": "Tester",
-    "version": "0.0.0",
-    "slug": "tester",
-    "private": true,
-    "description": "",
-    "dependencies": {
-        "coldbox": "^6",
-        "cbvalidation": "^4.3.0+24",
-        "cbi18n": "^3.2.0+12"
+    "name":"Tester",
+    "version":"0.0.0",
+    "slug":"tester",
+    "private":true,
+    "description":"",
+    "dependencies":{
+        "coldbox":"^6",
+        "cbvalidation":"^4.3.0+24",
+        "cbi18n":"^3.2.0+12",
+        "cbcsrf":"^3.1.0+16"
     },
-    "devDependencies": {
-        "testbox": "^5",
-        "route-visualizer": "^1.4.0+24"
+    "devDependencies":{
+        "testbox":"^5",
+        "route-visualizer":"^1.4.0+24"
     },
-    "installPaths": {
-        "coldbox": "coldbox/",
-        "testbox": "testbox/",
-        "cbvalidation": "modules/cbvalidation/",
-        "route-visualizer": "modules/route-visualizer/",
-        "cbi18n": "modules/cbi18n/"
+    "installPaths":{
+        "coldbox":"coldbox/",
+        "testbox":"testbox/",
+        "cbvalidation":"modules/cbvalidation/",
+        "route-visualizer":"modules/route-visualizer/",
+        "cbi18n":"modules/cbi18n/",
+        "cbcsrf":"modules/cbcsrf/"
     },
-    "testbox": {
-        "runner": "http://localhost:60299/tests/runner.cfm"
+    "testbox":{
+        "runner":"http://localhost:60299/tests/runner.cfm"
     },
-    "scripts": {
-        "cfpm": "echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\"' | run",
-        "cfpm:install2021": "echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
-        "cfpm:install2023": "echo '\".engine/adobe2023/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
-        "install:2021": "run-script cfpm:install2021 zip,mysql,debugger",
-        "install:2023": "run-script cfpm:install2023 zip,mysql,debugger"
+    "scripts":{
+        "cfpm":"echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\"' | run",
+        "cfpm:install2021":"echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
+        "cfpm:install2023":"echo '\".engine/adobe2023/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
+        "install:2021":"run-script cfpm:install2021 zip,mysql,debugger",
+        "install:2023":"run-script cfpm:install2023 zip,mysql,debugger"
     }
 }
