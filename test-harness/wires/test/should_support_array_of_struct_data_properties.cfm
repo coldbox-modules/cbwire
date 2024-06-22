@@ -1,34 +1,35 @@
 <cfscript>
     // @startWire
-    data = {
-        "menu": [
-            {
-                "name": "Home",
-                "link": "index.cfm"
-            },
-            {
-                "name": "About",
-                "link": "about.cfm"
-            },
-            {
-                "name": "Contact",
-                "link": "contact.cfm"
-            }
-        ]
-    };
+    data = [
+        "title": "CBWIRE Rocks!",
+        "states": []
+    ];
 
-    function setFirst() {
-        data.menu[1].name = "Home Updated";
+    function addState( abr, name ){
+        data.states.append( { "name" : name, "abr" : abr } );
+    }
+
+    function onMount( params, event, rc, prc ) {
+        // Initialize some states
+        data.states.append( { "name" : "Maryland", "abr" : "MD" } );
+        data.states.append( { "name" : "Virginia", "abr" : "VA" } );
+        data.states.append( { "name" : "Florida", "abr" : "FL" } );
+        data.states.append( { "name" : "Wyoming", "abr" : "WY" } );
     }
     // @endWire
 </cfscript>
 
 <cfoutput>
     <div>
-        <ul>
-            <cfloop array="#data.menu#" index="item">
-                <li><a href="#item.link#">#item.name#</a></li>
-            </cfloop>
-        </ul>
+        <div>#args.title#</div>
+        <h1>States</h1>
+        <p>Number Of States In data.states: #states.len()#</p>
+        <cfif states.len() >
+            <ul>
+                <cfloop index="currentIndex" item="currentState" array="#states#"> 
+                    <li>#currentState.abr# : #currentState.name#</li>
+                </cfloop>
+            </ul>
+        </cfif>
     </div>
 </cfoutput>

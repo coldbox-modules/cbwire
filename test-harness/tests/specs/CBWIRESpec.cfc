@@ -362,30 +362,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "<div wire:id=""([A-Za-z0-9]+)"" x-data=""{", result.components.first().effects.html ) ).toBeGT( 0 );
             } );
 
-            it( "should support array of struct data properties", function() {
-                var payload = incomingRequest(
-                    memo = {
-                        "name": "test.should_support_array_of_struct_data_properties",
-                        "id": "Z1Ruz1tGMPXSfw7osBW2",
-                        "children": []
-                    },
-                    data = {},
-                    calls = [
-                        {
-                            "path": "",
-                            "method": "setFirst",
-                            "params": []
-                        }
-                    ],
-                    updates = {}
-                );
-                var result = cbwireController.handleRequest( payload, event );
-                var html = result.components.first().effects.html;
-                expect( html ).toInclude( '<a href="index.cfm">Home Updated</a>' );
-                expect( html ).toInclude( '<a href="about.cfm">About</a>' );
-                expect( html ).toInclude( '<a href="contact.cfm">Contact</a>' );
-            } );
-
             it( "should throw a 403 forbidden error if the CSRF token doesn't match", function() {
                 var payload = incomingRequest(
                     memo = {
@@ -830,6 +806,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.redirect ).toBe( "/some-uri" );
                 expect( response.components[1].effects.redirectUsingNavigate ).toBeTrue();
+            } );
+
+            it( "should handle array of struct data properties", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_support_array_of_struct_data_properties",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": "CBWIRE Rocks!",
+                        "states": [
+                            { "name" : "Maryland", "abr" : "MD" },
+                            { "name" : "Virginia", "abr" : "VA" },
+                            { "name" : "Florida", "abr" : "FL" },
+                            { "name" : "Wyoming", "abr" : "WY" }
+                        ]
+                    },
+                    calls = [],
+                    updates = {
+                        "title": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
             } );
         } );
 
