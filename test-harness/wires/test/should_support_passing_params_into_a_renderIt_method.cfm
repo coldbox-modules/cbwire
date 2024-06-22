@@ -1,5 +1,5 @@
 <cfoutput>
     <div>
-        <p>#args.input#</p>
+        <p>Passed in: #value#</p>
     </div>
 </cfoutput>

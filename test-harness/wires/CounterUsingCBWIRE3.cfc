@@ -37,7 +37,7 @@ component extends="cbwire.models.Component" accessors="true" {
      * @return The HTML representation of the component, including Livewire data attributes.
      */
     public string function renderIt() {
-        return view("wires.CounterUsingDataDot");
+        return template("wires.CounterUsingDataDot");
     }
 
 }

@@ -80,8 +80,10 @@
     /*
         Auto-validate and provide validation methods to view.
     */
-    attributes.CBWIREComponent.validate();
-    variables["validation"] = attributes.CBWIREComponent._getValidationResult();
+    if ( attributes.CBWIREComponent._isCBValidationInstalled() ) {
+        attributes.CBWIREComponent.validate();
+        variables["validation"] = attributes.CBWIREComponent._getValidationResult();
+    }
 
     /* 
         Provide data properties to view.
@@ -92,7 +94,25 @@
         variables[key] = value;
         variables.data[key] = value;
         variables.args[key] = value;
+        /* 
+            Provided getters for data properties.
+        */
+        variables["get" & key] = function() {
+            return variables[key];
+        };
     });
+
+    /* 
+        Provide _id variable to view
+    */
+    variables["_id"] = attributes.CBWIREComponent._getId();
+
+    /* 
+        Provide ColdBox view() method to view
+    */
+    variables["view"] = function() {
+        return variables.CBWIREComponent.getCBWIREController().view( argumentCollection=arguments );
+    };
 
     /*
         Provide params to view.

@@ -22,6 +22,8 @@ component output="true" {
     property name="_cache"; // internal cache for storing data
     property name="_xjs";
     property name="_returnValues";
+    property name="_redirect";
+    property name="_redirectUsingNavigate";
 
     /**
      * Constructor
@@ -54,6 +56,8 @@ component output="true" {
         variables._lazyIsolated = true;
         variables._xjs = [];
         variables._returnValues = [];
+        variables._redirect = "";
+        variables._redirectUsingNavigate = false;
         
         /* 
             Cache the component's meta data on initialization
@@ -86,6 +90,14 @@ component output="true" {
         */
         _prepareListeners();
 
+        /* 
+            Fire onBoot lifecycle method
+            if it exists
+        */
+        if ( structKeyExists( this, "onBoot" ) ) {
+            invoke( this, "onBoot" );
+        }
+
         return this;
     }
 
@@ -116,36 +128,88 @@ component output="true" {
      * If not overridden, this method will simply render the view.
      */
     function renderIt() {
-        return view( _getViewPath() );
+        return template( _getViewPath() );
     }
 
     /**
-     * Renders a specified view by converting dot notation to path notation and appending .cfm if necessary.
+     * Pass-through method for ColdBox's view() method.
+     *
+     * @view                   The the view to render, if not passed, then we look in the request context for the current set view.
+     * @args                   A struct of arguments to pass into the view for rendering, will be available as 'args' in the view.
+     * @module                 The module to render the view from explicitly
+     * @cache                  Cached the view output or not, defaults to false
+     * @cacheTimeout           The time in minutes to cache the view
+     * @cacheLastAccessTimeout The time in minutes the view will be removed from cache if idle or requested
+     * @cacheSuffix            The suffix to add into the cache entry for this view rendering
+     * @cacheProvider          The provider to cache this view in, defaults to 'template'
+     * @collection             A collection to use by this Renderer to render the view as many times as the items in the collection (Array or Query)
+     * @collectionAs           The name of the collection variable in the partial rendering.  If not passed, we will use the name of the view by convention
+     * @collectionStartRow     The start row to limit the collection rendering with
+     * @collectionMaxRows      The max rows to iterate over the collection rendering with
+     * @collectionDelim        A string to delimit the collection renderings by
+     * @prePostExempt          If true, pre/post view interceptors will not be fired. By default they do fire
+     * @name                   The name of the rendering region to render out, Usually all arguments are coming from the stored region but you override them using this function's arguments.
+     *
+     * @return The rendered view
+     */
+    function view(
+        view                   = "",
+        struct args            = {},
+        module                 = "",
+        boolean cache          = false,
+        cacheTimeout           = "",
+        cacheLastAccessTimeout = "",
+        cacheSuffix            = "",
+        cacheProvider          = "template",
+        collection,
+        collectionAs               = "",
+        numeric collectionStartRow = "1",
+        numeric collectionMaxRows  = 0,
+        collectionDelim            = "",
+        boolean prePostExempt      = false,
+        name
+    ) {
+        return variables._CBWIREController.view( argumentCollection=arguments );
+    }
+
+    /**
+     * Renders a specified template by converting dot notation to path notation and appending .cfm if necessary.
      * Then, it returns the HTML content.
      *
-     * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
+     * @viewPath string | The dot notation path to the template to be rendered, without the .cfm extension.
      * @params struct | A struct containing the parameters to be passed to the view template.
      *
      * @return The rendered HTML content as a string.
      */
-    function view( viewPath, params = {} ) {
+    function template( viewPath, params = {} ) {
         // Normalize the view path
         local.normalizedPath = _getNormalizedViewPath( viewPath );
         // Render the view content and trim the result
         return _renderViewContent( local.normalizedPath, arguments.params );
     }
 
-	/**
-	 * Get a instance object from WireBox
-	 *
-	 * @name string | The mapping name or CFC path or DSL to retrieve
-	 * @initArguments struct | The constructor structure of arguments to passthrough when initializing the instance
-	 * @dsl string | The DSL string to use to retrieve an instance
-	 *
-	 * @return The requested instance
-	 */
-	function getInstance( name, initArguments = {}, dsl ) {
+    /**
+     * Get a instance object from WireBox
+     *
+     * @name string | The mapping name or CFC path or DSL to retrieve
+     * @initArguments struct | The constructor structure of arguments to passthrough when initializing the instance
+     * @dsl string | The DSL string to use to retrieve an instance
+     *
+     * @return The requested instance
+     */
+    function getInstance( name, initArguments = {}, dsl ) {
         return variables._wirebox.getInstance( argumentCollection=arguments );
+    }
+
+    /**
+     * Redirects a user to a specified URL or URI.
+     *
+     * @redirectURL string | The URL or URI to redirect the user to.
+     * @redirectUsingNavigate boolean | Whether to use the navigate method to redirect.
+     */
+    function redirect( redirectURL, redirectUsingNavigate = false ) {
+        variables._redirect = arguments.redirectURL;
+        variables._redirectUsingNavigate = arguments.redirectUsingNavigate;
     }
 
     /**
@@ -273,10 +337,10 @@ component output="true" {
      * @return ValidationResult
      */
     function validate( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
-		arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
-		arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
-		variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
-		return variables._validationResult;
+        arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
+        arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
+        variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
+        return variables._validationResult;
     }
 
     /**
@@ -298,11 +362,26 @@ component output="true" {
      * 
      * @return boolean
      */
-    function hasErrors( field ) {
-        if ( isNull( arguments.field ) ) {
-            return variables._validationREsult.hasErrors();
-        }
-        return variables._validationResult.hasErrors( arguments.field );
+    function hasErrors() {
+        return variables._validationResult.hasErrors();
+    }
+
+    /**
+     * Returns true if a specific property has errors.
+     * 
+     * @return boolean
+     */
+    function hasError( prop ) {
+        return variables._validationResult.hasErrors( arguments.prop );
+    }
+
+    /**
+     * Returns array of ValidationError objects containing all of theerrors.
+     * 
+     * @return array
+     */
+    function getErrors() {
+        return variables._validationResult.getErrors();
     }
 
     /**
@@ -310,8 +389,8 @@ component output="true" {
      * 
      * @return string
      */
-    function getError( field) {
-        local.allErrors = variables._validationResult.getAllErrors( arguments.field );
+    function getError( prop ) {
+        local.allErrors = variables._validationResult.getAllErrors( arguments.prop );
         if ( local.allErrors.len() ) {
             return local.allErrors.first();
         }
@@ -334,22 +413,22 @@ component output="true" {
      * @return 
      */
     function reset( property ){
-		if ( isNull( arguments.property ) ) {
-			// Reset all properties
-			variables.data.each( function( key, value ){
-				reset( key );
-			} );
-		} else if ( isArray( arguments.property ) ) {
-			// Reset each property in our array individually
-			arguments.property.each( function( prop ){
-				reset( prop );
-			} );
-		} else {
-			var initialState = variables._initialDataProperties;
-			// Reset individual property
+        if ( isNull( arguments.property ) ) {
+            // Reset all properties
+            variables.data.each( function( key, value ){
+                reset( key );
+            } );
+        } else if ( isArray( arguments.property ) ) {
+            // Reset each property in our array individually
+            arguments.property.each( function( prop ){
+                reset( prop );
+            } );
+        } else {
+            var initialState = variables._initialDataProperties;
+            // Reset individual property
             variables.data[ arguments.property ] = initialState[ arguments.property ];
-		}
-	}
+        }
+    }
 
     /**
      * Resets all data properties except the ones specified.
@@ -358,32 +437,32 @@ component output="true" {
      */
     function resetExcept( property ){
         if ( isNull( arguments.property ) ) {
-			throw( type="ResetException", message="Cannot reset a null property." );
-		}
+            throw( type="ResetException", message="Cannot reset a null property." );
+        }
 
-		// Reset all properties except what was provided
-		_getDataProperties().each( function( key, value ){
-			if ( isArray( property ) ) {
-				if ( !arrayFindNoCase( property, arguments.key ) ) {
-					reset( key );
-				}
-			} else if ( property != key ) {
-				reset( key );
-			}
-		} );
+        // Reset all properties except what was provided
+        _getDataProperties().each( function( key, value ){
+            if ( isArray( property ) ) {
+                if ( !arrayFindNoCase( property, arguments.key ) ) {
+                    reset( key );
+                }
+            } else if ( property != key ) {
+                reset( key );
+            }
+        } );
     }
 
     /**
-	 * Returns a reference to the LivewireJS entangle method
-	 * which provides model binding between AlpineJS and CBWIRE.
-	 *
-	 * @prop string | The data property you want to bind client and server side.
-	 *
-	 * @returns string
-	 */
-	function entangle( required prop ) {
-		return "window.Livewire.find( '#variables._id#' ).entangle( '#arguments.prop#' )";
-	}
+     * Returns a reference to the LivewireJS entangle method
+     * which provides model binding between AlpineJS and CBWIRE.
+     *
+     * @prop string | The data property you want to bind client and server side.
+     *
+     * @returns string
+     */
+    function entangle( required prop ) {
+        return "window.Livewire.find( '#variables._id#' ).entangle( '#arguments.prop#' )";
+    }
 
     /**
      * Provide ability to return and execute Javascript 
@@ -442,6 +521,14 @@ component output="true" {
     function placeholder() {
         return "";
     }
+
+    /**
+     * Built in action that does nothing but causes the template 
+     * to re-render on subsequent requests.
+     * 
+     * @return void
+     */
+    function $refresh() {}
 
     /* 
         ==================================================================
@@ -510,14 +597,17 @@ component output="true" {
             }
         } );
 
-        // Fire onMount if it exists
-        onMount( 
-            event=variables._event,
-            rc=variables._event.getCollection(),
-            prc=variables._event.getPrivateCollection(),    
-            params=arguments.params         
-        );
-
+        try {
+            // Fire onMount if it exists
+            onMount( 
+                event=variables._event,
+                rc=variables._event.getCollection(),
+                prc=variables._event.getPrivateCollection(),    
+                params=arguments.params         
+            );
+        } catch ( any e ) {
+            throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
+        }
 
         return this;
     }
@@ -585,7 +675,7 @@ component output="true" {
             Provide file uploads to view
         */
         variables.data.each( function( key, value ) {
-            if ( isArray( arguments.value ) && arguments.value.len() && isSimpleValue( arguments.value[ 1 ] ) && arguments.value[ 1 ] contains "fileupload:" ) {
+            if ( isArray( arguments.value ) && arguments.value.len() && isSimpleValue( arguments.value.first() ) && arguments.value[ 1 ] contains "fileupload:" ) {
                 // This property is holding an array of file uploads.
                 value.each( function( uuid, index ) {
                     local.fileUpload = getInstance( dsl="FileUpload@cbwire" ).load(
@@ -670,7 +760,7 @@ component output="true" {
      */
     function _getValidationManager(){
         try {
-    		return getInstance( dsl="ValidationManager@cbvalidation" );
+            return getInstance( dsl="ValidationManager@cbvalidation" );
         } catch ( any e ) {
             throw( type="CBWIREException", message="ValidationManager not found. Make sure the 'cbvalidation' module is installed." );
         }
@@ -856,10 +946,14 @@ component output="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
-        var livewireAttributes = ' wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
-        
+        // Trim our html 
+        arguments.html = arguments.html.trim();
+        // Define the wire attributes to append
+        local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
+        // Determine our outer element 
+        local.outerElement = _getOuterElement( arguments.html );
         // Insert attributes into the opening tag
-        return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
+        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
     }
 
     /**
@@ -870,8 +964,14 @@ component output="true" {
      * @return String The HTML content with Livewire attributes properly inserted.
      */
     function _insertSubsequentLivewireAttributes( html ) {
-        var livewireAttributes = " wire:id=""#variables._id#""";
-        return replaceNoCase( arguments.html, ">", livewireAttributes & ">", "one" );
+        // Trim our html
+        arguments.html = arguments.html.trim();
+        // Define the wire attributes to append
+        local.wireAttributes = "wire:id=""#variables._id#""";
+        // Determine our outer element
+        local.outerElement = _getOuterElement( arguments.html );
+        // Insert attributes into the opening tag
+        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
     }
 
     /**
@@ -931,6 +1031,8 @@ component output="true" {
      * @throws ApplicationException When the HTML does not meet the single outer element criteria.
      */
     function _validateSingleOuterElement( trimmedHtml ) {
+        return; // Skip until we can find a much faster way to validate a single outer element.
+
         // Define void elements
         local.voidTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
 
@@ -1071,17 +1173,22 @@ component output="true" {
         local.response = [
             "snapshot": serializeJson( local.snapshot ),
             "effects": {
-            "returns": variables._returnValues,
-            "html": local.html
+                "returns": variables._returnValues,
+                "html": local.html
             }
         ];
         // Add any dispatches
         if ( variables._dispatches.len() ) {
-            local.response.effects["dispatches"] = variables._dispatches;
+            local.response.effects[ "dispatches" ] = variables._dispatches;
         }
         // Add any xjs
         if ( variables._xjs.len() ) {
-            local.response.effects["xjs"] = variables._xjs;
+            local.response.effects[ "xjs" ] = variables._xjs;
+        }
+        // Add any redirects
+        if ( variables._redirect.len() ) {
+            local.response.effects[ "redirect" ] = variables._redirect;
+            local.response.effects[ "redirectUsingNavigate" ] = variables._redirectUsingNavigate;
         }
 
         return local.response;
@@ -1203,12 +1310,12 @@ component output="true" {
         dataPropertyNames.each( function ( prop ) {
             if ( !variables.keyExists( "get" & prop ) ) {
                 variables[ "get" & prop ] = function() {
-                    return variables[ prop ];
+                    return variables.data[ prop ];
                 }
             }
             if ( !variables.keyExists( "set" & prop ) ) {
                 variables[ "set" & prop ] = function( value ) {
-                    return variables[ prop ] = value;
+                    return variables.data[ prop ] = value;
                 }
             }
         } );
@@ -1388,6 +1495,32 @@ component output="true" {
         } else {
             // Return the trimmed HTML content
             return _insertSubsequentLivewireAttributes( local.trimmedHTML );
+        }
+    }
+
+    /**
+     * Returns the first outer element from the provided html.
+     * "<div x-data=""></div>" returns "div";
+     * 
+     * @return string
+     */
+    function _getOuterElement( html ) {
+        local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
+        local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
+        return local.outerElement.trim();
+    }
+
+    /**
+     * Returns true if the cbvalidation module is installed.
+     * 
+     * @return boolean
+     */
+    function _isCBValidationInstalled() {
+        try {
+            _getValidationManager();
+            return true;
+        } catch ( any e ) {
+            return false;
         }
     }
 }

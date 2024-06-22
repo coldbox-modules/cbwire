@@ -1,5 +1,5 @@
 <cfoutput>
     <div>
-        <p>#args.input#</p>
+        <p>Result: #sayHello()#</p>
     </div>
 </cfoutput>

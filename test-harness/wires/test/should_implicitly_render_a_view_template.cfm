@@ -1,5 +1,5 @@
 <cfoutput>
     <div>
-        <p>#args.input#</p>
+        <p>Implicitly rendered</p>
     </div>
 </cfoutput>

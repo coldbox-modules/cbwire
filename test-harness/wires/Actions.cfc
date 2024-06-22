@@ -18,6 +18,6 @@ component extends="cbwire.models.Component" {
     }
 
     function renderIt(){
-        return view( "wires.actions" );
+        return template( "wires.actions" );
     }
 }
