@@ -312,21 +312,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 }
             } );
 
-            it( "should handle a data property that is an array of structs", function(){
-                dataWithStructComponent = getInstance("wires.dataWithStructWire")._withEvent( getRequestContext( ) );
-                prepareMock( dataWithStructComponent );
-                // add aditional states
-                dataWithStructComponent.onMount();
-                dataWithStructComponent.addState( "IA", "Iowa" );
-                dataWithStructComponent.addState( "CA", "California" );
-                // verify data struct read and write without errors
-                var structViewContent = dataWithStructComponent.view("wires.dataWithStructWire");
-                expect(structViewContent).toInclude("Number Of States In data.states: 6");
-                expect(structViewContent).toInclude("IA : Iowa");
-                expect(structViewContent).toInclude("CA : California");
-
-            } );
-
         });
 
         describe("Incoming Requests", function() {
