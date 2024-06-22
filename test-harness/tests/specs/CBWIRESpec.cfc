@@ -253,6 +253,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 }
             } );
 
+            it( "should handle a data property that is an array of structs", function(){
+                dataWithStructComponent = getInstance("wires.dataWithStructWire")._withEvent( getRequestContext( ) );
+                prepareMock( dataWithStructComponent );
+                // add aditional states
+                dataWithStructComponent.onMount();
+                dataWithStructComponent.addState( "IA", "Iowa" );
+                dataWithStructComponent.addState( "CA", "California" );
+                // verify data struct read and write without errors
+                var structViewContent = dataWithStructComponent.view("wires.dataWithStructWire");
+                expect(structViewContent).toInclude("Number Of States In data.states: 6");
+                expect(structViewContent).toInclude("IA : Iowa");
+                expect(structViewContent).toInclude("CA : California");
+
+            } );
+
         });
 
         describe("Incoming Requests", function() {
@@ -651,6 +666,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.data.modules[ 2 ] ).toBe( "CBORM" );
             } );
 
+            it( "should handle incoming reqeust when a data property contains an array of structs", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "dataWithStructWire",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": "CBWIRE Rocks!",
+                        "states": [
+                            { "name" : "Maryland", "abr" : "MD" },
+                            { "name" : "Virginia", "abr" : "VA" },
+                            { "name" : "Florida", "abr" : "FL" },
+                            { "name" : "Wyoming", "abr" : "WY" }
+                        ]
+                      },
+                    calls = [],
+                    updates = {
+                        "title": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+            } );
         } );
 
         describe("File Uploads", function() {
