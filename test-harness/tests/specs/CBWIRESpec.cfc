@@ -2,6 +2,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     // Lifecycle methods and BDD suites as before...
     function run(testResults, testBox) {
+
+        describe( "Layout", function() {
+
+            it( "should auto inject assets", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = true;
+                var event = this.get( "main.index" );
+                var html = event.getRenderedContent();
+                expect( html ).toInclude( "<!-- CBWIRE Styles -->" );
+                expect( html ).toInclude( "<!-- CBWIRE Scripts -->" );
+                expect( reMatchNoCase( "CBWIRE Styles", html ).len() ).toBe( 1 );
+                expect( reMatchNoCase( "CBWIRE Scripts", html ).len() ).toBe( 1 );
+            } );
+
+            it( "should not auto inject assets", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = false;
+                var event = this.get( "main.index" );
+                var html = event.getRenderedContent();
+                expect( html ).notToInclude( "<!-- CBWIRE Styles -->" );
+                expect( html ).notToInclude( "<!-- CBWIRE Scripts -->" );
+                expect( reMatchNoCase( "CBWIRE Styles", html ).len() ).toBe( 0 );
+                expect( reMatchNoCase( "CBWIRE Scripts", html ).len() ).toBe( 0 );
+            } );
+
+        } );
+
         describe("Component.cfc", function() {
 
             beforeEach(function(currentSpec) {
