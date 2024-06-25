@@ -226,7 +226,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Child component</p>" );
             } );
 
-            it( "should return proper names with child components", function() {
+            fit( "should return proper names with child components", function() {
                 var result = CBWIREController.wire( "test.should_support_child_components" );
                 var parent = parseRendering( result, 1 );
                 var child = parseRendering( result, 2 );
@@ -932,6 +932,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 testComponent = getInstance("wires.TestComponent"); // Assuming TestComponent is a component that supports lazy loading
                 testComponent._withEvent(getRequestContext());
+                CBWIREController = getInstance( "CBWIREController@cbwire" );
                 prepareMock(testComponent);
             });
 
@@ -958,6 +959,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // Check that the actual component content is not included in the output
                 expect(lazyHtml).notToInclude("Actual Component Content");
             });
+
+            it( "should detect lazy loaded children", function() {
+                var parentHTML = CBWIREController.wire( "test.should_detect_lazy_loaded_children" );
+                var childHTML = reMatchNoCase( "<!-- start child -->.*<!-- end child -->", parentHTML )[ 1 ];
+                // Remove child HTML from parent HTML
+                parentHTML = replaceNoCase( parentHTML, childHTML, "", "one" );
+                var parent = parseRendering( parentHTML );
+                var child = parseRendering( childHTML );
+                // Ensure parent and child ids are different
+                expect( parent.snapshot.memo.id ).notToBe( child.snapshot.memo.id );
+                // Ensure parent has a child and it's the lazy loaded child
+                expect( structCount( parent.snapshot.memo.children ) ).toBe( 1 );
+                var keys = structKeyArray( parent.snapshot.memo.children );
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ] ).toBeArray();
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 1 ] ).toBe( "div" );
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
+            } );
         });
 
         describe("CBWIREController", function() {

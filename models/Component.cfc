@@ -313,7 +313,18 @@ component output="true" {
 
         // Check if lazy loading is enabled
         if ( arguments.lazy ) {
-            return local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
+            local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
+            // Based on the rendering, determine our outer component tag
+            local.componentTag = _getComponentTag( local.lazyRendering );
+            // Track the rendered child
+            variables._children.append( [
+                "#arguments.key#": [
+                    local.componentTag,
+                    local.instance._getId()
+                ]
+            ] );
+
+            return local.lazyRendering;
         } else {
             // Render it out normally
             local.rendering = local.instance._render();
