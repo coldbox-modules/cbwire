@@ -226,7 +226,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Child component</p>" );
             } );
 
-            fit( "should return proper names with child components", function() {
+            it( "should return proper names with child components", function() {
                 var result = CBWIREController.wire( "test.should_support_child_components" );
                 var parent = parseRendering( result, 1 );
                 var child = parseRendering( result, 2 );
@@ -389,7 +389,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "<div wire:id=""([A-Za-z0-9]+)"" x-data=""{", result.components.first().effects.html ) ).toBeGT( 0 );
             } );
 
-            it( "should throw a 403 forbidden error if the CSRF token doesn't match", function() {
+            it( "should throw a 419 Page Expired error if the CSRF token doesn't match", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "TestComponent",
@@ -403,7 +403,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 expect( function() {
                     cbwireController.handleRequest( payload, event );
-                } ).toThrow( type="CBWIREException", message="Invalid CSRF token." );
+                } ).toThrow( type="CBWIREException", message="Page expired." );
             } );
 
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {
