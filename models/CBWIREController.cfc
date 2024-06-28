@@ -12,8 +12,8 @@ component singleton {
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
     
-	// Inject module service
-	property name="moduleService" inject="coldbox:moduleService";
+    // Inject module service
+    property name="moduleService" inject="coldbox:moduleService";
 
     // Inject SingleFileComponentBuilder
     property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
@@ -172,15 +172,15 @@ component singleton {
             local.fullComponentPath = "wires." & local.fullComponentPath;
         }
         
-		if ( find( "@", local.fullComponentPath ) ) {
-			// This is a module reference, find in our module
-			var params = listToArray( local.fullComponentPath, "@" );
-			if ( params.len() != 2 ) {
-				throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
-			}
+        if ( find( "@", local.fullComponentPath ) ) {
+            // This is a module reference, find in our module
+            var params = listToArray( local.fullComponentPath, "@" );
+            if ( params.len() != 2 ) {
+                throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
+            }
             // modify local.fullComponentPath to full path for module
             local.fullComponentPath = getModuleComponentPath( params[ 1 ], params[ 2 ] );
-		}
+        }
 
         try {
             // Attempt to create an instance of the component
@@ -205,24 +205,24 @@ component singleton {
         }
     }
 
-	/**
-	 * Returns the full dot notation path to a modules component.
-	 *
-	 * @path String | Name of the cbwire component.
-	 * @module String | Name of the module to look for wire in.
-	 */
-	private function getModuleComponentPath( path, module ) {
-		var moduleConfig = moduleService.getModuleConfigCache();
-		if ( !moduleConfig.keyExists( module ) ) {
-			throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
-		}
+    /**
+     * Returns the full dot notation path to a modules component.
+     *
+     * @path String | Name of the cbwire component.
+     * @module String | Name of the module to look for wire in.
+     */
+    private function getModuleComponentPath( path, module ) {
+        var moduleConfig = moduleService.getModuleConfigCache();
+        if ( !moduleConfig.keyExists( module ) ) {
+            throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
+        }
 
-		// if there is a dot in the path, then we are referencing a folder within a module otherwise use the default wire location.
-		var moduleRegistry = moduleService.getModuleRegistry();
-		return arguments.path contains "." ?
-			moduleRegistry[ module ].invocationPath & "." & module & "." & arguments.path :
-			moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & arguments.path;
-	}
+        // if there is a dot in the path, then we are referencing a folder within a module otherwise use the default wire location.
+        var moduleRegistry = moduleService.getModuleRegistry();
+        return arguments.path contains "." ?
+            moduleRegistry[ module ].invocationPath & "." & module & "." & arguments.path :
+            moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & arguments.path;
+    }
 
     /**
      * Returns the ColdBox RequestContext object.
