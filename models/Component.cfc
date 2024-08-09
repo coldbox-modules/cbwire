@@ -731,7 +731,11 @@ component output="true" {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
+                var oldValue = variables.data[ key ];
                 variables.data[ key ] = value;
+                if ( structKeyExists( this, "onUpdate#key#") ) {
+                    invoke( this, "onUpdate#key#", { value: value, oldValue: oldValue });
+                }
             }
         } );
         

@@ -671,6 +671,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.memo.children.count() ).toBe( 1 );
             } );
 
+            it( "should call onUpdate[Property] if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onupdate_property",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "cbwireVersion": 3,
+                        "newValue": "",
+                        "oldValue": ""
+                    },
+                    calls = [],
+                    updates = {
+                        "cbwireVersion": 4
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Version: 4" );
+                expect( response.components[1].effects.html ).toInclude( "New Value: 4" );
+                expect( response.components[1].effects.html ).toInclude( "Old Value: 3" );
+            } );
+
             it( "should call onHydrate() if it exists", function() {
                 var payload = incomingRequest(
                     memo = {
