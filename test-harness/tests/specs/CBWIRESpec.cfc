@@ -152,6 +152,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
             } );
 
+            it( "shouldn't isolate by default", function() {
+                var result = CBWIREController.wire( "test.shouldnt_isolate_by_default" );
+                expect( result ).toInclude( "&quot;isolate&quot;:false" );
+            } );
+
+            it( "should isolate when using isolate=true", function() {
+                var result = CBWIREController.wire( "test.should_isolate_when_using_isolate_true" );
+                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+            } );
+
+            it( "should isolate when using lazyLoad=true", function() {
+                var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
+                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+            } );
+
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
                 var result = CBWIREController.wire( "test.should_support_hasErrors_hasError_getError_for_validation" );
                 expect( result ).toInclude( "<p>Has errors: true</p>" );
@@ -958,6 +973,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 CBWIREController = getInstance( "CBWIREController@cbwire" );
                 prepareMock(testComponent);
             });
+
+            it( "should isolate when lazy loading", function() {
+                var lazyHtml = testComponent.wire(
+                    name="TestComponent",
+                    params={},
+                    key="",
+                    lazy=true
+                );
+                expect( lazyHtml ).toInclude( "&quot;isolate&quot;:true" );
+            } );
 
             it("should return a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
                 var lazyHtml = testComponent.wire(

@@ -24,6 +24,7 @@ component output="true" {
     property name="_returnValues";
     property name="_redirect";
     property name="_redirectUsingNavigate";
+    property name="_isolate";
 
     /**
      * Constructor
@@ -58,6 +59,7 @@ component output="true" {
         variables._returnValues = [];
         variables._redirect = "";
         variables._redirectUsingNavigate = false;
+        variables._isolate = false;
         
         /* 
             Cache the component's meta data on initialization
@@ -79,6 +81,11 @@ component output="true" {
             Prep generated getters and setters for data properties
         */
         _prepareGeneratedGettersAndSetters();
+
+        /*
+            Prep isolation
+        */
+        _prepareIsolation();
 
         /* 
             Prep for lazy loading
@@ -645,6 +652,7 @@ component output="true" {
      */
     function _withLazy( lazy ) {
         variables._lazyLoad = arguments.lazy;
+        variables._isolate = true;
         return this;
     }
 
@@ -1337,6 +1345,17 @@ component output="true" {
     }
 
     /**
+     * Prepares the component for isolation.
+     * 
+     * @return void
+     */
+    function _prepareIsolation() {
+        // If the component has an isolate method, call it
+        variables._isolate = variables.keyExists( "isolate" ) && isBoolean( variables.isolate ) && variables.isolate ? 
+            true : false;
+    }
+
+    /**
      * Prepares the component for lazy loading.
      * 
      * @return void
@@ -1345,6 +1364,10 @@ component output="true" {
         // If the component has a lazyLoad method, call it
         variables._lazyLoad = variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ? 
             true : false;
+
+        if ( variables._lazyLoad ) {
+            variables._isolate = true;
+        }
     }
 
     /**
@@ -1409,6 +1432,7 @@ component output="true" {
             "children": variables._children.count() ? variables._children : [],
             "scripts":[],
             "assets":[],
+            "isolate": variables._isolate,
             "lazyLoaded": false,
             "lazyIsolated": true,
             "errors":[],
