@@ -77,9 +77,8 @@ component {
                 data = "",
                 statusCode = 400
             ).noExecution();
-            // Returning true breaks further interceptors execution.
-            return true;
         }
+        return true;
     }
 
     function preEvent() eventPattern="^cbwire.*" {
