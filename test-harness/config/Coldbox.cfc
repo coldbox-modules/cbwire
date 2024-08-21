@@ -11,7 +11,9 @@ component{
 			//Development Settings
 			reinitPassword			= "",
 			handlersIndexAutoReload = true,
-			modulesExternalLocation = [],
+			modulesExternalLocation = [
+				"/modules_external"
+			],
 
 			//Implicit Events
 			defaultEvent			= "main.index",

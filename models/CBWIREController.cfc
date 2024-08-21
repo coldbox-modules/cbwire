@@ -184,7 +184,8 @@ component singleton {
 
         try {
             // Attempt to create an instance of the component
-            return variables.wirebox.getInstance(local.fullComponentPath);
+            return variables.wirebox.getInstance(local.fullComponentPath)
+                ._withPath( arguments.name );
         } catch( Injector.InstanceNotFoundException e ) {
             local.singleFileComponent = variables.singleFileComponentBuilder
                 .setInitialRender( true )
@@ -205,13 +206,30 @@ component singleton {
         }
     }
 
+    /** 
+    * Returns the path to the modules folder.
+    * 
+    * @module string | The name of the module.
+    *
+    * @return string
+    */
+    function getModuleRootPath( module ) {
+        var moduleRegistry = moduleService.getModuleRegistry();
+
+        if ( moduleRegistry.keyExists( module ) ) {
+            return moduleRegistry[ module ].invocationPath & "." & module;
+        }
+
+        throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
+    }
+
     /**
      * Returns the full dot notation path to a modules component.
      *
      * @path String | Name of the cbwire component.
      * @module String | Name of the module to look for wire in.
      */
-    private function getModuleComponentPath( path, module ) {
+    function getModuleComponentPath( path, module ) {
         var moduleConfig = moduleService.getModuleConfigCache();
         if ( !moduleConfig.keyExists( module ) ) {
             throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
@@ -219,9 +237,24 @@ component singleton {
 
         // if there is a dot in the path, then we are referencing a folder within a module otherwise use the default wire location.
         var moduleRegistry = moduleService.getModuleRegistry();
-        return arguments.path contains "." ?
+
+        var result = arguments.path contains "." ?
             moduleRegistry[ module ].invocationPath & "." & module & "." & arguments.path :
             moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & arguments.path;
+
+        return result;
+    }
+
+    /**
+     * Returns the path to the wires folder within a module path.
+     *
+     * @module string | The name of the module.
+     * 
+     * @return string 
+     */
+    function getModuleWiresPath( module ) {
+        local.moduleRegistry = moduleService.getModuleRegistry();
+        return arguments
     }
 
     /**

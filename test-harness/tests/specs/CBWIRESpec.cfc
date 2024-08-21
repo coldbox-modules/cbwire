@@ -36,7 +36,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
                 testComponent = getInstance("wires.TestComponent");
-                testComponent._withEvent( getRequestContext( ) );
+                testComponent
+                    ._withEvent( getRequestContext( ) )
+                    ._withPath( "wires.TestComponent" );
                 CBWIREController = getInstance( "CBWIREController@cbwire" );
                 prepareMock( testComponent );
             });
@@ -1116,7 +1118,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
-
+            it( "can load components from an external modules folder", function() {
+                var result = cbwireController.wire( "should_load_external_modules@ExternalModule" );
+                expect( result ).toInclude( "External Module Loaded" );
+            } );
         });
 
         describe( "Preprocessors", function() {

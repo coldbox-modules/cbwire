@@ -25,6 +25,7 @@ component output="true" {
     property name="_redirect";
     property name="_redirectUsingNavigate";
     property name="_isolate";
+    property name="_path";
 
     /**
      * Constructor
@@ -312,11 +313,12 @@ component output="true" {
         }
         // Instaniate this child component as a new component
         local.instance = variables._CBWIREController.createInstance(argumentCollection=arguments)
-                ._withParent( this )
-                ._withEvent( variables._event )
-                ._withParams( arguments.params, arguments.lazy )
-                ._withKey( arguments.key )
-                ._withLazy( arguments.lazy );
+            ._withPath( arguments.name )
+            ._withParent( this )
+            ._withEvent( variables._event )
+            ._withParams( arguments.params, arguments.lazy )
+            ._withKey( arguments.key )
+            ._withLazy( arguments.lazy );
 
         // Check if lazy loading is enabled
         if ( arguments.lazy ) {
@@ -574,10 +576,21 @@ component output="true" {
     }
 
     /**
+     * Passes the path of the component.
+     *
+     * @path string | The path of the component.
+     * 
+     * @return Component
+     */
+    function _withPath( path ) {
+        variables._path = arguments.path;
+        return this;
+    }
+
+    /**
      * Passes the current event into our component.
      * 
      * @return Component
-     * 
      */
     function _withEvent( event ) {
         variables._event = arguments.event;
@@ -832,7 +845,7 @@ component output="true" {
             local.normalizedPath &= ".cfm";
         }
         // Ensure the path starts with "/wires/" without duplicating it
-        if (left(local.normalizedPath, 6) != "wires/") {
+        if (!isModulePath() && left(local.normalizedPath, 6) != "wires/") {
             local.normalizedPath = "wires/" & local.normalizedPath;
         }
         // Prepend a leading slash if not present
@@ -1398,7 +1411,21 @@ component output="true" {
      * Returns the path to the view template file.
      */
     function _getViewPath(){
-        return "wires." & _getComponentName();
+        if ( isModulePath() ) {
+            var moduleRoot = variables._CBWIREController.getModuleRootPath( _getModuleName() );
+            return moduleRoot & ".wires." & _getComponentName();
+        }
+
+        return "wires." & variables._path;
+    }
+
+    /**
+     * Returns the module name.
+     * 
+     * @return string
+     */
+    function _getModuleName() {
+        return variables._path contains "@" ? variables._path.listLast( "@" ) : "";
     }
 
     /**
@@ -1450,7 +1477,8 @@ component output="true" {
         if ( variables._metaData.name contains "cbwire.models.tmp." ) {
             return variables._metaData.name.replaceNoCase( "cbwire.models.tmp.", "", "one" );
         }
-        return variables._metaData.name.replaceNoCase( "wires.", "", "one" );
+        // only returns the last part of the name seprate by dots
+        return variables._metaData.name.listLast( "." );
     }
 
     /**
@@ -1547,6 +1575,15 @@ component output="true" {
         local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
         local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
         return local.outerElement.trim();
+    }
+
+    /**
+     * Returns true if the path contains a module.
+     * 
+     * @return boolean
+     */
+    function isModulePath() {
+        return variables._path contains "@";
     }
 
     /**
