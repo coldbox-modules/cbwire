@@ -32,6 +32,7 @@ component singleton {
      */
     function wire(required name, params = {}, key = "", lazy = false, lazyIsolated = true ) {
         local.instance = createInstance(argumentCollection=arguments)
+                ._withPath( arguments.name )
                 ._withEvent( getEvent() )
                 ._withParams( arguments.params, arguments.lazy )
                 ._withKey( arguments.key );
@@ -73,6 +74,7 @@ component singleton {
                 local.componentInstance = createInstance( _componentPayload.snapshot.memo.name );
                 // Return the response for this component
                 return local.componentInstance
+                            ._withPath( _componentPayload.snapshot.memo.name )
                             ._withEvent( event )
                             ._withIncomingPayload( _componentPayload )
                             ._getHTTPResponse( _componentPayload );
