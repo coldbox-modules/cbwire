@@ -27,6 +27,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reMatchNoCase( "CBWIRE Scripts", html ).len() ).toBe( 0 );
             } );
 
+            it( "should have default updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                expect( CBWIREController.getUpdateEndpoint() ).toBe( "/cbwire/update" );
+            } );
+
+            it( "should be able to set updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.cfm/cbwire/update";
+                expect( CBWIREController.getUpdateEndpoint() ).toBe( "/index.cfm/cbwire/update" );
+            } );
+
         } );
 
         describe("Component.cfc", function() {

@@ -474,4 +474,13 @@ component singleton {
         return requestService.getController().getRenderer().view( argumentCollection=arguments );
     }
 
+    /**
+     * Returns the URI endpoint for updating CBWIRE components.
+     * 
+     * @return string
+     */
+    function getUpdateEndpoint() {
+        var settings = variables.moduleSettings;        
+        return settings.keyExists( "updateEndpoint") && settings.updateEndpoint.len() ? settings.updateEndpoint : "/cbwire/update";
+    }
 }
