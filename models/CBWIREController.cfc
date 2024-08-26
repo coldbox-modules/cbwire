@@ -18,6 +18,11 @@ component singleton {
     // Inject SingleFileComponentBuilder
     property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
 
+    function init() {
+        // Initialize the array to store single file components
+        variables._singleFileComponents = [];
+        return this;
+    }
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its internal renderIt() method.
@@ -185,9 +190,15 @@ component singleton {
         }
 
         try {
+            // Check if we've already flagged this component as a single file component
+            // This is to improve performance by not attempting to create the component again
+            if ( variables._singleFileComponents.contains( arguments.name ) ) {
+                throw( type="Injector.InstanceNotFoundException", message="Component '#arguments.name#' is a single file component." );
+            }
             // Attempt to create an instance of the component
-            return variables.wirebox.getInstance(local.fullComponentPath)
+            local.componentInstance = variables.wirebox.getInstance(local.fullComponentPath)
                 ._withPath( arguments.name );
+            return local.componentInstance;
         } catch( Injector.InstanceNotFoundException e ) {
             local.singleFileComponent = variables.singleFileComponentBuilder
                 .setInitialRender( true )
@@ -198,6 +209,7 @@ component singleton {
                 abort;
                 rethrow;
             }
+            variables._singleFileComponents.append( arguments.name );
 
             return local.singleFileComponent;
         } catch (Any e) {
