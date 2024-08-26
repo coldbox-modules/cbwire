@@ -1413,7 +1413,7 @@ component output="true" {
     function _getViewPath(){
         if ( isModulePath() ) {
             var moduleRoot = variables._CBWIREController.getModuleRootPath( _getModuleName() );
-            return moduleRoot & ".wires." & _getComponentName();
+            return moduleRoot & ".wires." & _getComponentName().listFirst( "@" );
         }
 
         return "wires." & variables._path;
@@ -1450,11 +1450,10 @@ component output="true" {
      * @return struct
      */
     function _getMemo(){
-        var name = _getComponentName();
         return [
             "id": variables._id,
-            "name":name,
-            "path":name,
+            "name": _getComponentName(),
+            "path": _getComponentName(),
             "method":"GET",
             "children": variables._children.count() ? variables._children : [],
             "scripts":[],
@@ -1478,7 +1477,7 @@ component output="true" {
             return variables._metaData.name.replaceNoCase( "cbwire.models.tmp.", "", "one" );
         }
         // only returns the last part of the name seprate by dots
-        return variables._metaData.name.listLast( "." );
+        return variables._path;
     }
 
     /**
