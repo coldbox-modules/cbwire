@@ -1146,23 +1146,32 @@ component output="true" {
         };
 
         // Prepend any passed in params into our forMount array
-
         arguments.params.each( function( key, value ) {
             snapshot.data.forMount.prepend( { "#arguments.key#": arguments.value } );
         } );
 
         // Serialize the snapshot to JSON and then encode it for HTML attribute inclusion
-        var lazyLoadSnapshot = serializeJson(local.snapshot);
+        local.lazyLoadSnapshot = serializeJson( local.snapshot );
     
         // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
-        var base64EncodedSnapshot = toBase64(lazyLoadSnapshot);   
+        local.base64EncodedSnapshot = toBase64( local.lazyLoadSnapshot );   
 
-        // Build the final <div> element with appropriate attributes
-        var lazyLoadDiv = '<div wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" ' &
-                          'wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#" ' &
-                          'x-intersect="$wire._lazyMount(&##039;' & base64EncodedSnapshot & '&##039;)">#placeHolder()#</div>';
-    
-        return lazyLoadDiv;
+        // Get our placeholder html
+        local.html = placeholder();
+
+        // Check if placeholder is even defined, if not throw error
+        if ( isNull( local.html ) || !local.html.len() ) {
+            throw( type="CBWIREException", message="The placeholder method must be defined for lazy loaded components and it must have the same outer element as your CBWIRE template." );
+        }
+
+        // Define the wire attributes to append
+        local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
+
+        // Determine our outer element
+        local.outerElement = _getOuterElement( local.html );
+
+        // Insert attributes into the opening tag
+        return local.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
     }
 
     /**

@@ -999,6 +999,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( lazyHtml ).toInclude( "&quot;isolate&quot;:true" );
             } );
 
+            it( "should lazy load a component using the original outer element", function() {
+                var lazyHtml = testComponent.wire(
+                    name="TestTableRowComponent",
+                    params={},
+                    key="",
+                    lazy=true
+                );
+                expect( reFindNoCase( "^<tr\s+", lazyHTML.trim() ) ).toBeTrue();
+            } );
+
+            it( "It should throw error if lazy component doesn't have a placeholder", function() {
+                expect( function() {
+                    testComponent.wire(
+                        name="TestComponentWithoutPlaceholder",
+                        params={},
+                        key="",
+                        lazy=true
+                    );
+                } ).toThrow( type="CBWIREException", message="Lazy loaded components must have a placeholder." );
+            } );
+
             it("should return a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
                 var lazyHtml = testComponent.wire(
                     name="TestComponent",
