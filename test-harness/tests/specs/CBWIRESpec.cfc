@@ -701,6 +701,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.memo.children.count() ).toBe( 1 );
             } );
 
+            it(" should call onUpdate if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onupdate",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "cbwireVersion": 3
+                    },
+                    calls = [],
+                    updates = {
+                        "cbwireVersion": 4
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "onUpdateCalled: true" );
+            } );
+
             it( "should call onUpdate[Property] if it exists", function() {
                 var payload = incomingRequest(
                     memo = {

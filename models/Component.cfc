@@ -737,6 +737,8 @@ component output="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+        // Capture old values 
+        local.oldValues = duplicate( data );
         // Array to track which array props were updated
         local.updatedArrayProps = [];
         // Loop over the updates and apply them
@@ -765,6 +767,11 @@ component output="true" {
                 return arguments.value != "__rm__";
             } );
         } );
+
+        // Call onUpdate passing newValues and oldValues
+        if ( structKeyExists( this, "onUpdate" ) ) {
+            invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+        }
     }
 
     /**
