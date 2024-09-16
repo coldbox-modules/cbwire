@@ -36,10 +36,6 @@ component {
              */
             "componentLocation" : "wires",
             /**
-             * Determines if Turbo should be enabled
-             */
-            "enableTurbo" : false,
-            /**
              * Trims string properties if set to true
              */
             "trimStringValues" : false

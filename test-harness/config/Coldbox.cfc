@@ -81,8 +81,7 @@ component{
 
 		moduleSettings = {
 			"cbwire" = {
-				"autoInjectAssets"		: true,
-				"enableTurbo"			: true
+				"autoInjectAssets"		: true
 			},
 			"cbi18n": {
 				// The default resource to load and aliased as `default`
