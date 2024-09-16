@@ -1,5 +1,7 @@
 component output="true" {
 
+    property name="_globalSettings" inject="coldbox:modulesettings:cbwire";
+
     property name="_CBWIREController" inject="CBWIREController@cbwire";
 
     property name="_wirebox" inject="wirebox";
@@ -744,6 +746,12 @@ component output="true" {
         local.updatedArrayProps = [];
         // Loop over the updates and apply them
         arguments.updates.each( function( key, value ) {
+
+            // Check if we should trim if simple value
+            if ( isSimpleValue( arguments.value ) && shouldTrimStringValues() ) {
+                arguments.value = trim( arguments.value );
+            }
+
             // Determine if this is an array update
             if ( reFindNoCase( "\.[0-9]+", arguments.key ) ) {
                 local.regexMatch = reFindNoCase( "(.+)\.([0-9]+)", arguments.key, 1, true );
@@ -755,10 +763,10 @@ component output="true" {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
-                var oldValue = variables.data[ key ];
-                variables.data[ key ] = value;
+                local.oldValue = variables.data[ key ];
+                variables.data[ key ] = arguments.value;
                 if ( structKeyExists( this, "onUpdate#key#") ) {
-                    invoke( this, "onUpdate#key#", { value: value, oldValue: oldValue });
+                    invoke( this, "onUpdate#key#", { value: arguments.value, oldValue: local.oldValue });
                 }
             }
         } );
@@ -1614,5 +1622,17 @@ component output="true" {
         } catch ( any e ) {
             return false;
         }
+    }
+
+    /**
+     * Returns true if trimStringValues is enabled, either globally
+     * or for the component.
+     * 
+     * @return boolean
+     */
+    function shouldTrimStringValues() {
+        return 
+            ( _globalSettings.keyExists( "trimStringValues" ) && _globalSettings.trimStringValues == true ) ||
+            ( variables.keyExists( "trimStringValues" ) && variables.trimStringValues == true );
     }
 }

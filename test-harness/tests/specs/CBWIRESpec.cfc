@@ -382,6 +382,50 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock( cbwireController );
             });
 
+            it( "should trim string values if global setting enabled on coldbox.cfc", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = true;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_global_setting_enabled",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( result.components.first().effects.html ).toInclude( "<p>Name: Jane Doe</p>" );
+                settings.trimStringValues = false;
+            } );
+
+            it( "should trim string values if enabled on component", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = false;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_enabled_on_component",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( result.components.first().effects.html ).toInclude( "<p>Name: Jane Doe</p>" );
+                settings.trimStringValues = false;
+            } );
+
             it( "should support $refresh action", function() {
                 var payload = incomingRequest(
                     memo = {
