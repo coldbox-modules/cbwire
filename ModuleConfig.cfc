@@ -34,7 +34,7 @@ component {
              * The default folder name where your cbwire components are stored.
              * Defaults to 'wires' folder.
              */
-            "componentLocation" : "wires",
+            "wiresLocation" : "wires",
             /**
              * Trims string properties if set to true
              */
