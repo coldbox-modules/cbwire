@@ -40,11 +40,6 @@ component {
              */
             "enableTurbo" : false,
             /**
-             * Caching for single-file components to speed up response time.
-             * Should be false for local development.
-             */
-            "cacheSingleFileComponents": false,
-            /**
              * Trims string properties if set to true
              */
             "trimStringValues" : false

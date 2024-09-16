@@ -93,12 +93,6 @@ component accessors="true" singleton {
                 return { "tempComponentName" : "#arguments.componentName#" };
             }
         }
-        
-        // if ( structKeyExists( settings, "cacheSingleFileComponents" ) && settings.cacheSingleFileComponents ) {
-        // 	if ( fileExists( local.tmpCFCPath ) && fileExists( local.tmpCFMPath ) ) {
-        // 		return { "tempComponentName" : "#arguments.componentName#" };
-        // 	}
-        // }
 
         if ( !directoryExists( local.tmpDirectory ) ) {
             directoryCreate( local.tmpDirectory );
