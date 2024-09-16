@@ -737,6 +737,7 @@ component output="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+        if ( !updates.count() ) return;
         // Capture old values 
         local.oldValues = duplicate( data );
         // Array to track which array props were updated
