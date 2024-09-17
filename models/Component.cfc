@@ -1006,8 +1006,17 @@ component output="true" {
         local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
         // Determine our outer element 
         local.outerElement = _getOuterElement( arguments.html );
+        // Find the position of the opening tag
+        local.openingTagStart = findNoCase("<" & local.outerElement, arguments.html);
+        local.openingTagEnd = find(">", arguments.html, local.openingTagStart);
         // Insert attributes into the opening tag
-        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
+        if (local.openingTagStart > 0 && local.openingTagEnd > 0) {
+            local.openingTag = mid(arguments.html, local.openingTagStart, local.openingTagEnd - local.openingTagStart + 1);
+            local.newOpeningTag = replace(local.openingTag, "<" & local.outerElement, "<" & local.outerElement & " " & local.wireAttributes, "one");
+            arguments.html = replace(arguments.html, local.openingTag, local.newOpeningTag, "one");
+        }
+        
+        return arguments.html;
     }
 
     /**
