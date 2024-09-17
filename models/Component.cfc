@@ -1065,14 +1065,14 @@ component output="true" {
      */
     function _renderViewContent( normalizedPath, params = {} ){
         if ( !variables._renderedContent.len() ) {
-        // Render our view using an renderer encapsulator
-        savecontent variable="local.viewContent" {
-            cfmodule(
-                template = "RendererEncapsulator.cfm",
-                cbwireComponent = this,
-                normalizedPath = arguments.normalizedPath,
-                params = arguments.params
-            );
+            // Render our view using an renderer encapsulator
+            savecontent variable="local.viewContent" {
+                cfmodule(
+                    template = "RendererEncapsulator.cfm",
+                    cbwireComponent = this,
+                    normalizedPath = arguments.normalizedPath,
+                    params = arguments.params
+                );
             }
             variables._renderedContent = local.viewContent;
         }
