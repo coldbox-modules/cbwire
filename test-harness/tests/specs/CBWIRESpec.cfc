@@ -167,6 +167,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
             } );
 
+            it( "should support deep nesting with correct count of children", function() {
+                var result = CBWIREController.wire( "test.should_support_deep_nesting" );
+                var parent = parseRendering( result, 1 );
+                var child1 = parseRendering( result, 2 );
+                var child2 = parseRendering( result, 3 );
+                expect( parent.snapshot.memo.children.count() ).toBe( 2 );
+                expect( child1.snapshot.memo.children.count() ).toBe( 1 );
+                expect( child2.snapshot.memo.children.len() ).toBe( 0 );
+            } );
+
             it( "shouldn't isolate by default", function() {
                 var result = CBWIREController.wire( "test.shouldnt_isolate_by_default" );
                 expect( result ).toInclude( "&quot;isolate&quot;:false" );

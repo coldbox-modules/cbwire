@@ -28,6 +28,7 @@ component output="true" {
     property name="_redirectUsingNavigate";
     property name="_isolate";
     property name="_path";
+    property name="_renderedContent";
 
     /**
      * Constructor
@@ -63,6 +64,7 @@ component output="true" {
         variables._redirect = "";
         variables._redirectUsingNavigate = false;
         variables._isolate = false;
+        variables._renderedContent = "";
         
         /* 
             Cache the component's meta data on initialization
@@ -1062,6 +1064,7 @@ component output="true" {
      * @return The rendered content of the view template.
      */
     function _renderViewContent( normalizedPath, params = {} ){
+        if ( !variables._renderedContent.len() ) {
         // Render our view using an renderer encapsulator
         savecontent variable="local.viewContent" {
             cfmodule(
@@ -1070,9 +1073,11 @@ component output="true" {
                 normalizedPath = arguments.normalizedPath,
                 params = arguments.params
             );
+            }
+            variables._renderedContent = local.viewContent;
         }
 
-        return local.viewContent;
+        return variables._renderedContent;
     }
 
     /**
@@ -1199,7 +1204,6 @@ component output="true" {
      * @return struct
      */
     function _getHTTPResponse( componentPayload ){
-
         // Hydrate the component
         _hydrate( arguments.componentPayload );
         // Apply any updates
