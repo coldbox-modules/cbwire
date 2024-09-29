@@ -5,6 +5,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
         describe( "Layout", function() {
 
+            beforeEach( function(){
+                setup();
+            } );
+
             it( "should auto inject assets", function() {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 settings.autoInjectAssets = true;
@@ -44,7 +48,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var event = this.get( "tests.requestassets" );
                 var html = event.getRenderedContent();
                 var beforeHead = left( html, findNoCase( "</head>", html )-1 );
-                expect( beforeHead ).toInclude( "https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css" );
+                expect( beforeHead ).toInclude( "<link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"">" );
             } );
 
         } );

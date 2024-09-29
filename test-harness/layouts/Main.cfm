@@ -9,7 +9,7 @@
 		<h1>Welcome to CBWIRE 4</h1>
 	</header>
 
-	#wire( name="Counter", lazy=true )#
+	#view()#
 </body>
 </html>
 </cfoutput>
