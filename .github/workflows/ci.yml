@@ -96,6 +96,13 @@ jobs:
           path: |
             test-harness/tests/results/**/*
 
+      - name: Upload tmp folder as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tmp-folder
+          path: models/tmp/
+
       - name: Slack Notification
         if: failure()
         uses: rtCamp/action-slack-notify@v2
