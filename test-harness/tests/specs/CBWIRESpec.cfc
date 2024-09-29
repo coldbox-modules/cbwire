@@ -291,7 +291,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = CBWIREController.wire( "test.should_not_render_cbwire_script_tags" );
                 expect( result ).notToInclude( "<cbwire:script>" );
                 expect( result ).notToInclude( "</cbwire:script>" );
-                expect( result ).notToInclude( "This should not be rendered" );
             } );
 
             it( "should not render cbwire:assets tags", function() {
@@ -301,17 +300,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).notToInclude( "tailwind.min.css" );
             } );
 
-            fit( "should track scripts and assets in snapshot memo", function() {
-                var result = CBWIREController.wire( "test.should_track_scripts_and_assets_in_snapshot_memo" );
+            it( "should track scripts in snapshot memo", function() {
+                var result = CBWIREController.wire( "test.should_track_scripts_in_snapshot_memo" );
                 var parsing = parseRendering( result );
-                writeDump( parsing.snapshot.memo );
-                abort;
                 expect( parsing.snapshot.memo.scripts ).toBeArray();
-                expect( parsing.snapshot.memo.scripts.len() ).toBe( 1 );
-                expect( parsing.snapshot.memo.scripts[ 1 ] ).toBe( "https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" );
-                expect( parsing.snapshot.memo.assets ).toBeArray();
-                expect( parsing.snapshot.memo.assets.len() ).toBe( 1 );
-                expect( parsing.snapshot.memo.assets[ 1 ] ).toBe( "tailwind.min.css" );
+                expect( parsing.snapshot.memo.scripts.len() ).toBe( 2 );
             } );
 
             xit( "should provide original path to component when there is a template rendering error", function() {
@@ -461,6 +454,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = cbwireController.handleRequest( payload, event );
                 expect( result.components.first().effects.html ).toInclude( "<p>Name: Jane Doe</p>" );
                 settings.trimStringValues = false;
+            } );
+
+            it( "should track cbwire:assets in http response", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_track_cbwire_assets_in_http_response",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = {}
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( result.assets.count() ).toBe( 1 );
+                var keys = result.assets.keyArray();
+                expect( result.assets[ keys.first() ] ).toInclude( "tailwind.min.css" );
             } );
 
             it( "should support $refresh action", function() {

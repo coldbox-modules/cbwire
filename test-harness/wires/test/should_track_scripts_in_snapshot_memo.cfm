@@ -1,6 +1,6 @@
 <cfoutput>
     <div>
-        <h1>Should track scripts and assets</h1>
+        <h1>Should track scripts</h1>
     </div>
 </cfoutput>
 
@@ -20,8 +20,4 @@
     <script>
         console.log('This should be tracked also');
     </script>
-</cbwire:script>
-
-<cbwire:assets>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 </cbwire:script>
