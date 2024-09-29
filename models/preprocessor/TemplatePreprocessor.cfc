@@ -24,9 +24,9 @@ component {
      */
     function parseScripts( content, counter = 1 ) {
         if ( counter == 1 ) {
-            content = replaceNoCase( content, "</cbwire:script>", "</cfsavecontent>", "all" );
+            content = replaceNoCase( content, "</cbwire:script>", "</cf" & "savecontent>", "all" );
         }
-        content = replaceNoCase( content, "<cbwire:script>", "<cfsavecontent variable=""attributes.returnValues.script#counter#"">", "one" );
+        content = replaceNoCase( content, "<cbwire:script>", "<cf" & "savecontent variable=""attributes.returnValues.script#counter#"">", "one" );
         if ( findNoCase( "<cbwire:script>", content ) ) {
             content = parseScripts( content, counter + 1 );
         }
