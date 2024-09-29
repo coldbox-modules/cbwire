@@ -313,7 +313,7 @@ component singleton {
             "TemplatePreprocessor.cfc",
             "CBWIREPreprocessor.cfc",
             "TeleportPreprocessor.cfc"
-        ]
+        ];
         // Map the files to their getInstance path
         variables.preprocessors = local.files.map( ( _file ) => {
             local.getInstancePath = replace( _file, ".cfc", "" ) & "@cbwire";
