@@ -1126,6 +1126,8 @@ component output="true" {
             local.assetsTagId = variables._compileTimeKey & "-" & local.counter;
             // Track the assets tag
             variables._assets[ local.assetsTagId ] = value;
+            local.requestAssets = variables._CBWIREController.getRequestAssets();
+            local.requestAssets[ local.assetsTagId ] = value;
         } );
     }
 

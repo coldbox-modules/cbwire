@@ -109,7 +109,8 @@ component {
         return true;
     }
 
-    function preRender( event, data ) eventPattern="^cbwire.*" {
+    function preRender( event, data, interceptData ) {
+        handleRequestAssets( argumentCollection=arguments );
         return true;
     }
 
@@ -202,5 +203,22 @@ component {
     private function shouldInject( event ) {
         local.settings = getSettings();
         return arguments.event.getCurrentModule() != "cbwire" && local.settings.autoInjectAssets == true;
+    }
+
+    /**
+     * Handle append the assets from any components during the request 
+     * by appending them to the head of the layout.
+     *
+     * @event | Event
+     * @data | Struct
+     * @interceptData | Struct
+     * 
+     * @return void
+     */
+    private function handleRequestAssets( event, data, interceptData ) {
+        local.requestAssets = arguments.event.getPrivateValue( "cbwireRequestAssets", {} );
+        local.requestAssets.each( function( key, value ) {
+            interceptData.renderedContent = interceptData.renderedContent.replaceNoCase( "</head>", value & chr( 10 ) & "</head>", "one" );
+        } );
     }
 }

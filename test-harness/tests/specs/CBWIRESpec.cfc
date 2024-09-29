@@ -40,6 +40,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( CBWIREController.getUpdateEndpoint() ).toBe( "/index.cfm/cbwire/update" );
             } );
 
+            it( "should have component request assets added in head", function() {
+                var event = this.get( "tests.requestassets" );
+                var html = event.getRenderedContent();
+                var beforeHead = left( html, findNoCase( "</head>", html )-1 );
+                expect( beforeHead ).toInclude( "<link rel=""stylesheet"" type=""text/css"" href=""https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css"">" );
+            } );
+
         } );
 
         describe("Component.cfc", function() {

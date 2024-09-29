@@ -289,6 +289,17 @@ component singleton {
     }
 
     /**
+     * Returns any request assets defined by components during the request.
+     * 
+     * @return struct
+     */
+    function getRequestAssets() {
+        local.event = getEvent();
+        local.event.paramPrivateValue( "cbwireRequestAssets", {} );
+        return local.event.getPrivateValue( "cbwireRequestAssets" );
+    }
+
+    /**
      * Returns the ColdBox ConfigSettings object.
      * 
      * @return struct
