@@ -4,7 +4,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
         super.beforeAll();
         // delete any files in models/tmp folder
         local.tempFolder = expandPath( "../../../models/tmp" );
-        directoryDelete( local.tempFolder, true );
+        if ( directoryExists( local.tempFolder ) ) {
+            directoryDelete( local.tempFolder, true );
+        }
         directoryCreate( local.tempFolder );
     }
 
