@@ -96,12 +96,13 @@ jobs:
           path: |
             test-harness/tests/results/**/*
 
-      - name: Upload tmp folder as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tmp-folder
-          path: models/tmp/
+      # Leaving this here for future debugging
+      # - name: Upload tmp folder as artifact
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: tmp-folder
+      #     path: models/tmp/
 
       - name: Slack Notification
         if: failure()
