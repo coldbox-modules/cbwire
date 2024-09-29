@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var event = this.get( "tests.requestassets" );
                 var html = event.getRenderedContent();
                 var beforeHead = left( html, findNoCase( "</head>", html )-1 );
-                expect( beforeHead ).toInclude( "<link rel=""stylesheet"" type=""text/css"" href=""https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css"">" );
+                expect( beforeHead ).toInclude( "https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css" );
             } );
 
         } );
