@@ -287,6 +287,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
             } );
 
+            it( "should not render cbwire:script tags", function() {
+                var result = CBWIREController.wire( "test.should_not_render_cbwire_script_tags" );
+                expect( result ).notToInclude( "<cbwire:script>" );
+                expect( result ).notToInclude( "</cbwire:script>" );
+                expect( result ).notToInclude( "This should not be rendered" );
+            } );
+
+            it( "should not render cbwire:assets tags", function() {
+                var result = CBWIREController.wire( "test.should_not_render_cbwire_assets_tags" );
+                expect( result ).notToInclude( "<cbwire:assets>" );
+                expect( result ).notToInclude( "</cbwire:assets>" );
+                expect( result ).notToInclude( "tailwind.min.css" );
+            } );
+
+            fit( "should track scripts and assets in snapshot memo", function() {
+                var result = CBWIREController.wire( "test.should_track_scripts_and_assets_in_snapshot_memo" );
+                var parsing = parseRendering( result );
+                writeDump( parsing.snapshot.memo );
+                abort;
+                expect( parsing.snapshot.memo.scripts ).toBeArray();
+                expect( parsing.snapshot.memo.scripts.len() ).toBe( 1 );
+                expect( parsing.snapshot.memo.scripts[ 1 ] ).toBe( "https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" );
+                expect( parsing.snapshot.memo.assets ).toBeArray();
+                expect( parsing.snapshot.memo.assets.len() ).toBe( 1 );
+                expect( parsing.snapshot.memo.assets[ 1 ] ).toBe( "tailwind.min.css" );
+            } );
+
             xit( "should provide original path to component when there is a template rendering error", function() {
                 var result = CBWIREController.wire( "test.should_raise_error_for_template_rendering_error" );
                 expect( function() {

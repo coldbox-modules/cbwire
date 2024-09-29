@@ -7,6 +7,7 @@ component output="true" {
     property name="_wirebox" inject="wirebox";
 
     property name="_id";
+    property name="_compileTimeKey";
     property name="_parent";
     property name="_initialLoad";
     property name="_lazyLoad";
@@ -29,6 +30,8 @@ component output="true" {
     property name="_isolate";
     property name="_path";
     property name="_renderedContent";
+    property name="_scripts";
+    property name="_assets";
 
     /**
      * Constructor
@@ -52,6 +55,7 @@ component output="true" {
         }
 
         variables._params = [:];
+        variables._compileTimeKey = hash( getCurrentTemplatePath() );
         variables._key = "";
         variables._cache = [:];
         variables._dispatches = [];
@@ -65,6 +69,8 @@ component output="true" {
         variables._redirectUsingNavigate = false;
         variables._isolate = false;
         variables._renderedContent = "";
+        variables._scripts = [:];
+        variables._assets = [:];
         
         /* 
             Cache the component's meta data on initialization
@@ -195,7 +201,7 @@ component output="true" {
      */
     function template( viewPath, params = {} ) {
         // Normalize the view path
-        local.normalizedPath = _getNormalizedViewPath( viewPath );
+        local.normalizedPath = _getNormalizedViewPath( arguments.viewPath );
         // Render the view content and trim the result
         return _renderViewContent( local.normalizedPath, arguments.params );
     }
@@ -1074,19 +1080,53 @@ component output="true" {
      */
     function _renderViewContent( normalizedPath, params = {} ){
         if ( !variables._renderedContent.len() ) {
+            local.templateReturnValues = {};
             // Render our view using an renderer encapsulator
             savecontent variable="local.viewContent" {
                 cfmodule(
                     template = "RendererEncapsulator.cfm",
                     cbwireComponent = this,
                     normalizedPath = arguments.normalizedPath,
-                    params = arguments.params
+                    params = arguments.params,
+                    returnValues = local.templateReturnValues
                 );
             }
+            _parseTemplateReturnValues( local.templateReturnValues );
             variables._renderedContent = local.viewContent;
         }
 
         return variables._renderedContent;
+    }
+
+    /**
+     * Parses the return values from the RendererEncapsulator.
+     * 
+     * @return void
+     */
+    function _parseTemplateReturnValues( returnValues ) {
+        // Parse and track cbwire:script tags
+        arguments.returnValues.filter( function( key, value ) {
+            return key.findNoCase( "script" );
+        } ).each( function( key, value, result ) {
+            // Extract the counter from the tag name
+            local.counter = key.replaceNoCase( "script", "" );
+            // Create script tag id based on compile time id and counter
+            local.scriptTagId = variables._compileTimeKey & "-" & local.counter;
+            // Track the script tag
+            variables._scripts[ local.scriptTagId ] = value;
+        } );
+
+        // Parse and track cbwire:assets tags
+        arguments.returnValues.filter( function( key, value ) {
+            return key.findNoCase( "assets" );
+        } ).each( function( key, value, result ) {
+            // Extract the counter from the tag name
+            local.counter = key.replaceNoCase( "assets", "" );
+            // Create assets tag id based on compile time id and counter
+            local.assetsTagId = variables._compileTimeKey & "-" & local.counter;
+            // Track the assets tag
+            variables._assets[ local.assetsTagId ] = value;
+        } );
     }
 
     /**
@@ -1209,10 +1249,11 @@ component output="true" {
      * for subsequent requests.
      * 
      * @componentPayload struct | The payload to hydrate the component with.
+     * @httpRequestState struct | The state of the entire HTTP request being returned for all components.
      * 
      * @return struct
      */
-    function _getHTTPResponse( componentPayload ){
+    function _getHTTPResponse( componentPayload, httpRequestState ){
         // Hydrate the component
         _hydrate( arguments.componentPayload );
         // Apply any updates
@@ -1263,6 +1304,14 @@ component output="true" {
         if ( variables._redirect.len() ) {
             local.response.effects[ "redirect" ] = variables._redirect;
             local.response.effects[ "redirectUsingNavigate" ] = variables._redirectUsingNavigate;
+        }
+        // Add any cbwire:scripts 
+        if ( variables._scripts.count() ) {
+            local.response.effects[ "scripts" ] = variables._scripts;
+        }
+        // Add any cbwire:assets to the global http request state
+        if ( variables._assets.count() ) {
+            httpRequestState.assets.append( variables._assets );
         }
 
         return local.response;
@@ -1494,7 +1543,7 @@ component output="true" {
             "path": _getComponentName(),
             "method":"GET",
             "children": variables._children.count() ? variables._children : [],
-            "scripts":[],
+            "scripts": variables._scripts.count() ? variables._scripts.keyArray() : [],
             "assets":[],
             "isolate": variables._isolate,
             "lazyLoaded": false,
@@ -1545,6 +1594,15 @@ component output="true" {
     }
 
     /**
+     * Returns the component's script tags.
+     * 
+     * @return struct
+     */
+    function _getScripts(){
+        return variables._scripts;
+    }
+
+    /**
      * Returns the component's meta data.
      * 
      * @return struct
@@ -1568,19 +1626,20 @@ component output="true" {
      * @return string
      */
     function _generateWireEffectsAttribute() {
+        local.effects = {};
         local.listenersAsArray = variables.listeners.reduce( function( acc, key, value ) {
             acc.append( key );
             return acc;
         }, [] );
-
-        
         if ( local.listenersAsArray.len() ) {
-            local.effects = {
-                "listeners": local.listenersAsArray
-            };
+            local.effects[ "listeners" ] = local.listenersAsArray;
+        }
+        if ( variables._scripts.count() ) {
+            local.effects[ "scripts" ] = variables._scripts;
+        }
+        if ( local.effects.count() ) {
             return _encodeAttribute( serializeJson( local.effects ) );
         }
-
         return "[]";
     }
 

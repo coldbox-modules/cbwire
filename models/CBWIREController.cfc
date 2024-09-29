@@ -25,7 +25,7 @@ component singleton {
     }
     /**
      * Instantiates a CBWIRE component, mounts it,
-     * and then calls its internal renderIt() method.
+     * and then calls its onRender() method.
      *
      * @name The name of the component to load.
      * @params The parameters you want mounted initially. Defaults to an empty struct.
@@ -57,6 +57,10 @@ component singleton {
      * @return A struct representing the response with updated component details or an error message.
      */
     function handleRequest( incomingRequest, event ) {
+        // Track state for entire request
+        local.httpRequestState = {
+            "assets": {}
+        };
         // Perform initial deserialization of the incoming request payload
         local.payload = deserializeJSON( arguments.incomingRequest.content );
         // Set the CSRF token for the request
@@ -82,9 +86,14 @@ component singleton {
                             ._withPath( _componentPayload.snapshot.memo.name )
                             ._withEvent( event )
                             ._withIncomingPayload( _componentPayload )
-                            ._getHTTPResponse( _componentPayload );
+                            ._getHTTPResponse( _componentPayload, httpRequestState );
             } )
         };
+
+        // Return assets from components
+        if ( local.httpRequestState.assets.count() ) {
+            local.componentsResult[ "assets" ] = local.httpRequestState.assets;
+        }
 
         // Set the response headers to prevent caching
         event.setHTTPHeader( name="Pragma", value="no-cache" );
@@ -203,7 +212,6 @@ component singleton {
             local.singleFileComponent = variables.singleFileComponentBuilder
                 .setInitialRender( true )
                 .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
-
             if ( isNull( local.singleFileComponent ) ) {
                 writeDump( local );
                 abort;
