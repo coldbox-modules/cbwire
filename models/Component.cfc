@@ -48,7 +48,7 @@ component output="true" {
      */
     function onDIComplete() {
         if ( isNull( variables._id ) ) {
-            variables._id = hash( createUUID() );
+            variables._id = lCase( hash( createUUID() ) );
         }
 
         variables._params = [:];
