@@ -12,7 +12,7 @@ component extends="cbwire.models.Component" {
         this.emit( "someOtherEvent", [ "grant", "allen", "copley" ] );
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/fireEvent" );
     }
 

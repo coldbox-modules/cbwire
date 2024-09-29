@@ -17,7 +17,7 @@ component extends="cbwire.models.Component" {
         reset( "conference" );
     }
 
-    function renderIt(){
+    function onRender(){
         return template( "wires.actions" );
     }
 }

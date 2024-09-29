@@ -1,10 +1,10 @@
 component extends="cbwire.models.Component" {
 
     data = {
-        title: "I rendered from renderIt"
+        title: "I rendered from onRender"
     };
 
-    function renderIt() {
+    function onRender() {
         return "<div><p>#data.title#</p></div>";
     }
 }

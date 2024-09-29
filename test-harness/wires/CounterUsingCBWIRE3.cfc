@@ -36,7 +36,7 @@ component extends="cbwire.models.Component" accessors="true" {
      * Renders the component's HTML output with Livewire-compatible attributes.
      * @return The HTML representation of the component, including Livewire data attributes.
      */
-    public string function renderIt() {
+    public string function onRender() {
         return template("wires.CounterUsingDataDot");
     }
 
