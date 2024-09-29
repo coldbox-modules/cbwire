@@ -23,14 +23,12 @@ component {
      * @return string
      */
     function parseScripts( content, counter = 1 ) {
-        if ( counter == 1 ) {
-            content = replaceNoCase( content, "</cbwire:script>", "</" & "cf" & "savecontent>", "all" );
+        arguments.content = replaceNoCase( arguments.content, "</cbwire:script>", "</" & "cf" & "savecontent>", "one" );
+        arguments.content = replaceNoCase( arguments.content, "<cbwire:script>", "<" & "cf" & "savecontent variable=""attributes.returnValues.script#counter#"">", "one" );
+        if ( findNoCase( "<cbwire:script>", arguments.content ) ) {
+            arguments.content = parseScripts( arguments.content, arguments.counter + 1 );
         }
-        content = replaceNoCase( content, "<cbwire:script>", "<" & "cf" & "savecontent variable=""attributes.returnValues.script#counter#"">", "one" );
-        if ( findNoCase( "<cbwire:script>", content ) ) {
-            content = parseScripts( content, counter + 1 );
-        }
-        return content;
+        return arguments.content;
     }
 
     /**
