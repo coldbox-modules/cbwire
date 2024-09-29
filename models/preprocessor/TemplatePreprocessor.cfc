@@ -26,7 +26,7 @@ component {
         if ( counter == 1 ) {
             content = replaceNoCase( content, "</cbwire:script>", "</cfsavecontent>", "all" );
         }
-        content = replaceNoCase( content, "<cbwire:script>", "<cfsavecontent variable=""attributes.returnValues.script#counter#"">" );
+        content = replaceNoCase( content, "<cbwire:script>", "<cfsavecontent variable=""attributes.returnValues.script#counter#"">", "one" );
         if ( findNoCase( "<cbwire:script>", content ) ) {
             content = parseScripts( content, counter + 1 );
         }
@@ -45,7 +45,7 @@ component {
         if ( counter == 1 ) {
             content = replaceNoCase( content, "</cbwire:assets>", "</cfsavecontent>", "all" );
         }
-        content = replaceNoCase( content, "<cbwire:assets>", "<cfsavecontent variable=""attributes.returnValues.assets#counter#"">" );
+        content = replaceNoCase( content, "<cbwire:assets>", "<cfsavecontent variable=""attributes.returnValues.assets#counter#"">", "one");
         if ( findNoCase( "<cbwire:assets>", content ) ) {
             content = parseAssets( content, counter + 1 );
         }
