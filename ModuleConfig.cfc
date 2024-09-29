@@ -34,16 +34,7 @@ component {
              * The default folder name where your cbwire components are stored.
              * Defaults to 'wires' folder.
              */
-            "componentLocation" : "wires",
-            /**
-             * Determines if Turbo should be enabled
-             */
-            "enableTurbo" : false,
-            /**
-             * Caching for single-file components to speed up response time.
-             * Should be false for local development.
-             */
-            "cacheSingleFileComponents": false,
+            "wiresLocation" : "wires",
             /**
              * Trims string properties if set to true
              */

@@ -1,6 +1,8 @@
 <cfscript>
     // @startWire
-
+    function placeholder() {
+        return "<div>placeholder</div>";
+    }
     // @endWire
 </cfscript>
 

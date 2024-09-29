@@ -2,6 +2,46 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     // Lifecycle methods and BDD suites as before...
     function run(testResults, testBox) {
+
+        describe( "Layout", function() {
+
+            it( "should auto inject assets", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = true;
+                var event = this.get( "main.index" );
+                var html = event.getRenderedContent();
+                expect( html ).toInclude( "<!-- CBWIRE Styles -->" );
+                expect( html ).toInclude( "<!-- CBWIRE Scripts -->" );
+                expect( reMatchNoCase( "CBWIRE Styles", html ).len() ).toBe( 1 );
+                expect( reMatchNoCase( "CBWIRE Scripts", html ).len() ).toBe( 1 );
+            } );
+
+            it( "should not auto inject assets", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = false;
+                var event = this.get( "main.index" );
+                var html = event.getRenderedContent();
+                expect( html ).notToInclude( "<!-- CBWIRE Styles -->" );
+                expect( html ).notToInclude( "<!-- CBWIRE Scripts -->" );
+                expect( reMatchNoCase( "CBWIRE Styles", html ).len() ).toBe( 0 );
+                expect( reMatchNoCase( "CBWIRE Scripts", html ).len() ).toBe( 0 );
+            } );
+
+            it( "should have default updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                expect( CBWIREController.getUpdateEndpoint() ).toBe( "/cbwire/update" );
+            } );
+
+            it( "should be able to set updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.cfm/cbwire/update";
+                expect( CBWIREController.getUpdateEndpoint() ).toBe( "/index.cfm/cbwire/update" );
+            } );
+
+        } );
+
         describe("Component.cfc", function() {
 
             beforeEach(function(currentSpec) {
@@ -9,7 +49,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
                 testComponent = getInstance("wires.TestComponent");
-                testComponent._withEvent( getRequestContext( ) );
+                testComponent
+                    ._withEvent( getRequestContext( ) )
+                    ._withPath( "wires.TestComponent" );
                 CBWIREController = getInstance( "CBWIREController@cbwire" );
                 prepareMock( testComponent );
             });
@@ -123,6 +165,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should be able to call inherited methods from template", function() {
                 var result = CBWIREController.wire( "test.should_be_able_to_call_inherited_methods_from_template" );
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
+            } );
+
+            it( "should support deep nesting with correct count of children", function() {
+                var result = CBWIREController.wire( "test.should_support_deep_nesting" );
+                var parent = parseRendering( result, 1 );
+                var child1 = parseRendering( result, 2 );
+                var child2 = parseRendering( result, 3 );
+                expect( parent.snapshot.memo.children.count() ).toBe( 2 );
+                expect( child1.snapshot.memo.children.count() ).toBe( 1 );
+                expect( child2.snapshot.memo.children.len() ).toBe( 0 );
+            } );
+
+            it( "shouldn't isolate by default", function() {
+                var result = CBWIREController.wire( "test.shouldnt_isolate_by_default" );
+                expect( result ).toInclude( "&quot;isolate&quot;:false" );
+            } );
+
+            it( "should isolate when using isolate=true", function() {
+                var result = CBWIREController.wire( "test.should_isolate_when_using_isolate_true" );
+                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+            } );
+
+            it( "should isolate when using lazyLoad=true", function() {
+                var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
+                expect( result ).toInclude( "&quot;isolate&quot;:true" );
             } );
 
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
@@ -325,6 +392,50 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 prepareMock( cbwireController );
             });
 
+            it( "should trim string values if global setting enabled on coldbox.cfc", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = true;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_global_setting_enabled",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( result.components.first().effects.html ).toInclude( "<p>Name: Jane Doe</p>" );
+                settings.trimStringValues = false;
+            } );
+
+            it( "should trim string values if enabled on component", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = false;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_enabled_on_component",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( result.components.first().effects.html ).toInclude( "<p>Name: Jane Doe</p>" );
+                settings.trimStringValues = false;
+            } );
+
             it( "should support $refresh action", function() {
                 var payload = incomingRequest(
                     memo = {
@@ -362,7 +473,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "<div wire:id=""([A-Za-z0-9]+)"" x-data=""{", result.components.first().effects.html ) ).toBeGT( 0 );
             } );
 
-            it( "should throw a 403 forbidden error if the CSRF token doesn't match", function() {
+            it( "should throw a 419 Page Expired error if the CSRF token doesn't match", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "TestComponent",
@@ -376,7 +487,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 expect( function() {
                     cbwireController.handleRequest( payload, event );
-                } ).toThrow( type="CBWIREException", message="Invalid CSRF token." );
+                } ).toThrow( type="CBWIREException", message="Page expired." );
             } );
 
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {
@@ -644,6 +755,65 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( snapshot.memo.children.count() ).toBe( 1 );
             } );
 
+            it(" should call onUpdate if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onupdate",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "cbwireVersion": 3
+                    },
+                    calls = [],
+                    updates = {
+                        "cbwireVersion": 4
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "onUpdateCalled: true" );
+            } );
+
+            it( "should not call onupdate if no updates are actually passed", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onupdate",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "cbwireVersion": 3
+                    },
+                    calls = [],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "onUpdateCalled: false" );
+            } );
+
+            it( "should call onUpdate[Property] if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onupdate_property",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "cbwireVersion": 3,
+                        "newValue": "",
+                        "oldValue": ""
+                    },
+                    calls = [],
+                    updates = {
+                        "cbwireVersion": 4
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Version: 4" );
+                expect( response.components[1].effects.html ).toInclude( "New Value: 4" );
+                expect( response.components[1].effects.html ).toInclude( "Old Value: 3" );
+            } );
+
             it( "should call onHydrate() if it exists", function() {
                 var payload = incomingRequest(
                     memo = {
@@ -905,8 +1075,40 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 testComponent = getInstance("wires.TestComponent"); // Assuming TestComponent is a component that supports lazy loading
                 testComponent._withEvent(getRequestContext());
+                CBWIREController = getInstance( "CBWIREController@cbwire" );
                 prepareMock(testComponent);
             });
+
+            it( "should isolate when lazy loading", function() {
+                var lazyHtml = testComponent.wire(
+                    name="TestComponent",
+                    params={},
+                    key="",
+                    lazy=true
+                );
+                expect( lazyHtml ).toInclude( "&quot;isolate&quot;:true" );
+            } );
+
+            it( "should lazy load a component using the original outer element", function() {
+                var lazyHtml = testComponent.wire(
+                    name="TestTableRowComponent",
+                    params={},
+                    key="",
+                    lazy=true
+                );
+                expect( reFindNoCase( "^<tr\s+", lazyHTML.trim() ) ).toBeTrue();
+            } );
+
+            it( "It should throw error if lazy component doesn't have a placeholder", function() {
+                expect( function() {
+                    testComponent.wire(
+                        name="TestComponentWithoutPlaceholder",
+                        params={},
+                        key="",
+                        lazy=true
+                    );
+                } ).toThrow( type="CBWIREException", message="Lazy loaded components must have a placeholder." );
+            } );
 
             it("should return a base64-encoded lazy loading snapshot when wire() is called with lazy=true", function() {
                 var lazyHtml = testComponent.wire(
@@ -931,6 +1133,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // Check that the actual component content is not included in the output
                 expect(lazyHtml).notToInclude("Actual Component Content");
             });
+
+            it( "should detect lazy loaded children", function() {
+                var parentHTML = CBWIREController.wire( "test.should_detect_lazy_loaded_children" );
+                var childHTML = reMatchNoCase( "<!-- start child -->.*<!-- end child -->", parentHTML )[ 1 ];
+                // Remove child HTML from parent HTML
+                parentHTML = replaceNoCase( parentHTML, childHTML, "", "one" );
+                var parent = parseRendering( parentHTML );
+                var child = parseRendering( childHTML );
+                // Ensure parent and child ids are different
+                expect( parent.snapshot.memo.id ).notToBe( child.snapshot.memo.id );
+                // Ensure parent has a child and it's the lazy loaded child
+                expect( structCount( parent.snapshot.memo.children ) ).toBe( 1 );
+                var keys = structKeyArray( parent.snapshot.memo.children );
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ] ).toBeArray();
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 1 ] ).toBe( "div" );
+                expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
+            } );
         });
 
         describe("CBWIREController", function() {
@@ -1023,7 +1242,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
-
+            it( "can load components from an external modules folder", function() {
+                var result = cbwireController.wire( "should_load_external_modules@ExternalModule" );
+                expect( result ).toInclude( "External Module Loaded" );
+            } );
         });
 
         describe( "Preprocessors", function() {

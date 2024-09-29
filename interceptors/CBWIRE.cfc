@@ -1,14 +1,21 @@
 component {
 
     /**
-     * Ensures that no other custom interceptors run for the cbwire module.
-     * Returns true to break the interceptor chain.
-     *
-     * @return boolean
+     * Returns the module settings.
+     * 
+     * @return struct
      */
-    function afterAspectsLoad() {
-        variables.CBWIREController = getInstance( dsl="CBWIREController@cbwire");
-        variables.settings = getInstance( dsl="coldbox:modulesettings:cbwire" ); 
+    function getSettings() {
+        return getInstance( "coldbox:modulesettings:cbwire" );
+    }
+
+    /**
+     * Returns the CBWIRE controller.
+     * 
+     * @return CBWIREController
+     */
+    function getCBWIREController() {
+        return getInstance( "CBWIREController@cbwire" );
     }
 
     /** 
@@ -17,7 +24,8 @@ component {
      * @return void
      */
     function preReinit() {
-        local.tmpDirectory = variables.settings.moduleRootPath & "/models/tmp";
+        local.settings = getSettings();
+        local.tmpDirectory = local.settings.moduleRootPath & "/models/tmp";
 
         if ( directoryExists( local.tmpDirectory ) ) {
             directoryDelete( local.tmpDirectory, true );
@@ -69,9 +77,8 @@ component {
                 data = "",
                 statusCode = 400
             ).noExecution();
-            // Returning true breaks further interceptors execution.
-            return true;
         }
+        return true;
     }
 
     function preEvent() eventPattern="^cbwire.*" {
@@ -123,9 +130,10 @@ component {
     }
 
     function postLayoutRender() {
-        if ( shouldInject( arguments.event ) ) {
+        if ( shouldInject( arguments.event ) && !request.keyExists( "_cbwire_injected_assets" ) ) {
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</head>", getStyles() & chr( 10 ) & "</head>", "one" );
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</body>", getScripts() & chr( 10 ) & "</body>", "one" );
+            request._cbwire_injected_assets = true;
         }
     }
 
@@ -172,7 +180,7 @@ component {
      * @return string
      */
     private function getStyles() {
-        return variables.CBWIREController.getStyles();
+        return getCBWIREController().getStyles();
     }
 
     /** 
@@ -181,7 +189,7 @@ component {
      * @return string
      */
     private function getScripts() {
-        return variables.CBWIREController.getScripts();
+        return getCBWIREController().getScripts();
     }
 
     /**
@@ -192,6 +200,7 @@ component {
      * @return boolean
      */
     private function shouldInject( event ) {
-        return arguments.event.getCurrentModule() != "cbwire" && variables.settings.autoInjectAssets == true;
+        local.settings = getSettings();
+        return arguments.event.getCurrentModule() != "cbwire" && local.settings.autoInjectAssets == true;
     }
 }

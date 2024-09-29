@@ -12,12 +12,17 @@ component singleton {
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
     
-	// Inject module service
-	property name="moduleService" inject="coldbox:moduleService";
+    // Inject module service
+    property name="moduleService" inject="coldbox:moduleService";
 
     // Inject SingleFileComponentBuilder
     property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
 
+    function init() {
+        // Initialize the array to store single file components
+        variables._singleFileComponents = [];
+        return this;
+    }
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its internal renderIt() method.
@@ -32,6 +37,7 @@ component singleton {
      */
     function wire(required name, params = {}, key = "", lazy = false, lazyIsolated = true ) {
         local.instance = createInstance(argumentCollection=arguments)
+                ._withPath( arguments.name )
                 ._withEvent( getEvent() )
                 ._withParams( arguments.params, arguments.lazy )
                 ._withKey( arguments.key );
@@ -59,8 +65,7 @@ component singleton {
         local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
         // Check the CSRF token, throw 403 if invalid
         if( !local.csrfTokenVerified ){
-            cfheader( statusCode="403", statusText="Forbidden" ); 
-            throw( type="CBWIREException", message="Invalid CSRF token." );
+            throw( type="CBWIREException", message="Page expired." );
         }
         // Perform additional deserialization of the component snapshots
         local.payload.components = local.payload.components.map( function( _comp ) {
@@ -74,6 +79,7 @@ component singleton {
                 local.componentInstance = createInstance( _componentPayload.snapshot.memo.name );
                 // Return the response for this component
                 return local.componentInstance
+                            ._withPath( _componentPayload.snapshot.memo.name )
                             ._withEvent( event )
                             ._withIncomingPayload( _componentPayload )
                             ._getHTTPResponse( _componentPayload );
@@ -173,19 +179,26 @@ component singleton {
             local.fullComponentPath = "wires." & local.fullComponentPath;
         }
         
-		if ( find( "@", local.fullComponentPath ) ) {
-			// This is a module reference, find in our module
-			var params = listToArray( local.fullComponentPath, "@" );
-			if ( params.len() != 2 ) {
-				throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
-			}
+        if ( find( "@", local.fullComponentPath ) ) {
+            // This is a module reference, find in our module
+            var params = listToArray( local.fullComponentPath, "@" );
+            if ( params.len() != 2 ) {
+                throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
+            }
             // modify local.fullComponentPath to full path for module
             local.fullComponentPath = getModuleComponentPath( params[ 1 ], params[ 2 ] );
-		}
+        }
 
         try {
+            // Check if we've already flagged this component as a single file component
+            // This is to improve performance by not attempting to create the component again
+            if ( variables._singleFileComponents.contains( arguments.name ) ) {
+                throw( type="Injector.InstanceNotFoundException", message="Component '#arguments.name#' is a single file component." );
+            }
             // Attempt to create an instance of the component
-            return variables.wirebox.getInstance(local.fullComponentPath);
+            local.componentInstance = variables.wirebox.getInstance(local.fullComponentPath)
+                ._withPath( arguments.name );
+            return local.componentInstance;
         } catch( Injector.InstanceNotFoundException e ) {
             local.singleFileComponent = variables.singleFileComponentBuilder
                 .setInitialRender( true )
@@ -196,6 +209,7 @@ component singleton {
                 abort;
                 rethrow;
             }
+            variables._singleFileComponents.append( arguments.name );
 
             return local.singleFileComponent;
         } catch (Any e) {
@@ -206,24 +220,56 @@ component singleton {
         }
     }
 
-	/**
-	 * Returns the full dot notation path to a modules component.
-	 *
-	 * @path String | Name of the cbwire component.
-	 * @module String | Name of the module to look for wire in.
-	 */
-	private function getModuleComponentPath( path, module ) {
-		var moduleConfig = moduleService.getModuleConfigCache();
-		if ( !moduleConfig.keyExists( module ) ) {
-			throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
-		}
+    /** 
+    * Returns the path to the modules folder.
+    * 
+    * @module string | The name of the module.
+    *
+    * @return string
+    */
+    function getModuleRootPath( module ) {
+        var moduleRegistry = moduleService.getModuleRegistry();
 
-		// if there is a dot in the path, then we are referencing a folder within a module otherwise use the default wire location.
-		var moduleRegistry = moduleService.getModuleRegistry();
-		return arguments.path contains "." ?
-			moduleRegistry[ module ].invocationPath & "." & module & "." & arguments.path :
-			moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & arguments.path;
-	}
+        if ( moduleRegistry.keyExists( module ) ) {
+            return moduleRegistry[ module ].invocationPath & "." & module;
+        }
+
+        throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
+    }
+
+    /**
+     * Returns the full dot notation path to a modules component.
+     *
+     * @path String | Name of the cbwire component.
+     * @module String | Name of the module to look for wire in.
+     */
+    function getModuleComponentPath( path, module ) {
+        var moduleConfig = moduleService.getModuleConfigCache();
+        if ( !moduleConfig.keyExists( module ) ) {
+            throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module '" & arguments.module & "'.")
+        }
+
+        // if there is a dot in the path, then we are referencing a folder within a module otherwise use the default wire location.
+        var moduleRegistry = moduleService.getModuleRegistry();
+
+        var result = arguments.path contains "." ?
+            moduleRegistry[ module ].invocationPath & "." & module & "." & arguments.path :
+            moduleRegistry[ module ].invocationPath & "." & module & "." & getWiresLocation() & "." & arguments.path;
+
+        return result;
+    }
+
+    /**
+     * Returns the path to the wires folder within a module path.
+     *
+     * @module string | The name of the module.
+     * 
+     * @return string 
+     */
+    function getModuleWiresPath( module ) {
+        local.moduleRegistry = moduleService.getModuleRegistry();
+        return arguments
+    }
 
     /**
      * Returns the ColdBox RequestContext object.
@@ -442,4 +488,13 @@ component singleton {
         return requestService.getController().getRenderer().view( argumentCollection=arguments );
     }
 
+    /**
+     * Returns the URI endpoint for updating CBWIRE components.
+     * 
+     * @return string
+     */
+    function getUpdateEndpoint() {
+        var settings = variables.moduleSettings;        
+        return settings.keyExists( "updateEndpoint") && settings.updateEndpoint.len() ? settings.updateEndpoint : "/cbwire/update";
+    }
 }

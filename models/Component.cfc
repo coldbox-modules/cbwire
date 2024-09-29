@@ -1,5 +1,7 @@
 component output="true" {
 
+    property name="_globalSettings" inject="coldbox:modulesettings:cbwire";
+
     property name="_CBWIREController" inject="CBWIREController@cbwire";
 
     property name="_wirebox" inject="wirebox";
@@ -24,6 +26,9 @@ component output="true" {
     property name="_returnValues";
     property name="_redirect";
     property name="_redirectUsingNavigate";
+    property name="_isolate";
+    property name="_path";
+    property name="_renderedContent";
 
     /**
      * Constructor
@@ -58,6 +63,8 @@ component output="true" {
         variables._returnValues = [];
         variables._redirect = "";
         variables._redirectUsingNavigate = false;
+        variables._isolate = false;
+        variables._renderedContent = "";
         
         /* 
             Cache the component's meta data on initialization
@@ -79,6 +86,11 @@ component output="true" {
             Prep generated getters and setters for data properties
         */
         _prepareGeneratedGettersAndSetters();
+
+        /*
+            Prep isolation
+        */
+        _prepareIsolation();
 
         /* 
             Prep for lazy loading
@@ -305,15 +317,27 @@ component output="true" {
         }
         // Instaniate this child component as a new component
         local.instance = variables._CBWIREController.createInstance(argumentCollection=arguments)
-                ._withParent( this )
-                ._withEvent( variables._event )
-                ._withParams( arguments.params, arguments.lazy )
-                ._withKey( arguments.key )
-                ._withLazy( arguments.lazy );
+            ._withPath( arguments.name )
+            ._withParent( this )
+            ._withEvent( variables._event )
+            ._withParams( arguments.params, arguments.lazy )
+            ._withKey( arguments.key )
+            ._withLazy( arguments.lazy );
 
         // Check if lazy loading is enabled
         if ( arguments.lazy ) {
-            return local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
+            local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
+            // Based on the rendering, determine our outer component tag
+            local.componentTag = _getComponentTag( local.lazyRendering );
+            // Track the rendered child
+            variables._children.append( [
+                "#arguments.key#": [
+                    local.componentTag,
+                    local.instance._getId()
+                ]
+            ] );
+
+            return local.lazyRendering;
         } else {
             // Render it out normally
             local.rendering = local.instance._render();
@@ -556,10 +580,21 @@ component output="true" {
     }
 
     /**
+     * Passes the path of the component.
+     *
+     * @path string | The path of the component.
+     * 
+     * @return Component
+     */
+    function _withPath( path ) {
+        variables._path = arguments.path;
+        return this;
+    }
+
+    /**
      * Passes the current event into our component.
      * 
      * @return Component
-     * 
      */
     function _withEvent( event ) {
         variables._event = arguments.event;
@@ -634,6 +669,7 @@ component output="true" {
      */
     function _withLazy( lazy ) {
         variables._lazyLoad = arguments.lazy;
+        variables._isolate = true;
         return this;
     }
 
@@ -705,10 +741,19 @@ component output="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+        if ( !updates.count() ) return;
+        // Capture old values 
+        local.oldValues = duplicate( data );
         // Array to track which array props were updated
         local.updatedArrayProps = [];
         // Loop over the updates and apply them
         arguments.updates.each( function( key, value ) {
+
+            // Check if we should trim if simple value
+            if ( isSimpleValue( arguments.value ) && shouldTrimStringValues() ) {
+                arguments.value = trim( arguments.value );
+            }
+
             // Determine if this is an array update
             if ( reFindNoCase( "\.[0-9]+", arguments.key ) ) {
                 local.regexMatch = reFindNoCase( "(.+)\.([0-9]+)", arguments.key, 1, true );
@@ -720,7 +765,11 @@ component output="true" {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
-                variables.data[ key ] = value;
+                local.oldValue = variables.data[ key ];
+                variables.data[ key ] = arguments.value;
+                if ( structKeyExists( this, "onUpdate#key#") ) {
+                    invoke( this, "onUpdate#key#", { value: arguments.value, oldValue: local.oldValue });
+                }
             }
         } );
         
@@ -729,6 +778,11 @@ component output="true" {
                 return arguments.value != "__rm__";
             } );
         } );
+
+        // Call onUpdate passing newValues and oldValues
+        if ( structKeyExists( this, "onUpdate" ) ) {
+            invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+        }
     }
 
     /**
@@ -809,7 +863,7 @@ component output="true" {
             local.normalizedPath &= ".cfm";
         }
         // Ensure the path starts with "/wires/" without duplicating it
-        if (left(local.normalizedPath, 6) != "wires/") {
+        if (!isModulePath() && left(local.normalizedPath, 6) != "wires/") {
             local.normalizedPath = "wires/" & local.normalizedPath;
         }
         // Prepend a leading slash if not present
@@ -952,8 +1006,17 @@ component output="true" {
         local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
         // Determine our outer element 
         local.outerElement = _getOuterElement( arguments.html );
+        // Find the position of the opening tag
+        local.openingTagStart = findNoCase("<" & local.outerElement, arguments.html);
+        local.openingTagEnd = find(">", arguments.html, local.openingTagStart);
         // Insert attributes into the opening tag
-        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
+        if (local.openingTagStart > 0 && local.openingTagEnd > 0) {
+            local.openingTag = mid(arguments.html, local.openingTagStart, local.openingTagEnd - local.openingTagStart + 1);
+            local.newOpeningTag = replace(local.openingTag, "<" & local.outerElement, "<" & local.outerElement & " " & local.wireAttributes, "one");
+            arguments.html = replace(arguments.html, local.openingTag, local.newOpeningTag, "one");
+        }
+        
+        return arguments.html;
     }
 
     /**
@@ -1010,17 +1073,20 @@ component output="true" {
      * @return The rendered content of the view template.
      */
     function _renderViewContent( normalizedPath, params = {} ){
-        // Render our view using an renderer encapsulator
-        savecontent variable="local.viewContent" {
-            cfmodule(
-                template = "RendererEncapsulator.cfm",
-                cbwireComponent = this,
-                normalizedPath = arguments.normalizedPath,
-                params = arguments.params
-            );
+        if ( !variables._renderedContent.len() ) {
+            // Render our view using an renderer encapsulator
+            savecontent variable="local.viewContent" {
+                cfmodule(
+                    template = "RendererEncapsulator.cfm",
+                    cbwireComponent = this,
+                    normalizedPath = arguments.normalizedPath,
+                    params = arguments.params
+                );
+            }
+            variables._renderedContent = local.viewContent;
         }
 
-        return local.viewContent;
+        return variables._renderedContent;
     }
 
     /**
@@ -1110,23 +1176,32 @@ component output="true" {
         };
 
         // Prepend any passed in params into our forMount array
-
         arguments.params.each( function( key, value ) {
             snapshot.data.forMount.prepend( { "#arguments.key#": arguments.value } );
         } );
 
         // Serialize the snapshot to JSON and then encode it for HTML attribute inclusion
-        var lazyLoadSnapshot = serializeJson(local.snapshot);
+        local.lazyLoadSnapshot = serializeJson( local.snapshot );
     
         // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
-        var base64EncodedSnapshot = toBase64(lazyLoadSnapshot);   
+        local.base64EncodedSnapshot = toBase64( local.lazyLoadSnapshot );   
 
-        // Build the final <div> element with appropriate attributes
-        var lazyLoadDiv = '<div wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" ' &
-                          'wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#" ' &
-                          'x-intersect="$wire._lazyMount(&##039;' & base64EncodedSnapshot & '&##039;)">#placeHolder()#</div>';
-    
-        return lazyLoadDiv;
+        // Get our placeholder html
+        local.html = placeholder();
+
+        // Check if placeholder is even defined, if not throw error
+        if ( isNull( local.html ) || !local.html.len() ) {
+            throw( type="CBWIREException", message="The placeholder method must be defined for lazy loaded components and it must have the same outer element as your CBWIRE template." );
+        }
+
+        // Define the wire attributes to append
+        local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
+
+        // Determine our outer element
+        local.outerElement = _getOuterElement( local.html );
+
+        // Insert attributes into the opening tag
+        return local.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
     }
 
     /**
@@ -1138,7 +1213,6 @@ component output="true" {
      * @return struct
      */
     function _getHTTPResponse( componentPayload ){
-
         // Hydrate the component
         _hydrate( arguments.componentPayload );
         // Apply any updates
@@ -1322,6 +1396,17 @@ component output="true" {
     }
 
     /**
+     * Prepares the component for isolation.
+     * 
+     * @return void
+     */
+    function _prepareIsolation() {
+        // If the component has an isolate method, call it
+        variables._isolate = variables.keyExists( "isolate" ) && isBoolean( variables.isolate ) && variables.isolate ? 
+            true : false;
+    }
+
+    /**
      * Prepares the component for lazy loading.
      * 
      * @return void
@@ -1330,6 +1415,10 @@ component output="true" {
         // If the component has a lazyLoad method, call it
         variables._lazyLoad = variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ? 
             true : false;
+
+        if ( variables._lazyLoad ) {
+            variables._isolate = true;
+        }
     }
 
     /**
@@ -1360,7 +1449,21 @@ component output="true" {
      * Returns the path to the view template file.
      */
     function _getViewPath(){
-        return "wires." & _getComponentName();
+        if ( isModulePath() ) {
+            var moduleRoot = variables._CBWIREController.getModuleRootPath( _getModuleName() );
+            return moduleRoot & ".wires." & _getComponentName().listFirst( "@" );
+        }
+
+        return "wires." & variables._path;
+    }
+
+    /**
+     * Returns the module name.
+     * 
+     * @return string
+     */
+    function _getModuleName() {
+        return variables._path contains "@" ? variables._path.listLast( "@" ) : "";
     }
 
     /**
@@ -1385,15 +1488,15 @@ component output="true" {
      * @return struct
      */
     function _getMemo(){
-        var name = _getComponentName();
         return [
             "id": variables._id,
-            "name":name,
-            "path":name,
+            "name": _getComponentName(),
+            "path": _getComponentName(),
             "method":"GET",
             "children": variables._children.count() ? variables._children : [],
             "scripts":[],
             "assets":[],
+            "isolate": variables._isolate,
             "lazyLoaded": false,
             "lazyIsolated": true,
             "errors":[],
@@ -1411,7 +1514,8 @@ component output="true" {
         if ( variables._metaData.name contains "cbwire.models.tmp." ) {
             return variables._metaData.name.replaceNoCase( "cbwire.models.tmp.", "", "one" );
         }
-        return variables._metaData.name.replaceNoCase( "wires.", "", "one" );
+        // only returns the last part of the name seprate by dots
+        return variables._path;
     }
 
     /**
@@ -1511,6 +1615,15 @@ component output="true" {
     }
 
     /**
+     * Returns true if the path contains a module.
+     * 
+     * @return boolean
+     */
+    function isModulePath() {
+        return variables._path contains "@";
+    }
+
+    /**
      * Returns true if the cbvalidation module is installed.
      * 
      * @return boolean
@@ -1522,5 +1635,17 @@ component output="true" {
         } catch ( any e ) {
             return false;
         }
+    }
+
+    /**
+     * Returns true if trimStringValues is enabled, either globally
+     * or for the component.
+     * 
+     * @return boolean
+     */
+    function shouldTrimStringValues() {
+        return 
+            ( _globalSettings.keyExists( "trimStringValues" ) && _globalSettings.trimStringValues == true ) ||
+            ( variables.keyExists( "trimStringValues" ) && variables.trimStringValues == true );
     }
 }

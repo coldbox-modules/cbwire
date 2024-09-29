@@ -1,7 +1,6 @@
 <cfscript>
 
     function fileIsOutdated(sourcePath, cachePath) {
-        return true;
         return getFileInfo(sourcePath).lastModified > getFileInfo(cachePath).lastModified;
     }
 
