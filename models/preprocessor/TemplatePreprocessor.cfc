@@ -40,13 +40,11 @@ component {
      * @return string
      */
     function parseAssets( content, counter = 1 ) {
-        if ( counter == 1 ) {
-            content = replaceNoCase( content, "</cbwire:assets>", "</" & "cf" & "savecontent>", "all" );
+        arguments.content = replaceNoCase( arguments.content, "</cbwire:assets>", "</" & "cf" & "savecontent>", "one" );
+        arguments.content = replaceNoCase( arguments.content, "<cbwire:assets>", "<" & "cf" & "savecontent variable=""attributes.returnValues.assets#counter#"">", "one");
+        if ( findNoCase( "<cbwire:assets>", arguments.content ) ) {
+            arguments.content = parseAssets( arguments.content, arguments.counter + 1 );
         }
-        content = replaceNoCase( content, "<cbwire:assets>", "<" & "cf" & "savecontent variable=""attributes.returnValues.assets#counter#"">", "one");
-        if ( findNoCase( "<cbwire:assets>", content ) ) {
-            content = parseAssets( content, counter + 1 );
-        }
-        return content;
+        return arguments.content;
     }
 }

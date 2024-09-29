@@ -307,14 +307,13 @@ component singleton {
         if( structKeyExists( variables, "preprocessors" ) ){
             return variables.preprocessors;
         }
-        // Scan the folder 'preprocessor' for all CFCs and return an array
-        local.files = directoryList( 
-            path=getDirectoryFromPath(getCurrentTemplatePath()) & "preprocessor",
-            recurse=false,
-            listInfo="name",
-            filter="*.cfc",
-            type="file"
-        );
+        // List of preprocesssors here. Had to hard code instead of using 
+        // directoryList because of filesystem differences in various OSes
+        local.files = [
+            "TemplatePreprocessor.cfc",
+            "CBWIREPreprocessor.cfc",
+            "TeleportPreprocessor.cfc"
+        ]
         // Map the files to their getInstance path
         variables.preprocessors = local.files.map( ( _file ) => {
             local.getInstancePath = replace( _file, ".cfc", "" ) & "@cbwire";
