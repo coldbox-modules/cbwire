@@ -7,7 +7,7 @@ component
         "name": "Marty"
     };
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/usingSet" );
     }
 

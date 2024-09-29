@@ -13,7 +13,7 @@ component extends="cbwire.models.Component" {
         }
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/computedProperty" );
     }
 

@@ -4,7 +4,7 @@ component extends="cbwire.models.Component"{
         log.debug( "Loaded mount()" );
     }
 
-    function renderIt(){
+    function onRender(){
         return renderView( "wires/logbox" );
     }
 

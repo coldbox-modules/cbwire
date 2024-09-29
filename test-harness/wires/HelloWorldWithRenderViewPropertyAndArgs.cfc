@@ -2,7 +2,7 @@ component extends="cbwire.models.Component" {
 
     data = { "message" : "Hello world" };
 
-    function renderIt(){
+    function onRender(){
         return this.view( "wires/helloWorldWithRenderViewPropertyAndArgs" );
     }
 

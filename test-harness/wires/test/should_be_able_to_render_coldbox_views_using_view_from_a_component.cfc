@@ -1,6 +1,6 @@
 component extends="cbwire.models.Component" {
 
-    function renderIt() {
+    function onRender() {
         return view( "testView", { input: "Rendered from component!" } );
     }
 }

@@ -135,11 +135,24 @@ component output="true" {
     }
 
     /**
+     * renderIt left for backwards compatibility.
+     * 
+     * @return string
+     */
+    function renderIt() {
+        return "";
+    }
+
+    /**
      * Renders the component's HTML output.
      * This method should be overridden by subclasses to implement specific rendering logic.
      * If not overridden, this method will simply render the view.
      */
-    function renderIt() {
+    function onRender() {
+        local.renderIt = renderIt();
+        if ( local.renderIt.len() ) {
+            return local.renderIt;
+        }
         return template( _getViewPath() );
     }
 
@@ -271,7 +284,7 @@ component output="true" {
 
     /**
      * Instantiates a CBWIRE component, mounts it,
-     * and then calls its internal renderIt() method.
+     * and then calls its internal onRender() method.
      *
      * This is nearly identical to the wire method defined 
      * in the CBWIREController component, but it is intended
@@ -344,12 +357,12 @@ component output="true" {
             // Based on the rendering, determine our outer component tag
             local.componentTag = _getComponentTag( local.rendering );
             // Track the rendered child
-            variables._children.append( [
+            variables._children.append( {
                 "#arguments.key#": [
                     local.componentTag,
                     local.instance._getId()
                 ]
-            ] );
+            } );
 
             return local.instance._render();
         }
@@ -1588,7 +1601,7 @@ component output="true" {
      * Response for actually starting rendering of a component.
      */
     function _render( rendering ) {
-        local.trimmedHTML = isNull( arguments.rendering ) ? trim( renderIt() ) : trim( arguments.rendering );
+        local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
         // Validate the HTML content to ensure it has a single outer element
         _validateSingleOuterElement( local.trimmedHTML);
         // If this is the initial load, encode the snapshot and insert Livewire attributes

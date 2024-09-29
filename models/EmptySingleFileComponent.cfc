@@ -2,7 +2,7 @@ component extends="cbwire.models.Component" {
 
     {{ CFC_CONTENTS }}
 
-    function renderIt() {
+    function onRender() {
         return template( "{{ TEMPLATE_PATH }}" );
     }
 
