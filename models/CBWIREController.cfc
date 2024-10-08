@@ -92,7 +92,22 @@ component singleton {
 
         // Return assets from components
         if ( local.httpRequestState.assets.count() ) {
-            local.componentsResult[ "assets" ] = local.httpRequestState.assets;
+            var alreadyLoadedAssets = payload.components.reduce( function( _agg, _comp ) {
+                if ( _comp.snapshot.memo.keyExists( "assets" ) ) {
+                    _comp.snapshot.memo.assets.each( function( _asset ) {
+                        _agg.append( _asset );
+                    } );
+                }
+                return _agg;
+            }, [] );
+
+            local.componentsResult[ "assets" ] = local.httpRequestState.assets.filter( function( key, value ) {
+                return !arrayFindNoCase( alreadyLoadedAssets, key );
+            } );
+
+            if ( !local.componentsResult[ "assets" ].count() ) {
+                local.componentsResult[ "assets" ] = [];
+            }
         }
 
         // Set the response headers to prevent caching

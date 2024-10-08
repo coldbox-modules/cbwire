@@ -497,9 +497,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     updates = {}
                 );
                 var result = cbwireController.handleRequest( payload, event );
+                expect( isStruct( result.assets ) );
                 expect( result.assets.count() ).toBe( 1 );
                 var keys = result.assets.keyArray();
                 expect( result.assets[ keys.first() ] ).toInclude( "tailwind.min.css" );
+            } );
+
+            it( "it should NOT return assets if they were already rendered", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_track_cbwire_assets_in_http_response",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": [],
+                        "assets": [ "FC8550AF548BA7D81CAA8C2333141FDA" ]
+                    },
+                    data = {},
+                    calls = [],
+                    updates = {}
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( isArray( result.assets ) ).toBeTrue();
+                expect( result.assets.len() ).toBe( 0 );
             } );
 
             it( "should support $refresh action", function() {

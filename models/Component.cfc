@@ -1135,8 +1135,8 @@ component output="true" {
         } ).each( function( key, value, result ) {
             // Extract the counter from the tag name
             local.counter = key.replaceNoCase( "assets", "" );
-            // Create assets tag id based on compile time id and counter
-            local.assetsTagId = variables._compileTimeKey & "-" & local.counter;
+            // Create assets tag id based on hash of assets
+            local.assetsTagId = hash( value );
             // Track the assets tag
             variables._assets[ local.assetsTagId ] = value;
             local.requestAssets = variables._CBWIREController.getRequestAssets();
