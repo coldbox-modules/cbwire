@@ -1559,7 +1559,7 @@ component output="true" {
             "method":"GET",
             "children": variables._children.count() ? variables._children : [],
             "scripts": variables._scripts.count() ? variables._scripts.keyArray() : [],
-            "assets":[],
+            "assets": variables._assets.count() ? variables._assets.keyArray() : [],
             "isolate": variables._isolate,
             "lazyLoaded": false,
             "lazyIsolated": true,

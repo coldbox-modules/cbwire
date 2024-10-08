@@ -329,6 +329,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).notToInclude( "tailwind.min.css" );
             } );
 
+            it( "should track assets in snapshot memo", function() {
+                var result = CBWIREController.wire( "test.should_track_assets_in_snapshot_memo" );
+                var parsing = parseRendering( result );
+                expect( parsing.snapshot.memo.assets ).toBeArray();
+                expect( parsing.snapshot.memo.assets.len() ).toBe( 1 );
+            } );
+
+            it( "should not track assets in snapshot memo when lazy loaded", function() {
+                var result = CBWIREController.wire( name="test.should_track_assets_in_snapshot_memo", lazy=true );
+                var parsing = parseRendering( result );
+                expect( parsing.snapshot.memo.assets ).toBeArray();
+                expect( parsing.snapshot.memo.assets.len() ).toBe( 0 );
+            } );
+
             it( "should track scripts in snapshot memo", function() {
                 var result = CBWIREController.wire( "test.should_track_scripts_in_snapshot_memo" );
                 var parsing = parseRendering( result );
