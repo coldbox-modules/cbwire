@@ -1136,7 +1136,7 @@ component output="true" {
             // Extract the counter from the tag name
             local.counter = key.replaceNoCase( "assets", "" );
             // Create assets tag id based on hash of assets
-            local.assetsTagId = hash( value );
+            local.assetsTagId = hash( value, "MD5" );
             // Track the assets tag
             variables._assets[ local.assetsTagId ] = value;
             local.requestAssets = variables._CBWIREController.getRequestAssets();
