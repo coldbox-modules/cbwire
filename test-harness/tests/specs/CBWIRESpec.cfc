@@ -575,6 +575,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "should throw a 419 Page Expired error if the CSRF token doesn't match", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.csrfEnabled = true;
                 csrf.$( "verify", false );
                 
                 var payload = incomingRequest(
@@ -592,6 +594,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     cbwireController.handleRequest( payload, event );
                 } ).toThrow( type="CBWIREException", message="Page expired." );
 
+                settings.csrfEnabled = false;
                 csrf.$( "verify", true );
             } );
 
@@ -1311,9 +1314,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "should include a data-csrf token when calling getScripts()", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.csrfEnabled = true;
                 var scripts = cbwireController.getScripts();
                 expect( scripts ).toInclude( "data-csrf" );
                 expect( reFindNoCase( "data-csrf=""[A-Za-z0-9]+""", scripts ) ).toBeGT( 0 );
+                settings.csrfEnabled = false;
             } );
 
             it( "should provide a wirePersist() method", function() {

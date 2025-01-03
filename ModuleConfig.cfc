@@ -40,6 +40,11 @@ component {
              */
             "trimStringValues" : false,
             /**
+             * Enables or disables the CSRF protection for the module.
+             * This will be changed to default to true in the future.
+             */
+            "csrfEnabled": false,
+            /**
              * The wirebox mapping to use for the CSRF storage.
              */
             "csrfStorage": "SessionStorage@cbstorages"

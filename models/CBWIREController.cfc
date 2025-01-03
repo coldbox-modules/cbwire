@@ -424,8 +424,7 @@ component singleton {
      * @return string
      */
     function generateCSRFToken() {
-        // Generate the CSRF token using the cbcsrf library
-        return variables.csrf.generate();
+        return isCSRFProtectionEnabled() ? variables.csrf.generate() : "";
     }
     /** 
      * Verifies a CSRF token.
@@ -435,7 +434,7 @@ component singleton {
      * @return boolean
      */
     function verifyCSRFToken( token ) {
-        return variables.csrf.verify( token );
+        return isCSRFProtectionEnabled() ? variables.csrf.verify( token ) : true;
     }
 
     /**
@@ -540,5 +539,14 @@ component singleton {
     function getUpdateEndpoint() {
         var settings = variables.moduleSettings;        
         return settings.keyExists( "updateEndpoint") && settings.updateEndpoint.len() ? settings.updateEndpoint : "/cbwire/update";
+    }
+
+    /** 
+     * Returns true if CSRF protection is enabled.
+     * 
+     * @return boolean
+     */
+    private function isCSRFProtectionEnabled() {
+        return moduleSettings.csrfEnabled == true;
     }
 }
