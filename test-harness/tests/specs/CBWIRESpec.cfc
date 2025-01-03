@@ -451,8 +451,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 // and prepareMock() is a custom method to mock any dependencies, if necessary.
                 setup();
                 cbwireController = getInstance("CBWIREController@cbwire");
-                event = getRequestContext();
                 prepareMock( cbwireController );
+                event = getRequestContext();
+                csrf = prepareMock( getInstance( "CSRF@cbwire" ) );
+                csrf.$( "verify", true );
+                cbwireController.$property( "csrf", "variables", csrf );
             });
 
             it( "should trim string values if global setting enabled on coldbox.cfc", () => {
@@ -572,6 +575,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
 
             it( "should throw a 419 Page Expired error if the CSRF token doesn't match", function() {
+                csrf.$( "verify", false );
+                
                 var payload = incomingRequest(
                     memo = {
                         "name": "TestComponent",
@@ -586,6 +591,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( function() {
                     cbwireController.handleRequest( payload, event );
                 } ).toThrow( type="CBWIREException", message="Page expired." );
+
+                csrf.$( "verify", true );
             } );
 
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {

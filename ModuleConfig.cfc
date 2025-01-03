@@ -38,7 +38,11 @@ component {
             /**
              * Trims string properties if set to true
              */
-            "trimStringValues" : false
+            "trimStringValues" : false,
+            /**
+             * The wirebox mapping to use for the CSRF storage.
+             */
+            "csrfStorage": "SessionStorage@cbstorages"
         };
 
         routes = [

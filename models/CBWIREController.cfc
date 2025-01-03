@@ -6,8 +6,8 @@ component singleton {
     // Injected RequestService so that we can access the current ColdBox RequestContext.
     property name="requestService" inject="coldbox:requestService";
 
-    // Inject CBCSRF for CSRF token generation and verification
-    property name="cbcsrf" inject="provider:@cbcsrf";
+    // Inject CSRF token generation and verification
+    property name="csrf" inject="CSRF@cbwire";
 
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
@@ -66,7 +66,8 @@ component singleton {
         // Set the CSRF token for the request
         local.csrfToken = local.payload._token;
         // Validate the CSRF token
-        local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
+        local.csrfTokenVerified = verifyCSRFToken( local.csrfToken );
+
         // Check the CSRF token, throw 403 if invalid
         if( !local.csrfTokenVerified ){
             throw( type="CBWIREException", message="Page expired." );
@@ -424,7 +425,17 @@ component singleton {
      */
     function generateCSRFToken() {
         // Generate the CSRF token using the cbcsrf library
-        return variables.cbcsrf.generate();
+        return variables.csrf.generate();
+    }
+    /** 
+     * Verifies a CSRF token.
+     * 
+     * @token string | The CSRF token to verify.
+     * 
+     * @return boolean
+     */
+    function verifyCSRFToken( token ) {
+        return variables.csrf.verify( token );
     }
 
     /**
