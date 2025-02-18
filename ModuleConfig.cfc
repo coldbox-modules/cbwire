@@ -15,7 +15,7 @@ component {
     function configure(){
         settings = {
             /**
-             * Set to true to automatically include CSS and JS 
+             * Set to true to automatically include CSS and JS
              * assets for CBWIRE. This makes it where you do not
              * need to add wireStyles() and wireScripts() to your layout.
              */
@@ -24,6 +24,10 @@ component {
              * Capture our module root for use throughout CBWIRE.
              */
             "moduleRootPath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) ),
+            /**
+             * The default storage path for all cbwire components.
+             */
+            "storagePath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) & "/models/tmp" ),
             /**
              * Set to true to throw a 'WireSetterNotFound' exception if
              * the incoming cbwire request tries to update a property
@@ -43,7 +47,7 @@ component {
              * Enables or disables the progress bar when using wire:navigate
              */
             "showProgressBar": true,
-            /** 
+            /**
              * The color of the progress bar when using wire:navigate
              */
             "progressBarColor": "##2299dd"
