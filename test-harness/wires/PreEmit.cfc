@@ -10,7 +10,7 @@ component extends="cbwire.models.Component" {
         data.message = "Called preEmit for event '#arguments.eventName#'!";
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/preEmit" );
     }
 

@@ -8,7 +8,7 @@ component extends="cbwire.models.Component" {
         data.message = "Well hello " & arguments.firstname & " " & arguments.lastname;
     }
 
-    function renderIt(){
+    function onRender(){
         return renderView( "wires/passActionArgs" );
     }
 

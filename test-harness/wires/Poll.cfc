@@ -8,7 +8,7 @@ component extends="cbwire.models.Component" {
         return now() & "what!";
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/poll" );
     }
 

@@ -24,19 +24,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: ["lucee@5", "adobe@2018", "adobe@2021"]
+        cfengine: [ "lucee@5", "adobe@2021", "adobe@2023" ]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: "adopt"
           java-version: "11"
 
       - name: Cache CommandBox Dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         if: ${{ true }}
         with:
           path: ~/.CommandBox/artifacts
@@ -69,6 +69,9 @@ jobs:
           if [[ "${{ matrix.cfengine }}" == "adobe@2021" ]] ; then
             box run-script install:2021
           fi
+          if [[ "${{ matrix.cfengine }}" == "adobe@2023" ]] ; then
+            box run-script install:2023
+          fi
           curl http://127.0.0.1:60299
 
       - name: Run Tests
@@ -79,7 +82,7 @@ jobs:
           box testbox run --verbose outputFile=tests/results/test-results outputFormats=json,antjunit
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: test-harness/tests/results/**/*.xml
@@ -87,11 +90,19 @@ jobs:
 
       - name: Upload Test Results Artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.cfengine }}
           path: |
             test-harness/tests/results/**/*
+
+      # Leaving this here for future debugging
+      # - name: Upload tmp folder as artifact
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: tmp-folder
+      #     path: models/tmp/
 
       - name: Slack Notification
         if: failure()
@@ -113,7 +124,7 @@ jobs:
 
       - name: Upload Debugging Info To Artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Failure Debugging Info - ${{ matrix.cfengine }}
           path: |
@@ -124,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.0
@@ -155,7 +166,7 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: Ortus-Solutions/commandbox-action@v1
         env:
           box_config_endpoints_forgebox_APIToken: ${{ secrets.FORGEBOX_TOKEN }}

@@ -60,9 +60,8 @@ component accessors="true" singleton {
         }
 
         if ( !local.startedWire || !local.endedWire ) {
-            throw( message="Could not find the '@startWire' or '@endWire' markers in #arguments.cfmPath#. You must place these within your cfscript tag when using single file components." );
+            throw( type="CBWIREException", message="The CBWIRE component '#arguments.cfmPath#' is missing '//@startWire' and '//@endWire' markers. Please place these in your CFSCRIPT block and place each one on a single line." );
         }
-
 
         return {
             "singleFileContents" : local.singleFileContents,
@@ -94,12 +93,6 @@ component accessors="true" singleton {
                 return { "tempComponentName" : "#arguments.componentName#" };
             }
         }
-        
-        // if ( structKeyExists( settings, "cacheSingleFileComponents" ) && settings.cacheSingleFileComponents ) {
-        // 	if ( fileExists( local.tmpCFCPath ) && fileExists( local.tmpCFMPath ) ) {
-        // 		return { "tempComponentName" : "#arguments.componentName#" };
-        // 	}
-        // }
 
         if ( !directoryExists( local.tmpDirectory ) ) {
             directoryCreate( local.tmpDirectory );

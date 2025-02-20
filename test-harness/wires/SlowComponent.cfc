@@ -13,7 +13,7 @@ component extends="cbwire.models.Component" {
         return "<div>Loading...</div>";
     }
 
-    function renderIt() {
+    function onRender() {
         return "<div>Loaded after #data.sleepTime# ms</div>";
     }
 }

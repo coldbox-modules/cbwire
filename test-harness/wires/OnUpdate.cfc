@@ -14,7 +14,7 @@ component extends="cbwire.models.Component" {
         data.onUpdateMessage = true;
     }
 
-    function renderIt() {
+    function onRender() {
         return "
             <div>
                 <div>onUpdate() called: #data.onUpdate#</div>

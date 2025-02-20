@@ -27,8 +27,8 @@ component extends="cbwire.models.Component" {
         taskService.deleteTask( arguments.task );
     }
 
-    function renderIt() {
-        return view( "wires.TaskListComplete" );
+    function onRender() {
+        return template( "wires.TaskListComplete" );
     }
 
 }

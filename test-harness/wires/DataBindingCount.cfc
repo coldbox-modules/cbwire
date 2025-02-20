@@ -8,7 +8,7 @@ component
         data.count += 1;
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/dataBindingCount" );
     }
 

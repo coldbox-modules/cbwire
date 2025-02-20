@@ -7,7 +7,7 @@ component extends="cbwire.models.Component" {
         this.setMessage( event.getValue( "message" ) );
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/mount" );
     }
 

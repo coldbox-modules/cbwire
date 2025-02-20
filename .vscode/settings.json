@@ -1,0 +1,29 @@
+{
+    "git.ignoreLimitWarning": true,
+    "editor.detectIndentation": true,
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#E6B444",
+        "titleBar.inactiveBackground": "#E6B444",
+        "titleBar.activeForeground": "#000000",
+        "titleBar.inactiveForeground": "#000000",
+        "activityBar.background": "#E6B444",
+        "activityBar.foreground": "#000000",
+        "activityBar.inactiveForeground": "#333333"
+    },
+    "scm.diffDecorations": "none",
+    "search.exclude": {
+        "**/*.git": true,
+        "**/*.sql": true,
+        "**/*.zip": true,
+        "**/coverageReport": true,
+        "**/tests/captures": true
+    },
+    "files.exclude": {
+        "**/*.git": true,
+        "**/*.sql": true,
+        "**/*.zip": true,
+        "**/coverageReport": true,
+        "**/tests/captures": true
+    },
+    "search.ripgrep.maxThreads": 3
+}

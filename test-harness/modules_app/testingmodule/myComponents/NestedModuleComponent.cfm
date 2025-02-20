@@ -1,7 +1,11 @@
 <cfscript>
+    //@startWire
+
     data = {
         "title": "Nested module component"
     }
+    
+    //@endWire
 </cfscript>
 
 <cfoutput>

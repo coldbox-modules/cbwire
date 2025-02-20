@@ -7,4 +7,8 @@ component extends="cbwire.models.Component" {
         data.counter++;
     }
 
+    function placeholder() {
+        return "<div>some placeholder</div>";
+    }
+
 }

@@ -8,7 +8,17 @@ component {
      * URI: /cbwire/update
      */
     function index( event, rc, prc ){
-        return cbwireController.handleRequest( getHTTPRequestData(), arguments.event );
+        try {
+            return cbwireController.handleRequest( getHTTPRequestData(), arguments.event );
+        } catch ( any e ) {
+            if ( e.message contains "Page expired" ) {
+                event.noLayout();
+                event.setView( view="errors/pageExpired", module="cbwire" );
+                event.setHTTPHeader( statusCode="419", statusText="Page Expired" );
+            } else {
+                rethrow;
+            }
+        }
     }
 
     /**

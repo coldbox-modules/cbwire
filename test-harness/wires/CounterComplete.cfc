@@ -19,7 +19,7 @@ component extends="cbwire.models.Component" {
         data.counter += amount;
     }
 
-    function renderIt() {
-        return view( "wires.CounterComplete", { isEven: isEven() } );
+    function onRender() {
+        return template( "wires.CounterComplete", { isEven: isEven() } );
     }
 }

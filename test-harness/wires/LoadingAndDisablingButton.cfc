@@ -4,7 +4,7 @@ component extends="cbwire.models.Component" {
         sleep( 5000 );
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/loadingAndDisablingButton" );
     }
 

@@ -8,7 +8,7 @@ component extends="cbwire.models.Component" {
         data.message = "Mounted value";
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/mount" );
     }
 

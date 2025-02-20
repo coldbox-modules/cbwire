@@ -6,7 +6,7 @@ component extends="cbwire.models.Component" {
         data.message = "Something";
     }
 
-    function renderIt(){
+    function onRender(){
         return this.renderView( "wires/nestedComponent1" );
     }
 

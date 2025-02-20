@@ -55,7 +55,7 @@ component extends="cbwire.models.Component" {
     }
 
     function placeholder() {
-        return "Test Placeholder";
+        return "<div>Test Placeholder</div>";
     }
 
     function clearFrameworks(){

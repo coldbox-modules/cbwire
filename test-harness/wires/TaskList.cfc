@@ -10,8 +10,8 @@ component extends="cbwire.models.Component" {
         reset( "newTask" );
     }
 
-    function renderIt() {
-        return view( "wires.TaskList" );
+    function onRender() {
+        return template( "wires.TaskList" );
     }
 
 }

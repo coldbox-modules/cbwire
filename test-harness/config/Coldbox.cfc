@@ -11,7 +11,9 @@ component{
 			//Development Settings
 			reinitPassword			= "",
 			handlersIndexAutoReload = true,
-			modulesExternalLocation = [],
+			modulesExternalLocation = [
+				"/modules_external"
+			],
 
 			//Implicit Events
 			defaultEvent			= "main.index",
@@ -51,6 +53,7 @@ component{
 
 		//Register interceptors as an array, we need order
 		interceptors = [
+			{ class="cbwire.interceptors.CBWIRE" }
 		];
 
 		layoutSettings = {
@@ -78,9 +81,7 @@ component{
 
 		moduleSettings = {
 			"cbwire" = {
-				"autoInjectAssets"		: true,
-				"enableTurbo"			: true,
-				"cacheSingleFileComponents": false
+				"autoInjectAssets"		: true
 			},
 			"cbi18n": {
 				// The default resource to load and aliased as `default`
