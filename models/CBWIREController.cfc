@@ -222,22 +222,21 @@ component singleton {
             // Attempt to create an instance of the component
             local.componentInstance = variables.wirebox.getInstance(local.fullComponentPath)
                 ._withPath( arguments.name );
+
             return local.componentInstance;
         } catch( Injector.InstanceNotFoundException e ) {
             local.singleFileComponent = variables.singleFileComponentBuilder
                 .setInitialRender( true )
                 .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
+
             if ( isNull( local.singleFileComponent ) ) {
-                writeDump( local );
-                abort;
                 rethrow;
             }
+
             variables._singleFileComponents.append( arguments.name );
 
             return local.singleFileComponent;
         } catch (Any e) {
-            writeDump( e );
-            abort;
             // Log error or handle it as needed
             throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
         }
