@@ -1,8 +1,8 @@
 {
-    "name":"cbwire-adobe@2018",
+    "name":"cbwire-lucee@6",
     "app":{
-        "serverHomeDirectory":".engine/adobe2018",
-        "cfengine":"adobe@2018"
+        "serverHomeDirectory":".engine/lucee6",
+        "cfengine":"lucee@6"
     },
     "web":{
         "http":{
@@ -13,7 +13,7 @@
         },
         "webroot":"test-harness",
         "aliases":{
-            "/moduleroot/cbwire":"../"
+            "/moduleroot/cbwire":"./"
         }
     },
     "openBrowser":"false",
@@ -22,5 +22,8 @@
     },
     "fusionreactor":{
         "enable":false
+    },
+    "jvm":{
+        "javaVersion":"openjdk21"
     }
 }

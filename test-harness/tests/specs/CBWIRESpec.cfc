@@ -224,9 +224,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
             xit( "should support deep nesting with correct count of children", function() {
                 var result = CBWIREController.wire( "test.should_support_deep_nesting" );
                 var parent = parseRendering( result, 1 );
-                writeDump( result );
-                writeDump( parent );
-                abort;
                 var child1 = parseRendering( result, 2 );
                 var child2 = parseRendering( result, 3 );
                 expect( parent.snapshot.memo.children.count() ).toBe( 2 );

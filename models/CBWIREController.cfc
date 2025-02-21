@@ -162,7 +162,7 @@ component singleton {
      */
     function handleFileUpload( incomingRequest, event ) {
         // Determine our storage path for temporary files
-        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
+        local.storagePath = getCanonicalPath( variables.moduleSettings.storagePath );
 
         // Ensure the storage path exists
         if( !directoryExists( local.storagePath ) ){
@@ -203,10 +203,10 @@ component singleton {
             return event.noRender();
         }
 
-        local.metaPath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp/#local.uuid#.json" );
+        local.metaPath = getCanonicalPath( variables.moduleSettings.storagePath & "/#local.uuid#.json" );
 
         local.metaJSON = deserializeJSON( fileRead( local.metaPath ) );
-        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp/#local.metaJSON.serverFile#" ) );
+        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.storagePath & "/#local.metaJSON.serverFile#" ) );
         event
             .sendFile(
                 file = local.contents,
@@ -238,8 +238,8 @@ component singleton {
 
         if ( find( "@", local.fullComponentPath ) ) {
             // This is a module reference, find in our module
-            var params = listToArray( local.fullComponentPath, "@" );
-            if ( params.len() != 2 ) {
+            var local.params = listToArray( local.fullComponentPath, "@" );
+            if ( local.params.len() != 2 ) {
                 throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
             }
             // modify local.fullComponentPath to full path for module
@@ -255,22 +255,21 @@ component singleton {
             // Attempt to create an instance of the component
             local.componentInstance = variables.wirebox.getInstance(local.fullComponentPath)
                 ._withPath( arguments.name );
+
             return local.componentInstance;
         } catch( Injector.InstanceNotFoundException e ) {
             local.singleFileComponent = variables.singleFileComponentBuilder
                 .setInitialRender( true )
                 .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
+
             if ( isNull( local.singleFileComponent ) ) {
-                writeDump( local );
-                abort;
                 rethrow;
             }
+
             variables._singleFileComponents.append( arguments.name );
 
             return local.singleFileComponent;
         } catch (Any e) {
-            writeDump( e );
-            abort;
             // Log error or handle it as needed
             throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
         }

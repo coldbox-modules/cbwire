@@ -1,4 +1,4 @@
-/** 
+/**
  * This is the file entity that is used to represent a file that has been uploaded
  * to the server. It is used to store the file in a temporary location and to
  * provide access to the file's metadata.
@@ -19,8 +19,8 @@ component {
         variables.dataPropertyName = arguments.dataPropertyName; // getParams()[ 1 ]
         // The UUID of the file upload we provided after the upload was complete
         variables.uuid = arguments.uuid; // getParams()[ 2 ][ 1 ]
-        // The temp directory 
-        local.tempDirectory = getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp" );
+        // The temp directory
+        local.tempDirectory = getCanonicalPath( variables.moduleSettings.storagePath );
         // The file upload metadata JSON file path
         variables.metaPath = getCanonicalPath( local.tempDirectory & "/#variables.uuid#.json" );
         // Load the metadata, throw and exception if fails
@@ -38,25 +38,25 @@ component {
 
     /**
      * Returns the base64 representation of the file
-     * 
+     *
      * @return string
      */
     function getBase64(){
         return toBase64( get() );
     }
 
-    /** 
+    /**
      * Returns the base64 src of the file
-     * 
+     *
      * @return string
      */
     function getBase64Src(){
         return "data:#getMimeType()#;base64, #getBase64()#";
     }
 
-    /** 
+    /**
      * Returns the binary for the uploaded file.
-     * 
+     *
      * @return binary
      */
     function get(){
@@ -65,43 +65,43 @@ component {
 
     /**
      * Returns the file's size.
-     * 
+     *
      * @return numeric
      */
     function getSize(){
         return variables.meta.fileSize;
     }
 
-    /** 
+    /**
      * Returns the file's MIME type.
-     * 
+     *
      * @return string
      */
     function getMIMEType(){
         return variables.meta.contentType & "/" & variables.meta.contentSubType;
     }
 
-    /** 
-     * Returns true if the uploaded file is an image. 
-     * 
+    /**
+     * Returns true if the uploaded file is an image.
+     *
      * @return boolean
      */
     function isImage(){
         return variables.meta.contentType == "image";
     }
 
-    /** 
+    /**
      * Returns the file's preview URL.
-     * 
+     *
      * @return string
      */
     function getPreviewURL(){
         return "/cbwire/preview-file/#variables.uuid#";
     }
 
-    /** 
+    /**
      * Deletes the file in temporary storage and the metadata file.
-     * 
+     *
      * @return void
      */
     function destroy(){
@@ -111,9 +111,9 @@ component {
     }
 
 
-    /* 
+    /*
      * Serialize the file upload
-     * 
+     *
      * @return string
      */
     function serializeIt() {
