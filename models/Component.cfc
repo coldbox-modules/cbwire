@@ -1004,17 +1004,6 @@ component output="true" {
     }
 
     /**
-     * Generates a checksum for securing the component's data.
-     *
-     * @return String The generated checksum.
-     */
-    function _generateChecksum() {
-        return "f9f66fa895026e389a10ce006daf3f59afaec8db50cdb60f152af599b32f9192";
-        var secretKey = "YourSecretKey"; // This key should be securely retrieved
-        return hash(serializeJson(arguments.snapshot) & secretKey, "SHA-256");
-    }
-
-    /**
      * Encodes a given string for safe usage within an HTML attribute.
      *
      * @value string | The string to be encoded.
@@ -1244,7 +1233,7 @@ component output="true" {
                 "errors": [],
                 "locale": "en"
             ],
-            "checksum": _generateChecksum()
+            "checksum": ""
         };
 
         // Prepend any passed in params into our forMount array
@@ -1252,10 +1241,10 @@ component output="true" {
             snapshot.data.forMount.prepend( { "#arguments.key#": arguments.value } );
         } );
 
-        // Serialize the snapshot to JSON and then encode it for HTML attribute inclusion
-        local.lazyLoadSnapshot = serializeJson( local.snapshot );
+    	  // Serialize the snapshot to JSON, calculate the checksum, and then encode it for HTML attribute inclusion
+		    local.lazyLoadSnapshot = _CBWIREController._caclulateChecksum( local.snapshot )
 
-        // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
+		    // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
         local.base64EncodedSnapshot = toBase64( local.lazyLoadSnapshot );
 
         // Get our placeholder html
@@ -1267,7 +1256,7 @@ component output="true" {
         }
 
         // Define the wire attributes to append
-        local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
+		    local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( _CBWIREController._caclulateChecksum( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
 
         // Determine our outer element
         local.outerElement = _getOuterElement( local.html );
@@ -1318,7 +1307,7 @@ component output="true" {
 
         // Return the HTML response
         local.response = [
-            "snapshot": serializeJson( local.snapshot ),
+            "snapshot": _CBWIREController._caclulateChecksum( local.snapshot ),
             "effects": {
                 "returns": variables._returnValues,
                 "html": local.html
@@ -1358,7 +1347,7 @@ component output="true" {
         return [
             "data": _getDataProperties(),
             "memo": _getMemo(),
-            "checksum": _generateChecksum()
+            "checksum": ""
         ];
     }
 
@@ -1685,7 +1674,8 @@ component output="true" {
         // If this is the initial load, encode the snapshot and insert Livewire attributes
         if ( variables._initialLoad ) {
             // Encode the snapshot for HTML attribute inclusion and process the view content
-            local.snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
+            // local.snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
+            local.snapshotEncoded = _encodeAttribute( _CBWIREController._caclulateChecksum( _getSnapshot() ) );
             return _insertInitialLivewireAttributes( local.trimmedHTML, local.snapshotEncoded, variables._id );
         } else {
             // Return the trimmed HTML content

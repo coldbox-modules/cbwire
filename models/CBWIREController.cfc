@@ -73,6 +73,7 @@ component singleton {
         }
         // Perform additional deserialization of the component snapshots
         local.payload.components = local.payload.components.map( function( _comp ) {
+            _validateChecksum( arguments._comp.snapshot );
             arguments._comp.snapshot = deserializeJSON( arguments._comp.snapshot );
             return arguments._comp;
         } );
@@ -116,6 +117,38 @@ component singleton {
         event.setHTTPHeader( name="Cache-Control", value="no-cache, must-revalidate, no-store, max-age=0, private" );
 
         return local.componentsResult;
+    }
+
+    /**
+     * Calculates a checksum for the component's payload, inserts the checksum into the payload,
+	 * and returns the updated payload as a JSON string.
+     *
+     * @payload struct | the payload to calculate the checksum for
+     *
+     * @return string
+     */
+    function _caclulateChecksum( snapshot ) {
+        var secret = moduleSettings.keyExists("secret") ? moduleSettings.secret : hash( moduleSettings.moduleRootPath );
+        var serializedSnapshot = serializeJson( arguments.snapshot );
+        var checksum = hmac( serializedSnapshot, secret, "HMACSHA256");
+        return replace( serializedSnapshot, '"checksum":""', '"checksum":"#checksum#"', "all" )
+    }
+
+    /**
+     * Validates checksum for the component's data from snapshot.
+     *
+     * @payload string | the JSON string of the component snapshot as posted by livewire
+     *
+     * @return void
+     */
+    function _validateChecksum( snapshot ) {
+		if( !isJson( snapshot ) ) throw( type="CBWIRECorruptPayloadException", message="Payload is not valid JSON." );
+		var deserializedSnapshot = deserializeJSON( arguments.snapshot );
+		if( !deserializedSnapshot.keyExists("checksum") ) throw( type="CBWIRECorruptPayloadException", message="Checksum Not Found." );
+		var secret = moduleSettings.keyExists("secret") ? moduleSettings.secret : hash( moduleSettings.moduleRootPath );
+        if( deserializedSnapshot.checksum != hmac( replace( snapshot, deserializedSnapshot.checksum, "", "one" ), secret, "HMACSHA256") ){
+            throw( type="CBWIRECorruptPayloadException", message="Checksum Mismatch." );
+        }
     }
 
     /**

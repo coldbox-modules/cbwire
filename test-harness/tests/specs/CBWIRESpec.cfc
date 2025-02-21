@@ -1463,6 +1463,43 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = cbwireController.wire( "should_load_external_modules@ExternalModule" );
                 expect( result ).toInclude( "External Module Loaded" );
             } );
+
+			it( "can return a valid JSON snapshot string with a valid checksum", function(){
+				// get snapshot struct from wires.TestComponent
+                var snapshot = getInstance("wires.TestComponent")
+					._withEvent( getRequestContext( ) )
+                    ._withPath( "wires.TestComponent" )
+					._getSnapshot();
+				// get JSON string of the snapshot with checksum inserted
+				var snapshotJSON = cbwireController._caclulateChecksum( snapshot );
+				// test returned json
+				expect( isJson(snapshotJSON) ).toBeTrue();
+				expect( deserializeJson( snapshotJSON ).keyExists("checksum") ).toBeTrue();
+				expect( len( deserializeJson( snapshotJSON ).checksum ) ).toBeTrue();
+				// run _validateChecksum on the snapshotJSON to ensure it doesn't throw an error
+				expect( function() {
+					cbwireController._validateChecksum( snapshotJSON )
+				} ).notToThrow( message="The snapshot JSON had an issue with checksum validation"  );
+			} );
+
+			it( "throws error when snapshot is tampered with", function(){
+				// get snapshot struct from wires.TestComponent
+                var snapshot = getInstance("wires.TestComponent")
+					._withEvent( getRequestContext( ) )
+                    ._withPath( "wires.TestComponent" )
+					._getSnapshot();
+				// get JSON string of the snapshot with checksum inserted
+				var snapshotJSON = cbwireController._caclulateChecksum( snapshot );
+				// test returned json
+				expect( isJson(snapshotJSON) ).toBeTrue();
+				expect( deserializeJson( snapshotJSON ).keyExists("checksum") ).toBeTrue();
+				expect( len( deserializeJson( snapshotJSON ).checksum ) ).toBeGT( 0, "snapshot JSON was returned without a checksum value" )
+				// run _validateChecksum with modified snapshotJSON to ensure it doesn't throw an error
+				expect( function() {
+					cbwireController._validateChecksum( replace( snapshotJSON, "CBWIRE Rocks!", "CBWIRE Is Awesome!" ) )
+				} ).toThrow( message="The snapshot JSON had an issue with checksum validation" );
+			} );
+
         });
 
         describe( "Preprocessors", function() {
@@ -1609,7 +1646,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "calls": arguments.calls,
                         "snapshot": {
                             "data": arguments.data,
-                            "memo": arguments.memo
+                            "memo": arguments.memo,
+                            "checksum": ""
                         },
                         "updates": arguments.updates
                     }
@@ -1618,7 +1656,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         };
 
         response.content.components = response.content.components.map( function( _comp ) {
-            _comp.snapshot = serializeJson( _comp.snapshot );
+            _comp.snapshot = getInstance( "CBWIREController@cbwire" )._caclulateChecksum( _comp.snapshot );
             return _comp;
         } );
 
