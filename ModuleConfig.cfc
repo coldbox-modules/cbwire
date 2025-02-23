@@ -1,7 +1,7 @@
 component {
     this.name = "cbwire";
-    this.version = "1.0.0";
-    this.author = "";
+    this.version = "@build.version@+@build.number@";
+    this.author = "Ortus Solutions";
     this.webUrl = "https://github.com/coldbox-modules/cbwire";
     this.dependencies = [];
     this.entryPoint = "cbwire";
