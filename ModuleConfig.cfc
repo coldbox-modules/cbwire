@@ -81,12 +81,4 @@ component {
         };
     }
 
-    /**
-     * Returns Livewire's manifest as a struct.
-     */
-    function getLivewireManifest(){
-        var path = getCanonicalPath( variables.modulePath & "/includes/js/manifest.json" );
-        return deserializeJSON( fileRead( path ) );
-    }
-
 }
