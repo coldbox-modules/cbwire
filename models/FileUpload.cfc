@@ -99,6 +99,15 @@ component {
         return "/cbwire/preview-file/#variables.uuid#";
     }
 
+    /**
+     * Returns the temporary file path
+     *
+     * @return string
+     */
+    function getTemporaryStoragePath(){
+      return variables.temporaryStoragePath;
+    }
+
     /** 
      * Deletes the file in temporary storage and the metadata file.
      * 
