@@ -171,7 +171,8 @@ jobs:
         env:
           box_config_endpoints_forgebox_APIToken: ${{ secrets.FORGEBOX_TOKEN }}
         with:
-          cmd: publish --force
+          cmd: publish
+          #cmd: publish --force
 
   # release:
   #   name: Semantic Release
