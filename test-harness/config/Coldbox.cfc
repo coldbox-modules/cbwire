@@ -113,7 +113,11 @@ component{
 				moduleName 		= request.MODULE_NAME,
 				invocationPath 	= "moduleroot"
 			);
-		controller.getRenderer().loadApplicationHelpers( true );
+		try {
+			controller.getRenderer().loadApplicationHelpers( true );
+		} catch ( any e ) {
+			writeDump( var=e, output="console" );
+		}
 	}
 
 }
