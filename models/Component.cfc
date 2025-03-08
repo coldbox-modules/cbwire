@@ -703,12 +703,19 @@ component output="true" {
         // Set our component's id to the incoming memo id
         variables._id = arguments.componentPayload.snapshot.memo.id;
         // Append the incoming data to our component's data
+        // It important that we run through all the incoming snapshot
+        // data and set it to our component's data before calling
+        // the onHydrate events.
         arguments.componentPayload.snapshot.data.each( function( key, value ) {
-            variables.data[ key ] = value;
-            if ( structKeyExists( this, "onHydrate#key#") ) {
-                invoke( this, "onHydrate#key#", { value: value });
-            }
+            variables.data[ arguments.key ] = arguments.value;
         } );
+        // Run onHydrateProperty events
+        arguments.componentPayload.snapshot.data.filter( function( key, value ) {
+            return structKeyExists( this, "onHydrate#arguments.key#" );
+        } ).each( function( key, value ) {
+            invoke( this, "onHydrate#arguments.key#" );
+        } );
+
         // Run onHydrate if it exists
         if ( structKeyExists( this, "onHydrate" ) ) {
             invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
