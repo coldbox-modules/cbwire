@@ -139,7 +139,7 @@ component singleton {
         local.files = directoryList( path=local.storagePath, recurse=true, type="file", listInfo="query" );
         local.files.each( function( _file ) {
             if( dateDiff( "d", _file.DateLastModified, now() ) > 1 ){
-                fileDelete( _file );
+                fileDelete( _file.directory & "/" & _file.name );
             }
         } );
         // Verify the signed URL, throw 403 if invalid
