@@ -111,7 +111,7 @@ component {
     /**
      * Returns the path to the temp directory (mockable in tests)
      */
-    function getTempDirectory(){
+    function getUploadTempDirectory(){
         return getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp" );
     }
 
@@ -119,6 +119,6 @@ component {
      * Returns the full path to the metadata file (mockable in tests)
      */
     function getMetaPath(){
-        return getCanonicalPath( getTempDirectory() & "/#variables.uuid#.json" );
+        return getCanonicalPath( getUploadTempDirectory() & "/#variables.uuid#.json" );
     }
 }
