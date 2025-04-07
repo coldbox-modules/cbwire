@@ -81,7 +81,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should return the temporary storage path", function() {
                 var result = loadMockedFileUpload( "test", "text", "plain" );
-                expect( result.getTemporaryStoragePath() ).toBe( expandPath( "../resources/logo.png" ) );
+                expect( result.getTemporaryStoragePath() ).toBe( expandPath( "./resources/logo.png" ) );
             });
 
             it( "should return binary file contents when calling get", function() {
@@ -120,7 +120,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             path = metaPath,
             data = {
                 "uuid" : arguments.uuid,
-                "serverDirectory" : expandPath( "../resources" ),
+                "serverDirectory" : expandPath( "./resources" ),
                 "serverFile" : "logo.png",
                 "contentType" : arguments.contentType,
                 "contentSubType" : arguments.contentSubType,
