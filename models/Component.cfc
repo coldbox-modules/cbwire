@@ -1018,8 +1018,8 @@ component output="true" {
      * @return String The encoded string suitable for HTML attribute inclusion.
      */
     function _encodeAttribute( value ) {
-        return arguments.value.replaceNoCase( '"', "&quot;", "all" );
-        // return encodeForHTMLAttribute(arguments.value);
+        // return arguments.value.replaceNoCase( '"', "&quot;", "all" );
+        return encodeForHTMLAttribute(arguments.value);
     }
 
     /**

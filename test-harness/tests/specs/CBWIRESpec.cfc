@@ -142,7 +142,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should support rendering wires with x-data and arrow functions", function() {
                 var result = CBWIREController.wire( "test.should_support_rendering_wires_with_xdata_and_arrow_functions" );
-                expect( reFindNoCase( "<div wire:snapshot=""\{(.*)\}"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
+                expect( reFindNoCase( "<div wire:snapshot=""&##x7b;(.*)&##x7d;"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
             } );
 
             it("should be able to call UDF/action from template", function() {
@@ -233,17 +233,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "shouldn't isolate by default", function() {
                 var result = CBWIREController.wire( "test.shouldnt_isolate_by_default" );
-                expect( result ).toInclude( "&quot;isolate&quot;:false" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;false" );
             } );
 
             it( "should isolate when using isolate=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_isolate_true" );
-                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should isolate when using lazyLoad=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
-                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
@@ -450,7 +450,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should include listeners within wire:effects on initial render", function() {
                 var result = testComponent._render( testComponent.template( "wires.TestComponent" ) );
-                expect( result ).toInclude( "wire:effects=""{&quot;listeners&quot;:[&quot;someEvent&quot;]}""" );
+                expect( result ).toInclude( "wire:effects=""&##x7b;&quot;listeners&quot;&##x3a;&##x5b;&quot;someEvent&quot;&##x5d;&##x7d;""" );
             } );
 
             it( "should support single file components", function() {
@@ -466,6 +466,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( e.message ).toBe( "The listener 'someEvent' references a method 'someMethod' but this method does not exist. Please implement 'someMethod()' on your component." );
                 }
             } );
+
+            it( "should correctly encode snapshot data containing HTML with quotes", function() {
+                local.htmlWithQuotes = '<p>Some text with "quotes" inside & special chars >.</p>';
+                local.componentName = "test.html_with_quotes"; // Use the new component
+
+                var renderedHtml = CBWIREController.wire(
+                    name = local.componentName,
+                    params = { content = local.htmlWithQuotes }
+                );
+
+                expect( renderedHtml ).toInclude( 'Some&##x20;text&##x20;with&##x20;&##x5c;&quot;quotes' );
+            });
 
         });
 
@@ -1303,7 +1315,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     key="",
                     lazy=true
                 );
-                expect( lazyHtml ).toInclude( "&quot;isolate&quot;:true" );
+                expect( lazyHtml ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should lazy load a component using the original outer element", function() {
@@ -1684,29 +1696,83 @@ component extends="coldbox.system.testing.BaseTestCase" {
     }
 
     /**
-     * Parse the snapshot from a rendered HTML component
+     * Parse the snapshot from a rendered HTML component by decoding
+     * ALL HTML entities before attempting JSON deserialization.
      *
-     * @return struct
+     * @html string | The rendered HTML containing the component.
+     * @index numeric | The index of the component if multiple match (usually 1).
+     * 
+     * @return struct The deserialized snapshot struct.
+     * 
+     * @throws Error if parsing or deserialization fails.
      */
-    private function parseSnapshot( html, index = 1 ) {
-        local.match = reMatchNoCase( "wire:snapshot=""([^""]+)", html )[ index ];
-        local.regexMatches = reFindNoCase( "wire:snapshot=""([^""]+)", local.match, 1, true );
-        local.snapshot = local.regexMatches.match[ 2 ];
-        local.snapshot = replaceNoCase( local.snapshot, "&quot;", """", "all" );
-        return deserializeJSON( local.snapshot );
+    private function parseSnapshot( required string html, numeric index = 1 ) {
+        // Use single quotes for regex literals to avoid excessive escaping
+        local.match = reMatchNoCase( 'wire:snapshot="([^"]+)"', arguments.html );
+        if ( !arrayLen( local.match ) >= arguments.index ) {
+            throw( message="Snapshot attribute not found at index #arguments.index# in provided HTML.", detail=arguments.html );
+        }
+        local.snapshotAttributeMatch = local.match[ arguments.index ];
+
+        // Extract the encoded value
+        local.regexMatches = reFindNoCase( 'wire:snapshot="([^"]+)"', local.snapshotAttributeMatch, 1, true );
+        if ( !arrayLen( local.regexMatches.match ) == 2 ) {
+             throw( message="Could not extract snapshot value using regex from attribute match.", detail=local.snapshotAttributeMatch );
+        }
+        local.snapshotEncoded = local.regexMatches.match[ 2 ];
+
+        // Decode ALL HTML entities (handles ", ", ", <, &, etc.)
+        local.snapshotDecoded = canonicalize( local.snapshotEncoded, true, true ); // Key change!
+
+        try {
+             return deserializeJSON( local.snapshotDecoded );
+        } catch ( any e ) {
+            // Provide more context on failure for easier debugging
+            var errorMsg = "Failed to deserialize snapshot JSON after decoding HTML entities.";
+            errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.snapshotDecoded)#]."; // Encode for safe display
+            errorMsg &= " Original Error: #e.message# #e.detail#";
+            throw( message=errorMsg, detail=local.snapshotDecoded, cause=e );
+        }
     }
 
     /**
-     * Parse the effects from a rendered HTML component
+     * Parse the effects from a rendered HTML component by decoding
+     * ALL HTML entities before attempting JSON deserialization.
      *
-     * @return struct
+     * @html The rendered HTML containing the component.
+     * @index The index of the component if multiple match (usually 1).
+     * 
+     * @return any The deserialized effects (usually struct or array).
+     * 
+     * @throws Error if parsing or deserialization fails.
      */
-    private function parseEffects( html, index = 1 ) {
-        local.match = reMatchNoCase( "wire:effects=""([^""]+)", html )[ index ];
-        local.regexMatches = reFindNoCase( "wire:effects=""([^""]+)", local.match, 1, true );
-        local.effects = local.regexMatches.match[ 2 ];
-        local.effects = replaceNoCase( local.effects, "&quot;", """", "all" );
-        return deserializeJSON( local.effects );
+    private function parseEffects( required string html, numeric index = 1 ) {
+        // Use single quotes for regex literals
+        local.match = reMatchNoCase( 'wire:effects="([^"]+)"', arguments.html );
+         if ( !arrayLen( local.match ) >= arguments.index ) {
+            throw( message="Effects attribute not found at index #arguments.index# in provided HTML.", detail=arguments.html );
+        }
+        local.effectsAttributeMatch = local.match[ arguments.index ];
+
+        // Extract the encoded value
+        local.regexMatches = reFindNoCase( 'wire:effects="([^"]+)"', local.effectsAttributeMatch, 1, true );
+        if ( !arrayLen( local.regexMatches.match ) == 2 ) {
+             throw( message="Could not extract effects value using regex from attribute match.", detail=local.effectsAttributeMatch );
+        }
+        local.effectsEncoded = local.regexMatches.match[ 2 ];
+
+        // Decode ALL HTML entities
+        local.effectsDecoded = canonicalize( local.effectsEncoded, true, true ); // Key change!
+
+         try {
+             return deserializeJSON( local.effectsDecoded );
+        } catch ( any e ) {
+             // Provide more context on failure
+            var errorMsg = "Failed to deserialize effects JSON after decoding HTML entities.";
+            errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.effectsDecoded)#]."; // Encode for safe display
+            errorMsg &= " Original Error: #e.message# #e.detail#";
+            throw( message=errorMsg, detail=local.effectsDecoded, cause=e );
+        }
     }
 
 }
