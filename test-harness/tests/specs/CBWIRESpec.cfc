@@ -1765,7 +1765,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
         local.effectsDecoded = canonicalize( local.effectsEncoded, true, true ); // Key change!
 
          try {
-             return deserializeJSON( local.effectsDecoded );
+            if ( isJSON( local.effectsDecoded ) ) {
+                return deserializeJSON( local.effectsDecoded );
+            } else {
+                return {};
+            }
         } catch ( any e ) {
              // Provide more context on failure
             var errorMsg = "Failed to deserialize effects JSON after decoding HTML entities.";
