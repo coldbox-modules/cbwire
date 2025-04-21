@@ -81,7 +81,8 @@ component{
 
 		moduleSettings = {
 			"cbwire" = {
-				"autoInjectAssets"		: true
+				"autoInjectAssets"		: true,
+				"moduleRootURL": "/moduleroot/cbwire"
 			},
 			"cbi18n": {
 				// The default resource to load and aliased as `default`
@@ -112,6 +113,11 @@ component{
 				moduleName 		= request.MODULE_NAME,
 				invocationPath 	= "moduleroot"
 			);
+		try {
+			controller.getRenderer().loadApplicationHelpers( true );
+		} catch ( any e ) {
+			writeDump( var=e, output="console" );
+		}
 	}
 
 }

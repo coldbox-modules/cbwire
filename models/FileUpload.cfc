@@ -5,7 +5,6 @@
  */
 component {
 
-
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
 
@@ -13,26 +12,20 @@ component {
      * Constructor
      */
     function load( wire, dataPropertyName, uuid ){
-        // Our CBWIRe Component
         variables.wire = arguments.wire;
-        // The data property name the file upload is for
-        variables.dataPropertyName = arguments.dataPropertyName; // getParams()[ 1 ]
-        // The UUID of the file upload we provided after the upload was complete
-        variables.uuid = arguments.uuid; // getParams()[ 2 ][ 1 ]
-        // The temp directory
-        local.tempDirectory = getCanonicalPath( variables.moduleSettings.storagePath );
-        // The file upload metadata JSON file path
-        variables.metaPath = getCanonicalPath( local.tempDirectory & "/#variables.uuid#.json" );
-        // Load the metadata, throw and exception if fails
-        if ( fileExists( variables.metaPath ) ) {
-            local.metaJSON = fileRead( variables.metaPath );
-            variables.meta = deserializeJSON( local.metaJSON );
+        variables.dataPropertyName = arguments.dataPropertyName;
+        variables.uuid = arguments.uuid;
+
+        var metaPath = getMetaPath();
+
+        if ( fileExists( metaPath ) ) {
+            var metaJSON = fileRead( metaPath );
+            variables.meta = deserializeJSON( metaJSON );
         } else {
             throw( type="CBWIREException", message="File upload metadata not found." );
         }
-        // The file upload temporary storage path
+
         variables.temporaryStoragePath = getCanonicalPath( variables.meta.serverDirectory & "/#variables.meta.serverFile#" );
-        // Return fileupload
         return this;
     }
 
@@ -100,23 +93,46 @@ component {
     }
 
     /**
-     * Deletes the file in temporary storage and the metadata file.
-     *
-     * @return void
+     * Returns the temporary file path
+     */
+    function getTemporaryStoragePath(){
+        return variables.temporaryStoragePath;
+    }
+
+    /**
+     * Deletes the file in temporary storage and the metadata file
      */
     function destroy(){
         fileDelete( variables.temporaryStoragePath );
-        fileDelete( variables.metaPath );
+        fileDelete( getMetaPath() );
         variables.wire.reset( variables.dataPropertyName );
     }
 
-
-    /*
+    /**
      * Serialize the file upload
-     *
-     * @return string
      */
-    function serializeIt() {
+    function serializeIt(){
         return "fileupload:" & variables.uuid;
+    }
+
+    /**
+     * Return the meta data for the upload
+     */
+    function getMeta(){
+        return variables.meta;
+    }
+
+    /**
+     * Returns the path to the temp directory (mockable in tests)
+     */
+    function getUploadTempDirectory(){
+        return getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp" );
+    }
+
+    /**
+     * Returns the full path to the metadata file (mockable in tests)
+     */
+    function getMetaPath(){
+        return getCanonicalPath( getUploadTempDirectory() & "/#variables.uuid#.json" );
     }
 }
