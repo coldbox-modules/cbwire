@@ -1731,7 +1731,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             var errorMsg = "Failed to deserialize snapshot JSON after decoding HTML entities.";
             errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.snapshotDecoded)#]."; // Encode for safe display
             errorMsg &= " Original Error: #e.message# #e.detail#";
-            throw( message=errorMsg, detail=local.snapshotDecoded, cause=e );
+            throw( message=errorMsg, detail=local.snapshotDecoded );
         }
     }
 
@@ -1775,7 +1775,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             var errorMsg = "Failed to deserialize effects JSON after decoding HTML entities.";
             errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.effectsDecoded)#]."; // Encode for safe display
             errorMsg &= " Original Error: #e.message# #e.detail#";
-            throw( message=errorMsg, detail=local.effectsDecoded, cause=e );
+            throw( message=errorMsg, detail=local.effectsDecoded );
         }
     }
 
