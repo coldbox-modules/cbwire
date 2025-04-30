@@ -331,7 +331,14 @@ component output="true" {
                     ]
                 } );
                 // We've already rendered this child, so return a stub for it
-                return "<#local.componentTag# wire:id=""#local.componentId#""></#local.componentTag#>";
+                if ( arguments.key.len() ) {
+                    // If we have a key, we need to return a stub for it
+                    return "<#local.componentTag# wire:id=""#local.componentId#"" wire:key=""#arguments.key#""></#local.componentTag#>";
+                } else {
+                    // If we don't have a key, we need to return a stub for it
+                    // without the key
+                    return "<#local.componentTag# wire:id=""#local.componentId#""></#local.componentTag#>";
+                }
             }
         }
         // Instaniate this child component as a new component
@@ -1040,6 +1047,11 @@ component output="true" {
         arguments.html = arguments.html.trim();
         // Define the wire attributes to append
         local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
+
+        if ( variables._key.len() ) {
+            local.wireAttributes &= ' wire:key="#variables._key#"';
+        }
+
         // Determine our outer element
         local.outerElement = _getOuterElement( arguments.html );
         // Find the position of the opening tag
@@ -1067,6 +1079,11 @@ component output="true" {
         arguments.html = arguments.html.trim();
         // Define the wire attributes to append
         local.wireAttributes = "wire:id=""#variables._id#""";
+
+        if ( variables._key.len() ) {
+            local.wireAttributes &= ' wire:key="#variables._key#"';
+        }
+
         // Determine our outer element
         local.outerElement = _getOuterElement( arguments.html );
         // Insert attributes into the opening tag

@@ -5,6 +5,7 @@ on:
     branches:
       - development
       - next
+      - next-temp
       - master
 
 env:
