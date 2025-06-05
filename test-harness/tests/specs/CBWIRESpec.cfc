@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should use default display bar color", function() {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var html = CBWIREController.getStyles( cache=false );
-                expect( html ).toInclude( "--livewire-progress-bar-color: ##2299dd;" );
+                expect( html ).toInclude( "livewire-progress-bar-color: ##2299dd;" );
             } );
 
             it( "should be able to change the display bar color", function() {
