@@ -238,7 +238,7 @@ component singleton {
 
         if ( find( "@", local.fullComponentPath ) ) {
             // This is a module reference, find in our module
-            var local.params = listToArray( local.fullComponentPath, "@" );
+            local.params = listToArray( local.fullComponentPath, "@" );
             if ( local.params.len() != 2 ) {
                 throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
             }
@@ -263,6 +263,8 @@ component singleton {
                 .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
 
             if ( isNull( local.singleFileComponent ) ) {
+                writeDump( e );
+                abort;
                 rethrow;
             }
 
