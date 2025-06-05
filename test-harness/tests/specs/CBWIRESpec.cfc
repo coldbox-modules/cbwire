@@ -110,6 +110,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toBeString();
             } );
 
+            it( title="should render a boxlang component", body=function() {
+                var result = CBWIREController.wire( "test.should_render_a_boxlang_component" );
+                expect( result ).toInclude( "<p>BoxLang Component</p>" );
+            }, skip=!isBoxLang() );
+
             it( "should raise error if markers are not found in single-file component", function() {
                 expect( function() {
                     var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
@@ -1777,6 +1782,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
             errorMsg &= " Original Error: #e.message# #e.detail#";
             throw( message=errorMsg, detail=local.effectsDecoded );
         }
+    }
+
+    /** 
+     * Check if the current environment is a BoxLang environment
+     * 
+     * @return boolean
+     */
+    private function isBoxLang() {
+        return server.keyExists( "boxlang" );
     }
 
 }

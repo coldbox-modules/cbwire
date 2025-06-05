@@ -897,14 +897,22 @@ component output="true" {
     function _getNormalizedViewPath( viewPath ) {
         // Replace all dots with slashes to normalize the path
         local.normalizedPath = replace( arguments.viewPath, ".", "/", "all" );
+        local.fullNormalizedPath = expandPath( "/" & local.normalizedPath );
+        local.bxmViewFullPath = local.fullNormalizedPath & ".bxm";
+        local.cfmViewFullPath = local.fullNormalizedPath & ".cfm";
 
         if ( local.normalizedPath contains "cbwire/models/tmp/" ) {
             return "/" & local.normalizedPath & ".cfm";
         }
-        // Check if ".cfm" is present; if not, append it.
-        if (not findNoCase(".cfm", local.normalizedPath)) {
+
+        if ( fileExists( bxmViewFullPath ) ) {
+            local.normalizedPath &= ".bxm";
+        } else if ( fileExists( cfmViewFullPath ) ) {
             local.normalizedPath &= ".cfm";
+        } else {
+            throw( type="CBWIREException", message="A .bxm or .cfm template could not be found for '#arguments.viewPath#'." );
         }
+
         // Ensure the path starts with "/wires/" without duplicating it
         if (!isModulePath() && left(local.normalizedPath, 6) != "wires/") {
             local.normalizedPath = "wires/" & local.normalizedPath;
