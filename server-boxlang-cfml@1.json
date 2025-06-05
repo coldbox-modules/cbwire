@@ -29,6 +29,6 @@
         "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8888"
     },
     "scripts":{
-        "onServerInitialInstall":"install bx-compat-cfml --noSave"
+        "onServerInitialInstall":"install bx-compat-cfml --noSave && install bx-esapi --noSave"
     }
 }
