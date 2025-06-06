@@ -1,5 +1,5 @@
-<cfoutput>
+<bx:output>
     <div>
-        <p>BoxLang Component</p>
+        <h1>#title#</h1>
     </div>
-</cfoutput>
+</bx:output>

@@ -902,7 +902,11 @@ component output="true" {
         local.cfmViewFullPath = local.fullNormalizedPath & ".cfm";
 
         if ( local.normalizedPath contains "cbwire/models/tmp/" ) {
-            return "/" & local.normalizedPath & ".cfm";
+            if ( fileExists( bxmViewFullPath ) ) {
+                return "/" & local.normalizedPath & ".bxm";
+            } else {
+                return "/" & local.normalizedPath & ".cfm";
+            }
         }
 
         if ( fileExists( bxmViewFullPath ) ) {

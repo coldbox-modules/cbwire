@@ -1,5 +1,9 @@
 <cfscript>
 
+    function isBoxlangTemplate( filePath ) {
+        return arguments.filePath contains ".bxm";
+    }
+
     function fileIsOutdated(sourcePath, cachePath) {
         return getFileInfo(sourcePath).lastModified > getFileInfo(cachePath).lastModified;
     }
@@ -123,7 +127,10 @@
 
     structDelete(variables, "configSettings");
 
-    variables.relativeCachePath = "tmp/" & hash(attributes.normalizedPath) & ".cfm";
+    variables.relativeCachePath = "tmp/" & hash( attributes.normalizedPath );
+    variables.relativeCachePath &= isBoxlangTemplate( attributes.normalizedPath ) ? 
+        ".bxm" : ".cfm";
+
     variables.cachePath = getCurrentTemplatePath().replaceNoCase( "RendererEncapsulator.cfm", "" ) & variables.relativeCachePath;
 
     if (!directoryExists(getDirectoryFromPath(variables.cachePath))) {

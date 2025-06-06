@@ -1,3 +1,6 @@
 class extends="cbwire.models.Component" {
 
+    data = {
+        "title": "A Boxlang Component"
+    };
 }

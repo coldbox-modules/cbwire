@@ -110,9 +110,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toBeString();
             } );
 
-            it( title="should render a boxlang component", body=function() {
+            it( title="should render a boxlang component with a separate boxlang template", body=function() {
                 var result = CBWIREController.wire( "test.should_render_a_boxlang_component" );
-                expect( result ).toInclude( "<p>BoxLang Component</p>" );
+                expect( result ).toInclude( "<h1>A Boxlang Component</h1>" );
+            }, skip=!isBoxLang() );
+
+            it( title="should render a single-file boxlang component", body=function() {
+                var result = CBWIREController.wire( "test.should_render_a_singlefile_boxlang_component" );
+                expect( result ).toInclude( "<h1>A Single File Boxlang Component</h1>" );
             }, skip=!isBoxLang() );
 
             it( "should raise error if markers are not found in single-file component", function() {

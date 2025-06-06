@@ -11,12 +11,9 @@ component accessors="true" singleton {
      * @return Component
      */
     function build( required componentPath, required componentName, module = "" ){
-        local.cfmPath = getCFMPath( arguments.componentPath );
-
-        if ( fileExists( local.cfmPath ) ) {
-            local.files = generateFiles( arguments.componentName, local.cfmPath );
-            return loadComponent( arguments.componentName, listLast( local.files.tempComponentName, "." ), arguments.module );
-        }
+        local.singleFilePath = getSingleFilePath( arguments.componentPath );
+        local.files = generateFiles( arguments.componentName, local.singleFilePath );
+        return loadComponent( arguments.componentName, listLast( local.files.tempComponentName, "." ), arguments.module );
     }
 
     /**
@@ -24,9 +21,18 @@ component accessors="true" singleton {
      *
      * @return string
      */
-    private function getCFMPath( required componentPath ){
-        local.cfmPath = replaceNoCase( arguments.componentPath, ".", "/", "all" );
-        return expandPath( "/" & local.cfmPath & ".cfm" );
+    private function getSingleFilePath( required componentPath ){
+        local.relativeBasePath = replaceNoCase( arguments.componentPath, ".", "/", "all" );
+        local.fullBoxlangPath = expandPath( "/" & local.relativeBasePath & ".bxm" );
+        local.fullCFMLPath = expandPath( "/" & local.relativeBasePath & ".cfm" );
+
+        if ( fileExists( local.fullBoxlangPath ) ) {
+            return local.fullBoxlangPath;
+        } else if ( fileExists( local.fullCFMLPath ) ) {
+            return local.fullCFMLPath;
+        } else {
+            throw( type="CBWIREException", message="The CBWIRE component '#arguments.componentPath#' does not exist. Please ensure the file exists and is named correctly." );
+        }
     }
 
     /**
@@ -70,24 +76,31 @@ component accessors="true" singleton {
     }
 
     /**
-     * Generates the CFC and CFM files for single-file components.
+     * Generates the Boxlang for CFML files for single-file components.
      *
      * @return void
      */
-    private function generateFiles( componentName, sourceCFMPath ){
-        local.parsedContents = parseContents( arguments.sourceCFMPath );
+    private function generateFiles( componentName, sourcePath ){
+        local.parsedContents = parseContents( arguments.sourcePath );
+
         arguments.componentName = listLast( arguments.componentName, "." );
 
         local.currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
         local.tmpDirectory = local.currentDirectory & "tmp";
-        local.tmpCFCPath = local.tmpDirectory & "/#arguments.componentName#.cfc";
-        local.tmpCFMPath = local.tmpDirectory & "/#arguments.componentName#.cfm";
 
-        if ( fileExists( local.tmpCFMPath ) && fileExists( local.tmpCFMPath ) ) {
+        if ( arguments.sourcePath contains ".bxm" ) {
+            local.tmpClassPath = local.tmpDirectory & "/#arguments.componentName#.bx";
+            local.tmpTemplatePath = local.tmpDirectory & "/#arguments.componentName#.bxm";
+        } else {
+            local.tmpClassPath = local.tmpDirectory & "/#arguments.componentName#.cfc";
+            local.tmpTemplatePath = local.tmpDirectory & "/#arguments.componentName#.cfm";
+        }
+
+        if ( false && fileExists( local.tmpClassPath ) && fileExists( local.tmpTemplatePath ) ) {
             // Compare the timestamp of the source file and the temp file
             // If the source file is less than the temp file, then we don't need to re-generate
-            local.sourceFile = getFileInfo( arguments.sourceCFMPath );
-            local.tempFile = getFileInfo( local.tmpCFMPath );
+            local.sourceFile = getFileInfo( arguments.sourcePath );
+            local.tempFile = getFileInfo( local.tmpTemplatePath );
 
             if ( local.sourceFile.lastModified < local.tempFile.lastModified ) {
                 return { "tempComponentName" : "#arguments.componentName#" };
@@ -98,7 +111,11 @@ component accessors="true" singleton {
             directoryCreate( local.tmpDirectory );
         }
 
-        local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.cfc" );
+        if ( arguments.sourcePath contains ".bxm" ) {
+            local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.bx" );
+        } else {
+            local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.cfc" );
+        }
 
         local.emptySingleFileComponent = replaceNoCase(
             local.emptySingleFileComponent,
@@ -116,8 +133,8 @@ component accessors="true" singleton {
 
         local.uuid = createUUID();
 
-        fileWrite( local.tmpCFCPath, local.emptySingleFileComponent );
-        fileWrite( local.tmpCFMPath, local.parsedContents.remainingContents );
+        fileWrite( local.tmpClassPath, local.emptySingleFileComponent );
+        fileWrite( local.tmpTemplatePath, local.parsedContents.remainingContents );
 
         return { "tempComponentName" : "#arguments.componentName#" };
     }
