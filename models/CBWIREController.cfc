@@ -218,18 +218,14 @@ component singleton {
     }
 
     /**
-     * Dynamically creates an instance of a CBWIRE component based on the provided name.
-     * Assumes components are located within a specific namespace or directory structure.
+     * Retrieves the full dot notation path for a component based on its name.
+     * If the name contains a module reference, it resolves the path accordingly.
      *
-     * @componentName The name of the component to instantiate, possibly including a namespace.
-     * @params Optional parameters to pass to the component constructor.
-     * @key Optional key to use when retrieving the component from WireBox.
+     * @name The name of the component to resolve.
      *
-     * @return The instantiated component object.
-     * @throws ApplicationException If the component cannot be found or instantiated.
+     * @return The full dot notation path for the component.
      */
-    function createInstance( name ) {
-
+    function getComponentDSL( name ) {
         local.componentDSL = arguments.name;
 
         if ( !local.componentDSL contains "wires." ) {
@@ -246,35 +242,113 @@ component singleton {
             local.componentDSL = getModuleComponentPath( params[ 1 ], params[ 2 ] );
         }
 
-        try {
-            // Check if we've already flagged this component as a single file component
-            // This is to improve performance by not attempting to create the component again
-            if ( variables._singleFileComponents.contains( arguments.name ) ) {
-                throw( type="Injector.InstanceNotFoundException", message="Component '#arguments.name#' is a single file component." );
-            }
-            // Attempt to create an instance of the component
-            local.componentInstance = variables.wirebox.getInstance(local.fullComponentPath)
-                ._withPath( arguments.name );
+        return local.componentDSL;
+    }
 
-            return local.componentInstance;
-        } catch( Injector.InstanceNotFoundException e ) {
-            local.singleFileComponent = variables.singleFileComponentBuilder
-                .setInitialRender( true )
-                .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
+    /**
+     * Converts a component DSL from dot notation to slash notation.
+     * 
+     * @componentDSL String | The component DSL to convert.
+     * 
+     * @return String | The converted DSL in slash notation.
+     */
+    function convertDSLToSlashNotation( componentDSL ) {
+        return replace( arguments.componentDSL, ".", "/", "all" );
+    }
 
-            if ( isNull( local.singleFileComponent ) ) {
-                writeDump( e );
-                abort;
-                rethrow;
-            }
+    /**
+     * Returns true if the component DSL is a module DSL.
+     * 
+     * @componentDSL String | The component DSL to check.
+     * 
+     * @return boolean
+     */
+    function isModuleDSL( componentDSL ) {
+        return find( "@", arguments.componentDSL ) > 0;
+    }
 
-            variables._singleFileComponents.append( arguments.name );
+    function getDSLFilePathWithoutExtension( componentDSL ) {
 
-            return local.singleFileComponent;
-        } catch (Any e) {
-            // Log error or handle it as needed
-            throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
+        if ( isModuleDSL( componentDSL ) ) {
+            return getModuleDSLFilePathWithoutExtension( componentDSL );
         }
+
+        local.dslSlashNotation = convertDSLToSlashNotation( arguments.componentDSL );
+
+        return expandPath( "/" & local.dslSlashNotation);
+    }
+
+    /** 
+     * Returns true if the component is a single file component.
+     * Also provides a performance optimization by checking if the component is already flagged as a single file component.
+     * 
+     * @componentDSL String | The component DSL to check.
+     * 
+     * @return boolean
+     */
+    function isSingleFileComponent( componentDSL ) {
+
+        if ( variables._singleFileComponents.contains( componentDSL ) ) {
+            return true;
+        }
+
+        local.dslFilePathWithoutExtension = getDSLFilePathWithoutExtension( componentDSL );
+
+        if ( !fileExists( local.dslFilePathWithoutExtension & ".bx" ) && !fileExists( local.dslFilePathWithoutExtension & ".cfc" ) ) {
+            if ( fileExists( local.dslFilePathWithoutExtension & ".bxm" ) || fileExists( local.dslFilePathWithoutExtension & ".cfm" ) ) {                
+                variables._singleFileComponents.append( componentDSL );
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Creates a single file component instance based on the provided DSL and name.
+     * This method uses the SingleFileComponentBuilder to build the component.
+     *
+     * @componentDSL String | The DSL of the component to create.
+     * @name String | The name of the component to create.
+     *
+     * @return The instantiated single file component object.
+     */
+    function createSingleFileComponent( componentDSL, name ) {
+        return variables.singleFileComponentBuilder.setInitialRender( true ).build( arguments.componentDSL, arguments.name, getCurrentRequestModule() );
+    }
+
+    /**
+     * Creates a regular component instance based on the provided DSL and name.
+     * This method uses WireBox to get an instance of the component.
+     *
+     * @componentDSL String | The DSL of the component to create.
+     * @name String | The name of the component to create.
+     *
+     * @return The instantiated regular component object.
+     */
+    function createRegularComponent( componentDSL, name ) {
+        return variables.wirebox.getInstance( arguments.componentDSL )._withPath( arguments.name );
+    }
+
+    /**
+     * Creates an instance of a CBWIRE component based on the provided name or DSL.
+     *
+     * @name String | The name of the component to instantiate.
+     *
+     * @return The instantiated component object.
+     * 
+     * @throws ApplicationException If the component cannot be found or instantiated.
+     */
+    function createInstance( name ) {
+        local.componentDSL = getComponentDSL( arguments.name );
+
+        if ( isSingleFileComponent( local.componentDSL ) ) {
+            return createSingleFileComponent( local.componentDSL, arguments.name );
+        } else {
+            return createRegularComponent( local.componentDSL, arguments.name );
+        }
+
+            throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
     }
 
     /**
