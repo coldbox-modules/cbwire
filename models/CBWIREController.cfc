@@ -229,21 +229,21 @@ component singleton {
      * @throws ApplicationException If the component cannot be found or instantiated.
      */
     function createInstance( name ) {
-        // Determine if the component name traverses a valid namespace or directory structure
-        local.fullComponentPath = arguments.name;
 
-        if ( !local.fullComponentPath contains "wires." ) {
-            local.fullComponentPath = "wires." & local.fullComponentPath;
+        local.componentDSL = arguments.name;
+
+        if ( !local.componentDSL contains "wires." ) {
+            local.componentDSL = "wires." & local.componentDSL;
         }
 
-        if ( find( "@", local.fullComponentPath ) ) {
+        if ( find( "@", local.componentDSL ) ) {
             // This is a module reference, find in our module
-            local.params = listToArray( local.fullComponentPath, "@" );
+            local.params = listToArray( local.componentDSL, "@" );
             if ( local.params.len() != 2 ) {
-                throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
+                throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.componentDSL & "'." );
             }
-            // modify local.fullComponentPath to full path for module
-            local.fullComponentPath = getModuleComponentPath( params[ 1 ], params[ 2 ] );
+            // modify local.componentDSL to full path for module
+            local.componentDSL = getModuleComponentPath( params[ 1 ], params[ 2 ] );
         }
 
         try {
