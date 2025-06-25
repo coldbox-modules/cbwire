@@ -897,16 +897,9 @@ component output="true" {
     function _getNormalizedViewPath( viewPath ) {
         // Replace all dots with slashes to normalize the path
         local.normalizedPath = replace( arguments.viewPath, ".", "/", "all" );
-        local.fullNormalizedPath = expandPath( "/" ) & local.normalizedPath;
+        local.fullNormalizedPath = expandPath( "/" & local.normalizedPath );
         local.bxmViewFullPath = local.fullNormalizedPath & ".bxm";
         local.cfmViewFullPath = local.fullNormalizedPath & ".cfm";
-
-        if ( !fileExists( bxmViewFullPath ) && !fileExists( cfmViewFullPath ) ) {
-            // Try different expandPath to address issues with varying CFML engines
-            local.fullNormalizedPath = expandPath( "/" & local.normalizedPath );
-            local.bxmViewFullPath = local.fullNormalizedPath & ".bxm";
-            local.cfmViewFullPath = local.fullNormalizedPath & ".cfm";
-        }
 
         if ( local.normalizedPath contains "cbwire/models/tmp/" ) {
             if ( fileExists( bxmViewFullPath ) ) {
