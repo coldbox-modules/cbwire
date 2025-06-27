@@ -43,7 +43,7 @@ jobs:
           #printf "DB_BUNDLENAME=com.mysql.cj\n" >> test-harness/.env
 
       - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+        uses: elpete/setup-commandbox@v1.0.1
 
       - name: Install Main Dependencies
         working-directory: ./
