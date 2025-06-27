@@ -45,7 +45,7 @@ jobs:
             ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
 
       - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+        uses: elpete/setup-commandbox@v1.0.1
 
       - name: Setup env.VERSION
         run: |
@@ -138,7 +138,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+        uses: elpete/setup-commandbox@v1.0.1
 
       - name: Generate Docs
         run: |
