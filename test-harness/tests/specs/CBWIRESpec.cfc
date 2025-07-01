@@ -1498,7 +1498,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ._withPath( "wires.TestComponent" )
 					._getSnapshot();
 				// get JSON string of the snapshot with checksum inserted
-				var snapshotJSON = cbwireController._caclulateChecksum( snapshot );
+				var snapshotJSON = cbwireController._calculateChecksum( snapshot );
 				// test returned json
 				expect( isJson(snapshotJSON) ).toBeTrue();
 				expect( deserializeJson( snapshotJSON ).keyExists("checksum") ).toBeTrue();
@@ -1516,7 +1516,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     ._withPath( "wires.TestComponent" )
 					._getSnapshot();
 				// get JSON string of the snapshot with checksum inserted
-				var snapshotJSON = cbwireController._caclulateChecksum( snapshot );
+				var snapshotJSON = cbwireController._calculateChecksum( snapshot );
 				// test returned json
 				expect( isJson(snapshotJSON) ).toBeTrue();
 				expect( deserializeJson( snapshotJSON ).keyExists("checksum") ).toBeTrue();
@@ -1683,7 +1683,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         };
 
         response.content.components = response.content.components.map( function( _comp ) {
-            _comp.snapshot = getInstance( "CBWIREController@cbwire" )._caclulateChecksum( _comp.snapshot );
+            _comp.snapshot = getInstance( "CBWIREController@cbwire" )._calculateChecksum( _comp.snapshot );
             return _comp;
         } );
 

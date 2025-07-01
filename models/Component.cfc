@@ -1261,7 +1261,7 @@ component output="true" {
         } );
 
     	  // Serialize the snapshot to JSON, calculate the checksum, and then encode it for HTML attribute inclusion
-		    local.lazyLoadSnapshot = _CBWIREController._caclulateChecksum( local.snapshot )
+		    local.lazyLoadSnapshot = _CBWIREController._calculateChecksum( local.snapshot )
 
 		    // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
         local.base64EncodedSnapshot = toBase64( local.lazyLoadSnapshot );
@@ -1275,7 +1275,7 @@ component output="true" {
         }
 
         // Define the wire attributes to append
-		    local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( _CBWIREController._caclulateChecksum( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
+		    local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( _CBWIREController._calculateChecksum( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
 
         // Determine our outer element
         local.outerElement = _getOuterElement( local.html );
@@ -1326,7 +1326,7 @@ component output="true" {
 
         // Return the HTML response
         local.response = [
-            "snapshot": _CBWIREController._caclulateChecksum( local.snapshot ),
+            "snapshot": _CBWIREController._calculateChecksum( local.snapshot ),
             "effects": {
                 "returns": variables._returnValues,
                 "html": local.html
@@ -1694,7 +1694,7 @@ component output="true" {
         if ( variables._initialLoad ) {
             // Encode the snapshot for HTML attribute inclusion and process the view content
             // local.snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
-            local.snapshotEncoded = _encodeAttribute( _CBWIREController._caclulateChecksum( _getSnapshot() ) );
+            local.snapshotEncoded = _encodeAttribute( _CBWIREController._calculateChecksum( _getSnapshot() ) );
             return _insertInitialLivewireAttributes( local.trimmedHTML, local.snapshotEncoded, variables._id );
         } else {
             // Return the trimmed HTML content

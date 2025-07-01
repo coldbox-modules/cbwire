@@ -127,11 +127,20 @@ component singleton {
      *
      * @return string
      */
-    function _caclulateChecksum( snapshot ) {
+    function _calculateChecksum( snapshot ) {
+        if ( snapshot.keyExists( "checksum" ) ) {
+            // Always clear the checksum before calculating a new one
+            snapshot.checksum = "";
+        }
         var secret = moduleSettings.keyExists("secret") ? moduleSettings.secret : hash( moduleSettings.moduleRootPath );
         var serializedSnapshot = serializeJson( arguments.snapshot );
-        var checksum = hmac( serializedSnapshot, secret, "HMACSHA256");
-        return replace( serializedSnapshot, '"checksum":""', '"checksum":"#checksum#"', "all" )
+        // Super important that we covert to an array and sort it so that the checksum is always the same
+        var charArray = listToArray( serializedSnapshot, "" );
+        arraySort( charArray, "text", "asc" );
+        // Also super important to trim here otherwise leads to checksum mismatches
+        var sortedJsonChars = trim( arrayToList( charArray, "" ) );
+        snapshot.checksum = hmac( sortedJsonChars, secret, "HMACSHA256" );
+        return serializeJson( snapshot );
     }
 
     /**
@@ -144,9 +153,12 @@ component singleton {
     function _validateChecksum( snapshot ) {
 		if( !isJson( snapshot ) ) throw( type="CBWIRECorruptPayloadException", message="Payload is not valid JSON." );
 		var deserializedSnapshot = deserializeJSON( arguments.snapshot );
+        var incomingChecksum = duplicate( deserializedSnapshot.checksum );
 		if( !deserializedSnapshot.keyExists("checksum") ) throw( type="CBWIRECorruptPayloadException", message="Checksum Not Found." );
 		var secret = moduleSettings.keyExists("secret") ? moduleSettings.secret : hash( moduleSettings.moduleRootPath );
-        if( deserializedSnapshot.checksum != hmac( replace( snapshot, deserializedSnapshot.checksum, "", "one" ), secret, "HMACSHA256") ){
+        _calculateChecksum( deserializedSnapshot );
+        var recalculatedChecksum = deserializedSnapshot.checksum;
+        if( incomingChecksum != recalculatedChecksum ){
             throw( type="CBWIRECorruptPayloadException", message="Checksum Mismatch." );
         }
     }
