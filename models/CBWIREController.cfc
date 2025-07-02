@@ -1,4 +1,4 @@
-component singleton {
+component accessors="true" singleton {
 
     // Injected WireBox instance so that we can dynamically create instances of components.
     property name="wirebox" inject="wirebox";
@@ -17,6 +17,9 @@ component singleton {
 
     // Inject SingleFileComponentBuilder
     property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
+
+    // Inject ChecksumService
+    property name="checksumService" inject="ChecksumService@cbwire";
 
     function init() {
         // Initialize the array to store single file components
@@ -73,7 +76,7 @@ component singleton {
         }
         // Perform additional deserialization of the component snapshots
         local.payload.components = local.payload.components.map( function( _comp ) {
-            _validateChecksum( arguments._comp.snapshot );
+            checksumService.validateChecksum( arguments._comp.snapshot );
             arguments._comp.snapshot = deserializeJSON( arguments._comp.snapshot );
             return arguments._comp;
         } );
@@ -117,50 +120,6 @@ component singleton {
         event.setHTTPHeader( name="Cache-Control", value="no-cache, must-revalidate, no-store, max-age=0, private" );
 
         return local.componentsResult;
-    }
-
-    /**
-     * Calculates a checksum for the component's payload, inserts the checksum into the payload,
-	 * and returns the updated payload as a JSON string.
-     *
-     * @payload struct | the payload to calculate the checksum for
-     *
-     * @return string
-     */
-    function _calculateChecksum( snapshot ) {
-        if ( snapshot.keyExists( "checksum" ) ) {
-            // Always clear the checksum before calculating a new one
-            snapshot.checksum = "";
-        }
-        var secret = moduleSettings.keyExists("secret") ? moduleSettings.secret : hash( moduleSettings.moduleRootPath );
-        var serializedSnapshot = serializeJson( arguments.snapshot );
-        // Super important that we covert to an array and sort it so that the checksum is always the same
-        var charArray = listToArray( serializedSnapshot, "" );
-        arraySort( charArray, "text", "asc" );
-        // Also super important to trim here otherwise leads to checksum mismatches
-        var sortedJsonChars = trim( arrayToList( charArray, "" ) );
-        snapshot.checksum = hmac( sortedJsonChars, secret, "HMACSHA256" );
-        return serializeJson( snapshot );
-    }
-
-    /**
-     * Validates checksum for the component's data from snapshot.
-     *
-     * @payload string | the JSON string of the component snapshot as posted by livewire
-     *
-     * @return void
-     */
-    function _validateChecksum( snapshot ) {
-		if( !isJson( snapshot ) ) throw( type="CBWIRECorruptPayloadException", message="Payload is not valid JSON." );
-		var deserializedSnapshot = deserializeJSON( arguments.snapshot );
-        var incomingChecksum = duplicate( deserializedSnapshot.checksum );
-		if( !deserializedSnapshot.keyExists("checksum") ) throw( type="CBWIRECorruptPayloadException", message="Checksum Not Found." );
-		var secret = moduleSettings.keyExists("secret") ? moduleSettings.secret : hash( moduleSettings.moduleRootPath );
-        _calculateChecksum( deserializedSnapshot );
-        var recalculatedChecksum = deserializedSnapshot.checksum;
-        if( incomingChecksum != recalculatedChecksum ){
-            throw( type="CBWIRECorruptPayloadException", message="Checksum Mismatch." );
-        }
     }
 
     /**
