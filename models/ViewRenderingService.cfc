@@ -1,4 +1,4 @@
-component accessors="true" {
+component accessors="true" singleton {
 
 
     property name="cbwireController" inject="CBWIREController@cbwire";
