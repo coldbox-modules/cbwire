@@ -526,7 +526,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should trim string values if enabled on component", () => {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                settings.trimStringValues = false;
+                settings.trimStringValues = true;
                 var payload = incomingRequest(
                     memo = {
                         "name": "test.should_trim_string_values_if_enabled_on_component",

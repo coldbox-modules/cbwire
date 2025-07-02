@@ -1,6 +1,6 @@
-component output="true" {
+component output="true" accessors="true" {
 
-    property name="_globalSettings" inject="coldbox:modulesettings:cbwire";
+    property name="_configService" inject="ConfigService@cbwire";
 
     property name="_CBWIREController" inject="CBWIREController@cbwire";
 
@@ -8,7 +8,7 @@ component output="true" {
 
     property name="_validationService" inject="ValidationService@cbwire";
 
-    property name="_viewRenderingService" inject="ViewRenderingService@cbwire";
+    property name="_renderService" inject="RenderService@cbwire";
 
     property name="_wirebox" inject="wirebox";
 
@@ -38,6 +38,7 @@ component output="true" {
     property name="_renderedContent";
     property name="_scripts";
     property name="_assets";
+    property name="_listeners";
 
     /**
      * Constructor
@@ -220,7 +221,7 @@ component output="true" {
      */
     function template( viewPath, params = {} ) {
         // Normalize the view path
-        local.normalizedPath = variables._viewRenderingService.normalizeViewPath( arguments.viewPath );
+        local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath );
         // Render the view content and trim the result
         return _renderViewContent( local.normalizedPath, arguments.params );
     }
@@ -353,7 +354,7 @@ component output="true" {
         if ( arguments.lazy ) {
             local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
             // Based on the rendering, determine our outer component tag
-            local.componentTag = _getComponentTag( local.lazyRendering );
+            local.componentTag = variables._renderService.getComponentTag( local.lazyRendering );
             // Track the rendered child
             variables._children.append( [
                 "#arguments.key#": [
@@ -367,7 +368,7 @@ component output="true" {
             // Render it out normally
             local.rendering = local.instance._render();
             // Based on the rendering, determine our outer component tag
-            local.componentTag = _getComponentTag( local.rendering );
+            local.componentTag = variables._renderService.getComponentTag( local.rendering );
             // Track the rendered child
             variables._children.append( {
                 "#arguments.key#": [
@@ -780,7 +781,7 @@ component output="true" {
 			_validateLockedProperty( key );
 
             // Check if we should trim if simple value
-            if ( isSimpleValue( arguments.value ) && shouldTrimStringValues() ) {
+            if ( isSimpleValue( arguments.value ) && variables._configService.trimStringValues() ) {
                 arguments.value = trim( arguments.value );
             }
 
@@ -881,7 +882,7 @@ component output="true" {
      * @return void
      */
     function __dispatch( event, params ) {
-        local.methodToCall = variables.listeners[ arguments.event ];
+        local.methodToCall = variables._listeners[ arguments.event ];
         invoke( this, local.methodToCall, arguments.params );
     }
 
@@ -969,65 +970,6 @@ component output="true" {
     }
 
     /**
-     * Encodes a given string for safe usage within an HTML attribute.
-     *
-     * @value string | The string to be encoded.
-     *
-     * @return String The encoded string suitable for HTML attribute inclusion.
-     */
-    function _encodeAttribute( value ) {
-        // return arguments.value.replaceNoCase( '"', "&quot;", "all" );
-        return encodeForHTMLAttribute(arguments.value);
-    }
-
-    /**
-     * Inserts Livewire-specific attributes into the given HTML content, ensuring Livewire can manage the component.
-     *
-     * @html string | The original HTML content to be processed.
-     * @snapshotEncoded string | The encoded snapshot data for Livewire's consumption.
-     * @id string | The component's unique identifier.
-     *
-     * @return String The HTML content with Livewire attributes properly inserted.
-     */
-    function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
-        // Trim our html
-        arguments.html = arguments.html.trim();
-        // Define the wire attributes to append
-        local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
-        // Determine our outer element
-        local.outerElement = _getOuterElement( arguments.html );
-        // Find the position of the opening tag
-        local.openingTagStart = findNoCase("<" & local.outerElement, arguments.html);
-        local.openingTagEnd = find(">", arguments.html, local.openingTagStart);
-        // Insert attributes into the opening tag
-        if (local.openingTagStart > 0 && local.openingTagEnd > 0) {
-            local.openingTag = mid(arguments.html, local.openingTagStart, local.openingTagEnd - local.openingTagStart + 1);
-            local.newOpeningTag = replace(local.openingTag, "<" & local.outerElement, "<" & local.outerElement & " " & local.wireAttributes, "one");
-            arguments.html = replace(arguments.html, local.openingTag, local.newOpeningTag, "one");
-        }
-
-        return arguments.html;
-    }
-
-    /**
-     * Inserts subsequent Livewire-specific attributes into the given HTML content.
-     *
-     * @html string | The original HTML content to be processed.
-     *
-     * @return String The HTML content with Livewire attributes properly inserted.
-     */
-    function _insertSubsequentLivewireAttributes( html ) {
-        // Trim our html
-        arguments.html = arguments.html.trim();
-        // Define the wire attributes to append
-        local.wireAttributes = "wire:id=""#variables._id#""";
-        // Determine our outer element
-        local.outerElement = _getOuterElement( arguments.html );
-        // Insert attributes into the opening tag
-        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
-    }
-
-    /**
      * Provides on subsequent mounting for lazy loaded components.
      *
      * @snapshot string | The base64 encoded snapshot.
@@ -1077,67 +1019,12 @@ component output="true" {
                 );
             }
 
-            variables._viewRenderingService.captureTemplateReturnValues( this, local.templateReturnValues );
+            variables._renderService.captureTemplateReturnValues( this, local.templateReturnValues );
 
             variables._renderedContent = local.viewContent;
         }
 
         return variables._renderedContent;
-    }
-
-    /**
-     * Validates that the HTML content has a single outer element.
-     * Ensures the first and last tags match and that the total number of tags is even.
-     *
-     * @trimmedHtml string | The trimmed HTML content to validate.
-     * @throws ApplicationException When the HTML does not meet the single outer element criteria.
-     */
-    function _validateSingleOuterElement( trimmedHtml ) {
-        return; // Skip until we can find a much faster way to validate a single outer element.
-
-        // Define void elements
-        local.voidTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
-
-        // Trim and remove any extra spaces between tags for accurate matching
-        local.cleanHtml = trim(arguments.trimmedHtml).replaceAll("\s+>", ">");
-
-        // Regex to find all tags
-        local.tags = reMatch("<\/?[a-z]+[^>]*>", local.cleanHtml);
-
-        // Ensure there is at least one tag
-        if (arrayLen(local.tags) == 0) {
-            throw("ApplicationException", "Template must contain at least one HTML tag.");
-        }
-
-        // Check for single outer element by comparing the first and last tag
-        local.firstTag = tags.first().replaceAll("<\/?([a-z]+)[^>]*>", "$1");
-        local.lastTag = tags.last().replaceAll("<\/?([a-z]+)[^>]*>", "$1");
-
-        // Check if the first and last tags match and are properly nested
-        if ( local.firstTag != local.lastTag ) {
-            throw("CBWIRETemplateException", "Template does not have matching outer tags.");
-        }
-
-        // Additional check to ensure no other top-level tags are present
-        local.depth = 0;
-        local.tags.each( function( tag, index ) {
-            local.tagName = tag.replaceAll("<\/?([a-z]+)[^>]*>", "$1");
-
-            // Skip depth modification for void elements
-            if (arrayFindNoCase(voidTags, local.tagName) && left( arguments.tag, 2) != "</") {
-                return;
-            }
-
-            if (left( arguments.tag, 2) == "</") {
-                depth--;
-            } else {
-                depth++;
-            }
-            // If depth returns to zero before last tag, or if depth is not zero after last tag, throw exception
-            if (depth == 0 && index != tags.len() || index == tags.len() && depth != 0 ) {
-                throw("CBWIRETemplateException", "Template has more than one outer element, or is missing an end tag </element>.");
-            }
-        });
     }
 
     /**
@@ -1177,7 +1064,7 @@ component output="true" {
         } );
 
     	  // Serialize the snapshot to JSON, calculate the checksum, and then encode it for HTML attribute inclusion
-		local.lazyLoadSnapshot = _checksumService.calculateChecksum( local.snapshot )
+		local.lazyLoadSnapshot = variables._checksumService.calculateChecksum( local.snapshot )
 
 		    // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
         local.base64EncodedSnapshot = toBase64( local.lazyLoadSnapshot );
@@ -1190,11 +1077,13 @@ component output="true" {
             throw( type="CBWIREException", message="The placeholder method must be defined for lazy loaded components and it must have the same outer element as your CBWIRE template." );
         }
 
+        local.wireEffectsAttribute = variables._renderService.generateWireEffectsAttribute( listeners=variables._listeners, scripts=variables._scripts );
+
         // Define the wire attributes to append
-		    local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( _checksumService.calculateChecksum( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
+		local.wireAttributes = 'wire:snapshot="' & variables._renderService.encodeAttribute( variables._checksumService.calculateChecksum( _getSnapshot() ) ) & '" wire:effects="#local.wireEffectsAttribute#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
 
         // Determine our outer element
-        local.outerElement = _getOuterElement( local.html );
+        local.outerElement = variables._renderService.getOuterElement( local.html );
 
         // Insert attributes into the opening tag
         return local.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
@@ -1242,7 +1131,7 @@ component output="true" {
 
         // Return the HTML response
         local.response = [
-            "snapshot": _checksumService.calculateChecksum( local.snapshot ),
+            "snapshot": variables._checksumService.calculateChecksum( local.snapshot ),
             "effects": {
                 "returns": variables._returnValues,
                 "html": local.html
@@ -1432,18 +1321,12 @@ component output="true" {
      * @return void
      */
     function _prepareListeners() {
-        /*
-            listers = {
-                'eventName': 'methodName'
-            }
-        */
-        if ( !variables.keyExists( "listeners" ) ) {
-            variables.listeners = [:];
-        }
+
+        variables._listeners = variables.keyExists( "listeners" ) ? variables.listeners : [:];
 
         // Loop through the listeners and check the methods exists, throw error if not
         // TODO: add tests (having issues getting testbox to assert this error)
-        variables.listeners.each( function( key, value ) {
+        variables._listeners.each( function( key, value ) {
             if ( !variables.keyExists( arguments.value ) ) {
                 throw( type="CBWIREException", message="The listener '#arguments.key#' references a method '#arguments.value#' but this method does not exist. Please implement '#arguments.value#()' on your component." );
             }
@@ -1454,7 +1337,7 @@ component output="true" {
      * Returns the path to the view template file.
      */
     function _getTemplatePath(){
-        return variables._viewRenderingService.getTemplatePath( this, variables._path );
+        return variables._renderService.getTemplatePath( this, variables._path );
     }
 
     /**
@@ -1519,23 +1402,6 @@ component output="true" {
     }
 
     /**
-     * Take an incoming rendering and determine the outer component tag.
-     * <div>...</div> would return 'div'
-     *
-     * @rendering string | The rendering to parse.
-     *
-     * @return string
-     */
-    function _getComponentTag( rendering ){
-        var tag = "";
-        var regexMatches = reFindNoCase( "^<([a-zA-Z0-9]+)", arguments.rendering.trim(), 1, true );
-        if ( regexMatches.match.len() == 2 ) {
-            return regexMatches.match[ 2 ];
-        }
-        throw( type="CBWIREException", message="Cannot determine component tag." );
-    }
-
-    /**
      * Returns a generated key for the component.
      *
      * @return string
@@ -1572,45 +1438,11 @@ component output="true" {
     }
 
     /**
-     * Returns the wire:effects attribute contents.
-     *
-     * @return string
-     */
-    function _generateWireEffectsAttribute() {
-        local.effects = {};
-        local.listenersAsArray = variables.listeners.reduce( function( acc, key, value ) {
-            acc.append( key );
-            return acc;
-        }, [] );
-        if ( local.listenersAsArray.len() ) {
-            local.effects[ "listeners" ] = local.listenersAsArray;
-        }
-        if ( variables._scripts.count() ) {
-            local.effects[ "scripts" ] = variables._scripts;
-        }
-        if ( local.effects.count() ) {
-            return _encodeAttribute( serializeJson( local.effects ) );
-        }
-        return "[]";
-    }
-
-    /**
      * Response for actually starting rendering of a component.
      */
     function _render( rendering ) {
         local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
-        // Validate the HTML content to ensure it has a single outer element
-        _validateSingleOuterElement( local.trimmedHTML);
-        // If this is the initial load, encode the snapshot and insert Livewire attributes
-        if ( variables._initialLoad ) {
-            // Encode the snapshot for HTML attribute inclusion and process the view content
-            // local.snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
-            local.snapshotEncoded = _encodeAttribute( variables._checksumService.calculateChecksum( _getSnapshot() ) );
-            return _insertInitialLivewireAttributes( local.trimmedHTML, local.snapshotEncoded, variables._id );
-        } else {
-            // Return the trimmed HTML content
-            return _insertSubsequentLivewireAttributes( local.trimmedHTML );
-        }
+        return variables._renderService.render( this, local.trimmedHTML );
     }
 
     function _trackScript( required scriptTagId, required scriptContent ) {
@@ -1624,29 +1456,5 @@ component output="true" {
 
     function _getCompileTimeKey() {
         return variables._compileTimeKey;
-    }
-
-    /**
-     * Returns the first outer element from the provided html.
-     * "<div x-data=""></div>" returns "div";
-     *
-     * @return string
-     */
-    function _getOuterElement( html ) {
-        local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
-        local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
-        return local.outerElement.trim();
-    }
-
-    /**
-     * Returns true if trimStringValues is enabled, either globally
-     * or for the component.
-     *
-     * @return boolean
-     */
-    function shouldTrimStringValues() {
-        return
-            ( _globalSettings.keyExists( "trimStringValues" ) && _globalSettings.trimStringValues == true ) ||
-            ( variables.keyExists( "trimStringValues" ) && variables.trimStringValues == true );
     }
 }
