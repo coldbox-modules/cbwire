@@ -8,6 +8,8 @@ component output="true" {
 
     property name="_validationService" inject="ValidationService@cbwire";
 
+    property name="_viewRenderingService" inject="ViewRenderingService@cbwire";
+
     property name="_wirebox" inject="wirebox";
 
     property name="_id";
@@ -163,7 +165,7 @@ component output="true" {
         if ( local.renderIt.len() ) {
             return local.renderIt;
         }
-        return template( _getViewPath() );
+        return template( _getTemplatePath() );
     }
 
     /**
@@ -218,7 +220,7 @@ component output="true" {
      */
     function template( viewPath, params = {} ) {
         // Normalize the view path
-        local.normalizedPath = _getNormalizedViewPath( arguments.viewPath );
+        local.normalizedPath = variables._viewRenderingService.normalizeViewPath( arguments.viewPath );
         // Render the view content and trim the result
         return _renderViewContent( local.normalizedPath, arguments.params );
     }
@@ -874,48 +876,6 @@ component output="true" {
     }
 
     /**
-     * Returns the normalized view path.
-     *
-     * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
-     *
-     * @return string
-     */
-    function _getNormalizedViewPath( viewPath ) {
-        // Replace all dots with slashes to normalize the path
-        local.normalizedPath = replace( arguments.viewPath, ".", "/", "all" );
-        local.fullNormalizedPath = expandPath( "/" & local.normalizedPath );
-        local.bxmViewFullPath = local.fullNormalizedPath & ".bxm";
-        local.cfmViewFullPath = local.fullNormalizedPath & ".cfm";
-
-        if ( local.normalizedPath contains "cbwire/models/tmp/" ) {
-            if ( fileExists( bxmViewFullPath ) ) {
-                return "/" & local.normalizedPath & ".bxm";
-            } else {
-                return "/" & local.normalizedPath & ".cfm";
-            }
-        }
-
-        if ( fileExists( bxmViewFullPath ) ) {
-            local.normalizedPath &= ".bxm";
-        } else if ( fileExists( cfmViewFullPath ) ) {
-            local.normalizedPath &= ".cfm";
-        } else {
-            throw( type="CBWIREException", message="A .bxm or .cfm template could not be found for '#arguments.viewPath#'." );
-        }
-
-        // Ensure the path starts with "/wires/" without duplicating it
-        if (!isModulePath() && left(local.normalizedPath, 6) != "wires/") {
-            local.normalizedPath = "wires/" & local.normalizedPath;
-        }
-        // Prepend a leading slash if not present
-        if (left(local.normalizedPath, 1) != "/") {
-            local.normalizedPath = "/" & local.normalizedPath;
-        }
-
-        return local.normalizedPath;
-    }
-
-    /**
      * Handles a dispatched event
      *
      * @return void
@@ -1116,44 +1076,13 @@ component output="true" {
                     returnValues = local.templateReturnValues
                 );
             }
-            _parseTemplateReturnValues( local.templateReturnValues );
+
+            variables._viewRenderingService.captureTemplateReturnValues( this, local.templateReturnValues );
+
             variables._renderedContent = local.viewContent;
         }
 
         return variables._renderedContent;
-    }
-
-    /**
-     * Parses the return values from the RendererEncapsulator.
-     *
-     * @return void
-     */
-    function _parseTemplateReturnValues( returnValues ) {
-        // Parse and track cbwire:script tags
-        arguments.returnValues.filter( function( key, value ) {
-            return key.findNoCase( "script" );
-        } ).each( function( key, value, result ) {
-            // Extract the counter from the tag name
-            local.counter = key.replaceNoCase( "script", "" );
-            // Create script tag id based on compile time id and counter
-            local.scriptTagId = variables._compileTimeKey & "-" & local.counter;
-            // Track the script tag
-            variables._scripts[ local.scriptTagId ] = value;
-        } );
-
-        // Parse and track cbwire:assets tags
-        arguments.returnValues.filter( function( key, value ) {
-            return key.findNoCase( "assets" );
-        } ).each( function( key, value, result ) {
-            // Extract the counter from the tag name
-            local.counter = key.replaceNoCase( "assets", "" );
-            // Create assets tag id based on hash of assets
-            local.assetsTagId = hash( value, "MD5" );
-            // Track the assets tag
-            variables._assets[ local.assetsTagId ] = value;
-            local.requestAssets = variables._CBWIREController.getRequestAssets();
-            local.requestAssets[ local.assetsTagId ] = value;
-        } );
     }
 
     /**
@@ -1524,13 +1453,8 @@ component output="true" {
     /**
      * Returns the path to the view template file.
      */
-    function _getViewPath(){
-        if ( isModulePath() ) {
-            var moduleRoot = variables._CBWIREController.getModuleRootPath( _getModuleName() );
-            return moduleRoot & ".wires." & _getComponentName().listFirst( "@" );
-        }
-
-        return "wires." & variables._path;
+    function _getTemplatePath(){
+        return variables._viewRenderingService.getTemplatePath( this, variables._path );
     }
 
     /**
@@ -1689,6 +1613,19 @@ component output="true" {
         }
     }
 
+    function _trackScript( required scriptTagId, required scriptContent ) {
+        variables._scripts[ scriptTagId ] = scriptContent;
+    }
+
+
+    function _trackAsset( required assetTagId, required assetContent ) {
+        variables._assets[ assetTagId ] = assetContent;
+    }
+
+    function _getCompileTimeKey() {
+        return variables._compileTimeKey;
+    }
+
     /**
      * Returns the first outer element from the provided html.
      * "<div x-data=""></div>" returns "div";
@@ -1699,15 +1636,6 @@ component output="true" {
         local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
         local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
         return local.outerElement.trim();
-    }
-
-    /**
-     * Returns true if the path contains a module.
-     *
-     * @return boolean
-     */
-    function isModulePath() {
-        return variables._path contains "@";
     }
 
     /**
