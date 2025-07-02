@@ -16,13 +16,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     function run() {
         describe("ChecksumService", function() {
-
-            // beforeEach( function(){
-            //     setup();
-
-
-            // } );
-            
+           
             describe("calculateChecksum()", function() {
                 
                 it("should calculate checksum for simple struct", function() {

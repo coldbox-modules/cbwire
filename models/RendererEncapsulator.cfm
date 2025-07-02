@@ -83,7 +83,7 @@
     /*
         Auto-validate and provide validation methods to view.
     */
-    if ( attributes.CBWIREComponent._isCBValidationInstalled() ) {
+    if ( attributes.validationService.isCBValidationInstalled() ) {
         attributes.CBWIREComponent.validate();
         variables["validation"] = attributes.CBWIREComponent._getValidationResult();
     }

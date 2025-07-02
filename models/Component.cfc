@@ -6,6 +6,8 @@ component output="true" {
 
     property name="_checksumService" inject="ChecksumService@cbwire";
 
+    property name="_validationService" inject="ValidationService@cbwire";
+
     property name="_wirebox" inject="wirebox";
 
     property name="_id";
@@ -382,9 +384,8 @@ component output="true" {
      * @return ValidationResult
      */
     function validate( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
-        arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
-        arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
-        variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
+        arguments.wire = this;
+        variables._validationResult = variables._validationService.validate( argumentCollection = arguments );
         return variables._validationResult;
     }
 
@@ -396,10 +397,7 @@ component output="true" {
      * @throws ValidationException
      */
     function validateOrFail(){
-        local.validationResults = validate();
-        if ( local.validationResults.hasErrors() ) {
-            throw( type="ValidationException", message="Validation failed" );
-        }
+        variables._validationService.validateOrFail( this );
     }
 
     /**
@@ -852,20 +850,6 @@ component output="true" {
     }
 
     /**
-     * Returns the validation manager if it's available.
-     * Otherwise throws error.
-     *
-     * @return ValidationManager
-     */
-    function _getValidationManager(){
-        try {
-            return getInstance( dsl="ValidationManager@cbvalidation" );
-        } catch ( any e ) {
-            throw( type="CBWIREException", message="ValidationManager not found. Make sure the 'cbvalidation' module is installed." );
-        }
-    }
-
-    /**
      * Returns a struct of cbvalidation constraints.
      *
      * @return struct
@@ -1126,6 +1110,7 @@ component output="true" {
                 cfmodule(
                     template = "RendererEncapsulator.cfm",
                     cbwireComponent = this,
+                    validationService = variables._validationService,
                     normalizedPath = arguments.normalizedPath,
                     params = arguments.params,
                     returnValues = local.templateReturnValues
@@ -1723,20 +1708,6 @@ component output="true" {
      */
     function isModulePath() {
         return variables._path contains "@";
-    }
-
-    /**
-     * Returns true if the cbvalidation module is installed.
-     *
-     * @return boolean
-     */
-    function _isCBValidationInstalled() {
-        try {
-            _getValidationManager();
-            return true;
-        } catch ( any e ) {
-            return false;
-        }
     }
 
     /**
