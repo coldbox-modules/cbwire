@@ -3,7 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
     function beforeAll() {
         variables.mockSettings = { trimStringValues: true };
 
-        variables.configService = new cbwire.models.ConfigService();
+        variables.configService = new cbwire.models.services.ConfigService();
         configService.setSettings( mockSettings );
     }
 

@@ -5,7 +5,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         variables.mockProvider = prepareMock( createStub() );
         variables.mockProvider.$( "$get", variables.mockValidationManager );
 
-        variables.validationService = prepareMock( new cbwire.models.ValidationService() );
+        variables.validationService = prepareMock( new cbwire.models.services.ValidationService() );
         validationService.setValidationManager( mockProvider );
     }
 

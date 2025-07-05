@@ -4,6 +4,7 @@ component accessors="true" singleton {
     property name="cbwireController" inject="CBWIREController@cbwire";
     property name="checksumService" inject="ChecksumService@cbwire";
     property name="utilityService" inject="UtilityService@cbwire";
+    property name="validationService" inject="ValidationService@cbwire";
 
 
     /**
@@ -28,7 +29,45 @@ component accessors="true" singleton {
             // Return the trimmed HTML content
             return insertSubsequentLivewireAttributes( arguments.wire.get_id(), local.trimmedHTML );
         }
+    }
 
+    /**
+     * Renders the content of a view template file.
+     * This method is used internally by the view method to render the content of a view template.
+     *
+     * @wire Wire | The wire instance for the component being rendered.
+     * @normalizedPath string | The normalized path to the view template file.
+     * @params struct | The parameters to pass to the view template.
+     *
+     * @return The rendered content of the view template.
+     */
+    function renderViewContent(
+            wire,
+            normalizedPath,
+            params = {},
+            template = "/cbwire/views/RendererEncapsulator.cfm"
+        ){
+        if ( !wire.get_renderedContent().len() ) {
+            local.templateReturnValues = {};
+            // Render our view using an renderer encapsulator
+            savecontent variable="local.viewContent" {
+                cfmodule(
+                    template = arguments.template,
+                    cbwireComponent = arguments.wire,
+                    validationService = variables.validationService,
+                    normalizedPath = arguments.normalizedPath,
+                    params = arguments.params,
+                    returnValues = local.templateReturnValues
+                );
+            }
+
+            captureTemplateReturnValues( arguments.wire, local.templateReturnValues );
+
+            wire.set_renderedContent( local.viewContent );
+            return local.viewContent;
+        }       
+
+        return wire.get_renderedContent();
     }
 
     /**

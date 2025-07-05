@@ -5,11 +5,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
         variables.mockController = createStub();
         variables.mockUtility = createStub();
         variables.mockChecksumService = createStub();
+        variables.mockValidationService = createStub();
         
-        variables.renderService = prepareMock( new cbwire.models.RenderService() );
+        variables.renderService = prepareMock( new cbwire.models.services.RenderService() );
         renderService.setCBWIREController( mockController );
         renderService.setUtilityService( mockUtility );
         renderService.setChecksumService( mockChecksumService );
+        renderService.setValidationService( mockValidationService );
     }
 
     function run() {
@@ -93,6 +95,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result ).notToInclude( "wire:effects" );
                 });
 
+
+            });
+
+            describe( "renderViewContent()", function() {
+
+                it( "renders with test encapsulator", function() {
+                    var wire = prepareMock( createStub() );
+                    wire.$( "get_renderedContent", "" );
+                    wire.$( "set_renderedContent" );
+                    wire.$( "get_id", "abc123" );
+
+                    var testTemplate = "/tests/resources/RendererStub.cfm"; // You control this
+                    var result = renderService.renderViewContent( wire, "fake.path", {}, testTemplate );
+
+                    debug(result);
+                    expect( result ).toInclude( "Rendered abc123" );
+                });
 
             });
 

@@ -84,17 +84,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "details": {
                             "age": 30,
                             "city": "NYC"
-                        }
+                        },
+                        "friends": [
+                            {"name": "Bob", "age": 28},
+                            {"name": "Alice", "age": 25}
+                        ],
+                        "someHtml": "<div>Test</div>",
+                        "nullValue": javaCast("null", ""),
+                        "someUrl": "https://somedomain.com/artwork/sequences/38994A-thumbnail.JPG"
                     };
                     snapshot1["items"] = [1, 2, 3];
 
                     var snapshot2 = [:];
                     snapshot2["items"] = [1, 2, 3];
                     snapshot2["user"] = {
+                        "someHtml": "<div>Test</div>",
+                        "someUrl": "https://somedomain.com/artwork/sequences/38994A-thumbnail.JPG",
+                        "friends": [
+                            {"name": "Bob", "age": 28},
+                            {"name": "Alice", "age": 25}
+                        ],
                         "details": {
                             "city": "NYC",
                             "age": 30
                         },
+                        "nullValue": javaCast("null", ""),
                         "name": "John"
                     };
                     

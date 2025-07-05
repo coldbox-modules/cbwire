@@ -223,7 +223,7 @@ component output="true" accessors="true" {
         // Normalize the view path
         local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath );
         // Render the view content and trim the result
-        return _renderViewContent( local.normalizedPath, arguments.params );
+        return variables._renderService.renderViewContent( this, local.normalizedPath, arguments.params );
     }
 
     /**
@@ -993,38 +993,6 @@ component output="true" accessors="true" {
             prc=variables._event.getPrivateCollection(),
             params=local.mountParams
         );
-    }
-
-    /**
-     * Renders the content of a view template file.
-     * This method is used internally by the view method to render the content of a view template.
-     *
-     * @normalizedPath string | The normalized path to the view template file.
-     * @params struct | The parameters to pass to the view template.
-     *
-     * @return The rendered content of the view template.
-     */
-    function _renderViewContent( normalizedPath, params = {} ){
-        if ( !variables._renderedContent.len() ) {
-            local.templateReturnValues = {};
-            // Render our view using an renderer encapsulator
-            savecontent variable="local.viewContent" {
-                cfmodule(
-                    template = "RendererEncapsulator.cfm",
-                    cbwireComponent = this,
-                    validationService = variables._validationService,
-                    normalizedPath = arguments.normalizedPath,
-                    params = arguments.params,
-                    returnValues = local.templateReturnValues
-                );
-            }
-
-            variables._renderService.captureTemplateReturnValues( this, local.templateReturnValues );
-
-            variables._renderedContent = local.viewContent;
-        }
-
-        return variables._renderedContent;
     }
 
     /**
