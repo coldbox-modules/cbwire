@@ -122,7 +122,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "normalizeWhitespace can handle null values", function() {
                     var dataProperties = { 
                         "description": javaCast( "null", "" ),
-                        "products": [ "Product1", "Product2", javaCast( "null", "" ) ]
+                        "products": [ "Product1", "Product2", { value: javaCast( "null", "" ) } ]
                     };
                     variables.wireComponent.setData( dataProperties );
                     expect( isNull( dataProperties.description ) ).toBeTrue();
