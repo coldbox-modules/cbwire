@@ -1431,7 +1431,7 @@ component output="true" accessors="true" {
         if ( isStruct( input ) ) {
             var result = {};
             for ( var key in input ) {
-                result[ key ] = deepNormalize( input[ key ], normalize );
+                result[ key ] = isNull( input[ key ] ) ? javaCast( "null", "" ) : deepNormalize( input[ key ], normalize );
             }
             return result;
         }
@@ -1439,7 +1439,7 @@ component output="true" accessors="true" {
         if ( isArray( input ) ) {
             var result = [];
             for ( var i = 1; i <= arrayLen( input ); i++ ) {
-                arrayAppend( result, deepNormalize( input[ i ], normalize ) );
+                arrayAppend( result, isNull( input[ i ] ) ? javaCast( "null", "" ) : deepNormalize( input[ i ], normalize ) );
             }
             return result;
         }

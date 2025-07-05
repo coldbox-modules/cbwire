@@ -119,6 +119,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result.description.len() ).toBe( 35 );
                 });
 
+                it( "normalizeWhitespace can handle null values", function() {
+                    var dataProperties = { 
+                        "description": javaCast( "null", "" ),
+                        "products": [ "Product1", "Product2", javaCast( "null", "" ) ]
+                    };
+                    variables.wireComponent.setData( dataProperties );
+                    expect( isNull( dataProperties.description ) ).toBeTrue();
+                    variables.mockConfigService.$( "normalizeWhitespace", true );
+                    variables.wireComponent.set_ConfigService(variables.mockConfigService);
+                    var result = variables.wireComponent._getDataProperties();
+                    expect( isNull( result.description ) ).toBeTrue();
+                });
+
             });
 
         });
