@@ -40,7 +40,6 @@ component output="true" accessors="true" {
     property name="_scripts";
     property name="_assets";
     property name="_listeners";
-    property name="_renderedContent";
 
     /**
      * Constructor
@@ -86,6 +85,7 @@ component output="true" accessors="true" {
             for fast access where needed.
         */
         variables._metaData = getMetaData( this );
+
         /*
             Prep our data properties
         */
