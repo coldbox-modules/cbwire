@@ -8,7 +8,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         };
 
                 // Create the service instance
-        variables.checksumService = new cbwire.models.ChecksumService();
+        variables.checksumService = new cbwire.models.services.ChecksumService();
         
         // Inject mock module settings
         variables.checksumService.setModuleSettings(variables.mockModuleSettings);
@@ -78,27 +78,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 });
 
                 it( "should produce same checks for deeply nested ordered structures that are not in identical order", function() {
-                    var snapshot1 = [
-                        "user": {
-                            "name": "John",
-                            "details": {
-                                "age": 30,
-                                "city": "NYC"
-                            }
-                        },
-                        "items": [1, 2, 3]
-                    ];
-                    
-                    var snapshot2 = [
-                        "items":[1, 2, 3],
-                        "user": {
-                            "details": {
-                                "city": "NYC",
-                                "age": 30
-                            },
-                            "name": "John"
+                    var snapshot1 = [:];
+                    snapshot1["user"] = {
+                        "name": "John",
+                        "details": {
+                            "age": 30,
+                            "city": "NYC"
                         }
-                    ];
+                    };
+                    snapshot1["items"] = [1, 2, 3];
+
+                    var snapshot2 = [:];
+                    snapshot2["items"] = [1, 2, 3];
+                    snapshot2["user"] = {
+                        "details": {
+                            "city": "NYC",
+                            "age": 30
+                        },
+                        "name": "John"
+                    };
                     
                     checksumService.calculateChecksum(snapshot1);
                     checksumService.calculateChecksum(snapshot2);
