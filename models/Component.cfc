@@ -1,16 +1,16 @@
 component output="true" accessors="true" {
 
-    property name="_configService" inject="ConfigService@cbwire";
+    property name="_configService" inject="provider:ConfigService@cbwire";
 
-    property name="_CBWIREController" inject="CBWIREController@cbwire";
+    property name="_CBWIREController" inject="provider:CBWIREController@cbwire";
 
-    property name="_checksumService" inject="ChecksumService@cbwire";
+    property name="_checksumService" inject="provider:ChecksumService@cbwire";
 
-    property name="_validationService" inject="ValidationService@cbwire";
+    property name="_validationService" inject="provider:ValidationService@cbwire";
 
-    property name="_renderService" inject="RenderService@cbwire";
+    property name="_renderService" inject="provider:RenderService@cbwire";
 
-    property name="_wirebox" inject="wirebox";
+    property name="_wirebox" inject="provider:wirebox";
 
     property name="_id";
     property name="_compileTimeKey";
@@ -39,6 +39,7 @@ component output="true" accessors="true" {
     property name="_scripts";
     property name="_assets";
     property name="_listeners";
+    property name="_renderedContent";
 
     /**
      * Constructor
