@@ -77,6 +77,35 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect(snapshot1.checksum).notToBe(snapshot2.checksum);
                 });
 
+                it( "should produce same checks for deeply nested ordered structures that are not in identical order", function() {
+                    var snapshot1 = [
+                        "user": {
+                            "name": "John",
+                            "details": {
+                                "age": 30,
+                                "city": "NYC"
+                            }
+                        },
+                        "items": [1, 2, 3]
+                    ];
+                    
+                    var snapshot2 = [
+                        "items":[1, 2, 3],
+                        "user": {
+                            "details": {
+                                "city": "NYC",
+                                "age": 30
+                            },
+                            "name": "John"
+                        }
+                    ];
+                    
+                    checksumService.calculateChecksum(snapshot1);
+                    checksumService.calculateChecksum(snapshot2);
+                    
+                    expect(snapshot1.checksum).toBe(snapshot2.checksum);
+                });
+
                 it("should handle nested structures", function() {
                     var snapshot = {
                         "user": {
