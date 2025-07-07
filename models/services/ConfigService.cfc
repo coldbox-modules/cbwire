@@ -12,13 +12,4 @@ component accessors="true" {
         return settings.keyExists( "trimStringValues" ) && settings.trimStringValues == true;
     }
 
-    /**
-     * Returns true if normalizeWhitespace is enabled globally.
-     *
-     * @return boolean
-     */
-    function normalizeWhitespace() {
-        return settings.keyExists( "normalizeWhitespace" ) && settings.normalizeWhitespace == true;
-    }
-
 }

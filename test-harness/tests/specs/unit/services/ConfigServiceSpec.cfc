@@ -37,29 +37,5 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
         });
 
-        describe( "normalizeWhitespace()", function() {
-
-            it( "should return true when normalizeWhitespace is true", function() {
-                mockSettings.normalizeWhitespace = true;
-                var result = configService.normalizeWhitespace();
-                expect( result ).toBeTrue();
-            });
-
-            it( "should return false when normalizeWhitespace is false", function() {
-                mockSettings.normalizeWhitespace = false;
-                var result = configService.normalizeWhitespace();
-                expect( result ).toBeFalse();
-            });
-
-            it( "should return false when normalizeWhitespace key does not exist", function() {
-                structDelete( mockSettings, "normalizeWhitespace" );
-                var result = configService.normalizeWhitespace();
-                expect( result ).toBeFalse();
-
-                // reset for other tests
-                mockSettings.normalizeWhitespace = true;
-            });
-
-        });
     }
 }

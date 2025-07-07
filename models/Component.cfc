@@ -1324,7 +1324,7 @@ component output="true" accessors="true" {
      * @return struct
      */
     function _getDataProperties(){
-        return deepNormalize( variables.data, shouldNormalizeWhitespace() );
+        return duplicate( variables.data );
     }
 
     /**
@@ -1418,53 +1418,5 @@ component output="true" accessors="true" {
 
     function _getCompileTimeKey() {
         return variables._compileTimeKey;
-    }
-
-    /**
-     * Recursively normalizes values in struct/array.
-     * Normalizes strings only — not booleans, numerics, or dates.
-     * @param input         struct|array|any
-     * @param normalize     boolean
-     * @return any
-     */
-    private function deepNormalize( input, normalize ) {
-        if ( isStruct( input ) ) {
-            var result = {};
-            for ( var key in input ) {
-                result[ key ] = isNull( input[ key ] ) ? javaCast( "null", "" ) : deepNormalize( input[ key ], normalize );
-            }
-            return result;
-        }
-
-        if ( isArray( input ) ) {
-            var result = [];
-            for ( var i = 1; i <= arrayLen( input ); i++ ) {
-                arrayAppend( result, isNull( input[ i ] ) ? javaCast( "null", "" ) : deepNormalize( input[ i ], normalize ) );
-            }
-            return result;
-        }
-
-        if ( isSimpleValue( input ) ) {
-            // if boolean, date, or numeric, return as is
-            if ( isBoolean( input ) || isDate( input ) || isNumeric( input ) ) {
-                return input;
-            }
-
-            // Only strings are left 
-            // Normalize whitespace if required
-            if ( normalize ) {
-                // Normalize whitespace in strings
-                return reReplaceNoCase( input, "\s+", " ", "all" );
-            } else {
-                // Return the string as is
-                return input;
-            }
-        }
-
-        return input;
-    }
-
-    private function shouldNormalizeWhitespace() {
-        return variables._configService.normalizeWhitespace() || variables.keyExists( "normalizeWhitespace" ) && variables.normalizeWhitespace == true;
     }
 }

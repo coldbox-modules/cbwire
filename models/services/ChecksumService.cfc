@@ -91,9 +91,11 @@ component accessors="true" {
         
         // Serialize with consistent formatting
         var normalizedJson = serializeJson( sortedData );
+
+        normalizedJson = reReplace( normalizedJson, "\s*", "", "all" );
         
-        // Remove any extra whitespace
-        return trim( normalizedJson );
+        // Remove all whitespace ( this ensures whitespaceManagement does not effect our checksum )
+        return replace( normalizedJson, "\s+", "", "all" );
     }
 
     /**

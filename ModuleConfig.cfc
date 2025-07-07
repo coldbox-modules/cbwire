@@ -48,10 +48,6 @@ component {
              */
             "trimStringValues" : false,
             /**
-             * Normalizes whitespace in string properties if set to true. This deeply inspects your data properties so use caution.
-             */
-            "normalizeWhitespace" : false,
-            /**
              * Enables or disables the progress bar when using wire:navigate
              */
             "showProgressBar": true,

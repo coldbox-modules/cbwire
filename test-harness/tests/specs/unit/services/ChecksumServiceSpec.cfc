@@ -299,6 +299,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             describe("Edge Cases", function() {
                 
+                it("should have same checksums regardless of spacing to handle issue with CFML engine whitespace management", function() {
+                    var snapshot1 = {
+                        "key": "some value"
+                    };
+
+                    var snapshot2 = {
+                        "key": "some                          value"
+                    };
+
+                    checksumService.calculateChecksum( snapshot1 );
+                    checksumService.calculateChecksum( snapshot2 );
+
+                    expect(snapshot1.checksum).toBe(snapshot2.checksum);
+                } );
+
                 it("should handle very large structures", function() {
                     var largeSnapshot = {};
                     for (var i = 1; i <= 1000; i++) {

@@ -17,8 +17,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 // Mock configService
                 variables.mockConfigService = createStub();
-
-                variables.mockConfigService.$( "normalizeWhitespace" , false );
         
                 // Inject mock
                 variables.wireComponent.set_ConfigService(variables.mockConfigService);
@@ -76,60 +74,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     result.count = 10;
                     var original = variables.wireComponent.getData();
                     expect( original.count ).toBe( 5 );
-                });
-
-                it( "normalizes whitespace in strings if configService.normalizeWhitespace is true", function() {
-                    var dataProperties = { "description": "  This is a                 test.  " };
-                    variables.wireComponent.setData( dataProperties );
-                    expect( dataProperties.description.len() ).toBe( 35 );
-                    variables.mockConfigService.$( "normalizeWhitespace", true );
-                    variables.wireComponent.set_ConfigService(variables.mockConfigService);
-                    var result = variables.wireComponent._getDataProperties();
-                    //expect( result.description ).toBe( "This is a test." );
-                    expect( result.description.len() ).toBe( 17 );
-                    variables.mockConfigService.$( "normalizeWhitespace", false );
-                });
-
-                it( "doesn't normalize whitespace if configService.normalizeWhitespace is false", function() {
-                    var dataProperties = { "description": "  This is a                 test.  " };
-                    variables.wireComponent.setData( dataProperties );
-                    expect( dataProperties.description.len() ).toBe( 35 );
-                    variables.mockConfigService.$( "normalizeWhitespace", false );
-                    variables.wireComponent.set_ConfigService(variables.mockConfigService);
-                    var result = variables.wireComponent._getDataProperties();
-                    expect( result.description.len() ).toBe( 35 );
-                });
-
-                it( "still normalizes whitespace if normalizeWhitespace if wire has a 'normalizeWhitespace' in variables scope set to true", function() {
-                    var dataProperties = { "description": "  This is a                 test.  " };
-                    variables.wireComponent.setData( dataProperties );
-                    expect( dataProperties.description.len() ).toBe( 35 );
-                    variables.wireComponent.$property( propertyName="normalizeWhitespace", mock=true );
-                    var result = variables.wireComponent._getDataProperties();
-                    //expect( result.description ).toBe( "This is a test." );
-                    expect( result.description.len() ).toBe( 17 );
-                });
-
-                it( "does not normalize whitespace if normalizeWhitespace is false in wire variables scope", function() {
-                    var dataProperties = { "description": "  This is a                 test.  " };
-                    variables.wireComponent.setData( dataProperties );
-                    expect( dataProperties.description.len() ).toBe( 35 );
-                    variables.wireComponent.$property( propertyName="normalizeWhitespace", mock=false );
-                    var result = variables.wireComponent._getDataProperties();
-                    expect( result.description.len() ).toBe( 35 );
-                });
-
-                it( "normalizeWhitespace can handle null values", function() {
-                    var dataProperties = { 
-                        "description": javaCast( "null", "" ),
-                        "products": [ "Product1", "Product2", { value: javaCast( "null", "" ) } ]
-                    };
-                    variables.wireComponent.setData( dataProperties );
-                    expect( isNull( dataProperties.description ) ).toBeTrue();
-                    variables.mockConfigService.$( "normalizeWhitespace", true );
-                    variables.wireComponent.set_ConfigService(variables.mockConfigService);
-                    var result = variables.wireComponent._getDataProperties();
-                    expect( isNull( result.description ) ).toBeTrue();
                 });
 
             });
