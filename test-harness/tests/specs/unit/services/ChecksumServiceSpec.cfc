@@ -4,7 +4,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
         // Mock module settings
         variables.mockModuleSettings = {
             "secret": "test-secret-key",
-            "moduleRootPath": "/path/to/module"
+            "moduleRootPath": "/path/to/module",
+            "checksumValidation": true
         };
 
                 // Create the service instance
@@ -193,6 +194,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             describe("validateChecksum()", function() {
+                
+                it("should always return void if 'checksumValidation' config setting is false", function() {
+                    variables.mockModuleSettings.checksumValidation = false;
+
+                    var snapshot = {
+                        "name": "test",
+                        "value": 123
+                    };
+                    
+                    var jsonString = checksumService.calculateChecksum(snapshot);
+
+                    // Make it a bad checksum
+                    var jsonStruct = deserializeJSON(jsonString);
+
+                    jsonStruct.checksum = "bad-checksum";
+                    jsonString = serializeJson(jsonStruct);
+                    
+                    expect(function() {
+                        checksumService.validateChecksum(jsonString);
+                    }).notToThrow();
+                    
+                    // Restore original setting
+                    variables.mockModuleSettings.checksumValidation = true;
+                });
                 
                 it("should validate correct checksum", function() {
                     // Start with a clean snapshot

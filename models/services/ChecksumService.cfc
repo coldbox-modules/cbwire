@@ -40,6 +40,10 @@ component accessors="true" {
      * @return void
      */
     function validateChecksum( snapshot ) {
+        if ( moduleSettings.keyExists( "checksumValidation" ) && !moduleSettings.checksumValidation ) {
+            return; // Skip validation if checksum validation is disabled
+        }
+
         if( !isJson( snapshot ) ) {
             throw( type="CBWIRECorruptPayloadException", message="Payload is not valid JSON." );
         }
