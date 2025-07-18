@@ -11,9 +11,11 @@ component accessors="true" singleton {
      * @return Component
      */
     function build( required componentPath, required componentName, module = "" ){
-        local.singleFilePath = getSingleFilePath( arguments.componentPath );
-        local.files = generateFiles( arguments.componentName, local.singleFilePath );
-        return loadComponent( arguments.componentName, listLast( local.files.tempComponentName, "." ), arguments.module );
+        lock name="buildComponent-#hash(arguments.componentPath)#" timeout="5" {
+            local.singleFilePath = getSingleFilePath( arguments.componentPath );
+            local.files = generateFiles( arguments.componentName, local.singleFilePath );
+            return loadComponent( arguments.componentName, listLast( local.files.tempComponentName, "." ), arguments.module );
+        }
     }
 
     /**
@@ -96,7 +98,7 @@ component accessors="true" singleton {
             local.tmpTemplatePath = local.tmpDirectory & "/#arguments.componentName#.cfm";
         }
 
-        if ( false && fileExists( local.tmpClassPath ) && fileExists( local.tmpTemplatePath ) ) {
+        if ( fileExists( local.tmpClassPath ) && fileExists( local.tmpTemplatePath ) ) {
             // Compare the timestamp of the source file and the temp file
             // If the source file is less than the temp file, then we don't need to re-generate
             local.sourceFile = getFileInfo( arguments.sourcePath );
