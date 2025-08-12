@@ -27,7 +27,7 @@ jobs:
         cfengine: [ "lucee@5", "adobe@2021", "adobe@2023" ]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.1
@@ -166,7 +166,7 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Ortus-Solutions/commandbox-action@v1
         env:
           box_config_endpoints_forgebox_APIToken: ${{ secrets.FORGEBOX_TOKEN }}
