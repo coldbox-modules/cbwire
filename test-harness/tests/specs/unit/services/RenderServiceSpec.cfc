@@ -141,10 +141,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result ).toBe( "DIV" );
                 });
 
-                xit( "should return empty string for no valid tag", function() {
+                it( "should throw CBWIREException when no HTML elements are present", function() {
                     var html = "no tags here";
-                    var result = renderService.getOuterElement( html );
-                    expect( result ).toBe( "" );
+                    expect( function() {
+                        renderService.getOuterElement( html );
+                    }).toThrow( "CBWIREException" );
+                    var html = "<div>tags here</div>";
+                    expect( function() {
+                        renderService.getOuterElement( html );
+                    }).notToThrow( "CBWIREException" );
+
+                });
+
+                it( "should throw CBWIREException with descriptive message for empty HTML", function() {
+                    var html = "";
+                    expect( function() {
+                        renderService.getOuterElement( html );
+                    }).toThrow( "CBWIREException" );
+                });
+
+                it( "should throw CBWIREException for HTML with only text content", function() {
+                    var html = "Just some text content without any tags";
+                    expect( function() {
+                        renderService.getOuterElement( html );
+                    }).toThrow( "CBWIREException" );
                 });
 
                 it( "should return the first tag if multiple are present", function() {

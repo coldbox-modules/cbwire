@@ -77,7 +77,14 @@ component accessors="true" singleton {
      * @return string
      */
     function getOuterElement( html ) {
-        local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
+        local.outerElements = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html );
+        if( local.outerElements.len() == 0 ) {
+            throw(
+                type = "CBWIREException",
+                message = "The HTML content of the wire component must contain at least one external element. Wire component contains no HTML elements. It is empty."
+            );
+        }
+        local.outerElement = local.outerElements.first();
         local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
         return local.outerElement.trim();
     }
