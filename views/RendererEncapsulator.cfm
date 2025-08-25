@@ -132,9 +132,14 @@
         ".bxm" : ".cfm";
 
     variables.cachePath = getCurrentTemplatePath().replaceNoCase( "RendererEncapsulator.cfm", "" ) & variables.relativeCachePath;
+    variables.cacheDirectory = getDirectoryFromPath(variables.cachePath);
 
-    if (!directoryExists(getDirectoryFromPath(variables.cachePath))) {
-        directoryCreate(getDirectoryFromPath(variables.cachePath));
+    if (!directoryExists(variables.cacheDirectory)) {
+        lock name="cbwire_tmp_directory_creation" type="exclusive" timeout="30" {
+            if (!directoryExists(variables.cacheDirectory)) {
+                directoryCreate(variables.cacheDirectory);
+            }
+        }
     }
 
     /*
