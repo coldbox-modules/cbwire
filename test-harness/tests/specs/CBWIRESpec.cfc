@@ -192,6 +192,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Implicitly rendered</p>" );
             } );
 
+            it("should not auto set passed in params if onMount is defined", function() {
+                var result = CBWIREController.wire( name="test.should_not_auto_set_passed_in_params_if_onMount_is_defined", params={ name="Jane Doe" } );
+                expect( result ).toInclude( "Hello John Doe" );
+            } );
+
             it( "should support passing params into a onRender method", function() {
                 var result = CBWIREController.wire( "test.should_support_passing_params_into_a_onRender_method" );
                 expect( result ).toInclude( "<p>Passed in: 5</p>" );

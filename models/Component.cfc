@@ -134,12 +134,6 @@ component output="true" accessors="true" {
     */
 
     /**
-     * Fires when the component is mounted.
-     * Override this method in your component to handle onMount logic.
-     */
-    function onMount() {}
-
-    /**
      * Returns the CBWIRE Controller
      *
      * @return CBWIREController
@@ -649,23 +643,26 @@ component output="true" accessors="true" {
         if ( arguments.lazy ) return this; // Skip onMount here for lazy loaded components
 
         // Loop over our params and set them as data properties
-        arguments.params.each( function( key, value ) {
-            if ( variables.data.keyExists( key ) ) {
-                variables.data[ key ] = value;
+        if ( !structKeyExists( this, "onMount" ) ) {
+            arguments.params.each( function( key, value ) {
+                if ( variables.data.keyExists( key ) ) {
+                    variables.data[ key ] = value;
+                }
+            } );
+        } else {
+            try {
+                // Fire onMount if it exists
+                onMount(
+                    event=variables._event,
+                    rc=variables._event.getCollection(),
+                    prc=variables._event.getPrivateCollection(),
+                    params=arguments.params
+                );
+            } catch ( any e ) {
+                throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
             }
-        } );
-
-        try {
-            // Fire onMount if it exists
-            onMount(
-                event=variables._event,
-                rc=variables._event.getCollection(),
-                prc=variables._event.getPrivateCollection(),
-                params=arguments.params
-            );
-        } catch ( any e ) {
-            throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
         }
+
 
         return this;
     }
