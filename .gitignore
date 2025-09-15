@@ -23,5 +23,4 @@ node_modules/**
 
 livewire/**
 
-models/tmp/*.cfc
-models/tmp/*.cfm
+models/tmp/**
