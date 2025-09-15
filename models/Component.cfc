@@ -984,13 +984,16 @@ component output="true" accessors="true" {
             }
             return acc;
         }, [:] );
+
         // Call our onMount method with the params
-        onMount(
-            event=variables._event,
-            rc=variables._event.getCollection(),
-            prc=variables._event.getPrivateCollection(),
-            params=local.mountParams
-        );
+        if ( structKeyExists( this, "onMount" ) ) {
+            onMount(
+                event=variables._event,
+                rc=variables._event.getCollection(),
+                prc=variables._event.getPrivateCollection(),
+                params=local.mountParams
+            );
+        }
     }
 
     /**

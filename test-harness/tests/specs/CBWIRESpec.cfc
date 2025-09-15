@@ -214,6 +214,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>UUID2: #firstUUID#</p>" );
             } );
 
+            it( "should correctly mount with _lazyMount() using a valid snapshot", function() {
+                // Create a mock snapshot
+                var mountParams = { "foo": "bar", "baz": 123 };
+                var snapshotStruct = {
+                    "data": {
+                        "forMount": [ mountParams ]
+                    }
+                };
+                var encodedSnapshot = toBase64( serializeJson( snapshotStruct ) );
+                // Setup test component and event
+                testComponent._withEvent( getRequestContext() );
+                // Spy on onMount to capture params
+                var calledParams = {};
+
+                // Call _lazyMount
+                testComponent._lazyMount( encodedSnapshot );
+                // If we got here that means there's no error NOT calling onMount
+                testComponent.$( "onMount" );
+
+                testComponent._lazyMount( encodedSnapshot );
+
+            } );
+
             it( "should accept false flag for computed properties to prevent caching", function() {
                 var result = CBWIREController.wire( "test.should_accept_false_flag_for_computed_properties_to_prevent_caching" );
                 var firstUUID = reFindNoCase( "UUID: ([A-Za-z0-9-]+)", result, 1, true ).match[ 2 ];
