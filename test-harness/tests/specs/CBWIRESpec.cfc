@@ -1419,6 +1419,77 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
         });
 
+        describe("CBWIREController getComponentDSL", function() {
+
+            beforeEach(function(currentSpec) {
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                prepareMock(cbwireController);
+            });
+
+            it("should return component name with wires prefix when name doesn't contain wires", function() {
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should use wiresLocation setting when provided and name doesn't contain wires", function() {
+                var settings = getInstance("coldbox:modulesettings:cbwire");
+                settings.wiresLocation = "customWires";
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("customWires.TestComponent");
+                settings.wiresLocation = "";
+            });
+
+            it("should fallback to wires prefix when wiresLocation is not set", function() {
+                var settings = getInstance("coldbox:modulesettings:cbwire");
+                if (settings.keyExists("wiresLocation")) {
+                    structDelete(settings, "wiresLocation");
+                }
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should return component name as-is when it already contains wires", function() {
+                var result = cbwireController.getComponentDSL("wires.TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should handle module reference with @ symbol", function() {
+                //cbwireController.$("getModuleComponentPath", "modules.testModule.wires.TestComponent");
+                var result = cbwireController.getComponentDSL("TestComponent@testingmodule");
+                expect(result).toBe("modules_app.testingmodule.wires.TestComponent");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has invalid format", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("TestComponent@module@extra");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has only one part", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("TestComponent@");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has just @ symbol", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("@");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should handle nested component paths with wires prefix", function() {
+                var result = cbwireController.getComponentDSL("nested.TestComponent");
+                expect(result).toBe("wires.nested.TestComponent");
+            });
+
+            it("should handle component with existing wires in middle of path", function() {
+                var result = cbwireController.getComponentDSL("some.wires.path.TestComponent");
+                expect(result).toBe("some.wires.path.TestComponent");
+            });
+
+        });
+
         describe("CBWIREController", function() {
 
             beforeEach(function(currentSpec) {
