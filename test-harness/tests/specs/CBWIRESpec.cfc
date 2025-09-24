@@ -82,6 +82,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( CBWIREController.getUpdateEndpoint() ).toBe( "/index.cfm/cbwire/update" );
             } );
 
+            it( "should have default uploadEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                // Ensure no custom updateEndpoint is set
+                settings.delete( "updateEndpoint" );
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/cbwire/upload" );
+            } );
+
+            it( "should derive uploadEndpoint from updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.cfm/cbwire/update";
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/index.cfm/cbwire/upload" );
+            } );
+
+            it( "should derive uploadEndpoint from custom updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.bxm/cbwire/update";
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/index.bxm/cbwire/upload" );
+            } );
+
             it( "should have component request assets added in head", function() {
                 var event = this.get( "tests.requestassets" );
                 var html = event.getRenderedContent();
@@ -1262,6 +1284,42 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.dispatches[1].params.name ).toBe( "testFile" );
                 expect( response.components[1].effects.dispatches[1].params.url ).toInclude( "/cbwire/upload" );
                 expect( reFindNoCase( "/cbwire/upload\?expires=[0-9]+&signature=[A-Za-z0-9]+$", response.components[1].effects.dispatches[1].params.url ) ).toBeGT( 0 );
+            } );
+
+            it( "should _startUpload() and honor custom updateEndpoint in upload URL", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                // Set custom updateEndpoint
+                settings.updateEndpoint = "/index.bxm/cbwire/update";
+                
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "_startUpload",
+                            "params": [
+                                "testFile",
+                                [ "name": "image.png", "size": 118672, "type": "image/png" ],
+                                false
+                            ]
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.dispatches[1].name ).toBe( "upload:generatedSignedUrl" );
+                expect( response.components[1].effects.dispatches[1].self ).toBeTrue();
+                expect( response.components[1].effects.dispatches[1].params.name ).toBe( "testFile" );
+                expect( response.components[1].effects.dispatches[1].params.url ).toInclude( "/index.bxm/cbwire/upload" );
+                expect( reFindNoCase( "/index\.bxm/cbwire/upload\?expires=[0-9]+&signature=[A-Za-z0-9]+$", response.components[1].effects.dispatches[1].params.url ) ).toBeGT( 0 );
+                
+                // Clean up - restore default
+                settings.delete( "updateEndpoint" );
             } );
 
             xit( "should _finishUpload()", function() {

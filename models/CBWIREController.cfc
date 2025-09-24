@@ -451,8 +451,8 @@ component singleton {
         local.expires = dateDiff( "s", createDate( 1970, 1, 1 ), local.expires ) + 3600; // Adding 3600 seconds (1 hour)
         // Generate a secure signature. You'll need to define the `generateSignature` method
         local.signature = generateSignature( local.baseURL, local.expires );
-        // Construct the upload URL with the query parameters
-        return local.baseURL & "/cbwire/upload?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
+        // Construct the upload URL with the query parameters using the configured upload endpoint
+        return local.baseURL & getUploadEndpoint() & "?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
     }
 
     /**
@@ -529,5 +529,16 @@ component singleton {
     function getUpdateEndpoint() {
         var settings = variables.moduleSettings;        
         return settings.keyExists( "updateEndpoint") && settings.updateEndpoint.len() ? settings.updateEndpoint : "/cbwire/update";
+    }
+
+    /**
+     * Returns the URI endpoint for uploading files, derived from the updateEndpoint.
+     * 
+     * @return string
+     */
+    function getUploadEndpoint() {
+        var updateEndpoint = getUpdateEndpoint();
+        // Replace "update" with "upload" in the endpoint
+        return updateEndpoint.replace("/update", "/upload");
     }
 }
