@@ -531,13 +531,15 @@ component accessors="true" singleton {
     function generateSignedUploadURL() {
         // Get our base URL
         local.baseURL = getBaseURL();
+        // Get the configured upload endpoint
+        local.uploadEndpoint = getUploadEndpoint();
         // Set the expiration time to 1 hour from now and convert it to a Unix timestamp
         local.expires = dateConvert( "local2Utc", now() );
         local.expires = dateDiff( "s", createDate( 1970, 1, 1 ), local.expires ) + 3600; // Adding 3600 seconds (1 hour)
         // Generate a secure signature. You'll need to define the `generateSignature` method
         local.signature = generateSignature( local.baseURL, local.expires );
         // Construct the upload URL with the query parameters
-        return local.baseURL & "/cbwire/upload?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
+        return local.baseURL & local.uploadEndpoint & "?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
     }
 
     /**
@@ -614,5 +616,16 @@ component accessors="true" singleton {
     function getUpdateEndpoint() {
         var settings = variables.moduleSettings;
         return settings.keyExists( "updateEndpoint") && settings.updateEndpoint.len() ? settings.updateEndpoint : "/cbwire/update";
+    }
+
+    /**
+     * Returns the URI endpoint for uploading files.
+     * Derives the upload endpoint from the update endpoint configuration.
+     *
+     * @return string
+     */
+    function getUploadEndpoint() {
+        var updateEndpoint = getUpdateEndpoint();
+        return updateEndpoint.replaceNoCase( "/update", "/upload", "one" );
     }
 }

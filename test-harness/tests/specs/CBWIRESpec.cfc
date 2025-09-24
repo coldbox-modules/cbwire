@@ -82,6 +82,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( CBWIREController.getUpdateEndpoint() ).toBe( "/index.cfm/cbwire/update" );
             } );
 
+            it( "should have default uploadEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                // Clear any previous setting
+                if ( settings.keyExists( "updateEndpoint" ) ) {
+                    structDelete( settings, "updateEndpoint" );
+                }
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/cbwire/upload" );
+            } );
+
+            it( "should derive uploadEndpoint from updateEndpoint setting", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.bxm/cbwire/update";
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/index.bxm/cbwire/upload" );
+            } );
+
+            it( "should generate signed upload URL with custom updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.bxm/cbwire/update";
+                
+                var uploadURL = CBWIREController.generateSignedUploadURL();
+                
+                // The URL should contain the custom path
+                expect( uploadURL ).toInclude( "/index.bxm/cbwire/upload" );
+                // It should also contain expires and signature parameters
+                expect( uploadURL ).toInclude( "expires=" );
+                expect( uploadURL ).toInclude( "signature=" );
+            } );
+
             it( "should have component request assets added in head", function() {
                 var event = this.get( "tests.requestassets" );
                 var html = event.getRenderedContent();
