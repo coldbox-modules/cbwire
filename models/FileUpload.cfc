@@ -126,7 +126,7 @@ component {
      * Returns the path to the temp directory (mockable in tests)
      */
     function getUploadTempDirectory(){
-        return getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp" );
+        return getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
     }
 
     /**
