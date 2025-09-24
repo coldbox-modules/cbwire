@@ -100,13 +100,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
             it( "should return correct upload temp directory path with proper slash separation", function() {
-                var result = loadMockedFileUpload( "test", "text", "plain" );
-                var tempDir = result.getUploadTempDirectory();
+                // Create a fresh FileUpload instance (not mocked) to test getUploadTempDirectory
+                var fileUploadInstance = getInstance( "FileUpload@cbwire" );
+                var tempDir = fileUploadInstance.getUploadTempDirectory();
                 
-                // The path should contain "cbwire/models/tmp" not "cbwiremodels/tmp"
+                // The path should contain "/models/tmp" with proper slash separation
                 expect( tempDir ).toInclude( "/models/tmp" );
+                // Should not have malformed concatenation like "wiremodels"
                 expect( tempDir ).notToInclude( "wiremodels" );
-                
                 // Should end with models/tmp
                 expect( right( tempDir, 10 ) ).toBe( "models/tmp" );
             });
