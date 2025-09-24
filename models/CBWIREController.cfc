@@ -538,7 +538,7 @@ component singleton {
      */
     function getUploadEndpoint() {
         var updateEndpoint = getUpdateEndpoint();
-        // Replace "update" with "upload" in the endpoint
+        // Replace "/update" with "/upload" in the endpoint
         return updateEndpoint.replace("/update", "/upload");
     }
 }

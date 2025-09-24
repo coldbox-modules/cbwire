@@ -104,6 +104,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( CBWIREController.getUploadEndpoint() ).toBe( "/index.bxm/cbwire/upload" );
             } );
 
+            it( "should handle updateEndpoint without /update suffix", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/api/cbwire";
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/api/cbwire" );
+            } );
+
+            it( "should handle complex updateEndpoint paths", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/myapp/index.cfm/api/cbwire/update";
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/myapp/index.cfm/api/cbwire/upload" );
+            } );
+
             it( "should have component request assets added in head", function() {
                 var event = this.get( "tests.requestassets" );
                 var html = event.getRenderedContent();
