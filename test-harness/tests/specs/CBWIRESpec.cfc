@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should use default display bar color", function() {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var html = CBWIREController.getStyles( cache=false );
-                expect( html ).toInclude( "--livewire-progress-bar-color: ##2299dd;" );
+                expect( html ).toInclude( "livewire-progress-bar-color: ##2299dd;" );
             } );
 
             it( "should be able to change the display bar color", function() {
@@ -146,6 +146,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toBeString();
             } );
 
+            it( title="should render a boxlang component with a separate boxlang template", body=function() {
+                var result = CBWIREController.wire( "test.should_render_a_boxlang_component" );
+                expect( result ).toInclude( "<h1>A Boxlang Component</h1>" );
+            }, skip=!isBoxLang() );
+
+            it( title="should render a single-file boxlang component", body=function() {
+                var result = CBWIREController.wire( "test.should_render_a_singlefile_boxlang_component" );
+                expect( result ).toInclude( "<h1>A Single File Boxlang Component</h1>" );
+            }, skip=!isBoxLang() );
+
             it( "should raise error if markers are not found in single-file component", function() {
                 expect( function() {
                     var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
@@ -178,7 +188,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should support rendering wires with x-data and arrow functions", function() {
                 var result = CBWIREController.wire( "test.should_support_rendering_wires_with_xdata_and_arrow_functions" );
-                expect( reFindNoCase( "<div wire:snapshot=""\{(.*)\}"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
+                expect( reFindNoCase( "<div wire:snapshot=""&##x7b;(.*)&##x7d;"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
             } );
 
             it("should be able to call UDF/action from template", function() {
@@ -218,6 +228,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Implicitly rendered</p>" );
             } );
 
+            it("should not auto set passed in params if onMount is defined", function() {
+                var result = CBWIREController.wire( name="test.should_not_auto_set_passed_in_params_if_onMount_is_defined", params={ name="Jane Doe" } );
+                expect( result ).toInclude( "Hello John Doe" );
+            } );
+
             it( "should support passing params into a onRender method", function() {
                 var result = CBWIREController.wire( "test.should_support_passing_params_into_a_onRender_method" );
                 expect( result ).toInclude( "<p>Passed in: 5</p>" );
@@ -233,6 +248,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var firstUUID = reFindNoCase( "UUID: ([A-Za-z0-9-]+)", result, 1, true ).match[ 2 ];
                 expect( result ).toInclude( "<p>UUID: #firstUUID#</p>" );
                 expect( result ).toInclude( "<p>UUID2: #firstUUID#</p>" );
+            } );
+
+            it( "should correctly mount with _lazyMount() using a valid snapshot", function() {
+                // Create a mock snapshot
+                var mountParams = { "foo": "bar", "baz": 123 };
+                var snapshotStruct = {
+                    "data": {
+                        "forMount": [ mountParams ]
+                    }
+                };
+                var encodedSnapshot = toBase64( serializeJson( snapshotStruct ) );
+                // Setup test component and event
+                testComponent._withEvent( getRequestContext() );
+                // Spy on onMount to capture params
+                var calledParams = {};
+
+                // Call _lazyMount
+                testComponent._lazyMount( encodedSnapshot );
+                // If we got here that means there's no error NOT calling onMount
+                testComponent.$( "onMount" );
+
+                testComponent._lazyMount( encodedSnapshot );
+
             } );
 
             it( "should accept false flag for computed properties to prevent caching", function() {
@@ -260,9 +298,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
             xit( "should support deep nesting with correct count of children", function() {
                 var result = CBWIREController.wire( "test.should_support_deep_nesting" );
                 var parent = parseRendering( result, 1 );
-                writeDump( result );
-                writeDump( parent );
-                abort;
                 var child1 = parseRendering( result, 2 );
                 var child2 = parseRendering( result, 3 );
                 expect( parent.snapshot.memo.children.count() ).toBe( 2 );
@@ -272,17 +307,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "shouldn't isolate by default", function() {
                 var result = CBWIREController.wire( "test.shouldnt_isolate_by_default" );
-                expect( result ).toInclude( "&quot;isolate&quot;:false" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;false" );
             } );
 
             it( "should isolate when using isolate=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_isolate_true" );
-                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should isolate when using lazyLoad=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
-                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
@@ -489,7 +524,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should include listeners within wire:effects on initial render", function() {
                 var result = testComponent._render( testComponent.template( "wires.TestComponent" ) );
-                expect( result ).toInclude( "wire:effects=""{&quot;listeners&quot;:[&quot;someEvent&quot;]}""" );
+                expect( result ).toInclude( "wire:effects=""&##x7b;&quot;listeners&quot;&##x3a;&##x5b;&quot;someEvent&quot;&##x5d;&##x7d;""" );
             } );
 
             it( "should support single file components", function() {
@@ -505,6 +540,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( e.message ).toBe( "The listener 'someEvent' references a method 'someMethod' but this method does not exist. Please implement 'someMethod()' on your component." );
                 }
             } );
+
+            it( "should correctly encode snapshot data containing HTML with quotes", function() {
+                local.htmlWithQuotes = '<p>Some text with "quotes" inside & special chars >.</p>';
+                local.componentName = "test.html_with_quotes"; // Use the new component
+
+                var renderedHtml = CBWIREController.wire(
+                    name = local.componentName,
+                    params = { content = local.htmlWithQuotes }
+                );
+
+                expect( renderedHtml ).toInclude( 'Some&##x20;text&##x20;with&##x20;&##x5c;&quot;quotes' );
+            });
 
         });
 
@@ -543,7 +590,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should trim string values if enabled on component", () => {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                settings.trimStringValues = false;
+                settings.trimStringValues = true;
                 var payload = incomingRequest(
                     memo = {
                         "name": "test.should_trim_string_values_if_enabled_on_component",
@@ -1378,7 +1425,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     key="",
                     lazy=true
                 );
-                expect( lazyHtml ).toInclude( "&quot;isolate&quot;:true" );
+                expect( lazyHtml ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should lazy load a component using the original outer element", function() {
@@ -1444,6 +1491,77 @@ component extends="coldbox.system.testing.BaseTestCase" {
             } );
         });
 
+        describe("CBWIREController getComponentDSL", function() {
+
+            beforeEach(function(currentSpec) {
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                prepareMock(cbwireController);
+            });
+
+            it("should return component name with wires prefix when name doesn't contain wires", function() {
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should use wiresLocation setting when provided and name doesn't contain wires", function() {
+                var settings = getInstance("coldbox:modulesettings:cbwire");
+                settings.wiresLocation = "customWires";
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("customWires.TestComponent");
+                settings.wiresLocation = "";
+            });
+
+            it("should fallback to wires prefix when wiresLocation is not set", function() {
+                var settings = getInstance("coldbox:modulesettings:cbwire");
+                if (settings.keyExists("wiresLocation")) {
+                    structDelete(settings, "wiresLocation");
+                }
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should return component name as-is when it already contains wires", function() {
+                var result = cbwireController.getComponentDSL("wires.TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should handle module reference with @ symbol", function() {
+                //cbwireController.$("getModuleComponentPath", "modules.testModule.wires.TestComponent");
+                var result = cbwireController.getComponentDSL("TestComponent@testingmodule");
+                expect(result).toBe("modules_app.testingmodule.wires.TestComponent");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has invalid format", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("TestComponent@module@extra");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has only one part", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("TestComponent@");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has just @ symbol", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("@");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should handle nested component paths with wires prefix", function() {
+                var result = cbwireController.getComponentDSL("nested.TestComponent");
+                expect(result).toBe("wires.nested.TestComponent");
+            });
+
+            it("should handle component with existing wires in middle of path", function() {
+                var result = cbwireController.getComponentDSL("some.wires.path.TestComponent");
+                expect(result).toBe("some.wires.path.TestComponent");
+            });
+
+        });
+
         describe("CBWIREController", function() {
 
             beforeEach(function(currentSpec) {
@@ -1452,6 +1570,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 cbwireController = getInstance("CBWIREController@cbwire");
                 prepareMock( cbwireController );
+
             });
 
             it( "should return an object", function() {
@@ -1529,15 +1648,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} ).toThrow( type="ModuleNotFound" );
 			} );
 
-			it( "can render component from nested module using default wires location", function() {
+			it( "can render component from module using default wires location", function() {
 				var result = cbwireController.wire( "NestedModuleDefaultComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component using default wires location" );
+			} );
+
+			it( "can render component from module using nested folder", function() {
+				var result = cbwireController.wire( "wires.nestedComponent.NestedFolderComponent@testingmodule" );
+				expect( result ).toContain( "Nested folder component" );
 			} );
 
             it( "can load components from an external modules folder", function() {
                 var result = cbwireController.wire( "should_load_external_modules@ExternalModule" );
                 expect( result ).toInclude( "External Module Loaded" );
             } );
+
         });
 
         describe( "Preprocessors", function() {
@@ -1684,7 +1809,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "calls": arguments.calls,
                         "snapshot": {
                             "data": arguments.data,
-                            "memo": arguments.memo
+                            "memo": arguments.memo,
+                            "checksum": ""
                         },
                         "updates": arguments.updates
                     }
@@ -1693,7 +1819,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         };
 
         response.content.components = response.content.components.map( function( _comp ) {
-            _comp.snapshot = serializeJson( _comp.snapshot );
+            _comp.snapshot = getInstance( "ChecksumService@cbwire" ).calculateChecksum( _comp.snapshot );
             return _comp;
         } );
 
@@ -1721,29 +1847,96 @@ component extends="coldbox.system.testing.BaseTestCase" {
     }
 
     /**
-     * Parse the snapshot from a rendered HTML component
+     * Parse the snapshot from a rendered HTML component by decoding
+     * ALL HTML entities before attempting JSON deserialization.
      *
-     * @return struct
+     * @html string | The rendered HTML containing the component.
+     * @index numeric | The index of the component if multiple match (usually 1).
+     * 
+     * @return struct The deserialized snapshot struct.
+     * 
+     * @throws Error if parsing or deserialization fails.
      */
-    private function parseSnapshot( html, index = 1 ) {
-        local.match = reMatchNoCase( "wire:snapshot=""([^""]+)", html )[ index ];
-        local.regexMatches = reFindNoCase( "wire:snapshot=""([^""]+)", local.match, 1, true );
-        local.snapshot = local.regexMatches.match[ 2 ];
-        local.snapshot = replaceNoCase( local.snapshot, "&quot;", """", "all" );
-        return deserializeJSON( local.snapshot );
+    private function parseSnapshot( required string html, numeric index = 1 ) {
+        // Use single quotes for regex literals to avoid excessive escaping
+        local.match = reMatchNoCase( 'wire:snapshot="([^"]+)"', arguments.html );
+        if ( !arrayLen( local.match ) >= arguments.index ) {
+            throw( message="Snapshot attribute not found at index #arguments.index# in provided HTML.", detail=arguments.html );
+        }
+        local.snapshotAttributeMatch = local.match[ arguments.index ];
+
+        // Extract the encoded value
+        local.regexMatches = reFindNoCase( 'wire:snapshot="([^"]+)"', local.snapshotAttributeMatch, 1, true );
+        if ( !arrayLen( local.regexMatches.match ) == 2 ) {
+             throw( message="Could not extract snapshot value using regex from attribute match.", detail=local.snapshotAttributeMatch );
+        }
+        local.snapshotEncoded = local.regexMatches.match[ 2 ];
+
+        // Decode ALL HTML entities (handles ", ", ", <, &, etc.)
+        local.snapshotDecoded = canonicalize( local.snapshotEncoded, true, true ); // Key change!
+
+        try {
+             return deserializeJSON( local.snapshotDecoded );
+        } catch ( any e ) {
+            // Provide more context on failure for easier debugging
+            var errorMsg = "Failed to deserialize snapshot JSON after decoding HTML entities.";
+            errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.snapshotDecoded)#]."; // Encode for safe display
+            errorMsg &= " Original Error: #e.message# #e.detail#";
+            throw( message=errorMsg, detail=local.snapshotDecoded );
+        }
     }
 
     /**
-     * Parse the effects from a rendered HTML component
+     * Parse the effects from a rendered HTML component by decoding
+     * ALL HTML entities before attempting JSON deserialization.
      *
-     * @return struct
+     * @html The rendered HTML containing the component.
+     * @index The index of the component if multiple match (usually 1).
+     * 
+     * @return any The deserialized effects (usually struct or array).
+     * 
+     * @throws Error if parsing or deserialization fails.
      */
-    private function parseEffects( html, index = 1 ) {
-        local.match = reMatchNoCase( "wire:effects=""([^""]+)", html )[ index ];
-        local.regexMatches = reFindNoCase( "wire:effects=""([^""]+)", local.match, 1, true );
-        local.effects = local.regexMatches.match[ 2 ];
-        local.effects = replaceNoCase( local.effects, "&quot;", """", "all" );
-        return deserializeJSON( local.effects );
+    private function parseEffects( required string html, numeric index = 1 ) {
+        // Use single quotes for regex literals
+        local.match = reMatchNoCase( 'wire:effects="([^"]+)"', arguments.html );
+         if ( !arrayLen( local.match ) >= arguments.index ) {
+            throw( message="Effects attribute not found at index #arguments.index# in provided HTML.", detail=arguments.html );
+        }
+        local.effectsAttributeMatch = local.match[ arguments.index ];
+
+        // Extract the encoded value
+        local.regexMatches = reFindNoCase( 'wire:effects="([^"]+)"', local.effectsAttributeMatch, 1, true );
+        if ( !arrayLen( local.regexMatches.match ) == 2 ) {
+             throw( message="Could not extract effects value using regex from attribute match.", detail=local.effectsAttributeMatch );
+        }
+        local.effectsEncoded = local.regexMatches.match[ 2 ];
+
+        // Decode ALL HTML entities
+        local.effectsDecoded = canonicalize( local.effectsEncoded, true, true ); // Key change!
+
+         try {
+            if ( isJSON( local.effectsDecoded ) ) {
+                return deserializeJSON( local.effectsDecoded );
+            } else {
+                return {};
+            }
+        } catch ( any e ) {
+             // Provide more context on failure
+            var errorMsg = "Failed to deserialize effects JSON after decoding HTML entities.";
+            errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.effectsDecoded)#]."; // Encode for safe display
+            errorMsg &= " Original Error: #e.message# #e.detail#";
+            throw( message=errorMsg, detail=local.effectsDecoded );
+        }
+    }
+
+    /** 
+     * Check if the current environment is a BoxLang environment
+     * 
+     * @return boolean
+     */
+    private function isBoxLang() {
+        return server.keyExists( "boxlang" );
     }
 
 }
