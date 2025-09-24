@@ -99,6 +99,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result.getBase64Src() ).toInclude( "data:" );
             });
 
+            it( "should return correct upload temp directory path with proper slash separation", function() {
+                // Create a fresh FileUpload instance (not mocked) to test getUploadTempDirectory
+                var fileUploadInstance = getInstance( "FileUpload@cbwire" );
+                var tempDir = fileUploadInstance.getUploadTempDirectory();
+                
+                // The path should contain "/models/tmp" with proper slash separation
+                expect( tempDir ).toInclude( "/models/tmp" );
+                // Should not have malformed concatenation like "wiremodels"
+                expect( tempDir ).notToInclude( "wiremodels" );
+                // Should end with models/tmp
+                expect( right( tempDir, 10 ) ).toBe( "models/tmp" );
+            });
+
         });
     }
 
