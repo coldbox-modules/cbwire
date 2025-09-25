@@ -587,6 +587,15 @@ component output="true" accessors="true" {
     }
 
     /**
+     * Returns the lazy load preference of the component.
+     *
+     * @return boolean
+     */
+    function _getLazyLoad() {
+        return variables._lazyLoad;
+    }
+
+    /**
      * Passes a reference to the parent of a child component.
      *
      * @return Component
@@ -1275,8 +1284,9 @@ component output="true" accessors="true" {
      * @return void
      */
     function _prepareLazyLoading() {
-        // If the component has a lazyLoad method, call it
-        variables._lazyLoad = variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ?
+        // Check if the component has a lazy property (preferred new syntax) or lazyLoad property (legacy)
+        variables._lazyLoad = ( variables.keyExists( "lazy" ) && isBoolean( variables.lazy ) && variables.lazy ) ||
+                             ( variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ) ?
             true : false;
 
         if ( variables._lazyLoad ) {

@@ -38,15 +38,22 @@ component accessors="true" singleton {
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required name, params = {}, key = "", lazy = false, lazyIsolated = true ) {
+    function wire(required name, params = {}, key = "", lazy, lazyIsolated = true ) {
         local.instance = createInstance(argumentCollection=arguments)
                 ._withPath( arguments.name )
                 ._withEvent( getEvent() )
-                ._withParams( arguments.params, arguments.lazy )
+                ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
                 ._withKey( arguments.key );
 
+        // Determine if component should be lazy loaded
+        // If lazy parameter is explicitly provided, use that value
+        // Otherwise, use the component's lazy preference (default false if not set)
+        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+            local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
+            arguments.lazy;  // Use explicit parameter value
+
         // If the component is lazy loaded, we need to generate an x-intersect snapshot of the component
-        return arguments.lazy ?
+        return local.shouldLazyLoad ?
             local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params ) :
             local.instance._render();
     }

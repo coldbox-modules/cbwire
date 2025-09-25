@@ -1448,6 +1448,36 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 1 ] ).toBe( "div" );
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
             } );
+
+            it( "should always lazy load when component has lazy = true", function() {
+                var lazyHtml = CBWIREController.wire( "TestAlwaysLazyComponent" );
+                // Component should be lazy loaded even without explicit lazy=true parameter
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("wire:snapshot=");
+                expect(lazyHtml).toInclude("Always Lazy Placeholder");
+            } );
+
+            it( "should not render component content when component has lazy = true", function() {
+                var lazyHtml = CBWIREController.wire( "TestAlwaysLazyComponent" );
+                // The actual component content should not be included
+                expect(lazyHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should allow overriding component lazy = true with lazy = false", function() {
+                var regularHtml = CBWIREController.wire( name="TestAlwaysLazyComponent", lazy=false );
+                // When explicitly set to lazy=false, should render normally
+                expect(regularHtml).notToInclude("x-intersect=");
+                expect(regularHtml).toInclude("This component has lazy = true");
+                expect(regularHtml).toInclude("Always Lazy Component");
+            } );
+
+            it( "should respect component lazy = true even when lazy = true is explicitly passed", function() {
+                var lazyHtml = CBWIREController.wire( name="TestAlwaysLazyComponent", lazy=true );
+                // Should still be lazy loaded
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("Always Lazy Placeholder");
+                expect(lazyHtml).notToInclude("This component has lazy = true");
+            } );
         });
 
         describe("CBWIREController getComponentDSL", function() {
