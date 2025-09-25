@@ -1478,6 +1478,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect(lazyHtml).toInclude("Always Lazy Placeholder");
                 expect(lazyHtml).notToInclude("This component has lazy = true");
             } );
+
+            it( "should lazy load child component when child has lazy = true", function() {
+                var parentHtml = CBWIREController.wire( "TestParentWithLazyChild" );
+                // Parent should render normally but child should be lazy loaded
+                expect(parentHtml).toInclude("Parent Component");
+                expect(parentHtml).toInclude("x-intersect=");
+                expect(parentHtml).toInclude("Always Lazy Placeholder");
+                expect(parentHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should override child component lazy = true with explicit lazy = false", function() {
+                // Create a parent that overrides child lazy setting
+                var parentHtml = CBWIREController.wire( "TestParentWithOverride" );
+                expect(parentHtml).toInclude("Parent Component");
+                expect(parentHtml).notToInclude("x-intersect=");
+                expect(parentHtml).toInclude("This component has lazy = true");
+            } );
         });
 
         describe("CBWIREController getComponentDSL", function() {

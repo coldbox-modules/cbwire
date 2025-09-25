@@ -307,7 +307,7 @@ component output="true" accessors="true" {
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required string name, struct params = {}, string key = "", lazy = false, lazyIsolated = true ) {
+    function wire(required string name, struct params = {}, string key = "", lazy, lazyIsolated = true ) {
         // Generate a key if one is not provided
         if ( !arguments.key.len() ) {
             arguments.key = _generateWireKey();
@@ -341,12 +341,19 @@ component output="true" accessors="true" {
             ._withPath( arguments.name )
             ._withParent( this )
             ._withEvent( variables._event )
-            ._withParams( arguments.params, arguments.lazy )
+            ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
             ._withKey( arguments.key )
-            ._withLazy( arguments.lazy );
+            ._withLazy( isNull( arguments.lazy ) ? false : arguments.lazy );
+
+        // Determine if component should be lazy loaded
+        // If lazy parameter is explicitly provided, use that value
+        // Otherwise, use the component's lazy preference
+        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+            local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
+            arguments.lazy;  // Use explicit parameter value
 
         // Check if lazy loading is enabled
-        if ( arguments.lazy ) {
+        if ( local.shouldLazyLoad ) {
             local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
             // Based on the rendering, determine our outer component tag
             local.componentTag = variables._renderService.getComponentTag( local.lazyRendering );
