@@ -1291,9 +1291,8 @@ component output="true" accessors="true" {
      * @return void
      */
     function _prepareLazyLoading() {
-        // Check if the component has a lazy property (preferred new syntax) or lazyLoad property (legacy)
-        variables._lazyLoad = ( variables.keyExists( "lazy" ) && isBoolean( variables.lazy ) && variables.lazy ) ||
-                             ( variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ) ?
+        // Check if the component has a lazy property
+        variables._lazyLoad = variables.keyExists( "lazy" ) && isBoolean( variables.lazy ) && variables.lazy ?
             true : false;
 
         if ( variables._lazyLoad ) {

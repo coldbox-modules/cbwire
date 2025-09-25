@@ -310,7 +310,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
-            it( "should isolate when using lazyLoad=true", function() {
+            it( "should isolate when using lazy=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
                 expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
