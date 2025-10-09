@@ -929,17 +929,17 @@ component output="true" accessors="true" {
      *
      * @prop string | The property for the file input.
      * @errors any | The errors that occurred during upload.
-     * @self boolean | Whether to dispatch to self.
+     * @multiple boolean | Whether multiple files are being uploaded.
      *
      * @return void
      */
-    function _uploadErrored( prop, errors, self ) {
+    function _uploadErrored( prop, errors, multiple ) {
         // Check if the component has an onUploadError method and invoke it
         if ( structKeyExists( this, "onUploadError" ) ) {
             invoke( this, "onUploadError", { 
                 name: arguments.prop,
                 errors: arguments.errors,
-                multiple: arguments.self
+                multiple: arguments.multiple
             } );
         }
     }
