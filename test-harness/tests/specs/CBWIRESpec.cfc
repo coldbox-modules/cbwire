@@ -1069,7 +1069,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     },
                     data = {
                         "uploadErrored": false,
-                        "erroredPropertyName": ""
+                        "erroredPropertyName": "",
+                        "errorInfo": "",
+                        "isMultiple": false
                     },
                     calls = [
                         {
@@ -1083,6 +1085,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "Upload Errored: true" );
                 expect( response.components[1].effects.html ).toInclude( "Errored Property Name: photo" );
+                expect( response.components[1].effects.html ).toInclude( "Error Info: null" );
+                expect( response.components[1].effects.html ).toInclude( "Is Multiple: false" );
             } );
 
             it( "should be able to return javascript to return", () => {

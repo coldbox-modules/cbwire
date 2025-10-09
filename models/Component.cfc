@@ -936,7 +936,11 @@ component output="true" accessors="true" {
     function _uploadErrored( prop, errors, self ) {
         // Check if the component has an onUploadError method and invoke it
         if ( structKeyExists( this, "onUploadError" ) ) {
-            invoke( this, "onUploadError", { name: arguments.prop } );
+            invoke( this, "onUploadError", { 
+                name: arguments.prop,
+                errors: arguments.errors,
+                multiple: arguments.self
+            } );
         }
     }
 
