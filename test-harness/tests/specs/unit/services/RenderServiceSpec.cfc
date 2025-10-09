@@ -6,12 +6,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
         variables.mockUtility = createStub();
         variables.mockChecksumService = createStub();
         variables.mockValidationService = createStub();
+        variables.mockRequestService = createStub();
         
         variables.renderService = prepareMock( new cbwire.models.services.RenderService() );
         renderService.setCBWIREController( mockController );
         renderService.setUtilityService( mockUtility );
         renderService.setChecksumService( mockChecksumService );
         renderService.setValidationService( mockValidationService );
+        renderService.setRequestService( mockRequestService );
     }
 
     function run() {

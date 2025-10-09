@@ -290,6 +290,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
             } );
 
+            it( "should be able to access event from template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_access_event_from_template" );
+                expect( result ).toInclude( "<p>Event is object: true</p>" );
+                expect( result ).toInclude( "<p>Request collection is struct: true</p>" );
+            } );
+
             xit( "should support deep nesting with correct count of children", function() {
                 var result = CBWIREController.wire( "test.should_support_deep_nesting" );
                 var parent = parseRendering( result, 1 );

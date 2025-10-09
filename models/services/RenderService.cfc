@@ -5,6 +5,7 @@ component accessors="true" singleton {
     property name="checksumService" inject="ChecksumService@cbwire";
     property name="utilityService" inject="UtilityService@cbwire";
     property name="validationService" inject="ValidationService@cbwire";
+    property name="requestService" inject="coldbox:requestService";
 
 
     /**
@@ -55,6 +56,7 @@ component accessors="true" singleton {
                     template = arguments.template,
                     cbwireComponent = arguments.wire,
                     validationService = variables.validationService,
+                    requestService = variables.requestService,
                     normalizedPath = arguments.normalizedPath,
                     params = arguments.params,
                     returnValues = local.templateReturnValues
