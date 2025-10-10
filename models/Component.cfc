@@ -934,6 +934,13 @@ component output="true" accessors="true" {
      * @return void
      */
     function _uploadErrored( prop, errors, multiple ) {
+        // Dispatch the upload errored event
+        dispatchSelf(
+            event="upload:errored",
+            params=[
+                "name"=arguments.prop
+            ]
+        );
         // Check if the component has an onUploadError method and invoke it
         if ( structKeyExists( this, "onUploadError" ) ) {
             invoke( this, "onUploadError", { 
