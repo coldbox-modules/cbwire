@@ -7,9 +7,9 @@
         "isMultiple": false
     };
     
-    function onUploadError( name, errors, multiple ) {
+    function onUploadError( property, errors, multiple ) {
         data.uploadErrored = true;
-        data.erroredPropertyName = arguments.name;
+        data.erroredPropertyName = arguments.property;
         data.errorInfo = isNull( arguments.errors ) ? "null" : "has errors";
         data.isMultiple = arguments.multiple;
     }
