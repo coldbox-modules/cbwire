@@ -1060,6 +1060,35 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.html ).toInclude( "Hydrated Property: true" );
             } );
 
+            it( "should call onUploadError() if it exists when _uploadErrored is called", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onuploaderror",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "uploadErrored": false,
+                        "erroredPropertyName": "",
+                        "errorInfo": "",
+                        "isMultiple": false
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "_uploadErrored",
+                            "params": [ "photo", null, false ]
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "Upload Errored: true" );
+                expect( response.components[1].effects.html ).toInclude( "Errored Property Name: photo" );
+                expect( response.components[1].effects.html ).toInclude( "Error Info: null" );
+                expect( response.components[1].effects.html ).toInclude( "Is Multiple: false" );
+            } );
+
             it( "should be able to return javascript to return", () => {
                 var payload = incomingRequest(
                     memo = {
