@@ -528,7 +528,7 @@ component output="true" accessors="true" {
         if ( !variables._event.privateValueExists( "_cbwire_stream" ) ) {
             cfcontent( reset=true );
             variables._event.setPrivateValue( "_cbwire_stream", true );
-            cfheader( statusCode=200, statustext="OK" );
+            cfheader( statusCode=200 );
             cfheader( name="Cache-Control", value="no-cache, private" );
             cfheader( name="Host", value=cgi.http_host );
             cfheader( name="Content-Type", value="text/event-stream" );
@@ -788,24 +788,31 @@ component output="true" accessors="true" {
                 local.regexMatch = reFindNoCase( "(.+)\.([0-9]+)", arguments.key, 1, true );
                 local.propertyName = local.regexMatch.match[ 2 ];
                 local.arrayIndex = local.regexMatch.match[ 3 ];
-                variables.data[ local.propertyName][ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
-                // Track that we updated an array property
+				local.currentArray = structGet( "variables.data." & local.propertyName );
+				local.currentArray[ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
+				updateNestedKey( local.propertyName, local.currentArray );
+				// Track that we updated an array property
                 if ( !arrayFindNoCase( updatedArrayProps, local.propertyName ) ) {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
-                local.oldValue = variables.data[ key ];
-                variables.data[ key ] = arguments.value;
-                if ( structKeyExists( this, "onUpdate#key#") ) {
-                    invoke( this, "onUpdate#key#", { value: arguments.value, oldValue: local.oldValue });
+                local.oldValue = structGet( "variables.data." & key );
+                updateNestedKey( key, arguments.value );
+				var onUpdateFunctionName = "onUpdate" & key.replace( ".", "_", "all" );
+				if ( structKeyExists( this, onUpdateFunctionName) ) {
+                    invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
                 }
             }
         } );
 
         local.updatedArrayProps.each( function( prop ) {
-            variables.data[ arguments.prop ] = variables.data[ arguments.prop ].filter( function( value ) {
-                return arguments.value != "__rm__";
-            } );
+			var currentArray = structGet( "variables.data." & prop );
+			updateNestedKey(
+				prop,
+				currentArray.filter( function( value ) {
+					return value != "__rm__";
+				} )
+			);
         } );
 
         // Call onUpdate passing newValues and oldValues
@@ -813,6 +820,30 @@ component output="true" accessors="true" {
             invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
         }
     }
+
+    /**
+     * update a nested key in the data structure
+     *
+     * @keyPath string | the data property key being updated.
+     * @value any | the value to set in the dot notation nested key.
+     *
+     * @return void
+     */
+	public void function updateNestedKey( required string keyPath, required any value ) {
+        var keys = ListToArray( arguments.keyPath, "." );
+        var current = variables.data;
+        // Loop through keys except the last one to create/traverse nested structure
+        for ( var i = 1; i < keys.Len(); i++ ) {
+            var key = keys[ i ];
+            // Create nested struct if it doesn't exist
+            if ( !current.KeyExists( key ) ) {
+                current[ key ] = {};
+            }
+            // Move to the next level
+            current = current[ key ];
+        }
+        current[ keys[ keys.Len() ] ] = arguments.value;
+    };
 
     /**
      * Validate if key being updated is a locked property.
@@ -943,7 +974,7 @@ component output="true" accessors="true" {
         );
         // Check if the component has an onUploadError method and invoke it
         if ( structKeyExists( this, "onUploadError" ) ) {
-            invoke( this, "onUploadError", { 
+            invoke( this, "onUploadError", {
                 property: arguments.prop,
                 errors: arguments.errors,
                 multiple: arguments.multiple

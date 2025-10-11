@@ -1,8 +1,8 @@
 {
-    "name":"cbwire-adobe@2021",
+    "name":"cbwire-adobe@2025",
     "app":{
-        "serverHomeDirectory":".engine/adobe2021",
-        "cfengine":"adobe@2021"
+        "serverHomeDirectory":".engine/adobe2025",
+        "cfengine":"adobe@2025"
     },
     "web":{
         "http":{
@@ -14,6 +14,9 @@
         "aliases":{
             "/modules/cbwire":"../"
         }
+    },
+    "JVM":{
+        "javaVersion":"openjdk21"
     },
     "openBrowser":"false",
     "scripts":{
