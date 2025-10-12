@@ -168,6 +168,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 }
             });
 
+            it( "should be able to destroy file after store", function() {
+                var result = loadMockedFileUpload( "test-store-destroy", "text", "plain" );
+                var destinationDir = getTempDirectory() & "/cbwire-test-store-destroy";
+                
+                // Store the file
+                var storedPath = result.store( destinationDir );
+                
+                // Verify file exists at new location
+                expect( fileExists( storedPath ) ).toBeTrue();
+                
+                // Now destroy should delete from the new location
+                result.destroy();
+                
+                // Verify file was deleted
+                expect( fileExists( storedPath ) ).toBeFalse();
+                
+                // Clean up directory
+                if ( directoryExists( destinationDir ) ) {
+                    directoryDelete( destinationDir, true );
+                }
+            });
+
         });
     }
 
