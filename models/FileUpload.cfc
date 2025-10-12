@@ -123,10 +123,50 @@ component {
     }
 
     /**
+     * Moves the file from temporary storage to a permanent location.
+     * 
+     * The metadata file remains in the uploads temp directory to track the upload state,
+     * while the actual file is moved to the specified permanent location. This allows
+     * the FileUpload object to continue tracking the file even after it's been stored.
+     * 
+     * @path The destination path where the file should be stored (can be a directory or full file path)
+     * @return The absolute path to the stored file
+     */
+    function store( required string path ){
+        var destinationPath = getCanonicalPath( arguments.path );
+        
+        // Check if destination is a directory
+        if ( directoryExists( destinationPath ) ) {
+            destinationPath = getCanonicalPath( destinationPath & "/" & variables.meta.serverFile );
+        }
+        
+        // Ensure the destination directory exists
+        var destinationDir = getDirectoryFromPath( destinationPath );
+        if ( !directoryExists( destinationDir ) ) {
+            directoryCreate( destinationDir, true );
+        }
+        
+        // Move the file from temporary to permanent location
+        fileMove( variables.temporaryStoragePath, destinationPath );
+        
+        // Update the temporary storage path to the new location
+        variables.temporaryStoragePath = destinationPath;
+        
+        // Update metadata to reflect new file location
+        variables.meta.serverDirectory = destinationDir;
+        variables.meta.serverFile = getFileFromPath( destinationPath );
+        
+        // Update the metadata file (stays in temp directory for upload tracking)
+        fileWrite( getMetaPath(), serializeJSON( variables.meta ) );
+        
+        return destinationPath;
+    }
+
+    /**
      * Returns the path to the temp directory (mockable in tests)
      */
     function getUploadTempDirectory(){
-        return getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
+        return getCanonicalPath( variables.moduleSettings.uploadsStoragePath );
     }
 
     /**

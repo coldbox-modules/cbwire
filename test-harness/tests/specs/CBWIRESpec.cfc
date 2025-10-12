@@ -2,12 +2,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     function beforeAll() {
         super.beforeAll();
-        // delete any files in models/tmp folder
+        // delete any files in models/tmp folder (for single-file components)
         local.tempFolder = expandPath( "../../../models/tmp" );
         if ( directoryExists( local.tempFolder ) ) {
             directoryDelete( local.tempFolder, true );
         }
         directoryCreate( local.tempFolder );
+        
+        // Clean out uploads temp directory
+        local.uploadsTempFolder = getTempDirectory() & "/cbwire";
+        if ( directoryExists( local.uploadsTempFolder ) ) {
+            directoryDelete( local.uploadsTempFolder, true );
+        }
+        directoryCreate( local.uploadsTempFolder );
     }
 
     // Lifecycle methods and BDD suites as before...
@@ -1077,7 +1084,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         {
                             "path": "",
                             "method": "_uploadErrored",
-                            "params": [ "photo", null, false ]
+                            "params": [ "photo", nullValue(), false ]
                         }
                     ],
                     updates = {}

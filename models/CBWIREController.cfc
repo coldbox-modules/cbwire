@@ -133,7 +133,7 @@ component accessors="true" singleton {
      */
     function handleFileUpload( incomingRequest, event ) {
         // Determine our storage path for temporary files
-        local.storagePath = getCanonicalPath( variables.moduleSettings.storagePath );
+        local.storagePath = getCanonicalPath( variables.moduleSettings.uploadsStoragePath );
 
         // Ensure the storage path exists
         if( !directoryExists( local.storagePath ) ){
@@ -174,10 +174,10 @@ component accessors="true" singleton {
             return event.noRender();
         }
 
-        local.metaPath = getCanonicalPath( variables.moduleSettings.storagePath & "/#local.uuid#.json" );
+        local.metaPath = getCanonicalPath( variables.moduleSettings.uploadsStoragePath & "/#local.uuid#.json" );
 
         local.metaJSON = deserializeJSON( fileRead( local.metaPath ) );
-        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.storagePath & "/#local.metaJSON.serverFile#" ) );
+        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.uploadsStoragePath & "/#local.metaJSON.serverFile#" ) );
         event
             .sendFile(
                 file = local.contents,

@@ -25,7 +25,13 @@ component {
              */
             "moduleRootPath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) ),
             /**
-             * The default storage path for all cbwire components.
+             * The default storage path for file uploads.
+             * Uses the system temporary directory for security.
+             */
+            "uploadsStoragePath": getCanonicalPath( getTempDirectory() & "/cbwire" ),
+            /**
+             * The default storage path for single-file component compilation.
+             * This must be in the module directory for WireBox to instantiate components.
              */
             "storagePath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) & "/models/tmp" ),
             /**
