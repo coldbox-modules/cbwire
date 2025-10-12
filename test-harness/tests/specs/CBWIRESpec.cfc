@@ -1084,7 +1084,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         {
                             "path": "",
                             "method": "_uploadErrored",
-                            "params": [ "photo", nullValue(), false ]
+                            "params": [ "photo", javaCast( "null", "" ), false ]
                         }
                     ],
                     updates = {}
