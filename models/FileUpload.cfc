@@ -143,7 +143,7 @@ component {
         // Ensure the destination directory exists
         var destinationDir = getDirectoryFromPath( destinationPath );
         if ( !directoryExists( destinationDir ) ) {
-            directoryCreate( destinationDir, true );
+            createDirectoryPath( destinationDir );
         }
         
         // Move the file from temporary to permanent location
@@ -174,5 +174,34 @@ component {
      */
     function getMetaPath(){
         return getCanonicalPath( getUploadTempDirectory() & "/#variables.uuid#.json" );
+    }
+
+    /**
+     * Creates a directory path recursively, compatible with Boxlang, ACF, and Lucee
+     *
+     * @path The directory path to create
+     */
+    private function createDirectoryPath( required string path ){
+        // Build up the path components
+        var pathParts = listToArray( arguments.path, "/\" );
+        var currentPath = "";
+
+        // Handle absolute paths (starting with / or drive letter)
+        if ( left( arguments.path, 1 ) == "/" ) {
+            currentPath = "/";
+        } else if ( reFind( "^[A-Za-z]:", arguments.path ) ) {
+            currentPath = pathParts[ 1 ];
+            arrayDeleteAt( pathParts, 1 );
+        }
+
+        // Create each directory in the path if it doesn't exist
+        for ( var part in pathParts ) {
+            if ( len( trim( part ) ) ) {
+                currentPath = currentPath & "/" & part;
+                if ( !directoryExists( currentPath ) ) {
+                    directoryCreate( currentPath );
+                }
+            }
+        }
     }
 }
