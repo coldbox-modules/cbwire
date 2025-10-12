@@ -125,7 +125,11 @@ component {
     /**
      * Moves the file from temporary storage to a permanent location.
      * 
-     * @path The destination path where the file should be stored
+     * The metadata file remains in the uploads temp directory to track the upload state,
+     * while the actual file is moved to the specified permanent location. This allows
+     * the FileUpload object to continue tracking the file even after it's been stored.
+     * 
+     * @path The destination path where the file should be stored (can be a directory or full file path)
      * @return The absolute path to the stored file
      */
     function store( required string path ){
@@ -148,11 +152,11 @@ component {
         // Update the temporary storage path to the new location
         variables.temporaryStoragePath = destinationPath;
         
-        // Update metadata
+        // Update metadata to reflect new file location
         variables.meta.serverDirectory = destinationDir;
         variables.meta.serverFile = getFileFromPath( destinationPath );
         
-        // Update the metadata file
+        // Update the metadata file (stays in temp directory for upload tracking)
         fileWrite( getMetaPath(), serializeJSON( variables.meta ) );
         
         return destinationPath;
