@@ -123,10 +123,46 @@ component {
     }
 
     /**
+     * Moves the file from temporary storage to a permanent location.
+     * 
+     * @path The destination path where the file should be stored
+     * @return The absolute path to the stored file
+     */
+    function store( required string path ){
+        var destinationPath = getCanonicalPath( arguments.path );
+        
+        // Check if destination is a directory
+        if ( directoryExists( destinationPath ) ) {
+            destinationPath = getCanonicalPath( destinationPath & "/" & variables.meta.serverFile );
+        }
+        
+        // Ensure the destination directory exists
+        var destinationDir = getDirectoryFromPath( destinationPath );
+        if ( !directoryExists( destinationDir ) ) {
+            directoryCreate( destinationDir, true );
+        }
+        
+        // Move the file from temporary to permanent location
+        fileMove( variables.temporaryStoragePath, destinationPath );
+        
+        // Update the temporary storage path to the new location
+        variables.temporaryStoragePath = destinationPath;
+        
+        // Update metadata
+        variables.meta.serverDirectory = destinationDir;
+        variables.meta.serverFile = getFileFromPath( destinationPath );
+        
+        // Update the metadata file
+        fileWrite( getMetaPath(), serializeJSON( variables.meta ) );
+        
+        return destinationPath;
+    }
+
+    /**
      * Returns the path to the temp directory (mockable in tests)
      */
     function getUploadTempDirectory(){
-        return getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
+        return getCanonicalPath( variables.moduleSettings.uploadsStoragePath );
     }
 
     /**

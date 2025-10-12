@@ -4,7 +4,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
         super.beforeAll();
 
         // Clean out tmp directory before all tests
-        local.tempFolder = expandPath( "../../../models/tmp" );
+        // Use system temp directory + cbwire subdirectory
+        local.tempFolder = getTempDirectory() & "/cbwire";
         if ( directoryExists( local.tempFolder ) ) {
             directoryDelete( local.tempFolder, true );
         }
@@ -99,17 +100,72 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result.getBase64Src() ).toInclude( "data:" );
             });
 
-            it( "should return correct upload temp directory path with proper slash separation", function() {
+            it( "should return correct upload temp directory path using system temp directory", function() {
                 // Create a fresh FileUpload instance (not mocked) to test getUploadTempDirectory
                 var fileUploadInstance = getInstance( "FileUpload@cbwire" );
                 var tempDir = fileUploadInstance.getUploadTempDirectory();
                 
-                // The path should contain "/models/tmp" with proper slash separation
-                expect( tempDir ).toInclude( "/models/tmp" );
-                // Should not have malformed concatenation like "wiremodels"
-                expect( tempDir ).notToInclude( "wiremodels" );
-                // Should end with models/tmp
-                expect( right( tempDir, 10 ) ).toBe( "models/tmp" );
+                // The path should end with /cbwire
+                expect( tempDir ).toInclude( "/cbwire" );
+                // Should use the system temp directory
+                expect( tempDir ).toInclude( getTempDirectory() );
+            });
+
+            it( "should store file to a specified directory path", function() {
+                var result = loadMockedFileUpload( "test-store", "text", "plain" );
+                var destinationDir = getTempDirectory() & "/cbwire-test-store";
+                
+                // Ensure the test directory exists
+                if ( !directoryExists( destinationDir ) ) {
+                    directoryCreate( destinationDir );
+                }
+                
+                // Store the file
+                var storedPath = result.store( destinationDir );
+                
+                // Verify the file was moved to the destination
+                expect( fileExists( storedPath ) ).toBeTrue();
+                expect( storedPath ).toInclude( destinationDir );
+                expect( storedPath ).toInclude( "logo.png" );
+                
+                // Clean up
+                if ( directoryExists( destinationDir ) ) {
+                    directoryDelete( destinationDir, true );
+                }
+            });
+
+            it( "should store file to a specified file path", function() {
+                var result = loadMockedFileUpload( "test-store-file", "text", "plain" );
+                var destinationDir = getTempDirectory() & "/cbwire-test-store-file";
+                var destinationPath = destinationDir & "/myfile.png";
+                
+                // Store the file with specific filename
+                var storedPath = result.store( destinationPath );
+                
+                // Verify the file was moved to the destination with the new name
+                expect( fileExists( storedPath ) ).toBeTrue();
+                expect( storedPath ).toBe( getCanonicalPath( destinationPath ) );
+                
+                // Clean up
+                if ( directoryExists( destinationDir ) ) {
+                    directoryDelete( destinationDir, true );
+                }
+            });
+
+            it( "should update temporary storage path after store", function() {
+                var result = loadMockedFileUpload( "test-store-update", "text", "plain" );
+                var destinationDir = getTempDirectory() & "/cbwire-test-store-update";
+                
+                // Store the file
+                var storedPath = result.store( destinationDir );
+                
+                // Verify the temporary storage path was updated
+                expect( result.getTemporaryStoragePath() ).toBe( storedPath );
+                
+                // Clean up
+                if ( directoryExists( destinationDir ) ) {
+                    directoryDelete( destinationDir, true );
+                }
             });
 
         });
