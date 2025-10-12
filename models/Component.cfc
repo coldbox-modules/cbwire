@@ -466,8 +466,13 @@ component output="true" accessors="true" {
             } );
         } else {
             var initialState = variables._initialDataProperties;
-            // Reset individual property
-            variables.data[ arguments.property ] = initialState[ arguments.property ];
+            // Reset individual property (only if it exists in initial state)
+            if ( initialState.keyExists( arguments.property ) ) {
+                variables.data[ arguments.property ] = initialState[ arguments.property ];
+            } else {
+                // Property doesn't exist in initial state, set to empty string
+                variables.data[ arguments.property ] = "";
+            }
         }
     }
 

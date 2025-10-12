@@ -82,7 +82,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should return the temporary storage path", function() {
                 var result = loadMockedFileUpload( "test", "text", "plain" );
-                expect( result.getTemporaryStoragePath() ).toBe( expandPath( "./resources/logo.png" ) );
+                expect( result.getTemporaryStoragePath() ).toBe( expandPath( "./resources/logo_test.png" ) );
             });
 
             it( "should return binary file contents when calling get", function() {
@@ -114,20 +114,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should store file to a specified directory path", function() {
                 var result = loadMockedFileUpload( "test-store", "text", "plain" );
                 var destinationDir = getTempDirectory() & "/cbwire-test-store";
-                
+
                 // Ensure the test directory exists
                 if ( !directoryExists( destinationDir ) ) {
                     directoryCreate( destinationDir );
                 }
-                
+
                 // Store the file
                 var storedPath = result.store( destinationDir );
-                
+
                 // Verify the file was moved to the destination
                 expect( fileExists( storedPath ) ).toBeTrue();
-                expect( storedPath ).toInclude( destinationDir );
-                expect( storedPath ).toInclude( "logo.png" );
-                
+                // Use getCanonicalPath to normalize the path for comparison
+                expect( storedPath ).toInclude( getCanonicalPath( destinationDir ) );
+                expect( storedPath ).toInclude( "logo_test-store.png" );
+
                 // Clean up
                 if ( directoryExists( destinationDir ) ) {
                     directoryDelete( destinationDir, true );
@@ -207,12 +208,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
     ) {
         var metaPath = expandPath( "../resources/fileupload_metadata.json" );
 
+        // Create a unique copy of logo.png for this test instance
+        // This ensures each test that calls store() has its own file to move
+        var uniqueFileName = "logo_" & arguments.uuid & ".png";
+        var sourcePath = expandPath( "./resources/logo.png" );
+        var destinationPath = expandPath( "./resources/" & uniqueFileName );
+
+        // Always create a fresh copy for each test
+        if ( fileExists( sourcePath ) ) {
+            // Delete destination if it exists (from previous test run)
+            if ( fileExists( destinationPath ) ) {
+                fileDelete( destinationPath );
+            }
+            fileCopy( sourcePath, destinationPath );
+        }
+
         writeTestMetaFile(
             path = metaPath,
             data = {
                 "uuid" : arguments.uuid,
                 "serverDirectory" : expandPath( "./resources" ),
-                "serverFile" : "logo.png",
+                "serverFile" : uniqueFileName,
                 "contentType" : arguments.contentType,
                 "contentSubType" : arguments.contentSubType,
                 "fileSize" : 1234
