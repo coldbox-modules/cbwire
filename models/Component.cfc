@@ -790,14 +790,14 @@ component output="true" accessors="true" {
                 local.arrayIndex = local.regexMatch.match[ 3 ];
 				local.currentArray = structGet( "variables.data." & local.propertyName );
 				local.currentArray[ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
-				updateNestedKey( local.propertyName, local.currentArray );
+				_updateDataValue( local.propertyName, local.currentArray );
 				// Track that we updated an array property
                 if ( !arrayFindNoCase( updatedArrayProps, local.propertyName ) ) {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
                 local.oldValue = structGet( "variables.data." & key );
-                updateNestedKey( key, arguments.value );
+                _updateDataValue( key, arguments.value );
 				var onUpdateFunctionName = "onUpdate" & key.replace( ".", "_", "all" );
 				if ( structKeyExists( this, onUpdateFunctionName) ) {
                     invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
@@ -807,7 +807,7 @@ component output="true" accessors="true" {
 
         local.updatedArrayProps.each( function( prop ) {
 			var currentArray = structGet( "variables.data." & prop );
-			updateNestedKey(
+			_updateDataValue(
 				prop,
 				currentArray.filter( function( value ) {
 					return value != "__rm__";
@@ -822,14 +822,14 @@ component output="true" accessors="true" {
     }
 
     /**
-     * update a nested key in the data structure
+     * update a key value in variables.data structure.
      *
-     * @keyPath string | the data property key being updated.
-     * @value any | the value to set in the dot notation nested key.
+     * @keyPath string | the data property key being updated. Supports dot notation for nested structures (e.g., "user.address.street").
+     * @value any | the value to set.
      *
      * @return void
      */
-	public void function updateNestedKey( required string keyPath, required any value ) {
+	public void function _updateDataValue( required string keyPath, required any value ) {
         var keys = ListToArray( arguments.keyPath, "." );
         var current = variables.data;
         // Loop through keys except the last one to create/traverse nested structure
