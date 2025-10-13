@@ -843,7 +843,7 @@ component output="true" accessors="true" {
             current = current[ key ];
         }
         current[ keys[ keys.Len() ] ] = arguments.value;
-    };
+    }
 
     /**
      * Validate if key being updated is a locked property.
