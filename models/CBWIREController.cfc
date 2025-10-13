@@ -645,8 +645,10 @@ component accessors="true" singleton {
 
     /**
      * Returns the wires location setting.
+     * This helper method is used internally by getModuleComponentPath() to determine
+     * the folder path where wire components are stored within modules.
      *
-     * @return string
+     * @return string The wires location from settings, defaults to "wires"
      */
     private function getWiresLocation(){
         return moduleSettings.keyExists( "wiresLocation" ) ? moduleSettings.wiresLocation : "wires";
