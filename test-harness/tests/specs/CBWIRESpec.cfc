@@ -57,7 +57,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should be able to change the display bar color", function() {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                settings.navigateProgressBarColor = "##cc0000";
+                settings.progressBarColor = "##cc0000";
                 var html = CBWIREController.getStyles( cache=false );
                 expect( html ).toInclude( "--livewire-progress-bar-color: ##cc0000;" );
             } );
@@ -71,37 +71,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should be able to disable the progress bar", function() {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                settings.navigateShowProgressBar = false;
-                var html = CBWIREController.getScripts();
-                expect( html ).toInclude( " data-no-progress-bar " );
-            } );
-
-            it( "should support backwards compatibility for old showProgressBar setting", function() {
-                var CBWIREController = getInstance( "CBWIREController@cbwire" );
-                var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                // Remove new setting and set old one
-                if ( settings.keyExists( "navigateShowProgressBar" ) ) {
-                    structDelete( settings, "navigateShowProgressBar" );
-                }
                 settings.showProgressBar = false;
-                // Trigger onDIComplete to handle backwards compatibility
-                CBWIREController.onDIComplete();
                 var html = CBWIREController.getScripts();
                 expect( html ).toInclude( " data-no-progress-bar " );
-            } );
-
-            it( "should support backwards compatibility for old progressBarColor setting", function() {
-                var CBWIREController = getInstance( "CBWIREController@cbwire" );
-                var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                // Remove new setting and set old one
-                if ( settings.keyExists( "navigateProgressBarColor" ) ) {
-                    structDelete( settings, "navigateProgressBarColor" );
-                }
-                settings.progressBarColor = "##ff0000";
-                // Trigger onDIComplete to handle backwards compatibility
-                CBWIREController.onDIComplete();
-                var html = CBWIREController.getStyles( cache=false );
-                expect( html ).toInclude( "--livewire-progress-bar-color: ##ff0000;" );
             } );
 
             it( "should have default updateEndpoint", function() {
