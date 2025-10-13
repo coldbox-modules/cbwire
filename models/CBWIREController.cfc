@@ -200,13 +200,8 @@ component accessors="true" singleton {
         local.componentDSL = arguments.name;
 
         if ( !local.componentDSL contains "wires." ) {
-            // Get the default wires location from our setttings
-            if ( moduleSettings.keyExists( "wiresLocation" ) ) {
-                local.componentDSL = moduleSettings.wiresLocation & "." & local.componentDSL;
-            } else {
-                // Fallback
-            local.componentDSL = "wires." & local.componentDSL;
-            }
+            // Get the default wires location from our settings
+            local.componentDSL = getWiresLocation() & "." & local.componentDSL;
         }
 
         if ( find( "@", local.componentDSL ) ) {
