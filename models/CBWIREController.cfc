@@ -642,4 +642,13 @@ component accessors="true" singleton {
         var updateEndpoint = getUpdateEndpoint();
         return updateEndpoint.replaceNoCase( "/update", "/upload", "one" );
     }
+
+    /**
+     * Returns the wires location setting.
+     *
+     * @return string
+     */
+    private function getWiresLocation(){
+        return moduleSettings.keyExists( "wiresLocation" ) ? moduleSettings.wiresLocation : "wires";
+    }
 }
