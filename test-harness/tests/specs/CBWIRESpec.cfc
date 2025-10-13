@@ -110,9 +110,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 settings.updateEndpoint = "/index.bxm/cbwire/update";
-                
+
                 var uploadURL = CBWIREController.generateSignedUploadURL();
-                
+
                 // The URL should contain the custom path
                 expect( uploadURL ).toInclude( "/index.bxm/cbwire/upload" );
                 // It should also contain expires and signature parameters
@@ -840,6 +840,73 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+            } );
+
+            it( "should provide updates to data properties using dot notation", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": {
+							"label" : "CBWIRE Rocks!"
+						}
+                    },
+                    calls = [],
+                    updates = {
+                        "title.label": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+            } );
+
+            it( "should support incoming array values in dot notation referenced array", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = [
+                        "modules.names.0": "CBWIRE",
+                        "modules.names.1": "CBORM",
+                        "modules.names.2": "__rm__"
+                    ]
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                var snapshot = deserializeJson( response.components[ 1 ].snapshot );
+                expect( snapshot.data.modules.names ).toBeArray();
+                expect( snapshot.data.modules.names.len() ).toBe( 2 );
+                expect( snapshot.data.modules.names[ 1 ] ).toBe( "CBWIRE" );
+                expect( snapshot.data.modules.names[ 2 ] ).toBe( "CBORM" );
+            } );
+
+            it( "should call onUpdate[Property_Dot_Notation] if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": {
+							"label" : "CBWIRE Rocks!"
+						}
+                    },
+                    calls = [],
+                    updates = {
+                        "title.label": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+                expect( response.components[1].effects.html ).toInclude( "New Value: CBWIRE Slaps!" );
+                expect( response.components[1].effects.html ).toInclude( "Old Value: CBWIRE Rocks!" );
             } );
 
             it( "should dispatch an event without params", function() {
@@ -1853,9 +1920,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
      *
      * @html string | The rendered HTML containing the component.
      * @index numeric | The index of the component if multiple match (usually 1).
-     * 
+     *
      * @return struct The deserialized snapshot struct.
-     * 
+     *
      * @throws Error if parsing or deserialization fails.
      */
     private function parseSnapshot( required string html, numeric index = 1 ) {
@@ -1893,9 +1960,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
      *
      * @html The rendered HTML containing the component.
      * @index The index of the component if multiple match (usually 1).
-     * 
+     *
      * @return any The deserialized effects (usually struct or array).
-     * 
+     *
      * @throws Error if parsing or deserialization fails.
      */
     private function parseEffects( required string html, numeric index = 1 ) {
@@ -1931,9 +1998,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
         }
     }
 
-    /** 
+    /**
      * Check if the current environment is a BoxLang environment
-     * 
+     *
      * @return boolean
      */
     private function isBoxLang() {

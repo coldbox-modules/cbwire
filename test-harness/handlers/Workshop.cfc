@@ -11,4 +11,6 @@ component {
     function signupForm() {}
 
     function taskList() {}
+
+    function nestedDataKeys() {}
 }

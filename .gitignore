@@ -14,6 +14,7 @@ test-harness/testbox/**
 test-harness/tests/results/**
 test-harness/logs/**
 test-harness/modules/**
+views/tmp/**
 
 # log files
 logs/**
@@ -24,3 +25,5 @@ node_modules/**
 livewire/**
 
 models/tmp/**
+
+.DS_Store
