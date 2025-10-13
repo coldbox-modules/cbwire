@@ -56,11 +56,11 @@ component {
             /**
              * Enables or disables the progress bar when using wire:navigate
              */
-            "showProgressBar": true,
+            "navigateShowProgressBar": true,
             /**
              * The color of the progress bar when using wire:navigate
              */
-            "progressBarColor": "##2299dd",
+            "navigateProgressBarColor": "##2299dd",
             /**
              * Enables or disables checksum validation for component payloads.
              * We recommend always leaving this enabled, but you can disable it 

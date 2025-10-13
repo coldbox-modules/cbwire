@@ -26,6 +26,20 @@ component accessors="true" singleton {
         variables._singleFileComponents = [];
         return this;
     }
+
+    /**
+     * Called after dependency injection is complete.
+     * Handles backwards compatibility for old setting names.
+     */
+    function onDIComplete() {
+        // Backwards compatibility: map old setting names to new ones
+        if ( !moduleSettings.keyExists( "navigateShowProgressBar" ) && moduleSettings.keyExists( "showProgressBar" ) ) {
+            moduleSettings.navigateShowProgressBar = moduleSettings.showProgressBar;
+        }
+        if ( !moduleSettings.keyExists( "navigateProgressBarColor" ) && moduleSettings.keyExists( "progressBarColor" ) ) {
+            moduleSettings.navigateProgressBarColor = moduleSettings.progressBarColor;
+        }
+    }
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its onRender() method.
