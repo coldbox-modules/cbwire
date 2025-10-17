@@ -1,5 +1,7 @@
 component output="true" accessors="true" {
 
+	property name="_interceptorService" inject="coldbox:interceptorService";
+
     property name="_configService" inject="provider:ConfigService@cbwire";
 
     property name="_CBWIREController" inject="provider:CBWIREController@cbwire";
@@ -449,53 +451,50 @@ component output="true" accessors="true" {
 
     /**
      * Resets a data property to it's initial value.
-     * Can be used to reset all data properties, a single data property, or an array of data properties.
+     * Can be used to reset all data properties, a single data property, an array, or comma seperated list of data properties.
+	 *
+	 * @property string|list|array | The property or properties to reset. If null, all properties will be reset.
      *
      * @return
      */
     function reset( property ){
-        if ( isNull( arguments.property ) ) {
-            // Reset all properties
-            variables.data.each( function( key, value ){
-                reset( key );
-            } );
-        } else if ( isArray( arguments.property ) ) {
-            // Reset each property in our array individually
-            arguments.property.each( function( prop ){
-                reset( prop );
-            } );
-        } else {
-            var initialState = variables._initialDataProperties;
-            // Reset individual property (only if it exists in initial state)
-            if ( initialState.keyExists( arguments.property ) ) {
-                variables.data[ arguments.property ] = initialState[ arguments.property ];
-            } else {
-                // Property doesn't exist in initial state, set to empty string
-                variables.data[ arguments.property ] = "";
-            }
-        }
+        // if no proeprty argument get array of all data keys (in dot notation when appropriate)
+        if ( isNull( arguments.property ) )
+			arguments.property = _getDotNotationKeys();
+
+		// convert comma separated list to array ( single key string becomes single item array )
+		arguments.property = !isArray( arguments.property ) ? listToArray( arguments.property, "," ) : arguments.property;
+
+		// reset all data properties
+		arguments.property.each( function( element, index ) {
+			var initialValue = structGet( "variables._initialDataProperties." & element );
+			if( isStruct( initialValue ) )
+				initialValue = "";
+			_updateDataValue( element, initialValue );
+		});
     }
 
     /**
      * Resets all data properties except the ones specified.
+	 *
+	 * @property string|list|array | The property or properties to NOT reset.
      *
      * @return void
+	 * @throws ResetException
      */
     function resetExcept( property ){
-        if ( isNull( arguments.property ) ) {
+        if ( isNull( arguments.property ) )
             throw( type="ResetException", message="Cannot reset a null property." );
-        }
-
-        // Reset all properties except what was provided
-        _getDataProperties().each( function( key, value ){
-            if ( isArray( property ) ) {
-                if ( !arrayFindNoCase( property, arguments.key ) ) {
-                    reset( key );
-                }
-            } else if ( property != key ) {
-                reset( key );
-            }
-        } );
+		// convert comma separated list to array ( single key string becomes single item array )
+		arguments.property = !isArray( arguments.property ) ? listToArray( arguments.property, "," ) : arguments.property;
+        // Get all data property keys
+		var resetKeys = _getDotNotationKeys();
+		// remove provided properties from reset keys array
+		for( var removeKey in arguments.property ) {
+			resetKeys.delete( removeKey );
+		}
+        // Reset all properties except what was removed above
+		reset( resetKeys );
     }
 
     /**
@@ -668,6 +667,17 @@ component output="true" accessors="true" {
             }
         }
 
+		// Announce the cbWireOnMount event to global interceptors
+		variables._interceptorService.announce(
+			"cbWireOnMount",
+			{
+				"lazy" 		: false,
+				"params" 	: arguments.params,
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data
+			}
+		);
 
         return this;
     }
@@ -849,6 +859,30 @@ component output="true" accessors="true" {
         }
         current[ keys[ keys.Len() ] ] = arguments.value;
     }
+
+	/**
+	 * Recursively retrieves all keys from a struct in dot notation.
+	 *
+	 * @inputStruct struct | The input struct to retrieve keys from.
+	 * @prefix string | The prefix for nested keys (used in recursion).
+	 *
+	 * @return array | An array of keys in dot notation.
+	 */
+	public array function _getDotNotationKeys( struct inputStruct, string prefix="" ) {
+		if( isNull( arguments.inputStruct ) )
+			arguments.inputStruct = variables.data;
+		var result = [];
+		for ( var key in inputStruct.keyArray() ) {
+			var fullKey = ( prefix == "" ) ? key : prefix & "." & key;
+			var value = inputStruct[ key ];
+			if ( isStruct( value ) ) {
+				result.append( _getDotNotationKeys( value, fullKey ), true )
+			} else {
+				result.append( fullKey );
+			}
+		}
+		return result;
+	}
 
     /**
      * Validate if key being updated is a locked property.
@@ -1057,6 +1091,19 @@ component output="true" accessors="true" {
                 params=local.mountParams
             );
         }
+
+		// Announce the cbWireOnMount event to global interceptors
+		variables._interceptorService.announce(
+			"cbWireOnMount",
+			{
+				"lazy"		: true,
+				"snapshot"	: local.decodedSnapshot,
+				"params" 	: local.mountParams,
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data
+			}
+		);
     }
 
     /**
@@ -1466,14 +1513,35 @@ component output="true" accessors="true" {
      * Response for actually starting rendering of a component.
      */
     function _render( rendering ) {
+
+		variables._interceptorService.announce(
+			"cbWirePreRender",
+			{
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data
+			}
+		);
+
         local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
-        return variables._renderService.render( this, local.trimmedHTML );
+		var renderedContent = variables._renderService.render( this, local.trimmedHTML );
+
+		variables._interceptorService.announce(
+			"cbWireOnRender",
+			{
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data,
+				"wireHTML"	: renderedContent
+			}
+		);
+
+		return renderedContent;
     }
 
     function _trackScript( required scriptTagId, required scriptContent ) {
         variables._scripts[ scriptTagId ] = scriptContent;
     }
-
 
     function _trackAsset( required assetTagId, required assetContent ) {
         variables._assets[ assetTagId ] = assetContent;
