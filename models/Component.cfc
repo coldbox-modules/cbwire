@@ -1005,11 +1005,17 @@ component output="true" accessors="true" {
         );
         // Check if the component has an onUploadError method and invoke it
         if ( structKeyExists( this, "onUploadError" ) ) {
-            invoke( this, "onUploadError", {
+            local.invokeParams = {
                 property: arguments.prop,
-                errors: arguments.errors,
                 multiple: arguments.multiple
-            } );
+            };
+            // Include errors parameter - check if it exists in arguments scope to handle null values passed via invoke
+            if ( structKeyExists( arguments, "errors" ) ) {
+                local.invokeParams.errors = arguments.errors;
+            } else {
+                local.invokeParams.errors = javaCast( "null", "" );
+            }
+            invoke( this, "onUploadError", local.invokeParams );
         }
     }
 
