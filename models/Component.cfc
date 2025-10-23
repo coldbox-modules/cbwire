@@ -667,17 +667,9 @@ component output="true" accessors="true" {
             }
         }
 
-		// Announce the cbWireOnMount event to global interceptors
-		variables._interceptorService.announce(
-			"cbWireOnMount",
-			{
-				"lazy" 		: false,
-				"params" 	: arguments.params,
-				"wire"		: this,
-				"wireName"	: variables._path,
-				"wireData"	: variables.data
-			}
-		);
+		// Announce the onCBWIREMount event to global interceptors
+		_fireInterceptorEvent( "onCBWIREMount", { "params" : arguments.params, "lazy" : false} );
+
 
         return this;
     }
@@ -1092,18 +1084,9 @@ component output="true" accessors="true" {
             );
         }
 
-		// Announce the cbWireOnMount event to global interceptors
-		variables._interceptorService.announce(
-			"cbWireOnMount",
-			{
-				"lazy"		: true,
-				"snapshot"	: local.decodedSnapshot,
-				"params" 	: local.mountParams,
-				"wire"		: this,
-				"wireName"	: variables._path,
-				"wireData"	: variables.data
-			}
-		);
+		// Announce the onCBWIREMount event to global interceptors
+		_fireInterceptorEvent( "onCBWIREMount", { "params" : local.mountParams, "lazy" : true } );
+
     }
 
     /**
@@ -1513,28 +1496,12 @@ component output="true" accessors="true" {
      * Response for actually starting rendering of a component.
      */
     function _render( rendering ) {
-
-		variables._interceptorService.announce(
-			"cbWirePreRender",
-			{
-				"wire"		: this,
-				"wireName"	: variables._path,
-				"wireData"	: variables.data
-			}
-		);
+		_fireInterceptorEvent( "preCBWIRERender" );
 
         local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
 		var renderedContent = variables._renderService.render( this, local.trimmedHTML );
 
-		variables._interceptorService.announce(
-			"cbWireOnRender",
-			{
-				"wire"		: this,
-				"wireName"	: variables._path,
-				"wireData"	: variables.data,
-				"wireHTML"	: renderedContent
-			}
-		);
+		_fireInterceptorEvent( "onCBWIRERender", { "html" : renderedContent } );
 
 		return renderedContent;
     }
@@ -1550,4 +1517,31 @@ component output="true" accessors="true" {
     function _getCompileTimeKey() {
         return variables._compileTimeKey;
     }
+
+	/**
+	 * Fires an interceptor event.
+	 * Standardizes data passed to interceptors fired from base wire Component.cfc
+	 * ensure consistent data structure. Includes wire, wireName, wireData, and meta in eventData.
+	 *
+	 * @eventName string | The name of the event to fire.
+	 * @eventData struct | Additional data to pass to the interceptor.
+	 *
+	 * @return void
+	 */
+	function _fireInterceptorEvent( eventName, eventData={} ) {
+		// append standard data to eventData struct, but do NOT overwrite existing keys
+		arguments.eventData.append(
+			{
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data,
+				"meta"		: variables._metaData
+			},
+			false
+		);
+		return variables._interceptorService.announce(
+			arguments.eventName,
+			arguments.eventData
+		);
+	}
 }

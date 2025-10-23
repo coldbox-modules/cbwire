@@ -94,11 +94,11 @@ component {
 
         interceptorSettings = {
             customInterceptionPoints : [
-				"cbWireOnMount",
-				"cbWirePreRender",
-				"cbWireOnRender",
-				"cbWirePreUpdate",
-				"cbWireOnUpdate"
+				"onCBWIREMount",
+				"preCBWIRERender",
+				"onCBWIRERender",
+				"preCBWIREUpdate",
+				"onCBWIREUpdate"
 			]
         };
     }

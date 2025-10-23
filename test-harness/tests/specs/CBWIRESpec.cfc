@@ -8,7 +8,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             directoryDelete( local.tempFolder, true );
         }
         directoryCreate( local.tempFolder );
-        
+
         // Clean out uploads temp directory
         local.uploadsTempFolder = getTempDirectory() & "/cbwire";
         if ( directoryExists( local.uploadsTempFolder ) ) {
@@ -1851,6 +1851,60 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
         } );
+
+        describe("Event Interceptors", function() {
+
+            beforeEach(function(currentSpec) {
+                // Assuming setup() initializes application environment
+                // and prepareMock() is a custom method to mock any dependencies, if necessary.
+				// Clear any previously run interceptors
+				lock name="clearEventInterceptorKey" timeout="1" {
+					application.delete( "cbwire_interceptors_run" );
+				}
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                event = getRequestContext();
+                prepareMock( cbwireController );
+            });
+
+            it( "should fire the onCBWIREMount, preCBWIRERender, and onCBWIRERender when mounting a wire", function () {
+                var result = CBWIREController.wire( "test.should_render_a_component" );
+                expect( application ).toHaveKey( "cbwire_interceptors_run" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRERender" );
+				expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 3 );
+			} );
+
+            it( "should fire the preCBWIRERender, onCBWIRERender, preCBWIREUpdate and onCBWIREUpdate during a wire update incoming request", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = true;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_global_setting_enabled",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( application ).toHaveKey( "cbwire_interceptors_run" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIREUpdate" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREUpdate" );
+				expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 4 );
+            } );
+
+		} );
+
+
     }
 
     /**

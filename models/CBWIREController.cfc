@@ -71,9 +71,9 @@ component accessors="true" singleton {
         // Perform initial deserialization of the incoming request payload
         local.payload = deserializeJSON( arguments.incomingRequest.content );
 
-		// Announce the cbWirePreUpdate event to global interceptors
+		// Announce the preCBWIREUpdate event to global interceptors
 		variables.interceptorService.announce(
-			"cbWirePreUpdate",
+			"preCBWIREUpdate",
 			{
 				"payload" : local.payload
 			}
@@ -109,9 +109,9 @@ component accessors="true" singleton {
             } )
         };
 
-		// Announce the cbWireOnUpdate event to global interceptors
+		// Announce the onCBWIREUpdate event to global interceptors
 		variables.interceptorService.announce(
-			"cbWireOnUpdate",
+			"onCBWIREUpdate",
 			{
 				"payload" : local.payload,
 				"response" : local.componentsResult
@@ -352,15 +352,15 @@ component accessors="true" singleton {
         throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
     }
 
-    /**
-    * Returns the path to the modules folder.
-    *
-    * @module string | The name of the module.
-    *
-    * @return string
-	*
-	* @throws ModuleNotFound If the specified module does not exist.
-    */
+	/**
+     * Returns the path to the modules folder.
+     *
+     * @module string | The name of the module.
+     *
+     * @return string
+	 *
+	 * @throws ModuleNotFound If the specified module does not exist.
+     */
     function getModuleRootPath( module ) {
         var moduleRegistry = moduleService.getModuleRegistry();
 
