@@ -119,7 +119,7 @@
 					<button type="button" class="btn btn-primary" wire:click="resetExceptDataKey( ['user.name.last'] )">resetExceptDataKey( ['user.name.last'] )</button>
 					<!--- rest reset array --->
 					<button type="button" class="btn btn-primary" wire:click="resetExceptDataKey( 'user.name.first' )">resetExceptDataKey( 'user.roles' )</button>
-					<button type="button" class="btn btn-primary" wire:click="resetExceptDataKey( ['user.name.last'] )">resetExceptDataKey( ['user.roles'] )</button>
+					<button type="button" class="btn btn-primary" wire:click="resetExceptDataKey( ['user.roles'] )">resetExceptDataKey( ['user.roles'] )</button>
 					<!--- rest reset booleans --->
 					<button type="button" class="btn btn-primary" wire:click="resetExceptDataKey( 'user.subscriptions.newsletter' )">resetExceptDataKey( 'user.subscriptions.newsletter' )</button>
 					<button type="button" class="btn btn-primary" wire:click="resetExceptDataKey( ['user.subscriptions.alerts'] )">resetExceptDataKey( ['user.subscriptions.alerts'] )</button>
