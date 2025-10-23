@@ -51,9 +51,9 @@ component{
 			exclude = []
 		};
 
-		//Register interceptors as an array, we need order
+		//Register interceptors as an array, we need order*/
 		interceptors = [
-			{ class="cbwire.interceptors.CBWIRE" }
+			{ class="interceptors.TestHarnessInterceptor" }
 		];
 
 		layoutSettings = {
@@ -118,6 +118,8 @@ component{
 		} catch ( any e ) {
 			writeDump( var=e, output="console" );
 		}
+		// rescan interceptors to pick up the test harness interceptors for cbwire
+		controller.getWirebox().getInstance( "coldbox:interceptorService" ).rescanInterceptors();
 	}
 
 }

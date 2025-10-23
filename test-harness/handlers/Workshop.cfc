@@ -12,5 +12,10 @@ component {
 
     function taskList() {}
 
-    function nestedDataKeys() {}
+    function nestedDataKeys() {
+		// Clear any previously run interceptors
+		lock name="clearEventInterceptorKey" timeout="1" {
+			application.delete( "cbwire_interceptors_run" );
+		}
+	}
 }

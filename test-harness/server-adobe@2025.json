@@ -12,7 +12,8 @@
             "enable":"true"
         },
         "aliases":{
-            "/modules/cbwire":"../"
+            "/modules/cbwire":"../",
+            "/moduleroot/cbwire":"../"
         }
     },
     "JVM":{

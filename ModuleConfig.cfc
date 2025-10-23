@@ -63,7 +63,7 @@ component {
             "progressBarColor": "##2299dd",
             /**
              * Enables or disables checksum validation for component payloads.
-             * We recommend always leaving this enabled, but you can disable it 
+             * We recommend always leaving this enabled, but you can disable it
              * as needed.
              */
             "checksumValidation": true
@@ -93,7 +93,13 @@ component {
         ];
 
         interceptorSettings = {
-            customInterceptionPoints : []
+            customInterceptionPoints : [
+				"onCBWIREMount",
+				"preCBWIRERender",
+				"onCBWIRERender",
+				"preCBWIREUpdate",
+				"onCBWIREUpdate"
+			]
         };
     }
 
