@@ -458,7 +458,7 @@ component output="true" accessors="true" {
      * @return
      */
     function reset( property ){
-        // if no proeprty argument get array of all data keys (in dot notation when appropriate)
+        // if no property argument get array of all data keys (in dot notation when appropriate)
         if ( isNull( arguments.property ) )
 			arguments.property = _getDotNotationKeys();
 
