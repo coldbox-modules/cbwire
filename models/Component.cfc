@@ -1007,7 +1007,7 @@ component output="true" accessors="true" {
         if ( structKeyExists( this, "onUploadError" ) ) {
             invoke( this, "onUploadError", {
                 property: arguments.prop,
-                errors: arguments.errors,
+                errors: isNull( arguments.errors ) ? javaCast( "null", "" ) : arguments.errors,
                 multiple: arguments.multiple
             } );
         }
