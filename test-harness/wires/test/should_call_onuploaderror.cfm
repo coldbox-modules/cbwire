@@ -6,7 +6,7 @@
         "errorInfo": "",
         "isMultiple": false
     };
-    
+
     function onUploadError( property, errors, multiple ) {
         data.uploadErrored = true;
         data.erroredPropertyName = arguments.property;
@@ -21,6 +21,6 @@
         <div>Upload Errored: #uploadErrored#</div>
         <div>Errored Property Name: #erroredPropertyName#</div>
         <div>Error Info: #errorInfo#</div>
-        <div>Is Multiple: #isMultiple#</div>
+        <div>Is Multiple: #isMultiple ? "true" : "false"#</div>
     </div>
 </cfoutput>
