@@ -14,6 +14,9 @@ component output="true" accessors="true" {
 
     property name="_wirebox" inject="provider:wirebox";
 
+	property name="_cbSecurity";
+	property name="_cbSecurityEnabled";
+
     property name="data";
     property name="_id";
     property name="_compileTimeKey";
@@ -63,7 +66,7 @@ component output="true" accessors="true" {
         if ( isNull( variables._id ) ) {
             variables._id = lCase( hash( createUUID() ) );
         }
-
+		variables._cbSecurityEnabled = false;
         variables._params = [:];
         variables._compileTimeKey = hash( getCurrentTemplatePath() );
         variables._key = "";
@@ -87,6 +90,14 @@ component output="true" accessors="true" {
             for fast access where needed.
         */
         variables._metaData = getMetaData( this );
+
+		/*
+			Inject cbSecurity if installed and active
+		*/
+		if( application.cbcontroller.getWireBox().getInstance( "coldbox:moduleService" ).isModuleActive( 'cbSecurity' ) ){
+			variables._cbSecurity = application.cbcontroller.getWireBox().getInstance("@cbSecurity");
+			variables._cbSecurityEnabled = true
+		}
 
         /*
             Prep our data properties
@@ -644,6 +655,12 @@ component output="true" accessors="true" {
     function _withParams( params, lazy = false ) {
         variables._params = arguments.params;
 
+		// intercept secureMountFailMessage in params if exists and set as variable
+		if( arguments.params.keyExists( "secureMountFailMessage" ) ){
+			variables.secureMountFailMessage = arguments.params.secureMountFailMessage;
+			arguments.params.delete( "secureMountFailMessage" );
+		}
+
         if ( arguments.lazy ) return this; // Skip onMount here for lazy loaded components
 
         // Loop over our params and set them as data properties
@@ -669,7 +686,6 @@ component output="true" accessors="true" {
 
 		// Announce the onCBWIREMount event to global interceptors
 		_fireInterceptorEvent( "onCBWIREMount", { "params" : arguments.params, "lazy" : false} );
-
 
         return this;
     }
@@ -700,6 +716,102 @@ component output="true" accessors="true" {
         return this;
     }
 
+	/**
+	 * Determines if the onSecure method allows rendering.
+	 * checks if cbSecurity is enabled and if onSecure exists.
+	 *
+	 * @isInitial boolean | Indicates if this is the initial render.
+	 *
+	 * @return boolean
+	 */
+	function _onSecureShouldRender() {
+		// cbSecurity checks
+		if( variables._cbSecurityEnabled ){
+			// check wire component annotation
+			if( _metaData.keyExists( "secured" ) ){
+				return _securedAnnotationEvaluate( _metaData.secured )
+			}
+		}
+		// onSecure method
+        if ( structKeyExists( this, "onSecure" ) ) {
+            try {
+                // Fire onSecure if it exists
+               var onSecureResults = onSecure(
+					event=variables._event,
+					prc=variables._event.getPrivateCollection(),
+					isInitial=variables._initialLoad,
+					params=local.keyExists( "mountParams" ) ? local.mountParams : variables._params
+				);
+            } catch ( any e ) {
+                throw( type="CBWIREException", message="Failure when calling onSecure(). #e.message#" );
+            }
+			if( !isNull( onSecureResults ) && isBoolean( onSecureResults ) ){
+				return booleanFormat( onSecureResults ) ? true : false;
+			}
+        }
+		return true;
+	}
+
+	/**
+	 * Evaluates if a method with a secured annotation can be executed.
+	 *
+	 * @methodName string | The name of the method to evaluate.
+	 *
+	 * @return boolean | True if the method can be executed, false otherwise.
+	 */
+	function _securedAnnotationAllows( methodName ){
+		if( variables._cbSecurityEnabled && _metaData.keyExists( "functions" ) ){
+			// find metadata for method
+			var functionMetaData = variables._metaData.functions.filter( function( item ){
+				return item.name == methodName;
+			} );
+			if( functionMetaData.len() && functionMetaData[1].keyExists( "secured" ) ){
+				return _securedAnnotationEvaluate( functionMetaData[1].secured );
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Evaluates a secured annotation value.
+	 *
+	 * @annotation mixed | The secured annotation value to evaluate.
+	 *
+	 * @return boolean | True if the annotation allows access, false otherwise.
+	 */
+	function _securedAnnotationEvaluate( annotation ){
+		// comvert blank secured annotaiton to secured="true"
+		arguments.annotation = !len( arguments.annotation ) ? true : arguments.annotation;
+		// if secured is a boolean then return login status or false
+		if( isBoolean( arguments.annotation ) ){
+			return arguments.annotation ? variables._cbSecurity.isLoggedIn() : true;
+		}
+		// before checking roles/permissions, ensure user is logged in
+		if( !variables._cbSecurity.isLoggedIn() ){
+			return false;
+		}
+		// secured is NOT boolean, so check permissions/roles via cbSecurity
+		return _cbSecurity.has( arguments.annotation );
+	}
+
+	/**
+	 * Retrieves the secure mount failure message.
+	 *
+	 * @return string
+	 */
+	function _getSecureMountFailMessage(){
+		// check if overridden via variables first and return
+		if( variables.keyExists( "secureMountFailMessage" ) ){
+			return variables.secureMountFailMessage;
+		}
+		// get from module settings
+		var moduleSettings = variables._CBWIREController.getmoduleSettings();
+		return moduleSettings.keyExists( "secureMountFailMessage" ) ?
+			moduleSettings.secureMountFailMessage :
+			"";
+			// <!-- BLOCKED -->
+	}
+
     /**
      * Hydrate the component
      *
@@ -721,12 +833,22 @@ component output="true" accessors="true" {
         arguments.componentPayload.snapshot.data.filter( function( key, value ) {
             return structKeyExists( this, "onHydrate#arguments.key#" );
         } ).each( function( key, value ) {
-            invoke( this, "onHydrate#arguments.key#" );
+			if( _securedAnnotationAllows( "onHydrate#arguments.key#" ) ){
+				invoke( this, "onHydrate#arguments.key#" );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			}
         } );
 
         // Run onHydrate if it exists
-        if ( structKeyExists( this, "onHydrate" ) ) {
-            invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+        if ( structKeyExists( this, "onHydrate" ) ){
+			if( _securedAnnotationAllows( "onHydrate" ) ){
+				invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			}
         }
 
         if ( arguments.componentPayload.calls.len() && arguments.componentPayload.calls[1].method == "_finishUpload" ) {
@@ -807,7 +929,12 @@ component output="true" accessors="true" {
                 _updateDataValue( key, arguments.value );
 				var onUpdateFunctionName = "onUpdate" & key.replace( ".", "_", "all" );
 				if ( structKeyExists( this, onUpdateFunctionName) ) {
-                    invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
+					if( _securedAnnotationAllows( onUpdateFunctionName ) ){
+						invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
+					}else{
+						// Method is secured and user is not authorized!
+						// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+					}
                 }
             }
         } );
@@ -824,7 +951,12 @@ component output="true" accessors="true" {
 
         // Call onUpdate passing newValues and oldValues
         if ( structKeyExists( this, "onUpdate" ) ) {
-            invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+			if( _securedAnnotationAllows( "onUpdate" ) ){
+				invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			}
         }
     }
 
@@ -901,9 +1033,14 @@ component output="true" accessors="true" {
     function _applyCalls( calls ) {
         arguments.calls.each( function( call ) {
             try {
-                local.result = invoke( this, arguments.call.method, arguments.call.params );
-                // Capture the return value in case it's needed by the front-end
-                variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
+				if( _securedAnnotationAllows( arguments.call.method ) ){
+					local.result = invoke( this, arguments.call.method, arguments.call.params );
+					// Capture the return value in case it's needed by the front-end
+					variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
+				}else{
+					// Method is secured and user is not authorized!
+					// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+				}
             } catch ( ValidationException e ) {
                 // silently fail so the component can continue to render
             } catch( any e ) {
@@ -943,8 +1080,13 @@ component output="true" accessors="true" {
      */
     function __dispatch( event, params ) {
         local.methodToCall = variables._listeners[ arguments.event ];
-        invoke( this, local.methodToCall, arguments.params );
-    }
+		if( _securedAnnotationAllows( local.methodToCall ) ){
+			invoke( this, local.methodToCall, arguments.params );
+		}else{
+			// Method is secured and user is not authorized!
+			// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+		}
+	}
 
     /**
      * Method that is invoke when a file upload is first requested.
@@ -1005,11 +1147,16 @@ component output="true" accessors="true" {
         );
         // Check if the component has an onUploadError method and invoke it
         if ( structKeyExists( this, "onUploadError" ) ) {
-            invoke( this, "onUploadError", {
-                property: arguments.prop,
-                errors: isNull( arguments.errors ) ? javaCast( "null", "" ) : arguments.errors,
-                multiple: arguments.multiple
-            } );
+			if( _securedAnnotationAllows( "onUploadError" ) ){
+				invoke( this, "onUploadError", {
+					property: arguments.prop,
+					errors: isNull( arguments.errors ) ? javaCast( "null", "" ) : arguments.errors,
+					multiple: arguments.multiple
+				} );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			}
         }
     }
 
@@ -1498,8 +1645,14 @@ component output="true" accessors="true" {
     function _render( rendering ) {
 		_fireInterceptorEvent( "preCBWIRERender" );
 
-        local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
-		var renderedContent = variables._renderService.render( this, local.trimmedHTML );
+		// should render based on if onSecure exists and allows rendering. render only if true.
+		var renderedContent = "";
+		if( _onSecureShouldRender() ){
+			local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
+			renderedContent = variables._renderService.render( this, local.trimmedHTML );
+		}else{
+			renderedContent = ""; // <span><!-- BLOCKED --></span>
+		}
 
 		_fireInterceptorEvent( "onCBWIRERender", { "html" : renderedContent } );
 

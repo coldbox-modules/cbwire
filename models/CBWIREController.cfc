@@ -49,6 +49,11 @@ component accessors="true" singleton {
                 ._withParams( arguments.params, arguments.lazy )
                 ._withKey( arguments.key );
 
+		// should render based on if onSecure exists and allows rendering
+		if( !local.instance._onSecureShouldRender() ){
+			return local.instance._getSecureMountFailMessage();
+		}
+
         // If the component is lazy loaded, we need to generate an x-intersect snapshot of the component
         return arguments.lazy ?
             local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params ) :
