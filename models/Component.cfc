@@ -729,7 +729,16 @@ component output="true" accessors="true" {
 		if( variables._cbSecurityEnabled ){
 			// check wire component annotation
 			if( _metaData.keyExists( "secured" ) ){
-				return _securedAnnotationEvaluate( _metaData.secured )
+				var securedAnnotationAllows = _securedAnnotationEvaluate( _metaData.secured );
+				if( !securedAnnotationAllows ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: "component",
+						"cbSecurity" 	: true,
+						"annotation" 	: _metaData.secured
+					} );
+				}
+				return securedAnnotationAllows;
 			}
 		}
 		// onSecure method
@@ -746,7 +755,14 @@ component output="true" accessors="true" {
                 throw( type="CBWIREException", message="Failure when calling onSecure(). #e.message#" );
             }
 			if( !isNull( onSecureResults ) && isBoolean( onSecureResults ) ){
-				return booleanFormat( onSecureResults ) ? true : false;
+				if( !onSecureResults ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: "onSecure",
+						"cbSecurity" 	: false
+					} );
+				}
+				return onSecureResults;
 			}
         }
 		return true;
@@ -754,6 +770,7 @@ component output="true" accessors="true" {
 
 	/**
 	 * Evaluates if a method with a secured annotation can be executed.
+	 * fires onCBWIRESecureFail interceptor event if not allowed.
 	 *
 	 * @methodName string | The name of the method to evaluate.
 	 *
@@ -766,7 +783,16 @@ component output="true" accessors="true" {
 				return item.name == methodName;
 			} );
 			if( functionMetaData.len() && functionMetaData[1].keyExists( "secured" ) ){
-				return _securedAnnotationEvaluate( functionMetaData[1].secured );
+				var annotationAllows = _securedAnnotationEvaluate( functionMetaData[1].secured );
+				if( !annotationAllows ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: arguments.methodName,
+						"cbSecurity" 	: true,
+						"annotation" 	: functionMetaData[1].secured
+					} );
+				}
+				return annotationAllows;
 			}
 		}
 		return true;
@@ -847,7 +873,7 @@ component output="true" accessors="true" {
 				invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
 			}else{
 				// Method is secured and user is not authorized!
-				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
 			}
         }
 
@@ -933,7 +959,7 @@ component output="true" accessors="true" {
 						invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
 					}else{
 						// Method is secured and user is not authorized!
-						// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+						// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
 					}
                 }
             }
@@ -955,7 +981,7 @@ component output="true" accessors="true" {
 				invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
 			}else{
 				// Method is secured and user is not authorized!
-				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
 			}
         }
     }
@@ -1039,7 +1065,7 @@ component output="true" accessors="true" {
 					variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
 				}else{
 					// Method is secured and user is not authorized!
-					// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+					// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
 				}
             } catch ( ValidationException e ) {
                 // silently fail so the component can continue to render
@@ -1084,7 +1110,7 @@ component output="true" accessors="true" {
 			invoke( this, local.methodToCall, arguments.params );
 		}else{
 			// Method is secured and user is not authorized!
-			// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
 		}
 	}
 
@@ -1155,7 +1181,7 @@ component output="true" accessors="true" {
 				} );
 			}else{
 				// Method is secured and user is not authorized!
-				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
 			}
         }
     }
@@ -1651,6 +1677,8 @@ component output="true" accessors="true" {
 			local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
 			renderedContent = variables._renderService.render( this, local.trimmedHTML );
 		}else{
+			// fireInterceptor event for blocked render
+
 			renderedContent = ""; // <span><!-- BLOCKED --></span>
 		}
 
