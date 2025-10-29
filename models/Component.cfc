@@ -923,6 +923,12 @@ component output="true" accessors="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+
+		// skip applying updates if not secure
+		if( !_onSecureShouldRender() ){
+			return;
+		}
+
         if ( !updates.count() ) return;
         // Capture old values
         local.oldValues = duplicate( data );
@@ -1057,6 +1063,10 @@ component output="true" accessors="true" {
      * @return void
      */
     function _applyCalls( calls ) {
+		// skip all calls if not secure
+		if( !_onSecureShouldRender() ){
+			return;
+		}
         arguments.calls.each( function( call ) {
             try {
 				if( _securedAnnotationAllows( arguments.call.method ) ){
