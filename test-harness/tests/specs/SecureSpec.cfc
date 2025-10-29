@@ -19,6 +19,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				beforeEach( function( currentSpec ) {
 					// Assuming setup() initializes application environment
 					// and prepareMock() is a custom method to mock any dependencies, if necessary.
+					// Clear any previously run interceptors
+					lock name="clearEventInterceptorKey" timeout="1" {
+						application.delete( "cbwire_interceptors_run" );
+					}
 					setup();
 					cbwireController = getInstance("CBWIREController@cbwire");
 					event = getRequestContext();
@@ -30,6 +34,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					event.setValue( 'allowTestWireRender', true, true );
 					var result = CBWIREController.wire( "test.security.onrender_block_from_prc" );
 					expect( result ).toInclude( "<h1>A CBWire Secure Component</h1>" );
+					expect( application.cbwire_interceptors_run ).notToHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should block rendering of wire using onSecure method", function () {
@@ -38,6 +43,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = CBWIREController.wire( "test.security.onrender_block_from_prc" );
 					expect( result ).notToInclude( "<h1>A CBWire Secure Component</h1>" );
 					expect( len( trim( result ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application ).toHaveKey( "cbwire_interceptors_run" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 2 );
 				} );
 
 				it( "should block rendering of wire using onSecure method with message from cbwire settings", function () {
@@ -47,6 +57,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					event.setValue( 'allowTestWireRender', false, true );
 					var result = CBWIREController.wire( "test.security.onrender_block_from_prc" );
 					expect( result ).toInclude( "<div>MESSSAGE FROM CBWIRE SETTINGS</div>" );
+					// Verify interceptor was fired
+					expect( application ).toHaveKey( "cbwire_interceptors_run" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 2 );
 					// remove the custom setting after test
 					settings.delete( "secureMountFailMessage" );
 				} );
@@ -56,6 +71,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					event.setValue( 'allowTestWireRender', false, true );
 					var result = CBWIREController.wire( "test.security.onrender_custom_block_message_from_wire" );
 					expect( result ).toInclude( "<div>BLOCK MESSSAGE FROM COMPONENT VARIABLE</div>" );
+					// Verify interceptor was fired
+					expect( application ).toHaveKey( "cbwire_interceptors_run" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 2 );
 				} );
 
 				it( "should block rendering of wire using onSecure method with custom message from params overriding the wire variable", function () {
@@ -66,6 +86,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						{ "secureMountFailMessage" : "<div>BLOCK MESSSAGE FROM PARAMS</div>" }
 					);
 					expect( result ).toInclude( "<div>BLOCK MESSSAGE FROM PARAMS</div>" );
+					// Verify interceptor was fired
+					expect( application ).toHaveKey( "cbwire_interceptors_run" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 2 );
 				} );
 
 			} );
@@ -75,6 +100,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				beforeEach( function( currentSpec ) {
 					// Assuming setup() initializes application environment
 					// and prepareMock() is a custom method to mock any dependencies, if necessary.
+					// Clear any previously run interceptors
+					lock name="clearEventInterceptorKey" timeout="1" {
+						application.delete( "cbwire_interceptors_run" );
+					}
 					setup();
 					cbwireController = getInstance("CBWIREController@cbwire");
 					event = getRequestContext();
@@ -99,6 +128,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = cbwireController.handleRequest( payload, event );
 					expect( result.components.first().effects.html ).notToInclude( "<p>This wire should never render.</p>" );
 					expect( len( trim( result.components.first().effects.html ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					// Verify all interceptor was fired [ preCBWIREUpdate, preCBWIRERender, onCBWIRERender, onCBWIRESecureFail, onCBWIREUpdate  ]
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 5 );
 				} );
 
 			} );
@@ -108,6 +141,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				beforeEach( function( currentSpec ) {
 					// Assuming setup() initializes application environment
 					// and prepareMock() is a custom method to mock any dependencies, if necessary.
+					// Clear any previously run interceptors
+					lock name="clearEventInterceptorKey" timeout="1" {
+						application.delete( "cbwire_interceptors_run" );
+					}
 					setup();
 					cbSecurity = getInstance( "@cbSecurity" );
 					// run logout to ensure no user is logged in
@@ -123,23 +160,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation" );
 					expect( result ).notToInclude( "<p>Wire Template: cbSecurity_secured_annotation.cfm</p>" );
 					expect( len( trim( result ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should allow rendering of wire using annotation secure when logged in", function () {
 					cbSecurity.authenticate( "admin", "admin123" );
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation" );
 					expect( result ).toInclude( "<p>Wire Template: cbSecurity_secured_annotation.cfm</p>" );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).notToHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should allow rendering of wire using annotation secure='false' when logged out", function () {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation_eq_false" );
 					expect( result ).toInclude( "<p>Wire Template: cbSecurity_secured_annotation_eq_false.cfm</p>" );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).notToHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should block rendering of wire using annotation secure='write' permission when logged out", function () {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation_single_permission" );
 					expect( result ).notToInclude( "<p>Wire Template: cbSecurity_secured_annotation_single_permission.cfm</p>" );
 					expect( len( trim( result ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should allow rendering of wire using annotation secure='write' permission when logged in with permission", function () {
@@ -147,6 +192,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation_single_permission" );
 					expect( result ).toInclude( "<p>Wire Template: cbSecurity_secured_annotation_single_permission.cfm</p>" );
 					expect( len( trim( result ) ) ).notToBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).notToHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should block rendering of wire using annotation secure='write' permission when logged in without permission", function () {
@@ -154,6 +201,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation_single_permission" );
 					expect( result ).notToInclude( "<p>Wire Template: cbSecurity_secured_annotation_single_permission.cfm</p>" );
 					expect( len( trim( result ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should allow rendering of wire using annotation secure='write,delete' permission (multiple) when logged in with permission", function () {
@@ -161,6 +210,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation_multiple_permission" );
 					expect( result ).toInclude( "<p>Wire Template: cbSecurity_secured_annotation_multiple_permission.cfm</p>" );
 					expect( len( trim( result ) ) ).notToBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).notToHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it( "should block rendering of wire using annotation secure='write,delete' permission (multiple) when logged in without permission", function () {
@@ -168,6 +219,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = CBWIREController.wire( "test.security.cbSecurity_secured_annotation_multiple_permission" );
 					expect( result ).notToInclude( "<p>Wire Template: cbSecurity_secured_annotation_multiple_permission.cfm</p>" );
 					expect( len( trim( result ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
 				} );
 
 			} );
@@ -177,6 +230,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				beforeEach( function( currentSpec ) {
 					// Assuming setup() initializes application environment
 					// and prepareMock() is a custom method to mock any dependencies, if necessary.
+					// Clear any previously run interceptors
+					lock name="clearEventInterceptorKey" timeout="1" {
+						application.delete( "cbwire_interceptors_run" );
+					}
 					setup();
 					cbSecurity = getInstance( "@cbSecurity" );
 					// run logout to ensure no user is logged in
@@ -203,6 +260,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = cbwireController.handleRequest( payload, event );
 					expect( result.components.first().effects.html ).notToInclude( "<p>Wire Template: cbSecurity_secured_annotation.cfm</p>" );
 					expect( len( trim( result.components.first().effects.html ) ) ).toBe( 0 );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					// Verify all interceptor was fired [ preCBWIREUpdate, preCBWIRERender, onCBWIRERender, onCBWIRESecureFail, onCBWIREUpdate  ]
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 5 );
 				} );
 
 				it( "should invoke un-secured method updateDataKeyOne() and NOT invoke secured method updateDataKeyTwo()", () => {
@@ -228,6 +289,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					// updateDataKeyTwo() is secured so it should NOT update
 					expect( result.components.first().effects.html ).notToInclude( "<p>KeyTwo:updatedValueTwo</p>" );
 					expect( result.components.first().effects.html ).toInclude( "<p>KeyTwo:valueTwo</p>" );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					// Verify all interceptor was fired [ preCBWIREUpdate, preCBWIRERender, onCBWIRERender, onCBWIRESecureFail, onCBWIREUpdate  ]
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 5 );
 				} );
 
 				it( "should invoke both updateDataKeyOne() and updateDataKeyTwo() when logged in", () => {
@@ -255,6 +320,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					// updateDataKeyTwo() is secured so it should NOT update
 					expect( result.components.first().effects.html ).toInclude( "<p>KeyTwo:updatedValueTwo</p>" );
 					expect( result.components.first().effects.html ).notToInclude( "<p>KeyTwo:valueTwo</p>" );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).notToHaveKey( "onCBWIRESecureFail" );
 				} );
 
 				it("should allow render, invoke secured methods except updateDataKeyFour()", () => {
@@ -286,6 +353,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( result.components.first().effects.html ).toInclude( "<p>keyFour:valueFour</p>" );
 
 					expect( result.components.first().effects.html ).notToInclude( "<p>keyFour:updatedValueTwo</p>" );
+
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					// Verify all interceptor was fired [ preCBWIREUpdate, preCBWIRERender, onCBWIRERender, onCBWIRESecureFail, onCBWIREUpdate  ]
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 5 );
 				} );
 
 				it("should allow render, invoke secured methods except updateDataKeyTwo() and updateDataKeyFour() based on user permissions", () => {
@@ -319,9 +391,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					// what we do NOT expect
 					expect( result.components.first().effects.html ).notToInclude( "<p>keyFour:updatedValueTwo</p>" );
 					expect( result.components.first().effects.html ).notToInclude( "<p>keyTwo:updatedValueTwo</p>" );
+					// Verify interceptor was fired
+					expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRESecureFail" );
+					// Verify all interceptor was fired [ preCBWIREUpdate, preCBWIRERender, onCBWIRERender, onCBWIRESecureFail, onCBWIREUpdate  ]
+					expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 5 );
 				} );
 
 			} );
+
     	} );
 
 	};

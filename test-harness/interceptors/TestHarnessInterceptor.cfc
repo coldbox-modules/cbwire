@@ -34,6 +34,12 @@ component {
 		return false;
 	}
 
+	function onCBWIRESecureFail() {
+		log.debug( "onCBWIRESecureFail called in TestHarnessInterceptor FIRED" );
+		logRunningEventInterceptor( "onCBWIRESecureFail" );
+		// throw( type="CBWIREException", message="Failure when calling onCBWIRESecureFail() interceptor." );
+	}
+
 	private function logRunningEventInterceptor( interceptorName ){
 		lock name="logRunningEventInterceptor" timeout="1" {
 			if( !application.keyExists( "cbwire_interceptors_run" ) ){
