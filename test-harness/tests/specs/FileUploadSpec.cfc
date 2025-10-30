@@ -12,7 +12,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         directoryCreate( local.tempFolder );
 
         // Ensure /resources exists
-        local.resourcePath = expandPath( "../resources" );
+        local.resourcePath = expandPath( "/resources" );
         if ( !directoryExists( local.resourcePath ) ) {
             directoryCreate( local.resourcePath );
         }
@@ -206,13 +206,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
         required string contentType,
         required string contentSubType
     ) {
-        var metaPath = expandPath( "../resources/fileupload_metadata.json" );
+        var metaPath = expandPath( "/cbwire/test-harness/tests/resources/fileupload_metadata.json" );
 
         // Create a unique copy of logo.png for this test instance
         // This ensures each test that calls store() has its own file to move
         var uniqueFileName = "logo_" & arguments.uuid & ".png";
-        var sourcePath = expandPath( "./resources/logo.png" );
-        var destinationPath = expandPath( "./resources/" & uniqueFileName );
+        var sourcePath = expandPath( "/cbwire/test-harness/tests/resources/logo.png" );
+        var destinationPath = expandPath( "/cbwire/test-harness/tests/resources/" & uniqueFileName );
 
         // Always create a fresh copy for each test
         if ( fileExists( sourcePath ) ) {
@@ -227,7 +227,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             path = metaPath,
             data = {
                 "uuid" : arguments.uuid,
-                "serverDirectory" : expandPath( "./resources" ),
+                "serverDirectory" : expandPath( "/cbwire/test-harness/tests/resources" ),
                 "serverFile" : uniqueFileName,
                 "contentType" : arguments.contentType,
                 "contentSubType" : arguments.contentSubType,
