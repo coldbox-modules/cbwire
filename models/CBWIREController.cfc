@@ -224,13 +224,8 @@ component accessors="true" singleton {
         local.componentDSL = arguments.name;
 
         if ( !local.componentDSL contains "wires." ) {
-            // Get the default wires location from our setttings
-            if ( moduleSettings.keyExists( "wiresLocation" ) ) {
-                local.componentDSL = moduleSettings.wiresLocation & "." & local.componentDSL;
-            } else {
-                // Fallback
-            local.componentDSL = "wires." & local.componentDSL;
-            }
+            // Get the default wires location from our settings
+            local.componentDSL = getWiresLocation() & "." & local.componentDSL;
         }
 
         if ( find( "@", local.componentDSL ) ) {
@@ -653,5 +648,16 @@ component accessors="true" singleton {
     function getUploadEndpoint() {
         var updateEndpoint = getUpdateEndpoint();
         return updateEndpoint.replaceNoCase( "/update", "/upload", "one" );
+    }
+
+    /**
+     * Returns the wires location setting.
+     * This helper method is used internally by getModuleComponentPath() to determine
+     * the folder path where wire components are stored within modules.
+     *
+     * @return string The wires location from settings, defaults to "wires"
+     */
+    private function getWiresLocation(){
+        return moduleSettings.keyExists( "wiresLocation" ) ? moduleSettings.wiresLocation : "wires";
     }
 }
