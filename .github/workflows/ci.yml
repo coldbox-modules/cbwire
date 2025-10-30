@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2021", "adobe@2023" ]
+        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2021", "adobe@2023", "adobe@2025" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -70,6 +70,9 @@ jobs:
             box run-script install:2021
           fi
           if [[ "${{ matrix.cfengine }}" == "adobe@2023" ]] ; then
+            box run-script install:2023
+          fi
+          if [[ "${{ matrix.cfengine }}" == "adobe@2025" ]] ; then
             box run-script install:2023
           fi
           curl http://127.0.0.1:60299
