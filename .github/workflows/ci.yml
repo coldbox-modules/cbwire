@@ -73,7 +73,7 @@ jobs:
             box run-script install:2023
           fi
           if [[ "${{ matrix.cfengine }}" == "adobe@2025" ]] ; then
-            box run-script install:2023
+            box run-script install:2025
           fi
           curl http://127.0.0.1:60299
 
