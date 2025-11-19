@@ -79,13 +79,16 @@ component accessors="true" singleton {
 			}
 		);
 
-        // Set the CSRF token for the request
-        local.csrfToken = local.payload._token;
-        // Validate the CSRF token
-        local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
-        // Check the CSRF token, throw 403 if invalid
-        if( !local.csrfTokenVerified ){
-            throw( type="CBWIREException", message="Page expired." );
+        // Check if CSRF protection is enabled in settings
+        if( variables.moduleSettings.csrfProtection ){
+            // Set the CSRF token for the request
+            local.csrfToken = local.payload._token;
+            // Validate the CSRF token
+            local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
+            // Check the CSRF token, throw 403 if invalid
+            if( !local.csrfTokenVerified ){
+                throw( type="CBWIREException", message="Page expired." );
+            }
         }
 
         // Perform additional deserialization of the component snapshots

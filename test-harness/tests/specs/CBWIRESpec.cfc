@@ -707,6 +707,32 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } ).toThrow( type="CBWIREException", message="Page expired." );
             } );
 
+            it( "should not throw a 419 Page Expired error if CSRF protection is disabled", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                var originalSetting = settings.csrfProtection;
+                settings.csrfProtection = false;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = {},
+                    csrfToken = "badToken"
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( isStruct( response ) ).toBeTrue();
+                // Restore original setting
+                settings.csrfProtection = originalSetting;
+            } );
+
+            it( "should enable CSRF protection by default", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                expect( settings.csrfProtection ).toBeTrue();
+            } );
+
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {
                 var payload = incomingRequest(
                     memo = {

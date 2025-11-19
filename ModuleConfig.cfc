@@ -66,7 +66,14 @@ component {
              * We recommend always leaving this enabled, but you can disable it
              * as needed.
              */
-            "checksumValidation": true
+            "checksumValidation": true,
+            /**
+             * Enables or disables CSRF protection for CBWIRE requests.
+             * When enabled (default), all CBWIRE requests will be validated using CSRF tokens.
+             * You can disable this for desktop applications or other contexts where CSRF is not a concern.
+             * We recommend leaving this enabled for web applications.
+             */
+            "csrfProtection": true
         };
 
         routes = [
