@@ -175,7 +175,7 @@ component accessors="true" singleton {
             return event.renderData( statusCode=403, statusText="Forbidden", data="Invalid signed URL." );
         }
         // Perform actual upload of files
-        local.results = fileUploadAll( destination=local.storagePath, nameConflict="makeUnique" );
+        local.results = fileUploadAll( destination=local.storagePath, onConflict="makeUnique" );
         local.paths = local.results.map( function( _result ) {
             local.id = createUUID();
             fileWrite( getCanonicalPath( storagePath & "/#local.id#.json" ), serializeJSON( arguments._result ) );
