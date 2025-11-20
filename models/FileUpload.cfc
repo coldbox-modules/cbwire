@@ -124,16 +124,18 @@ component {
 
     /**
      * Moves the file from temporary storage to a permanent location.
-     * 
+     *
      * The metadata file remains in the uploads temp directory to track the upload state,
      * while the actual file is moved to the specified permanent location. This allows
      * the FileUpload object to continue tracking the file even after it's been stored.
-     * 
+     *
      * @path The destination path where the file should be stored (can be a directory or full file path)
      * @return The absolute path to the stored file
      */
     function store( required string path ){
-        var destinationPath = getCanonicalPath( arguments.path );
+        // Normalize path by replacing multiple slashes with single slash
+        var normalizedPath = reReplace( arguments.path, "/{2,}", "/", "all" );
+        var destinationPath = getCanonicalPath( normalizedPath );
         
         // Check if destination is a directory
         if ( directoryExists( destinationPath ) ) {
