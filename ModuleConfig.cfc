@@ -98,7 +98,8 @@ component {
 				"preCBWIRERender",
 				"onCBWIRERender",
 				"preCBWIREUpdate",
-				"onCBWIREUpdate"
+				"onCBWIREUpdate",
+				"onCBWIRESecureFail"
 			]
         };
     }
