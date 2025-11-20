@@ -83,9 +83,12 @@ component accessors="true" singleton {
      * @return void
      */
     private function generateFiles( componentName, sourcePath ){
+
         local.parsedContents = parseContents( arguments.sourcePath );
 
-        arguments.componentName = listLast( arguments.componentName, "." );
+        arguments.componentName = replaceNoCase( arguments.componentName, "wires.", "" );
+        
+        arguments.componentName = replace( arguments.componentName, ".", "/", "all" );
 
         local.currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
         local.tmpDirectory = local.currentDirectory & "tmp";
@@ -112,6 +115,10 @@ component accessors="true" singleton {
         if ( !directoryExists( local.tmpDirectory ) ) {
             directoryCreate( local.tmpDirectory );
         }
+
+        // Recursively create all subdirectories for the component path in tmp storage
+        local.componentDirectory = getDirectoryFromPath( local.tmpClassPath );
+        ensureDirectoryExists( local.componentDirectory );
 
         if ( arguments.sourcePath contains ".bxm" ) {
             local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.bx" );
@@ -151,12 +158,31 @@ component accessors="true" singleton {
      */
     private function loadComponent( required componentName, required tempComponentName, module = "" ){
         local.comp = getWireBox().getInstance( "cbwire.models.tmp.#arguments.tempComponentName#" );
-
-        // local.comp.setSingleFileComponentType( arguments.componentName );
-        // local.comp.setSingleFileComponentId( arguments.tempComponentName );
-        // local.comp.setModule( arguments.module );
-
         return local.comp;
+    }
+
+    /**
+     * Recursively creates directories if they don't exist.
+     * Compatible with ACF which doesn't support the createPath argument.
+     *
+     * @directoryPath string
+     *
+     * @return void
+     */
+    private function ensureDirectoryExists( required directoryPath ){
+        if ( directoryExists( arguments.directoryPath ) ) {
+            return;
+        }
+
+        local.parentDirectory = getDirectoryFromPath( arguments.directoryPath.reReplace( "[\\/]$", "" ) );
+        
+        if ( len( local.parentDirectory ) && local.parentDirectory != arguments.directoryPath ) {
+            ensureDirectoryExists( local.parentDirectory );
+        }
+
+        if ( !directoryExists( arguments.directoryPath ) ) {
+            directoryCreate( arguments.directoryPath );
+        }
     }
 
 }

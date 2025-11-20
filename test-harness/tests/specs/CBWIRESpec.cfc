@@ -406,8 +406,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = CBWIREController.wire( "test.should_support_child_components" );
                 var parent = parseRendering( result, 1 );
                 var child = parseRendering( result, 2 );
-                expect( parent.snapshot.memo.name ).toBe( "should_support_child_components" );
-                expect( child.snapshot.memo.name ).toBe( "child_component" );
+                expect( parent.snapshot.memo.name ).toBe( "test.should_support_child_components" );
+                expect( child.snapshot.memo.name ).toBe( "test.child_component" );
                 expect( parent.snapshot.memo.children ).toBeStruct();
             } );
 
