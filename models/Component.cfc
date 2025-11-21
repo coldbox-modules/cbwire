@@ -94,8 +94,8 @@ component output="true" accessors="true" {
 		/*
 			Inject cbSecurity if installed and active
 		*/
-		if( application.cbcontroller.getWireBox().getInstance( "coldbox:moduleService" ).isModuleActive( 'cbSecurity' ) ){
-			variables._cbSecurity = application.cbcontroller.getWireBox().getInstance("provider:@cbsecurity");
+		if( _wirebox.getInstance( "coldbox:moduleService" ).isModuleActive( 'cbSecurity' ) ){
+			variables._cbSecurity = _wirebox.getInstance("@cbsecurity");
 			variables._cbSecurityEnabled = true
 		}
 
