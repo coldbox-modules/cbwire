@@ -146,7 +146,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						application.delete( "cbwire_interceptors_run" );
 					}
 					setup();
-					cbSecurity = getInstance( "CBSecurity@cbsecurity" );
+					cbSecurity = getWirebox().getInstance( "CBSecurity@cbsecurity" );
 					// run logout to ensure no user is logged in
 					cbSecurity.logout();
 					cbwireController = getInstance("CBWIREController@cbwire");
@@ -235,7 +235,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						application.delete( "cbwire_interceptors_run" );
 					}
 					setup();
-					cbSecurity = getInstance( "CBSecurity@cbsecurity" );
+					cbSecurity = getWireBox().getInstance( "CBSecurity@cbsecurity" );
 					// run logout to ensure no user is logged in
 					cbSecurity.logout();
 					cbwireController = getInstance("CBWIREController@cbwire");
