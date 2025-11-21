@@ -5,6 +5,7 @@
         "cfengine":"boxlang@be"
     },
     "web":{
+        "caseSensitivePaths": false,
         "http":{
             "port":"60299"
         },

@@ -5,6 +5,7 @@
         "cfengine":"adobe@2021"
     },
     "web":{
+        "caseSensitivePaths": false,
         "http":{
             "port":"60299"
         },

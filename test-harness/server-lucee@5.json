@@ -5,6 +5,7 @@
         "cfengine":"lucee@5"
     },
     "web":{
+        "caseSensitivePaths": false,
         "http":{
             "port":"60299"
         },
