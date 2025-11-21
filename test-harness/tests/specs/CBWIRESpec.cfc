@@ -1597,7 +1597,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it("should handle module reference with @ symbol", function() {
                 //cbwireController.$("getModuleComponentPath", "modules.testModule.wires.TestComponent");
                 var result = cbwireController.getComponentDSL("TestComponent@testingmodule");
-                expect(result).toBe("modules_app.testingmodule.wires.TestComponent");
+                expect(result).toBe("root.modules_app.testingmodule.wires.TestComponent");
             });
 
             it("should throw ModuleNotFound exception when module reference has invalid format", function() {

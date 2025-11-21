@@ -127,17 +127,18 @@ component{
 	 * Load the Module you are testing
 	 */
 	function afterAspectsLoad( event, interceptData, rc, prc ){
+
 		controller.getModuleService()
 			.registerAndActivateModule(
 				moduleName 		= request.MODULE_NAME,
 				invocationPath 	= "moduleroot"
 			);
-		try {
-			controller.getRenderer().loadApplicationHelpers( true );
-		} catch ( any e ) {
-			writeDump( var=e, output="console" );
-		}
-		// rescan interceptors to pick up the test harness interceptors for cbwire
+
+        // Reload the renderer in case we have module helpers
+        controller.getRenderer().startup()
+        // Reload all interceptors with new mixins if available.
+        controller.getInterceptorService().announce( "cbLoadInterceptorHelpers" )
+		// Rescan interceptors to pick up the test harness interceptors for cbwire
 		controller.getWirebox().getInstance( "coldbox:interceptorService" ).rescanInterceptors();
 	}
 

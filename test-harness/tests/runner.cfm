@@ -10,9 +10,9 @@
 <cfparam name="url.propertiesSummary" 	default="false" type="boolean">
 
 <cfparam name="url.editor" 				default="vscode">
-<cfparam name="url.coverageEnabled"					default="true" type="boolean">
+<cfparam name="url.coverageEnabled"					default="false" type="boolean">
 <cfparam name="url.coverageSonarQubeXMLOutputPath"	default="">
-<cfparam name="url.coveragePathToCapture"			default="#expandPath( '/cbwire' )#">
+<cfparam name="url.coveragePathToCapture"			default="#expandPath( '/moduleroot/cbwire' )#">
 <cfparam name="url.coverageWhitelist"				default="">
 <cfparam name="url.coverageBlacklist"				default="/build/**,/includes/**,/helpers/**,/test-harness/**,/coldbox/**">
 <!--- FYI the "coverageBrowserOutputDir" folder will be DELETED and RECREATED each time
