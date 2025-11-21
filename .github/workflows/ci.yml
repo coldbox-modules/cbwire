@@ -35,17 +35,17 @@ jobs:
           distribution: "adopt"
           java-version: "17"
 
-      - name: Cache CommandBox Dependencies
-        uses: actions/cache@v4
-        if: ${{ true }}
-        with:
-          path: ~/.CommandBox/artifacts
-          key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
-          restore-keys: |
-            ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
+      # - name: Cache CommandBox Dependencies
+      #   uses: actions/cache@v4
+      #   if: ${{ true }}
+      #   with:
+      #     path: ~/.CommandBox/artifacts
+      #     key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
+      #     restore-keys: |
+      #       ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
 
       - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+        uses: elpete/setup-commandbox@v1.0.1
 
       - name: Setup env.VERSION
         run: |
