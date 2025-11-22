@@ -28,7 +28,7 @@ CBWIRE is a ColdBox module that enables developers to build modern, reactive, si
 
 This project uses `commandbox-cfformat` for automatic code formatting. The configuration is in `.cfformat.json`. Key formatting rules:
 
-- Tab indentation (4 spaces)
+- Tab indentation (actual tab characters with display width of 4 spaces)
 - Double quotes for strings
 - Padding inside parentheses, brackets, and struct literals
 - Arrays/structs split to multiple lines when > 40 characters or > 2 elements
@@ -120,9 +120,9 @@ box testbox run
 
 The CI runs tests against:
 
-- Lucee 5
-- Adobe ColdFusion 2021
-- Adobe ColdFusion 2023
+- Lucee 5+
+- Adobe ColdFusion 2021+
+- Adobe ColdFusion 2023+
 
 ### Building Documentation
 
@@ -193,14 +193,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 Module settings are defined in `ModuleConfig.cfc`:
 
-- `autoInjectAssets` - Auto-include CSS/JS assets
+- `autoInjectAssets` - Auto-include CSS/JS assets (default: `true`)
 - `moduleRootPath` - Physical path to module
-- `moduleRootURL` - URL to module root
-- `throwOnMissingSetterMethod` - Throw exception on missing setters
-- `wiresLocation` - Folder name for wire components (default: "wires")
-- `trimStringValues` - Trim string properties
-- `showProgressBar` - Enable progress bar with wire:navigate
-- `progressBarColor` - Progress bar color
+- `moduleRootURL` - URL to module root (default: `"/modules/cbwire"`)
+- `throwOnMissingSetterMethod` - Throw exception on missing setters (default: `false`)
+- `wiresLocation` - Folder name for wire components (default: `"wires"`)
+- `trimStringValues` - Trim string properties (default: `false`)
+- `showProgressBar` - Enable progress bar with wire:navigate (default: `true`)
+- `progressBarColor` - Progress bar color (default: `"#2299dd"`)
 
 ## Dependencies
 
