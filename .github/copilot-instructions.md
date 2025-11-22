@@ -19,7 +19,7 @@ CBWIRE is a ColdBox module that enables developers to build modern, reactive, si
 2. **Function Casing**:
    - Built-in functions: Follow CFDocs casing conventions
    - User-defined functions: camelCase
-3. **Indentation**: Use actual tab characters (display width: 4 spaces)
+3. **Indentation**: Use tab characters for indentation (configured to display as 4 spaces width)
 4. **Line Length**: Maximum 120 characters
 5. **Quotes**: Use double quotes for strings
 6. **Struct Separator**: Use ` : ` (space-colon-space) for struct key-value pairs
@@ -150,7 +150,7 @@ component extends="cbwire.models.Component" {
         "message": "Hello World"
     };
     
-    function updateMessage( newMessage ) {
+    public function updateMessage( required string newMessage ) {
         data.message = newMessage;
     }
 }
