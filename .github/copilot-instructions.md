@@ -19,7 +19,7 @@ CBWIRE is a ColdBox module that enables developers to build modern, reactive, si
 2. **Function Casing**:
    - Built-in functions: Follow CFDocs casing conventions
    - User-defined functions: camelCase
-3. **Indentation**: Use tabs (4 spaces equivalent)
+3. **Indentation**: Use actual tab characters (display width: 4 spaces)
 4. **Line Length**: Maximum 120 characters
 5. **Quotes**: Use double quotes for strings
 6. **Struct Separator**: Use ` : ` (space-colon-space) for struct key-value pairs
@@ -194,7 +194,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 Module settings are defined in `ModuleConfig.cfc`:
 
 - `autoInjectAssets` - Auto-include CSS/JS assets (default: `true`)
-- `moduleRootPath` - Physical path to module
+- `moduleRootPath` - Physical path to module (computed from module location)
 - `moduleRootURL` - URL to module root (default: `"/modules/cbwire"`)
 - `throwOnMissingSetterMethod` - Throw exception on missing setters (default: `false`)
 - `wiresLocation` - Folder name for wire components (default: `"wires"`)
