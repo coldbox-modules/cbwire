@@ -28,11 +28,8 @@
         "runner":"http://localhost:60299/tests/runner.cfm"
     },
     "scripts":{
-        "cfpm":"echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\"' | run",
-        "cfpm:install2021":"echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
         "cfpm:install2023":"echo '\".engine/adobe2023/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
         "cfpm:install2025":"echo '\".engine/adobe2025/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
-        "install:2021":"run-script cfpm:install2021 zip,debugger",
         "install:2023":"run-script cfpm:install2023 zip,debugger",
         "install:2025":"run-script cfpm:install2025 zip,debugger"
     }
