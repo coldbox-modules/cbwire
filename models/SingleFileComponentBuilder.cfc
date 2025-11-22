@@ -50,12 +50,25 @@ component accessors="true" singleton {
         local.startedWire = false;
         local.endedWire = false;
 
+		var isBoxLang = arguments.cfmPath.listToArray(".").last() == "bxm" ? true : false;
+		local.insideScriptTag = false;
+		local.REStartScriptTag = isBoxLang ? "<\s*bx:script\s*>" : "<\s*cfscript\s*>";
+		local.REEndScriptTag = isBoxLang ? "<\s*/\s*bx:script\s*>" : "<\s*/\s*cfscript\s*>";
+
         for ( local.line in local.fileContents.listToArray( chr( 10 ) ) ) {
-            if ( local.line contains "@startWire" ) {
+
+			if ( REFindNoCase( local.REStartScriptTag, local.line ) > 0 ) {
+				local.insideScriptTag = true;
+			}
+			if ( REFindNoCase( local.REEndScriptTag, local.line  ) > 0 ) {
+				local.insideScriptTag = false;
+			}
+
+            if ( local.insideScriptTag && local.line contains "@startWire" ) {
                 local.startedWire = true;
                 continue;
             }
-            if ( local.line contains "@endWire" ) {
+			if ( local.insideScriptTag && local.line contains "@endWire" ) {
                 local.endedWire = true;
                 continue;
             }
@@ -65,10 +78,6 @@ component accessors="true" singleton {
             } else {
                 local.remainingContents &= local.line & chr( 10 );
             }
-        }
-
-        if ( !local.startedWire || !local.endedWire ) {
-            throw( type="CBWIREException", message="The CBWIRE component '#arguments.cfmPath#' is missing '//@startWire' and '//@endWire' markers. Please place these in your CFSCRIPT block and place each one on a single line." );
         }
 
         return {
@@ -84,16 +93,18 @@ component accessors="true" singleton {
      */
     private function generateFiles( componentName, sourcePath ){
 
+		var isBoxLang = arguments.sourcePath.listToArray(".").last() == "bxm" ? true : false;
+
         local.parsedContents = parseContents( arguments.sourcePath );
 
         arguments.componentName = replaceNoCase( arguments.componentName, "wires.", "" );
-        
+
         arguments.componentName = replace( arguments.componentName, ".", "/", "all" );
 
         local.currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
         local.tmpDirectory = local.currentDirectory & "tmp";
 
-        if ( arguments.sourcePath contains ".bxm" ) {
+        if ( isBoxLang ) {
             local.tmpClassPath = local.tmpDirectory & "/#arguments.componentName#.bx";
             local.tmpTemplatePath = local.tmpDirectory & "/#arguments.componentName#.bxm";
         } else {
@@ -120,7 +131,7 @@ component accessors="true" singleton {
         local.componentDirectory = getDirectoryFromPath( local.tmpClassPath );
         ensureDirectoryExists( local.componentDirectory );
 
-        if ( arguments.sourcePath contains ".bxm" ) {
+        if ( isBoxLang ) {
             local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.bx" );
         } else {
             local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.cfc" );
@@ -175,7 +186,7 @@ component accessors="true" singleton {
         }
 
         local.parentDirectory = getDirectoryFromPath( arguments.directoryPath.reReplace( "[\\/]$", "" ) );
-        
+
         if ( len( local.parentDirectory ) && local.parentDirectory != arguments.directoryPath ) {
             ensureDirectoryExists( local.parentDirectory );
         }
