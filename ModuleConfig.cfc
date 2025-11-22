@@ -3,7 +3,7 @@ component {
     this.version = "@build.version@+@build.number@";
     this.author = "Ortus Solutions";
     this.webUrl = "https://github.com/coldbox-modules/cbwire";
-    this.dependencies = [];
+    this.dependencies = [ "cbstorages" ];
     this.entryPoint = "cbwire";
     this.layoutParentLookup = false;
     this.viewParentLookup = false;
@@ -66,7 +66,25 @@ component {
              * We recommend always leaving this enabled, but you can disable it
              * as needed.
              */
-            "checksumValidation": true
+            "checksumValidation": true,
+            /**
+             * Enables Cross-Site Request Forgery (CSRF) protection for CBWIRE requests.
+             * When enabled, all component actions require a valid CSRF token.
+             * When disabled, checksum validation still provides security against tampering.
+             */
+            "csrfEnabled": true,
+            /**
+             * Specifies the WireBox mapping for the CSRF token storage service.
+             * The service must implement the ICSRFStorage interface.
+             *
+             * Built-in options:
+             * - "SessionCSRFStorage@cbwire" (default) - Session-based storage, OWASP recommended
+             * - "CacheCSRFStorage@cbwire" - Cache-based storage for distributed/clustered systems
+             *
+             * You can also provide your own custom implementation that implements
+             * cbwire.models.interfaces.ICSRFStorage
+             */
+            "csrfService": "SessionCSRFStorage@cbwire"
         };
 
         routes = [

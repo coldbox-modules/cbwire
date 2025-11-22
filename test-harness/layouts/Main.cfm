@@ -6,7 +6,7 @@
 </head>
 <body>
 	<header>
-		<h1>Welcome to CBWIRE 4</h1>
+		<h1>Welcome to CBWIRE</h1>
 	</header>
 
 	#view()#

@@ -6,8 +6,8 @@ component accessors="true" singleton {
     // Injected RequestService so that we can access the current ColdBox RequestContext.
     property name="requestService" inject="coldbox:requestService";
 
-    // Inject CBCSRF for CSRF token generation and verification
-    property name="cbcsrf" inject="provider:@cbcsrf";
+    // Inject TokenService for CSRF token generation and verification
+    property name="tokenService" inject="provider:TokenService@cbwire";
 
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
@@ -84,13 +84,13 @@ component accessors="true" singleton {
 			}
 		);
 
-        // Set the CSRF token for the request
-        local.csrfToken = local.payload._token;
-        // Validate the CSRF token
-        local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
-        // Check the CSRF token, throw 403 if invalid
-        if( !local.csrfTokenVerified ){
-            throw( type="CBWIREException", message="Page expired." );
+        // Verify CSRF token if CSRF protection is enabled
+        if ( variables.moduleSettings.csrfEnabled ) {
+            local.csrfToken = local.payload._token;
+            local.csrfTokenVerified = variables.tokenService.verify( local.csrfToken );
+            if( !local.csrfTokenVerified ){
+                throw( type="CBWIREException", message="Page expired." );
+            }
         }
 
         // Perform additional deserialization of the component snapshots
@@ -530,12 +530,15 @@ component accessors="true" singleton {
 
     /**
      * Generates a CSRF token for the current request.
+     * Returns empty string if CSRF protection is disabled.
      *
      * @return string
      */
     function generateCSRFToken() {
-        // Generate the CSRF token using the cbcsrf library
-        return variables.cbcsrf.generate();
+        // Generate the CSRF token using cbwire's token service if enabled
+        return variables.moduleSettings.csrfEnabled ?
+            variables.tokenService.generate() :
+            "";
     }
 
     /**
