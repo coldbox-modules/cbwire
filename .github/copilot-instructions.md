@@ -6,10 +6,10 @@ CBWIRE is a ColdBox module that enables developers to build modern, reactive, si
 
 ## Language and Framework
 
-- **Primary Language**: CFML (ColdFusion Markup Language)
+- **Primary Languages**: CFML (ColdFusion Markup Language), BoxLang
 - **Framework**: ColdBox (CFML MVC framework)
-- **File Extensions**: `.cfc` (ColdFusion Component), `.cfm` (ColdFusion Markup)
-- **CFML Engines Supported**: Lucee 5+, Adobe ColdFusion 2021+, Adobe ColdFusion 2023+
+- **File Extensions**: `.cfc` (ColdFusion Component), `.cfm` (ColdFusion Markup), `.bx` (BoxLang)
+- **CFML Engines Supported**: Lucee 5+, Adobe ColdFusion 2021+, Adobe ColdFusion 2023+, BoxLang 1+
 
 ## Code Style and Conventions
 
