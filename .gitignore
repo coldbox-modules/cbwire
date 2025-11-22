@@ -22,7 +22,7 @@ logs/**
 # node modules
 node_modules/**
 
-livewire/**
+/livewire/**
 
 models/tmp/**
 
