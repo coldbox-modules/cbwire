@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2021", "adobe@2023", "adobe@2025" ]
+        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2023", "adobe@2025" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -65,10 +65,7 @@ jobs:
         working-directory: ./test-harness
         run: |
           box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
-          # Install Adobe 2021 cfpm modules
-          if [[ "${{ matrix.cfengine }}" == "adobe@2021" ]] ; then
-            box run-script install:2021
-          fi
+          # Install Adobe cfpm modules
           if [[ "${{ matrix.cfengine }}" == "adobe@2023" ]] ; then
             box run-script install:2023
           fi
