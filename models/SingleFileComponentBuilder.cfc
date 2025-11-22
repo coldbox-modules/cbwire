@@ -50,10 +50,10 @@ component accessors="true" singleton {
         local.startedWire = false;
         local.endedWire = false;
 
-		var isBoxLang = arguments.cfmPath.listToArray(".").last() == "bxm" ? true : false;
+		local.isBoxLang = arguments.cfmPath.listToArray(".").last() == "bxm" ? true : false;
 		local.insideScriptTag = false;
-		local.REStartScriptTag = isBoxLang ? "<\s*bx:script\s*>" : "<\s*cfscript\s*>";
-		local.REEndScriptTag = isBoxLang ? "<\s*/\s*bx:script\s*>" : "<\s*/\s*cfscript\s*>";
+		local.REStartScriptTag = local.isBoxLang ? "<\s*bx:script\s*>" : "<\s*cfscript\s*>";
+		local.REEndScriptTag = local.isBoxLang ? "<\s*/\s*bx:script\s*>" : "<\s*/\s*cfscript\s*>";
 
         for ( local.line in local.fileContents.listToArray( chr( 10 ) ) ) {
 
@@ -93,7 +93,7 @@ component accessors="true" singleton {
      */
     private function generateFiles( componentName, sourcePath ){
 
-		var isBoxLang = arguments.sourcePath.listToArray(".").last() == "bxm" ? true : false;
+		local.isBoxLang = arguments.sourcePath.listToArray(".").last() == "bxm" ? true : false;
 
         local.parsedContents = parseContents( arguments.sourcePath );
 
@@ -104,7 +104,7 @@ component accessors="true" singleton {
         local.currentDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
         local.tmpDirectory = local.currentDirectory & "tmp";
 
-        if ( isBoxLang ) {
+        if ( local.isBoxLang ) {
             local.tmpClassPath = local.tmpDirectory & "/#arguments.componentName#.bx";
             local.tmpTemplatePath = local.tmpDirectory & "/#arguments.componentName#.bxm";
         } else {
@@ -131,7 +131,7 @@ component accessors="true" singleton {
         local.componentDirectory = getDirectoryFromPath( local.tmpClassPath );
         ensureDirectoryExists( local.componentDirectory );
 
-        if ( isBoxLang ) {
+        if ( local.isBoxLang ) {
             local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.bx" );
         } else {
             local.emptySingleFileComponent = fileRead( local.currentDirectory & "EmptySingleFileComponent.cfc" );
