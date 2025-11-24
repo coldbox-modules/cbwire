@@ -523,11 +523,14 @@ component output="true" accessors="true" {
     /**
      * Provide ability to return and execute Javascript
      * in the browser.
+	 *
+	 * @expression string | The javascript expression to execute.
+	 * @params array | (Optional) An array of parameters. Currently a placeholder for compatibility
      *
      * @return void
      */
-    function js( code ) {
-        variables._xjs.append( arguments.code );
+    function js( expression, params=[] ) {
+        variables._xjs.append( { "expression" : expression, "params" : params } );
     }
 
     /**
