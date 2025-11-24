@@ -158,11 +158,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<h1>A Single File Boxlang Component</h1>" );
             }, skip=!isBoxLang() );
 
-            it( "should raise error if markers are not found in single-file component", function() {
-                expect( function() {
-                    var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
-                } ).toThrow( type="CBWIREException" );
+            it( title="should allow single-file components if @startWire & @endWire are not found", body=function() {
+				var result = CBWIREController.wire( "test.should_alllow_without_markers_for_single_file_component" );
+                expect( result ).toInclude( "<p>SUCCESS!</p>" );
+                expect( result ).toInclude( "<p>Hello, CBWIRE!</p>" );
             } );
+
+            it( title="should allow a boxlang single-file components if @startWire & @endWire are not found", body=function() {
+				var result = CBWIREController.wire( "test.should_alllow_without_markers_for_single_file_boxlang_component" );
+                expect( result ).toInclude( "<p>SUCCESS!</p>" );
+                expect( result ).toInclude( "<p>Hello, CBWIRE!</p>" );
+            }, skip=!isBoxLang() );
 
             it("should have generated setters available in onMount", function() {
                 var result = CBWIREController.wire( "test.should_have_generated_setters_and_getters_available_in_onmount" );
