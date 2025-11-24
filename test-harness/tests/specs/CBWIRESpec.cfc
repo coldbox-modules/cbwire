@@ -1188,7 +1188,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.xjs ).toBeArray();
-                expect( response.components[1].effects.xjs.first() ).toBe( "alert('Hello from CBWIRE!');" );
+				var firstXJS = response.components[1].effects.xjs.first();
+				expect( firstXJS ).toBeStruct();
+                expect( firstXJS ).toHaveKey( "expression" );
+                expect( firstXJS ).toHaveKey( "params" );
+                expect( firstXJS.expression ).toBe( "alert('Hello from CBWIRE!');" );
             } );
 
             it( "should track return values", () => {
