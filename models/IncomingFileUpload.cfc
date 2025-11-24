@@ -8,7 +8,7 @@ component singleton {
 		@return void
 	*/
 	function handle( required event, required rc, required prc ){
-		var results = fileUploadAll( destination = expandPath( "/" ), onConflict = "makeUnique" );
+		var results = fileUploadAll( destination = expandPath( "/" ), nameConflict = "makeUnique" );
 		var paths = results.map( function( result ){
 			var id = createUUID();
 			fileWrite( expandPath( "/#id#.json" ), serializeJSON( result ) );

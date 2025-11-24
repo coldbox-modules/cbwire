@@ -1,5 +1,7 @@
 component output="true" accessors="true" {
 
+	property name="_interceptorService" inject="coldbox:interceptorService";
+
     property name="_configService" inject="provider:ConfigService@cbwire";
 
     property name="_CBWIREController" inject="provider:CBWIREController@cbwire";
@@ -11,6 +13,9 @@ component output="true" accessors="true" {
     property name="_renderService" inject="provider:RenderService@cbwire";
 
     property name="_wirebox" inject="provider:wirebox";
+
+	property name="_cbSecurity";
+	property name="_cbSecurityEnabled";
 
     property name="data";
     property name="_id";
@@ -61,7 +66,7 @@ component output="true" accessors="true" {
         if ( isNull( variables._id ) ) {
             variables._id = lCase( hash( createUUID() ) );
         }
-
+		variables._cbSecurityEnabled = false;
         variables._params = [:];
         variables._compileTimeKey = hash( getCurrentTemplatePath() );
         variables._key = "";
@@ -85,6 +90,14 @@ component output="true" accessors="true" {
             for fast access where needed.
         */
         variables._metaData = getMetaData( this );
+
+		/*
+			Inject cbSecurity if installed and active
+		*/
+		if( application.cbcontroller.getWireBox().getInstance( "coldbox:moduleService" ).isModuleActive( 'cbSecurity' ) ){
+			variables._cbSecurity = application.cbcontroller.getWireBox().getInstance("cbsecurity@cbsecurity");
+			variables._cbSecurityEnabled = true;
+		}
 
         /*
             Prep our data properties
@@ -456,48 +469,50 @@ component output="true" accessors="true" {
 
     /**
      * Resets a data property to it's initial value.
-     * Can be used to reset all data properties, a single data property, or an array of data properties.
+     * Can be used to reset all data properties, a single data property, an array, or comma seperated list of data properties.
+	 *
+	 * @property string|list|array | The property or properties to reset. If null, all properties will be reset.
      *
      * @return
      */
     function reset( property ){
-        if ( isNull( arguments.property ) ) {
-            // Reset all properties
-            variables.data.each( function( key, value ){
-                reset( key );
-            } );
-        } else if ( isArray( arguments.property ) ) {
-            // Reset each property in our array individually
-            arguments.property.each( function( prop ){
-                reset( prop );
-            } );
-        } else {
-            var initialState = variables._initialDataProperties;
-            // Reset individual property
-            variables.data[ arguments.property ] = initialState[ arguments.property ];
-        }
+        // if no property argument get array of all data keys (in dot notation when appropriate)
+        if ( isNull( arguments.property ) )
+			arguments.property = _getDotNotationKeys();
+
+		// convert comma separated list to array ( single key string becomes single item array )
+		arguments.property = !isArray( arguments.property ) ? listToArray( arguments.property, "," ) : arguments.property;
+
+		// reset all data properties
+		arguments.property.each( function( element, index ) {
+			var initialValue = structGet( "variables._initialDataProperties." & element );
+			if( isStruct( initialValue ) )
+				initialValue = "";
+			_updateDataValue( element, initialValue );
+		});
     }
 
     /**
      * Resets all data properties except the ones specified.
+	 *
+	 * @property string|list|array | The property or properties to NOT reset.
      *
      * @return void
+	 * @throws ResetException
      */
     function resetExcept( property ){
-        if ( isNull( arguments.property ) ) {
+        if ( isNull( arguments.property ) )
             throw( type="ResetException", message="Cannot reset a null property." );
-        }
-
-        // Reset all properties except what was provided
-        _getDataProperties().each( function( key, value ){
-            if ( isArray( property ) ) {
-                if ( !arrayFindNoCase( property, arguments.key ) ) {
-                    reset( key );
-                }
-            } else if ( property != key ) {
-                reset( key );
-            }
-        } );
+		// convert comma separated list to array ( single key string becomes single item array )
+		arguments.property = !isArray( arguments.property ) ? listToArray( arguments.property, "," ) : arguments.property;
+        // Get all data property keys
+		var resetKeys = _getDotNotationKeys();
+		// remove provided properties from reset keys array
+		for( var removeKey in arguments.property ) {
+			resetKeys.delete( removeKey );
+		}
+        // Reset all properties except what was removed above
+		reset( resetKeys );
     }
 
     /**
@@ -515,11 +530,14 @@ component output="true" accessors="true" {
     /**
      * Provide ability to return and execute Javascript
      * in the browser.
+	 *
+	 * @expression string | The javascript expression to execute.
+	 * @params array | (Optional) An array of parameters. Currently a placeholder for compatibility
      *
      * @return void
      */
-    function js( code ) {
-        variables._xjs.append( arguments.code );
+    function js( expression, params=[] ) {
+        variables._xjs.append( { "expression" : expression, "params" : params } );
     }
 
     /**
@@ -535,7 +553,7 @@ component output="true" accessors="true" {
         if ( !variables._event.privateValueExists( "_cbwire_stream" ) ) {
             cfcontent( reset=true );
             variables._event.setPrivateValue( "_cbwire_stream", true );
-            cfheader( statusCode=200, statustext="OK" );
+            cfheader( statusCode=200 );
             cfheader( name="Cache-Control", value="no-cache, private" );
             cfheader( name="Host", value=cgi.http_host );
             cfheader( name="Content-Type", value="text/event-stream" );
@@ -656,6 +674,12 @@ component output="true" accessors="true" {
     function _withParams( params, lazy = false ) {
         variables._params = arguments.params;
 
+		// intercept secureMountFailMessage in params if exists and set as variable
+		if( arguments.params.keyExists( "secureMountFailMessage" ) ){
+			variables.secureMountFailMessage = arguments.params.secureMountFailMessage;
+			arguments.params.delete( "secureMountFailMessage" );
+		}
+
         if ( arguments.lazy ) return this; // Skip onMount here for lazy loaded components
 
         // Loop over our params and set them as data properties
@@ -679,6 +703,8 @@ component output="true" accessors="true" {
             }
         }
 
+		// Announce the onCBWIREMount event to global interceptors
+		_fireInterceptorEvent( "onCBWIREMount", { "params" : arguments.params, "lazy" : false} );
 
         return this;
     }
@@ -709,6 +735,128 @@ component output="true" accessors="true" {
         return this;
     }
 
+	/**
+	 * Determines if the onSecure method allows rendering.
+	 * checks if cbSecurity is enabled and if onSecure exists.
+	 *
+	 * @isInitial boolean | Indicates if this is the initial render.
+	 *
+	 * @return boolean
+	 */
+	function _onSecureShouldRender() {
+		// cbSecurity checks
+		if( variables._cbSecurityEnabled ){
+			// check wire component annotation
+			if( _metaData.keyExists( "secured" ) ){
+				var securedAnnotationAllows = _securedAnnotationEvaluate( _metaData.secured );
+				if( !securedAnnotationAllows ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: "component",
+						"cbSecurity" 	: true,
+						"annotation" 	: _metaData.secured
+					} );
+				}
+				return securedAnnotationAllows;
+			}
+		}
+		// onSecure method
+        if ( structKeyExists( this, "onSecure" ) ) {
+            try {
+                // Fire onSecure if it exists
+               var onSecureResults = onSecure(
+					event=variables._event,
+					prc=variables._event.getPrivateCollection(),
+					isInitial=variables._initialLoad,
+					params=local.keyExists( "mountParams" ) ? local.mountParams : variables._params
+				);
+            } catch ( any e ) {
+                throw( type="CBWIREException", message="Failure when calling onSecure(). #e.message#" );
+            }
+			if( !isNull( onSecureResults ) && isBoolean( onSecureResults ) ){
+				if( !onSecureResults ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: "onSecure",
+						"cbSecurity" 	: false
+					} );
+				}
+				return onSecureResults;
+			}
+        }
+		return true;
+	}
+
+	/**
+	 * Evaluates if a method with a secured annotation can be executed.
+	 * fires onCBWIRESecureFail interceptor event if not allowed.
+	 *
+	 * @methodName string | The name of the method to evaluate.
+	 *
+	 * @return boolean | True if the method can be executed, false otherwise.
+	 */
+	function _securedAnnotationAllows( methodName ){
+		if( variables._cbSecurityEnabled && _metaData.keyExists( "functions" ) ){
+			// find metadata for method
+			var functionMetaData = variables._metaData.functions.filter( function( item ){
+				return item.name == methodName;
+			} );
+			if( functionMetaData.len() && functionMetaData[1].keyExists( "secured" ) ){
+				var annotationAllows = _securedAnnotationEvaluate( functionMetaData[1].secured );
+				if( !annotationAllows ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: arguments.methodName,
+						"cbSecurity" 	: true,
+						"annotation" 	: functionMetaData[1].secured
+					} );
+				}
+				return annotationAllows;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Evaluates a secured annotation value.
+	 *
+	 * @annotation mixed | The secured annotation value to evaluate.
+	 *
+	 * @return boolean | True if the annotation allows access, false otherwise.
+	 */
+	function _securedAnnotationEvaluate( annotation ){
+		// comvert blank secured annotaiton to secured="true"
+		arguments.annotation = !len( arguments.annotation ) ? true : arguments.annotation;
+		// if secured is a boolean then return login status or false
+		if( isBoolean( arguments.annotation ) ){
+			return arguments.annotation ? variables._cbSecurity.isLoggedIn() : true;
+		}
+		// before checking roles/permissions, ensure user is logged in
+		if( !variables._cbSecurity.isLoggedIn() ){
+			return false;
+		}
+		// secured is NOT boolean, so check permissions/roles via cbSecurity
+		return _cbSecurity.has( arguments.annotation );
+	}
+
+	/**
+	 * Retrieves the secure mount failure message.
+	 *
+	 * @return string
+	 */
+	function _getSecureMountFailMessage(){
+		// check if overridden via variables first and return
+		if( variables.keyExists( "secureMountFailMessage" ) ){
+			return variables.secureMountFailMessage;
+		}
+		// get from module settings
+		var moduleSettings = variables._CBWIREController.getmoduleSettings();
+		return moduleSettings.keyExists( "secureMountFailMessage" ) ?
+			moduleSettings.secureMountFailMessage :
+			"";
+			// <!-- BLOCKED -->
+	}
+
     /**
      * Hydrate the component
      *
@@ -730,12 +878,22 @@ component output="true" accessors="true" {
         arguments.componentPayload.snapshot.data.filter( function( key, value ) {
             return structKeyExists( this, "onHydrate#arguments.key#" );
         } ).each( function( key, value ) {
-            invoke( this, "onHydrate#arguments.key#" );
+			if( _securedAnnotationAllows( "onHydrate#arguments.key#" ) ){
+				invoke( this, "onHydrate#arguments.key#" );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			}
         } );
 
         // Run onHydrate if it exists
-        if ( structKeyExists( this, "onHydrate" ) ) {
-            invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+        if ( structKeyExists( this, "onHydrate" ) ){
+			if( _securedAnnotationAllows( "onHydrate" ) ){
+				invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+			}
         }
 
         if ( arguments.componentPayload.calls.len() && arguments.componentPayload.calls[1].method == "_finishUpload" ) {
@@ -784,6 +942,12 @@ component output="true" accessors="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+
+		// skip applying updates if not secure
+		if( !_onSecureShouldRender() ){
+			return;
+		}
+
         if ( !updates.count() ) return;
         // Capture old values
         local.oldValues = duplicate( data );
@@ -804,31 +968,96 @@ component output="true" accessors="true" {
                 local.regexMatch = reFindNoCase( "(.+)\.([0-9]+)", arguments.key, 1, true );
                 local.propertyName = local.regexMatch.match[ 2 ];
                 local.arrayIndex = local.regexMatch.match[ 3 ];
-                variables.data[ local.propertyName][ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
-                // Track that we updated an array property
+				local.currentArray = structGet( "variables.data." & local.propertyName );
+				local.currentArray[ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
+				_updateDataValue( local.propertyName, local.currentArray );
+				// Track that we updated an array property
                 if ( !arrayFindNoCase( updatedArrayProps, local.propertyName ) ) {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
-                local.oldValue = variables.data[ key ];
-                variables.data[ key ] = arguments.value;
-                if ( structKeyExists( this, "onUpdate#key#") ) {
-                    invoke( this, "onUpdate#key#", { value: arguments.value, oldValue: local.oldValue });
+                local.oldValue = structGet( "variables.data." & key );
+                _updateDataValue( key, arguments.value );
+				var onUpdateFunctionName = "onUpdate" & key.replace( ".", "_", "all" );
+				if ( structKeyExists( this, onUpdateFunctionName) ) {
+					if( _securedAnnotationAllows( onUpdateFunctionName ) ){
+						invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
+					}else{
+						// Method is secured and user is not authorized!
+						// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+					}
                 }
             }
         } );
 
         local.updatedArrayProps.each( function( prop ) {
-            variables.data[ arguments.prop ] = variables.data[ arguments.prop ].filter( function( value ) {
-                return arguments.value != "__rm__";
-            } );
+			var currentArray = structGet( "variables.data." & prop );
+			_updateDataValue(
+				prop,
+				currentArray.filter( function( value ) {
+					return value != "__rm__";
+				} )
+			);
         } );
 
         // Call onUpdate passing newValues and oldValues
         if ( structKeyExists( this, "onUpdate" ) ) {
-            invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+			if( _securedAnnotationAllows( "onUpdate" ) ){
+				invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+			}
         }
     }
+
+    /**
+     * update a key value in variables.data structure.
+     *
+     * @keyPath string | the data property key being updated. Supports dot notation for nested structures (e.g., "user.address.street").
+     * @value any | the value to set.
+     *
+     * @return void
+     */
+	public void function _updateDataValue( required string keyPath, required any value ) {
+        var keys = ListToArray( arguments.keyPath, "." );
+        var current = variables.data;
+        // Loop through keys except the last one to create/traverse nested structure
+        for ( var i = 1; i < keys.Len(); i++ ) {
+            var key = keys[ i ];
+            // Create nested struct if it doesn't exist
+            if ( !current.KeyExists( key ) ) {
+                current[ key ] = {};
+            }
+            // Move to the next level
+            current = current[ key ];
+        }
+        current[ keys[ keys.Len() ] ] = arguments.value;
+    }
+
+	/**
+	 * Recursively retrieves all keys from a struct in dot notation.
+	 *
+	 * @inputStruct struct | The input struct to retrieve keys from.
+	 * @prefix string | The prefix for nested keys (used in recursion).
+	 *
+	 * @return array | An array of keys in dot notation.
+	 */
+	public array function _getDotNotationKeys( struct inputStruct, string prefix="" ) {
+		if( isNull( arguments.inputStruct ) )
+			arguments.inputStruct = variables.data;
+		var result = [];
+		for ( var key in inputStruct.keyArray() ) {
+			var fullKey = ( prefix == "" ) ? key : prefix & "." & key;
+			var value = inputStruct[ key ];
+			if ( isStruct( value ) ) {
+				result.append( _getDotNotationKeys( value, fullKey ), true )
+			} else {
+				result.append( fullKey );
+			}
+		}
+		return result;
+	}
 
     /**
      * Validate if key being updated is a locked property.
@@ -853,11 +1082,20 @@ component output="true" accessors="true" {
      * @return void
      */
     function _applyCalls( calls ) {
+		// skip all calls if not secure
+		if( !_onSecureShouldRender() ){
+			return;
+		}
         arguments.calls.each( function( call ) {
             try {
-                local.result = invoke( this, arguments.call.method, arguments.call.params );
-                // Capture the return value in case it's needed by the front-end
-                variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
+				if( _securedAnnotationAllows( arguments.call.method ) ){
+					local.result = invoke( this, arguments.call.method, arguments.call.params );
+					// Capture the return value in case it's needed by the front-end
+					variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
+				}else{
+					// Method is secured and user is not authorized!
+					// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+				}
             } catch ( ValidationException e ) {
                 // silently fail so the component can continue to render
             } catch( any e ) {
@@ -897,8 +1135,13 @@ component output="true" accessors="true" {
      */
     function __dispatch( event, params ) {
         local.methodToCall = variables._listeners[ arguments.event ];
-        invoke( this, local.methodToCall, arguments.params );
-    }
+		if( _securedAnnotationAllows( local.methodToCall ) ){
+			invoke( this, local.methodToCall, arguments.params );
+		}else{
+			// Method is secured and user is not authorized!
+			// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+		}
+	}
 
     /**
      * Method that is invoke when a file upload is first requested.
@@ -938,6 +1181,38 @@ component output="true" accessors="true" {
                 "tmpFilenames"=arguments.files
             ]
         );
+    }
+
+    /**
+     * Method that is invoked when a file upload errors.
+     *
+     * @prop string | The property for the file input.
+     * @errors any | The errors that occurred during upload.
+     * @multiple boolean | Whether multiple files are being uploaded.
+     *
+     * @return void
+     */
+    function _uploadErrored( prop, errors, multiple ) {
+        // Dispatch the upload errored event
+        dispatchSelf(
+            event="upload:errored",
+            params=[
+                "name"=arguments.prop
+            ]
+        );
+        // Check if the component has an onUploadError method and invoke it
+        if ( structKeyExists( this, "onUploadError" ) ) {
+			if( _securedAnnotationAllows( "onUploadError" ) ){
+				invoke( this, "onUploadError", {
+					property: arguments.prop,
+					errors: isNull( arguments.errors ) ? javaCast( "null", "" ) : arguments.errors,
+					multiple: arguments.multiple
+				} );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+			}
+        }
     }
 
     /**
@@ -1010,6 +1285,10 @@ component output="true" accessors="true" {
                 params=local.mountParams
             );
         }
+
+		// Announce the onCBWIREMount event to global interceptors
+		_fireInterceptorEvent( "onCBWIREMount", { "params" : local.mountParams, "lazy" : true } );
+
     }
 
     /**
@@ -1419,14 +1698,27 @@ component output="true" accessors="true" {
      * Response for actually starting rendering of a component.
      */
     function _render( rendering ) {
-        local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
-        return variables._renderService.render( this, local.trimmedHTML );
+		_fireInterceptorEvent( "preCBWIRERender" );
+
+		// should render based on if onSecure exists and allows rendering. render only if true.
+		var renderedContent = "";
+		if( _onSecureShouldRender() ){
+			local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
+			renderedContent = variables._renderService.render( this, local.trimmedHTML );
+		}else{
+			// fireInterceptor event for blocked render
+
+			renderedContent = ""; // <span><!-- BLOCKED --></span>
+		}
+
+		_fireInterceptorEvent( "onCBWIRERender", { "html" : renderedContent } );
+
+		return renderedContent;
     }
 
     function _trackScript( required scriptTagId, required scriptContent ) {
         variables._scripts[ scriptTagId ] = scriptContent;
     }
-
 
     function _trackAsset( required assetTagId, required assetContent ) {
         variables._assets[ assetTagId ] = assetContent;
@@ -1435,4 +1727,31 @@ component output="true" accessors="true" {
     function _getCompileTimeKey() {
         return variables._compileTimeKey;
     }
+
+	/**
+	 * Fires an interceptor event.
+	 * Standardizes data passed to interceptors fired from base wire Component.cfc
+	 * ensure consistent data structure. Includes wire, wireName, wireData, and meta in eventData.
+	 *
+	 * @eventName string | The name of the event to fire.
+	 * @eventData struct | Additional data to pass to the interceptor.
+	 *
+	 * @return void
+	 */
+	function _fireInterceptorEvent( eventName, eventData={} ) {
+		// append standard data to eventData struct, but do NOT overwrite existing keys
+		arguments.eventData.append(
+			{
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data,
+				"meta"		: variables._metaData
+			},
+			false
+		);
+		return variables._interceptorService.announce(
+			arguments.eventName,
+			arguments.eventData
+		);
+	}
 }

@@ -2,12 +2,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     function beforeAll() {
         super.beforeAll();
-        // delete any files in models/tmp folder
+        // delete any files in models/tmp folder (for single-file components)
         local.tempFolder = expandPath( "../../../models/tmp" );
         if ( directoryExists( local.tempFolder ) ) {
             directoryDelete( local.tempFolder, true );
         }
         directoryCreate( local.tempFolder );
+
+        // Clean out uploads temp directory
+        local.uploadsTempFolder = getTempDirectory() & "/cbwire";
+        if ( directoryExists( local.uploadsTempFolder ) ) {
+            directoryDelete( local.uploadsTempFolder, true );
+        }
+        directoryCreate( local.uploadsTempFolder );
     }
 
     // Lifecycle methods and BDD suites as before...
@@ -103,9 +110,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 settings.updateEndpoint = "/index.bxm/cbwire/update";
-                
+
                 var uploadURL = CBWIREController.generateSignedUploadURL();
-                
+
                 // The URL should contain the custom path
                 expect( uploadURL ).toInclude( "/index.bxm/cbwire/upload" );
                 // It should also contain expires and signature parameters
@@ -151,11 +158,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<h1>A Single File Boxlang Component</h1>" );
             }, skip=!isBoxLang() );
 
-            it( "should raise error if markers are not found in single-file component", function() {
-                expect( function() {
-                    var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
-                } ).toThrow( type="CBWIREException" );
+            it( title="should allow single-file components if @startWire & @endWire are not found", body=function() {
+				var result = CBWIREController.wire( "test.should_alllow_without_markers_for_single_file_component" );
+                expect( result ).toInclude( "<p>SUCCESS!</p>" );
+                expect( result ).toInclude( "<p>Hello, CBWIRE!</p>" );
             } );
+
+            it( title="should allow a boxlang single-file components if @startWire & @endWire are not found", body=function() {
+				var result = CBWIREController.wire( "test.should_alllow_without_markers_for_single_file_boxlang_component" );
+                expect( result ).toInclude( "<p>SUCCESS!</p>" );
+                expect( result ).toInclude( "<p>Hello, CBWIRE!</p>" );
+            }, skip=!isBoxLang() );
 
             it("should have generated setters available in onMount", function() {
                 var result = CBWIREController.wire( "test.should_have_generated_setters_and_getters_available_in_onmount" );
@@ -290,6 +303,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
             } );
 
+            it( "should be able to access event from template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_access_event_from_template" );
+                expect( result ).toInclude( "<p>Event is object: true</p>" );
+                expect( result ).toInclude( "<p>Request collection is struct: true</p>" );
+            } );
+
             xit( "should support deep nesting with correct count of children", function() {
                 var result = CBWIREController.wire( "test.should_support_deep_nesting" );
                 var parent = parseRendering( result, 1 );
@@ -393,8 +412,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = CBWIREController.wire( "test.should_support_child_components" );
                 var parent = parseRendering( result, 1 );
                 var child = parseRendering( result, 2 );
-                expect( parent.snapshot.memo.name ).toBe( "should_support_child_components" );
-                expect( child.snapshot.memo.name ).toBe( "child_component" );
+                expect( parent.snapshot.memo.name ).toBe( "test.should_support_child_components" );
+                expect( child.snapshot.memo.name ).toBe( "test.child_component" );
                 expect( parent.snapshot.memo.children ).toBeStruct();
             } );
 
@@ -829,6 +848,73 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
             } );
 
+            it( "should provide updates to data properties using dot notation", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": {
+							"label" : "CBWIRE Rocks!"
+						}
+                    },
+                    calls = [],
+                    updates = {
+                        "title.label": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+            } );
+
+            it( "should support incoming array values in dot notation referenced array", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = [
+                        "modules.names.0": "CBWIRE",
+                        "modules.names.1": "CBORM",
+                        "modules.names.2": "__rm__"
+                    ]
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                var snapshot = deserializeJson( response.components[ 1 ].snapshot );
+                expect( snapshot.data.modules.names ).toBeArray();
+                expect( snapshot.data.modules.names.len() ).toBe( 2 );
+                expect( snapshot.data.modules.names[ 1 ] ).toBe( "CBWIRE" );
+                expect( snapshot.data.modules.names[ 2 ] ).toBe( "CBORM" );
+            } );
+
+            it( "should call onUpdate[Property_Dot_Notation] if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": {
+							"label" : "CBWIRE Rocks!"
+						}
+                    },
+                    calls = [],
+                    updates = {
+                        "title.label": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+                expect( response.components[1].effects.html ).toInclude( "New Value: CBWIRE Slaps!" );
+                expect( response.components[1].effects.html ).toInclude( "Old Value: CBWIRE Rocks!" );
+            } );
+
             it( "should dispatch an event without params", function() {
                 var payload = incomingRequest(
                     memo = {
@@ -1054,6 +1140,35 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.html ).toInclude( "Hydrated Property: true" );
             } );
 
+            it( "should call onUploadError() if it exists when _uploadErrored is called", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onuploaderror",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "uploadErrored": false,
+                        "erroredPropertyName": "",
+                        "errorInfo": "",
+                        "isMultiple": false
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "_uploadErrored",
+                            "params": [ "photo", javaCast( "null", "" ), false ]
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "Upload Errored: true" );
+                expect( response.components[1].effects.html ).toInclude( "Errored Property Name: photo" );
+                expect( response.components[1].effects.html ).toInclude( "Error Info: null" );
+                expect( response.components[1].effects.html ).toInclude( "Is Multiple: false" );
+            } );
+
             it( "should be able to return javascript to return", () => {
                 var payload = incomingRequest(
                     memo = {
@@ -1073,7 +1188,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.xjs ).toBeArray();
-                expect( response.components[1].effects.xjs.first() ).toBe( "alert('Hello from CBWIRE!');" );
+				var firstXJS = response.components[1].effects.xjs.first();
+				expect( firstXJS ).toBeStruct();
+                expect( firstXJS ).toHaveKey( "expression" );
+                expect( firstXJS ).toHaveKey( "params" );
+                expect( firstXJS.expression ).toBe( "alert('Hello from CBWIRE!');" );
             } );
 
             it( "should track return values", () => {
@@ -1535,7 +1654,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it("should handle module reference with @ symbol", function() {
                 //cbwireController.$("getModuleComponentPath", "modules.testModule.wires.TestComponent");
                 var result = cbwireController.getComponentDSL("TestComponent@testingmodule");
-                expect(result).toBe("modules_app.testingmodule.wires.TestComponent");
+                expect(result).toBe("root.modules_app.testingmodule.wires.TestComponent");
             });
 
             it("should throw ModuleNotFound exception when module reference has invalid format", function() {
@@ -1789,6 +1908,60 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
         } );
+
+        describe("Event Interceptors", function() {
+
+            beforeEach(function(currentSpec) {
+                // Assuming setup() initializes application environment
+                // and prepareMock() is a custom method to mock any dependencies, if necessary.
+				// Clear any previously run interceptors
+				lock name="clearEventInterceptorKey" timeout="1" {
+					application.delete( "cbwire_interceptors_run" );
+				}
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                event = getRequestContext();
+                prepareMock( cbwireController );
+            });
+
+            it( "should fire the onCBWIREMount, preCBWIRERender, and onCBWIRERender when mounting a wire", function () {
+                var result = CBWIREController.wire( "test.should_render_a_component" );
+                expect( application ).toHaveKey( "cbwire_interceptors_run" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRERender" );
+				expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 3 );
+			} );
+
+            it( "should fire the preCBWIRERender, onCBWIRERender, preCBWIREUpdate and onCBWIREUpdate during a wire update incoming request", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = true;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_global_setting_enabled",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( application ).toHaveKey( "cbwire_interceptors_run" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIREUpdate" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREUpdate" );
+				expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 4 );
+            } );
+
+		} );
+
+
     }
 
     /**
@@ -1858,9 +2031,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
      *
      * @html string | The rendered HTML containing the component.
      * @index numeric | The index of the component if multiple match (usually 1).
-     * 
+     *
      * @return struct The deserialized snapshot struct.
-     * 
+     *
      * @throws Error if parsing or deserialization fails.
      */
     private function parseSnapshot( required string html, numeric index = 1 ) {
@@ -1898,9 +2071,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
      *
      * @html The rendered HTML containing the component.
      * @index The index of the component if multiple match (usually 1).
-     * 
+     *
      * @return any The deserialized effects (usually struct or array).
-     * 
+     *
      * @throws Error if parsing or deserialization fails.
      */
     private function parseEffects( required string html, numeric index = 1 ) {
@@ -1936,9 +2109,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
         }
     }
 
-    /** 
+    /**
      * Check if the current environment is a BoxLang environment
-     * 
+     *
      * @return boolean
      */
     private function isBoxLang() {

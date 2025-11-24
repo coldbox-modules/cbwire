@@ -143,6 +143,11 @@
     }
 
     /*
+        Add the ColdBox Request Context object to the view.
+    */
+    variables.event = attributes.requestService.getContext();
+
+    /*
         Check if cached file exists and is up-to-date, if not, preprocess and cache.
     */
     if (!fileExists(variables.cachePath) || fileIsOutdated(variables.fullNormalizedPath, variables.cachePath)) {

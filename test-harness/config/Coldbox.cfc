@@ -51,9 +51,9 @@ component{
 			exclude = []
 		};
 
-		//Register interceptors as an array, we need order
+		//Register interceptors as an array, we need order*/
 		interceptors = [
-			{ class="cbwire.interceptors.CBWIRE" }
+			{ class="interceptors.TestHarnessInterceptor" }
 		];
 
 		layoutSettings = {
@@ -99,6 +99,25 @@ component{
 				"resourceBundles"       : {},
 				// Your own CFC instantiation path
 				"customResourceService" : ""
+			},
+			cbauth : {
+				userServiceClass : "UserService"
+			},
+			cbsecurity : {
+				// The global invalid authentication event or URI or URL to go if an invalid authentication occurs
+				"invalidAuthenticationEvent"  : "security.login",
+				// Default Auhtentication Action: override or redirect when a user has not logged in
+				"defaultAuthenticationAction" : "redirect",
+				// The global invalid authorization event or URI or URL to go if an invalid authorization occurs
+				"invalidAuthorizationEvent"   : "security.notAuthorized",
+				// Default Authorization Action: override or redirect when a user does not have enough permissions to access something
+				"defaultAuthorizationAction"  : "redirect",
+				// Firewall database event logs.
+				"logs" : {
+					"enabled"    : false,
+					"table"      : "cbsecurity_logs"
+				},
+				rules : []
 			}
 		};
 
@@ -108,16 +127,19 @@ component{
 	 * Load the Module you are testing
 	 */
 	function afterAspectsLoad( event, interceptData, rc, prc ){
+
 		controller.getModuleService()
 			.registerAndActivateModule(
 				moduleName 		= request.MODULE_NAME,
 				invocationPath 	= "moduleroot"
 			);
-		try {
-			controller.getRenderer().loadApplicationHelpers( true );
-		} catch ( any e ) {
-			writeDump( var=e, output="console" );
-		}
+
+        // Reload the renderer in case we have module helpers
+        controller.getRenderer().startup()
+        // Reload all interceptors with new mixins if available.
+        controller.getInterceptorService().announce( "cbLoadInterceptorHelpers" )
+		// Rescan interceptors to pick up the test harness interceptors for cbwire
+		controller.getWirebox().getInstance( "coldbox:interceptorService" ).rescanInterceptors();
 	}
 
 }

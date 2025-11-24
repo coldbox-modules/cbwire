@@ -123,10 +123,52 @@ component {
     }
 
     /**
+     * Moves the file from temporary storage to a permanent location.
+     *
+     * The metadata file remains in the uploads temp directory to track the upload state,
+     * while the actual file is moved to the specified permanent location. This allows
+     * the FileUpload object to continue tracking the file even after it's been stored.
+     *
+     * @path The destination path where the file should be stored (can be a directory or full file path)
+     * @return The absolute path to the stored file
+     */
+    function store( required string path ){
+        // Normalize path by replacing multiple slashes with single slash
+        var normalizedPath = reReplace( arguments.path, "/{2,}", "/", "all" );
+        var destinationPath = getCanonicalPath( normalizedPath );
+        
+        // Check if destination is a directory
+        if ( directoryExists( destinationPath ) ) {
+            destinationPath = getCanonicalPath( destinationPath & "/" & variables.meta.serverFile );
+        }
+        
+        // Ensure the destination directory exists
+        var destinationDir = getDirectoryFromPath( destinationPath );
+        if ( !directoryExists( destinationDir ) ) {
+            createDirectoryPath( destinationDir );
+        }
+        
+        // Move the file from temporary to permanent location
+        fileMove( variables.temporaryStoragePath, destinationPath );
+        
+        // Update the temporary storage path to the new location
+        variables.temporaryStoragePath = destinationPath;
+        
+        // Update metadata to reflect new file location
+        variables.meta.serverDirectory = destinationDir;
+        variables.meta.serverFile = getFileFromPath( destinationPath );
+        
+        // Update the metadata file (stays in temp directory for upload tracking)
+        fileWrite( getMetaPath(), serializeJSON( variables.meta ) );
+        
+        return destinationPath;
+    }
+
+    /**
      * Returns the path to the temp directory (mockable in tests)
      */
     function getUploadTempDirectory(){
-        return getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
+        return getCanonicalPath( variables.moduleSettings.uploadsStoragePath );
     }
 
     /**
@@ -134,5 +176,34 @@ component {
      */
     function getMetaPath(){
         return getCanonicalPath( getUploadTempDirectory() & "/#variables.uuid#.json" );
+    }
+
+    /**
+     * Creates a directory path recursively, compatible with Boxlang, ACF, and Lucee
+     *
+     * @path The directory path to create
+     */
+    private function createDirectoryPath( required string path ){
+        // Build up the path components
+        var pathParts = listToArray( arguments.path, "/\" );
+        var currentPath = "";
+
+        // Handle absolute paths (starting with / or drive letter)
+        if ( left( arguments.path, 1 ) == "/" ) {
+            currentPath = "/";
+        } else if ( reFind( "^[A-Za-z]:", arguments.path ) ) {
+            currentPath = pathParts[ 1 ];
+            arrayDeleteAt( pathParts, 1 );
+        }
+
+        // Create each directory in the path if it doesn't exist
+        for ( var part in pathParts ) {
+            if ( len( trim( part ) ) ) {
+                currentPath = currentPath & "/" & part;
+                if ( !directoryExists( currentPath ) ) {
+                    directoryCreate( currentPath );
+                }
+            }
+        }
     }
 }

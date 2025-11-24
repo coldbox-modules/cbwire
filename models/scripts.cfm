@@ -1,6 +1,6 @@
 <cfoutput>
 <!-- CBWIRE SCRIPTS -->
-<script src="#moduleSettings.moduleRootURL#/includes/js/livewire.js?id=239a5c52" <cfif not moduleSettings.showProgressBar>data-no-progress-bar</cfif> data-csrf="#generateCSRFToken()#" data-update-uri="#getUpdateEndpoint()#" data-navigate-once="true"></script>
+<script src="#moduleSettings.moduleRootURL#/includes/js/livewire/dist/livewire.js?id=v3.6.4" <cfif not moduleSettings.showProgressBar>data-no-progress-bar</cfif> data-csrf="#generateCSRFToken()#" data-update-uri="#getUpdateEndpoint()#" data-navigate-once="true"></script>
 
 <script data-navigate-once="true">
     document.addEventListener('livewire:init', () => {

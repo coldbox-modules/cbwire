@@ -5,6 +5,7 @@
         "cfengine":"lucee@6"
     },
     "web":{
+        "caseSensitivePaths":false,
         "http":{
             "port":"60299"
         },
@@ -12,7 +13,8 @@
             "enable":"true"
         },
         "aliases":{
-            "/modules/cbwire":"../"
+            "/modules/cbwire":"../",
+            "/moduleroot/cbwire":"../"
         }
     },
     "openBrowser":"false",

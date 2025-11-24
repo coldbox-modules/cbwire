@@ -25,7 +25,13 @@ component {
              */
             "moduleRootPath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) ),
             /**
-             * The default storage path for all cbwire components.
+             * The default storage path for file uploads.
+             * Uses the system temporary directory for security.
+             */
+            "uploadsStoragePath": getCanonicalPath( getTempDirectory() & "/cbwire" ),
+            /**
+             * The default storage path for single-file component compilation.
+             * This must be in the module directory for WireBox to instantiate components.
              */
             "storagePath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) & "/models/tmp" ),
             /**
@@ -57,7 +63,7 @@ component {
             "progressBarColor": "##2299dd",
             /**
              * Enables or disables checksum validation for component payloads.
-             * We recommend always leaving this enabled, but you can disable it 
+             * We recommend always leaving this enabled, but you can disable it
              * as needed.
              */
             "checksumValidation": true
@@ -87,7 +93,14 @@ component {
         ];
 
         interceptorSettings = {
-            customInterceptionPoints : []
+            customInterceptionPoints : [
+				"onCBWIREMount",
+				"preCBWIRERender",
+				"onCBWIRERender",
+				"preCBWIREUpdate",
+				"onCBWIREUpdate",
+				"onCBWIRESecureFail"
+			]
         };
     }
 

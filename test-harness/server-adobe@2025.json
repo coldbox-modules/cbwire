@@ -1,0 +1,27 @@
+{
+    "name":"cbwire-adobe@2025",
+    "app":{
+        "serverHomeDirectory":".engine/adobe2025",
+        "cfengine":"adobe@2025"
+    },
+    "web":{
+        "caseSensitivePaths":false,
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "aliases":{
+            "/modules/cbwire":"../",
+            "/moduleroot/cbwire":"../"
+        }
+    },
+    "JVM":{
+        "javaVersion":"openjdk21"
+    },
+    "openBrowser":"false",
+    "scripts":{
+        "onServerInstall":"cfpm install zip"
+    }
+}

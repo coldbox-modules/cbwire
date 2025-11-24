@@ -21,11 +21,15 @@ component accessors="true" singleton {
     // Inject ChecksumService
     property name="checksumService" inject="ChecksumService@cbwire";
 
+	// Inject interceptorService
+	property name="interceptorService" inject="coldbox:interceptorService";
+
     function init() {
         // Initialize the array to store single file components
         variables._singleFileComponents = [];
         return this;
     }
+
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its onRender() method.
@@ -44,6 +48,11 @@ component accessors="true" singleton {
                 ._withEvent( getEvent() )
                 ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
                 ._withKey( arguments.key );
+
+		// should render based on if onSecure exists and allows rendering
+		if( !local.instance._onSecureShouldRender() ){
+			return local.instance._getSecureMountFailMessage();
+		}
 
         // Determine if component should be lazy loaded
         // If lazy parameter is explicitly provided, use that value
@@ -73,6 +82,15 @@ component accessors="true" singleton {
         };
         // Perform initial deserialization of the incoming request payload
         local.payload = deserializeJSON( arguments.incomingRequest.content );
+
+		// Announce the preCBWIREUpdate event to global interceptors
+		variables.interceptorService.announce(
+			"preCBWIREUpdate",
+			{
+				"payload" : local.payload
+			}
+		);
+
         // Set the CSRF token for the request
         local.csrfToken = local.payload._token;
         // Validate the CSRF token
@@ -81,12 +99,14 @@ component accessors="true" singleton {
         if( !local.csrfTokenVerified ){
             throw( type="CBWIREException", message="Page expired." );
         }
+
         // Perform additional deserialization of the component snapshots
         local.payload.components = local.payload.components.map( function( _comp ) {
             checksumService.validateChecksum( arguments._comp.snapshot );
             arguments._comp.snapshot = deserializeJSON( arguments._comp.snapshot );
             return arguments._comp;
         } );
+
         // Iterate over each component in the payload and process it
         local.componentsResult = {
             "components": local.payload.components.map( ( _componentPayload ) => {
@@ -100,6 +120,15 @@ component accessors="true" singleton {
                             ._getHTTPResponse( _componentPayload, httpRequestState );
             } )
         };
+
+		// Announce the onCBWIREUpdate event to global interceptors
+		variables.interceptorService.announce(
+			"onCBWIREUpdate",
+			{
+				"payload" : local.payload,
+				"response" : local.componentsResult
+			}
+		);
 
         // Return assets from components
         if ( local.httpRequestState.assets.count() ) {
@@ -140,7 +169,7 @@ component accessors="true" singleton {
      */
     function handleFileUpload( incomingRequest, event ) {
         // Determine our storage path for temporary files
-        local.storagePath = getCanonicalPath( variables.moduleSettings.storagePath );
+        local.storagePath = getCanonicalPath( variables.moduleSettings.uploadsStoragePath );
 
         // Ensure the storage path exists
         if( !directoryExists( local.storagePath ) ){
@@ -181,10 +210,10 @@ component accessors="true" singleton {
             return event.noRender();
         }
 
-        local.metaPath = getCanonicalPath( variables.moduleSettings.storagePath & "/#local.uuid#.json" );
+        local.metaPath = getCanonicalPath( variables.moduleSettings.uploadsStoragePath & "/#local.uuid#.json" );
 
         local.metaJSON = deserializeJSON( fileRead( local.metaPath ) );
-        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.storagePath & "/#local.metaJSON.serverFile#" ) );
+        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.uploadsStoragePath & "/#local.metaJSON.serverFile#" ) );
         event
             .sendFile(
                 file = local.contents,
@@ -207,13 +236,8 @@ component accessors="true" singleton {
         local.componentDSL = arguments.name;
 
         if ( !local.componentDSL contains "wires." ) {
-            // Get the default wires location from our setttings
-            if ( moduleSettings.keyExists( "wiresLocation" ) ) {
-                local.componentDSL = moduleSettings.wiresLocation & "." & local.componentDSL;
-            } else {
-                // Fallback
-            local.componentDSL = "wires." & local.componentDSL;
-            }
+            // Get the default wires location from our settings
+            local.componentDSL = getWiresLocation() & "." & local.componentDSL;
         }
 
         if ( find( "@", local.componentDSL ) ) {
@@ -231,9 +255,9 @@ component accessors="true" singleton {
 
     /**
      * Converts a component DSL from dot notation to slash notation.
-     * 
+     *
      * @componentDSL String | The component DSL to convert.
-     * 
+     *
      * @return String | The converted DSL in slash notation.
      */
     function convertDSLToSlashNotation( componentDSL ) {
@@ -242,9 +266,9 @@ component accessors="true" singleton {
 
     /**
      * Returns true if the component DSL is a module DSL.
-     * 
+     *
      * @componentDSL String | The component DSL to check.
-     * 
+     *
      * @return boolean
      */
     function isModuleDSL( componentDSL ) {
@@ -262,12 +286,12 @@ component accessors="true" singleton {
         return expandPath( "/" & local.dslSlashNotation);
     }
 
-    /** 
+    /**
      * Returns true if the component is a single file component.
      * Also provides a performance optimization by checking if the component is already flagged as a single file component.
-     * 
+     *
      * @componentDSL String | The component DSL to check.
-     * 
+     *
      * @return boolean
      */
     function isSingleFileComponent( componentDSL ) {
@@ -279,7 +303,7 @@ component accessors="true" singleton {
         local.dslFilePathWithoutExtension = getDSLFilePathWithoutExtension( componentDSL );
 
         if ( !fileExists( local.dslFilePathWithoutExtension & ".bx" ) && !fileExists( local.dslFilePathWithoutExtension & ".cfc" ) ) {
-            if ( fileExists( local.dslFilePathWithoutExtension & ".bxm" ) || fileExists( local.dslFilePathWithoutExtension & ".cfm" ) ) {                
+            if ( fileExists( local.dslFilePathWithoutExtension & ".bxm" ) || fileExists( local.dslFilePathWithoutExtension & ".cfm" ) ) {
                 variables._singleFileComponents.append( componentDSL );
                 return true;
             }
@@ -320,7 +344,7 @@ component accessors="true" singleton {
      * @name String | The name of the component to instantiate.
      *
      * @return The instantiated component object.
-     * 
+     *
      * @throws ApplicationException If the component cannot be found or instantiated.
      */
     function createInstance( name ) {
@@ -332,16 +356,18 @@ component accessors="true" singleton {
             return createRegularComponent( local.componentDSL, arguments.name );
         }
 
-            throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
+        throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
     }
 
-    /**
-    * Returns the path to the modules folder.
-    *
-    * @module string | The name of the module.
-    *
-    * @return string
-    */
+	/**
+     * Returns the path to the modules folder.
+     *
+     * @module string | The name of the module.
+     *
+     * @return string
+	 *
+	 * @throws ModuleNotFound If the specified module does not exist.
+     */
     function getModuleRootPath( module ) {
         var moduleRegistry = moduleService.getModuleRegistry();
 
@@ -634,5 +660,16 @@ component accessors="true" singleton {
     function getUploadEndpoint() {
         var updateEndpoint = getUpdateEndpoint();
         return updateEndpoint.replaceNoCase( "/update", "/upload", "one" );
+    }
+
+    /**
+     * Returns the wires location setting.
+     * This helper method is used internally by getModuleComponentPath() to determine
+     * the folder path where wire components are stored within modules.
+     *
+     * @return string The wires location from settings, defaults to "wires"
+     */
+    private function getWiresLocation(){
+        return moduleSettings.keyExists( "wiresLocation" ) ? moduleSettings.wiresLocation : "wires";
     }
 }

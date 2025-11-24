@@ -1,5 +1,5 @@
 {
-    "debuggingEnabled":false,
+    "debuggingEnabled":true,
     "debuggingReportExecutionTimes":false,
     "disableInternalCFJavaComponents":false,
     "inspectTemplate":"always",
