@@ -702,6 +702,14 @@ component output="true" accessors="true" {
                     params=arguments.params
                 );
             } catch ( any e ) {
+                // Enhance exception for single-file components
+                if ( _isSingleFileComponent() ) {
+                    throw(
+                        type = "CBWIREException",
+                        message = "Failure when calling onMount(). " & _buildEnhancedErrorMessage( e ),
+                        detail = e.detail ?: ""
+                    );
+                }
                 throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
             }
         }
@@ -1102,6 +1110,14 @@ component output="true" accessors="true" {
             } catch ( ValidationException e ) {
                 // silently fail so the component can continue to render
             } catch( any e ) {
+                // Enhance exception for single-file components
+                if ( _isSingleFileComponent() ) {
+                    throw(
+                        type = e.type ?: "CBWIREException",
+                        message = _buildEnhancedErrorMessage( e ),
+                        detail = e.detail ?: ""
+                    );
+                }
                 rethrow;
             }
         } );
@@ -1706,8 +1722,20 @@ component output="true" accessors="true" {
 		// should render based on if onSecure exists and allows rendering. render only if true.
 		var renderedContent = "";
 		if( _onSecureShouldRender() ){
-			local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
-			renderedContent = variables._renderService.render( this, local.trimmedHTML );
+			try {
+				local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
+				renderedContent = variables._renderService.render( this, local.trimmedHTML );
+			} catch ( any e ) {
+				// Enhance exception for single-file components
+				if ( _isSingleFileComponent() ) {
+					throw(
+						type = e.type ?: "CBWIREException",
+						message = _buildEnhancedErrorMessage( e ),
+						detail = e.detail ?: ""
+					);
+				}
+				rethrow;
+			}
 		}else{
 			// fireInterceptor event for blocked render
 
@@ -1729,6 +1757,107 @@ component output="true" accessors="true" {
 
     function _getCompileTimeKey() {
         return variables._compileTimeKey;
+    }
+
+    /**
+     * Returns true if this component was generated from a single-file component.
+     *
+     * @return boolean
+     */
+    function _isSingleFileComponent() {
+        return variables.keyExists( "_singleFileSourcePath" ) && len( variables._singleFileSourcePath );
+    }
+
+    /**
+     * Returns the original source file path for single-file components.
+     * Returns empty string for regular components.
+     *
+     * @return string
+     */
+    function _getSingleFileSourcePath() {
+        return variables.keyExists( "_singleFileSourcePath" ) ? variables._singleFileSourcePath : "";
+    }
+
+    /**
+     * Returns the line offset for mapping generated code back to the original source file.
+     * This is the line number where @startWire begins in the original file.
+     *
+     * @return numeric
+     */
+    function _getSingleFileLineOffset() {
+        return variables.keyExists( "_singleFileLineOffset" ) ? variables._singleFileLineOffset : 0;
+    }
+
+    /**
+     * Enhances an exception with single-file component source information.
+     * This helps developers understand where errors originated in their original source file.
+     *
+     * @exception struct | The caught exception to enhance
+     *
+     * @return struct | Enhanced exception information with source file context
+     */
+    function _enhanceExceptionForSingleFile( required any exception ) {
+        var enhanced = {
+            "originalException": arguments.exception,
+            "isSingleFileComponent": _isSingleFileComponent(),
+            "message": arguments.exception.message ?: "",
+            "detail": arguments.exception.detail ?: "",
+            "type": arguments.exception.type ?: "Application"
+        };
+
+        if ( enhanced.isSingleFileComponent ) {
+            enhanced[ "singleFileSourcePath" ] = _getSingleFileSourcePath();
+            enhanced[ "singleFileLineOffset" ] = _getSingleFileLineOffset();
+            enhanced[ "enhancedMessage" ] = _buildEnhancedErrorMessage( arguments.exception );
+        }
+
+        return enhanced;
+    }
+
+    /**
+     * Builds an enhanced error message that includes single-file component source information.
+     *
+     * @exception struct | The caught exception
+     *
+     * @return string | The enhanced error message
+     */
+    function _buildEnhancedErrorMessage( required any exception ) {
+        var sourcePath = _getSingleFileSourcePath();
+        var lineOffset = _getSingleFileLineOffset();
+        var originalMessage = arguments.exception.message ?: "Unknown error";
+        
+        var enhancedMessage = originalMessage;
+        enhancedMessage &= chr(10) & chr(10) & "=== CBWIRE Single-File Component Debug Info ===" & chr(10);
+        enhancedMessage &= "Original source file: " & sourcePath & chr(10);
+        
+        if ( lineOffset > 0 ) {
+            enhancedMessage &= "Wire code starts at line: " & lineOffset & " in the original file" & chr(10);
+            enhancedMessage &= "To find the actual error line in your source file, add " & lineOffset & " to any line numbers shown in the generated component stack trace." & chr(10);
+        }
+        
+        // Try to extract line number from the exception if available
+        if ( structKeyExists( arguments.exception, "tagContext" ) && isArray( arguments.exception.tagContext ) && arguments.exception.tagContext.len() ) {
+            // Look for the tmp file reference in the stack trace
+            for ( var ctx in arguments.exception.tagContext ) {
+                if ( structKeyExists( ctx, "template" ) && ctx.template contains "cbwire" && ctx.template contains "tmp" ) {
+                    var generatedLine = structKeyExists( ctx, "line" ) ? ctx.line : 0;
+                    if ( generatedLine > 0 && lineOffset > 0 ) {
+                        // The generated component has some header lines, so we need to account for that
+                        // The header in EmptySingleFileComponent.cfc has approximately 14 lines before CFC_CONTENTS
+                        var headerLines = 14;
+                        var estimatedSourceLine = generatedLine - headerLines + lineOffset;
+                        if ( estimatedSourceLine > 0 ) {
+                            enhancedMessage &= "Estimated source line: ~" & estimatedSourceLine & chr(10);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        
+        enhancedMessage &= "================================================";
+        
+        return enhancedMessage;
     }
 
 	/**

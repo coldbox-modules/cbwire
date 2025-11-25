@@ -1,5 +1,16 @@
 class extends="{{ EXTENDS_PATH }}" {
 
+    /**
+     * Path to the original single-file component source for error reporting.
+     */
+    variables._singleFileSourcePath = "{{ SOURCE_PATH }}";
+
+    /**
+     * Line offset for mapping generated code back to original source.
+     * This is the line number in the original file where @startWire begins.
+     */
+    variables._singleFileLineOffset = {{ LINE_OFFSET }};
+
     {{ CFC_CONTENTS }}
 
     function onRender() {

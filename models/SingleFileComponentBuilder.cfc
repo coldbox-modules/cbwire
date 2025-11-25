@@ -50,6 +50,8 @@ component accessors="true" singleton {
 
         local.startedWire = false;
         local.endedWire = false;
+        local.lineNumber = 0;
+        local.startWireLineNumber = 0;
 
 		local.isBoxLang = arguments.cfmPath.listToArray(".").last() == "bxm" ? true : false;
 		local.insideScriptTag = false;
@@ -57,6 +59,7 @@ component accessors="true" singleton {
 		local.REEndScriptTag = local.isBoxLang ? "<\s*/\s*bx:script\s*>" : "<\s*/\s*cfscript\s*>";
 
         for ( local.line in local.fileContents.listToArray( chr( 10 ) ) ) {
+            local.lineNumber++;
 
 			if ( REFindNoCase( local.REStartScriptTag, local.line ) > 0 ) {
 				local.insideScriptTag = true;
@@ -80,6 +83,7 @@ component accessors="true" singleton {
 
             if ( local.insideScriptTag && local.line contains "@startWire" ) {
                 local.startedWire = true;
+                local.startWireLineNumber = local.lineNumber;
                 continue;
             }
 			if ( local.insideScriptTag && local.line contains "@endWire" ) {
@@ -97,7 +101,8 @@ component accessors="true" singleton {
         return {
             "singleFileContents" : local.singleFileContents,
             "remainingContents" : local.remainingContents,
-            "extendsPath" : local.extendsPath
+            "extendsPath" : local.extendsPath,
+            "startWireLineNumber" : local.startWireLineNumber
         };
     }
 
@@ -170,6 +175,23 @@ component accessors="true" singleton {
             local.emptySingleFileComponent,
             "{{ EXTENDS_PATH }}",
             local.parsedContents.extendsPath,
+            "one"
+        );
+
+        // Add source path for error reporting (escape backslashes for Windows paths)
+        local.escapedSourcePath = replace( arguments.sourcePath, "\", "\\", "all" );
+        local.emptySingleFileComponent = replaceNoCase(
+            local.emptySingleFileComponent,
+            "{{ SOURCE_PATH }}",
+            local.escapedSourcePath,
+            "one"
+        );
+
+        // Add line offset for error reporting
+        local.emptySingleFileComponent = replaceNoCase(
+            local.emptySingleFileComponent,
+            "{{ LINE_OFFSET }}",
+            local.parsedContents.startWireLineNumber,
             "one"
         );
 
