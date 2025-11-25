@@ -1792,9 +1792,9 @@ component output="true" accessors="true" {
      * Enhances an exception with single-file component source information.
      * This helps developers understand where errors originated in their original source file.
      *
-     * @exception struct | The caught exception to enhance
+     * @exception any The caught exception to enhance
      *
-     * @return struct | Enhanced exception information with source file context
+     * @return struct Enhanced exception information with source file context
      */
     function _enhanceExceptionForSingleFile( required any exception ) {
         var enhanced = {
@@ -1817,9 +1817,9 @@ component output="true" accessors="true" {
     /**
      * Builds an enhanced error message that includes single-file component source information.
      *
-     * @exception struct | The caught exception
+     * @exception any The caught exception
      *
-     * @return string | The enhanced error message
+     * @return string The enhanced error message
      */
     function _buildEnhancedErrorMessage( required any exception ) {
         var sourcePath = _getSingleFileSourcePath();
@@ -1842,11 +1842,17 @@ component output="true" accessors="true" {
                 if ( structKeyExists( ctx, "template" ) && ctx.template contains "cbwire" && ctx.template contains "tmp" ) {
                     var generatedLine = structKeyExists( ctx, "line" ) ? ctx.line : 0;
                     if ( generatedLine > 0 && lineOffset > 0 ) {
-                        // The generated component has some header lines, so we need to account for that
-                        // The header in EmptySingleFileComponent.cfc has approximately 14 lines before CFC_CONTENTS
-                        var headerLines = 14;
-                        var estimatedSourceLine = generatedLine - headerLines + lineOffset;
-                        if ( estimatedSourceLine > 0 ) {
+                        /*
+                         * The generated component file (EmptySingleFileComponent.cfc/.bx) has header lines
+                         * before the {{ CFC_CONTENTS }} placeholder where user code is inserted.
+                         * This includes: component declaration, variable definitions for source path and
+                         * line offset, comments, and blank lines. Currently this is approximately 14 lines.
+                         * See models/EmptySingleFileComponent.cfc for the template structure.
+                         */
+                        var generatedTemplateHeaderLines = 14;
+                        var estimatedSourceLine = generatedLine - generatedTemplateHeaderLines + lineOffset;
+                        // Only show the estimated line if it's a positive, reasonable value
+                        if ( estimatedSourceLine > 0 && estimatedSourceLine <= 10000 ) {
                             enhancedMessage &= "Estimated source line: ~" & estimatedSourceLine & chr(10);
                         }
                     }
