@@ -1,7 +1,7 @@
 component extends="cbwire.models.Component" {
 
-    data = [
+    data = {
         "title": "Parent Component"
-    ];
+    };
 
 }

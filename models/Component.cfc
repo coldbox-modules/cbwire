@@ -315,7 +315,7 @@ component output="true" accessors="true" {
      * @name string | The name of the component to load.
      * @params struct | The parameters you want mounted initially. Defaults to an empty struct.
      * @key string | An optional key parameter. Defaults to an empty string.
-     * @lazy boolean | Optional parameter to lazy load the component. Defaults to false.
+     * @lazy boolean | Optional parameter to lazy load the component.
      * @lazyIsolated boolean | Optional parameter to lazy load the component in an isolated scope. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
@@ -356,7 +356,6 @@ component output="true" accessors="true" {
             ._withEvent( variables._event )
             ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
             ._withKey( arguments.key )
-            ._withLazy( isNull( arguments.lazy ) ? false : arguments.lazy );
 
         // Determine if component should be lazy loaded
         // If lazy parameter is explicitly provided, use that value
@@ -365,8 +364,11 @@ component output="true" accessors="true" {
             local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
             arguments.lazy;  // Use explicit parameter value
 
+
         // Check if lazy loading is enabled
         if ( local.shouldLazyLoad ) {
+            // Set lazy rendering on the instance
+            local.instance._withLazy( true );
             local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
             // Based on the rendering, determine our outer component tag
             local.componentTag = variables._renderService.getComponentTag( local.lazyRendering );
@@ -377,9 +379,10 @@ component output="true" accessors="true" {
                     local.instance._getId()
                 ]
             ] );
-
             return local.lazyRendering;
         } else {
+            // Set lazy rendering off the instance
+            local.instance._withLazy( false );
             // Render it out normally
             local.rendering = local.instance._render();
             // Based on the rendering, determine our outer component tag

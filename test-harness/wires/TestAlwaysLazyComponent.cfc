@@ -2,9 +2,9 @@ component extends="cbwire.models.Component" {
 
     lazy = true;
 
-    data = [
+    data = {
         "title": "Always Lazy Component"
-    ];
+    };
 
     function placeholder() {
         return "<div>Always Lazy Placeholder</div>";

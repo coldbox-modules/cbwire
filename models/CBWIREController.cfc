@@ -37,7 +37,7 @@ component accessors="true" singleton {
      * @name The name of the component to load.
      * @params The parameters you want mounted initially. Defaults to an empty struct.
      * @key An optional key parameter. Defaults to an empty string.
-     * @lazy Whether the component should be lazy loaded or not. Defaults to false.
+     * @lazy Whether the component should be lazy loaded or not.
      * @lazyIsolated Whether the component should be lazy loaded in an isolated manner. Defaults to true.
      *
      * @return An instance of the specified component after rendering.

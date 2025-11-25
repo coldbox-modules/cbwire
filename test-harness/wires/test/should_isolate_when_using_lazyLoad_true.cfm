@@ -4,6 +4,10 @@
 
     data = {
     };
+
+    function placeholder() {
+        return "<div>Loading...</div>";
+    }
     // @endWire
 </cfscript>
 
