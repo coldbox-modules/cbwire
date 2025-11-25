@@ -1,4 +1,4 @@
-component extends="cbwire.models.Component" {
+component extends="{{ EXTENDS_PATH }}" {
 
     {{ CFC_CONTENTS }}
 

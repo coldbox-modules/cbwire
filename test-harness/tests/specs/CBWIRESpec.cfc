@@ -303,6 +303,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
             } );
 
+            it( "should extend custom basewire from single file component", function() {
+                var result = CBWIREController.wire( "test.should_extend_custom_basewire_from_single_file_component" );
+                expect( result ).toInclude( "<p>Result: Hello World!</p>" );
+            } );
+
+            it( title="should extend custom basewire from single file boxlang component", body=function() {
+                var result = CBWIREController.wire( "test.should_extend_custom_basewire_from_single_file_boxlang_component" );
+                expect( result ).toInclude( "<p>Result: Hello World!</p>" );
+            }, skip=!isBoxLang() );
+
             it( "should be able to access event from template", function() {
                 var result = CBWIREController.wire( "test.should_be_able_to_access_event_from_template" );
                 expect( result ).toInclude( "<p>Event is object: true</p>" );
