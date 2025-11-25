@@ -329,7 +329,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
-            it( "should isolate when using lazyLoad=true", function() {
+            it( "should isolate when using lazy=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
                 expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
@@ -1566,6 +1566,53 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ] ).toBeArray();
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 1 ] ).toBe( "div" );
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
+            } );
+
+            it( "should always lazy load when component has lazy = true", function() {
+                var lazyHtml = CBWIREController.wire( "TestAlwaysLazyComponent" );
+                // Component should be lazy loaded even without explicit lazy=true parameter
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("wire:snapshot=");
+                expect(lazyHtml).toInclude("Always Lazy Placeholder");
+            } );
+
+            it( "should not render component content when component has lazy = true", function() {
+                var lazyHtml = CBWIREController.wire( "TestAlwaysLazyComponent" );
+                // The actual component content should not be included
+                expect(lazyHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should allow overriding component lazy = true with lazy = false", function() {
+                var regularHtml = CBWIREController.wire( name="TestAlwaysLazyComponent", lazy=false );
+                // When explicitly set to lazy=false, should render normally
+                expect(regularHtml).notToInclude("x-intersect=");
+                expect(regularHtml).toInclude("This component has lazy = true");
+                expect(regularHtml).toInclude("Always Lazy Component");
+            } );
+
+            it( "should respect component lazy = true even when lazy = true is explicitly passed", function() {
+                var lazyHtml = CBWIREController.wire( name="TestAlwaysLazyComponent", lazy=true );
+                // Should still be lazy loaded
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("Always Lazy Placeholder");
+                expect(lazyHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should lazy load child component when child has lazy = true", function() {
+                var parentHtml = CBWIREController.wire( "TestParentWithLazyChild" );
+                // Parent should render normally but child should be lazy loaded
+                expect(parentHtml).toInclude("Parent Component");
+                expect(parentHtml).toInclude("x-intersect=");
+                expect(parentHtml).toInclude("Always Lazy Placeholder");
+                expect(parentHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should override child component lazy = true with explicit lazy = false", function() {
+                // Create a parent that overrides child lazy setting
+                var parentHtml = CBWIREController.wire( "TestParentWithOverride" );
+                expect(parentHtml).toInclude("Parent Component");
+                expect(parentHtml).notToInclude("x-intersect=");
+                expect(parentHtml).toInclude("This component has lazy = true");
             } );
         });
 

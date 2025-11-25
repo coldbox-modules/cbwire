@@ -315,12 +315,12 @@ component output="true" accessors="true" {
      * @name string | The name of the component to load.
      * @params struct | The parameters you want mounted initially. Defaults to an empty struct.
      * @key string | An optional key parameter. Defaults to an empty string.
-     * @lazy boolean | Optional parameter to lazy load the component. Defaults to false.
+     * @lazy boolean | Optional parameter to lazy load the component.
      * @lazyIsolated boolean | Optional parameter to lazy load the component in an isolated scope. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required string name, struct params = {}, string key = "", lazy = false, lazyIsolated = true ) {
+    function wire(required string name, struct params = {}, string key = "", lazy, lazyIsolated = true ) {
         // Generate a key if one is not provided
         if ( !arguments.key.len() ) {
             arguments.key = _generateWireKey();
@@ -354,12 +354,21 @@ component output="true" accessors="true" {
             ._withPath( arguments.name )
             ._withParent( this )
             ._withEvent( variables._event )
-            ._withParams( arguments.params, arguments.lazy )
+            ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
             ._withKey( arguments.key )
-            ._withLazy( arguments.lazy );
+
+        // Determine if component should be lazy loaded
+        // If lazy parameter is explicitly provided, use that value
+        // Otherwise, use the component's lazy preference
+        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+            local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
+            arguments.lazy;  // Use explicit parameter value
+
 
         // Check if lazy loading is enabled
-        if ( arguments.lazy ) {
+        if ( local.shouldLazyLoad ) {
+            // Set lazy rendering on the instance
+            local.instance._withLazy( true );
             local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
             // Based on the rendering, determine our outer component tag
             local.componentTag = variables._renderService.getComponentTag( local.lazyRendering );
@@ -370,9 +379,10 @@ component output="true" accessors="true" {
                     local.instance._getId()
                 ]
             ] );
-
             return local.lazyRendering;
         } else {
+            // Set lazy rendering off the instance
+            local.instance._withLazy( false );
             // Render it out normally
             local.rendering = local.instance._render();
             // Based on the rendering, determine our outer component tag
@@ -602,6 +612,15 @@ component output="true" accessors="true" {
      */
     function _getId() {
         return variables._id;
+    }
+
+    /**
+     * Returns the lazy load preference of the component.
+     *
+     * @return boolean
+     */
+    function _getLazyLoad() {
+        return variables._lazyLoad;
     }
 
     /**
@@ -1554,8 +1573,8 @@ component output="true" accessors="true" {
      * @return void
      */
     function _prepareLazyLoading() {
-        // If the component has a lazyLoad method, call it
-        variables._lazyLoad = variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ?
+        // Check if the component has a lazy property
+        variables._lazyLoad = variables.keyExists( "lazy" ) && isBoolean( variables.lazy ) && variables.lazy ?
             true : false;
 
         if ( variables._lazyLoad ) {

@@ -28,12 +28,12 @@
      * @name string | The name of the component to load.
      * @params struct | The parameters you want mounted initially. Defaults to an empty struct.
      * @key string | An optional key parameter. Defaults to an empty string.
-     * @lazy boolean | An optional lazy parameter. Defaults to false.
+     * @lazy boolean | An optional lazy parameter.
      * @lazyIsolated boolean | An optional lazyIsolated parameter. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required string name, struct params = {}, string key = "", boolean lazy = false, boolean lazyIsolated = true ) {
+    function wire(required string name, struct params = {}, string key = "", lazy, boolean lazyIsolated = true ) {
         return getInstance("CBWIREController@cbwire").wire( argumentCollection=arguments );
     }
 

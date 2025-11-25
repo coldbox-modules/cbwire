@@ -1,14 +1,18 @@
 <cfscript>
     // @startWire
-    lazyLoad = true;
+    lazy = true;
 
     data = {
     };
+
+    function placeholder() {
+        return "<div>Loading...</div>";
+    }
     // @endWire
 </cfscript>
 
 <cfoutput>
     <div>
-        <h1>Should isolate when using lazyLoad=true</h1>
+        <h1>Should isolate when using lazy=true</h1>
     </div>
 </cfoutput>
