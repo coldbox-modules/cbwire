@@ -1,0 +1,12 @@
+<bx:output>
+    <div>
+        <p>Result: #sayHello()#</p>
+    </div>
+</bx:output>
+
+<bx:script>
+// @extends('wires.test.BaseWire')
+// @startWire
+
+// @endWire
+</bx:script>

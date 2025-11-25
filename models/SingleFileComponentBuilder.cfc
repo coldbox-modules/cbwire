@@ -46,6 +46,7 @@ component accessors="true" singleton {
         local.fileContents = fileRead( arguments.cfmPath );
         local.singleFileContents = "";
         local.remainingContents = "";
+        local.extendsPath = "cbwire.models.Component";
 
         local.startedWire = false;
         local.endedWire = false;
@@ -63,6 +64,15 @@ component accessors="true" singleton {
 			if ( REFindNoCase( local.REEndScriptTag, local.line  ) > 0 ) {
 				local.insideScriptTag = false;
 			}
+
+            // Parse @extends annotation
+            if ( local.insideScriptTag && local.line contains "@extends" ) {
+                local.extendsMatch = reFindNoCase( "@extends\s*\(\s*['""]?([^'"")\s]+)['""]?\s*\)", local.line, 1, true );
+                if ( arrayLen( local.extendsMatch.match ) >= 2 && len( local.extendsMatch.match[ 2 ] ) ) {
+                    local.extendsPath = local.extendsMatch.match[ 2 ];
+                }
+                continue;
+            }
 
             if ( local.insideScriptTag && local.line contains "@startWire" ) {
                 local.startedWire = true;
@@ -82,7 +92,8 @@ component accessors="true" singleton {
 
         return {
             "singleFileContents" : local.singleFileContents,
-            "remainingContents" : local.remainingContents
+            "remainingContents" : local.remainingContents,
+            "extendsPath" : local.extendsPath
         };
     }
 
@@ -148,6 +159,13 @@ component accessors="true" singleton {
             local.emptySingleFileComponent,
             "{{ TEMPLATE_PATH }}",
             "cbwire.models.tmp.#arguments.componentName#",
+            "one"
+        );
+
+        local.emptySingleFileComponent = replaceNoCase(
+            local.emptySingleFileComponent,
+            "{{ EXTENDS_PATH }}",
+            local.parsedContents.extendsPath,
             "one"
         );
 
