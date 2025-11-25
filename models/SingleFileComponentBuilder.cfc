@@ -67,9 +67,13 @@ component accessors="true" singleton {
 
             // Parse @extends annotation
             if ( local.insideScriptTag && local.line contains "@extends" ) {
-                local.extendsMatch = reFindNoCase( "@extends\s*\(\s*['""]?([^'"")\s]+)['""]?\s*\)", local.line, 1, true );
+                local.extendsMatch = reFindNoCase( "@extends\s*\(\s*['""]?([^'""\)\s]+)['""]?\s*\)", local.line, 1, true );
                 if ( arrayLen( local.extendsMatch.match ) >= 2 && len( local.extendsMatch.match[ 2 ] ) ) {
-                    local.extendsPath = local.extendsMatch.match[ 2 ];
+                    local.capturedPath = local.extendsMatch.match[ 2 ];
+                    // Validate that the path contains only valid characters (alphanumeric, dots, underscores)
+                    if ( reFindNoCase( "^[a-zA-Z0-9_\.]+$", local.capturedPath ) ) {
+                        local.extendsPath = local.capturedPath;
+                    }
                 }
                 continue;
             }
