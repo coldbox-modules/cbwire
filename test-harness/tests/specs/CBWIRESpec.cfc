@@ -1757,16 +1757,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "data-csrf=""[A-Za-z0-9]+""", scripts ) ).toBeGT( 0 );
             } );
 
-            it( "should provide a wirePersist() method", function() {
-                var result = cbwireController.persist( "player" );
-                expect( result.trim() ).toBe( "<div x-persist=""player"">" );
-            } );
-
-            it( "should provide a endWirePersist() method", function() {
-                var result = cbwireController.endPersist();
-                expect( result.trim() ).toBe( "</div>" );
-            } );
-
 			it( "should render component from ./wires folder using wire()", function() {
 				var result = cbwireController.wire( "TestComponent" );
 				expect( result ).toContain( "Title: CBWIRE Rocks!" );

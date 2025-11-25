@@ -501,24 +501,6 @@ component accessors="true" singleton {
     }
 
     /**
-     * Returns HTML to persist the state of anything inside the call.
-     *
-     * @return string
-     */
-    function persist( name ) {
-        return "<div x-persist=""player"">";
-    }
-
-    /**
-     * Ends the persistence of the state of anything inside the call.
-     *
-     * @return string
-     */
-    function endPersist() {
-        return "</div>";
-    }
-
-    /**
      * Generates a secure signature for the upload URL.
      *
      * @baseURL string | The base URL for the upload request.
