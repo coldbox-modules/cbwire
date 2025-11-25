@@ -652,7 +652,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result.assets[ keys.first() ] ).toInclude( "tailwind.min.css" );
             } );
 
-            it( "it should NOT return assets if they were already rendered", function() {
+            it( "should NOT return assets if they were already rendered", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "test.should_track_cbwire_assets_in_http_response",
@@ -1526,7 +1526,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "^<tr\s+", lazyHTML.trim() ) ).toBeTrue();
             } );
 
-            it( "It should throw error if lazy component doesn't have a placeholder", function() {
+            it( "should throw error if lazy component doesn't have a placeholder", function() {
                 expect( function() {
                     testComponent.wire(
                         name="TestComponentWithoutPlaceholder",
@@ -1767,33 +1767,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result.trim() ).toBe( "</div>" );
             } );
 
-			it( "can render component from ./wires folder using wire()", function() {
+			it( "should render component from ./wires folder using wire()", function() {
 				var result = cbwireController.wire( "TestComponent" );
 				expect( result ).toContain( "Title: CBWIRE Rocks!" );
 			} );
 
-			it( "can render component from nested folder using wire()", function() {
+			it( "should render component from nested folder using wire()", function() {
 				var result = cbwireController.wire( "wires.nestedComponent.NestedFolderComponent" );
 				expect( result ).toContain( "Nested folder component" );
 			} );
 
-			it( "throws error if it's unable to find a module component", function() {
+			it( "should throw error if it's unable to find a module component", function() {
 				expect( function() {
 					var result = cbwireController.wire( "missing@someModule" );
 				} ).toThrow( type="ModuleNotFound" );
 			} );
 
-			it( "can render component from module using default wires location", function() {
+			it( "should render component from module using default wires location", function() {
 				var result = cbwireController.wire( "NestedModuleDefaultComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
-			it( "can render component from module using nested folder", function() {
+			it( "should render component from module using nested folder", function() {
 				var result = cbwireController.wire( "wires.nestedComponent.NestedFolderComponent@testingmodule" );
 				expect( result ).toContain( "Nested folder component" );
 			} );
 
-            it( "can load components from an external modules folder", function() {
+            it( "should load components from an external modules folder", function() {
                 var result = cbwireController.wire( "should_load_external_modules@ExternalModule" );
                 expect( result ).toInclude( "External Module Loaded" );
             } );

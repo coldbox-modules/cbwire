@@ -25,13 +25,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
            
             describe( "_getDataProperties()", function() {
 
-                it( "returns empty struct when data is empty", function() {
+                it( "should return empty struct when data is empty", function() {
                     variables.wireComponent.setData( {} );
                     var result = variables.wireComponent._getDataProperties();
                     expect( result ).toBeEmpty();
                 });
 
-                it( "preserves non-boolean values", function() {
+                it( "should preserve non-boolean values", function() {
                     variables.wireComponent.setData( {
                         "name": "Grant",
                         "age": 41,
@@ -42,7 +42,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result.age ).toBe( 41 );
                 });
 
-                it( "normalizes true boolean to true", function() {
+                it( "should normalize true boolean to true", function() {
                     variables.wireComponent.setData( {
                         "isMember": true
                     } );
@@ -50,7 +50,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result.isMember ).toBeTrue();
                 });
 
-                it( "normalizes false boolean to false", function() {
+                it( "should normalize false boolean to false", function() {
                     variables.wireComponent.setData( {
                         "isMember": false
                     } );
@@ -58,7 +58,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result.isMember ).toBeFalse();
                 });
 
-                it( "does not coerce numeric booleans", function() {
+                it( "should not coerce numeric booleans", function() {
                     variables.wireComponent.setData( {
                         "flag": 1,
                         "enabled": 0
@@ -68,7 +68,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result.enabled ).toBe( 0 );
                 });
 
-                it( "returns a copy, not a reference", function() {
+                it( "should return a copy, not a reference", function() {
                     variables.wireComponent.setData( { "count": 5 } );
                     var result = variables.wireComponent._getDataProperties();
                     result.count = 10;

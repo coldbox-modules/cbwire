@@ -102,7 +102,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             describe( "renderViewContent()", function() {
 
-                it( "renders with test encapsulator", function() {
+                it( "should render with test encapsulator", function() {
                     var wire = prepareMock( createStub() );
                     wire.$( "get_renderedContent", "" );
                     wire.$( "set_renderedContent" );
