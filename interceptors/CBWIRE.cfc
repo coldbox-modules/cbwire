@@ -140,15 +140,18 @@ component {
 
     function postLayoutRender() {
         if ( shouldInject( arguments.event ) && !request.keyExists( "_cbwire_injected_assets" ) ) {
+            // Get the layout file content to check for required tags
+            local.layoutContent = getLayoutContent( arguments.event );
+            
             // Check if the layout has required tags for asset injection
-            if ( !findNoCase( "</head>", arguments.data.renderedLayout ) ) {
+            if ( !findNoCase( "</head>", local.layoutContent ) ) {
                 throw(
                     type = "CBWIREException",
                     message = "Layout is missing </head> tag required for wireStyles() injection.",
                     detail = "Your layout must include a </head> tag where CBWIRE can inject CSS styles. Either add a </head> tag to your layout or set 'autoInjectAssets' to false and manually call wireStyles() and wireScripts()."
                 );
             }
-            if ( !findNoCase( "</body>", arguments.data.renderedLayout ) ) {
+            if ( !findNoCase( "</body>", local.layoutContent ) ) {
                 throw(
                     type = "CBWIREException",
                     message = "Layout is missing </body> tag required for wireScripts() injection.",
@@ -160,6 +163,40 @@ component {
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</body>", getScripts() & chr( 10 ) & "</body>", "one" );
             request._cbwire_injected_assets = true;
         }
+    }
+
+    /**
+     * Gets the layout file content for validation.
+     * Reads the actual layout file from disk based on the current layout name.
+     * 
+     * @event The request context object
+     * 
+     * @return string The layout file content
+     */
+    private function getLayoutContent( event ) {
+        // Get the current layout name from the private collection
+        local.layoutName = arguments.event.getPrivateValue( "currentLayout", "" );
+        
+        if ( !len( local.layoutName ) ) {
+            return "";
+        }
+        
+        // Get the layouts directory path
+        local.layoutsPath = expandPath( "/layouts/" );
+        
+        // Try common file extensions
+        local.extensions = [ ".cfm", ".bxm" ];
+        
+        for ( local.ext in local.extensions ) {
+            local.layoutFile = local.layoutsPath & local.layoutName & local.ext;
+            if ( fileExists( local.layoutFile ) ) {
+                return fileRead( local.layoutFile );
+            }
+        }
+        
+        // If we can't find the layout file, return empty string
+        // This will allow the existing rendered content check to fail gracefully
+        return "";
     }
 
     function preModuleLoad() eventPattern="^cbwire.*" {
