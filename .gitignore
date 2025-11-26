@@ -26,4 +26,8 @@ node_modules/**
 
 models/tmp/**
 
+# Test generated files
+test-harness/tests/resources/fileupload_metadata.json
+test-harness/tests/resources/logo_*.png
+
 .DS_Store
