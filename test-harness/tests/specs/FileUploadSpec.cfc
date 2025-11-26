@@ -139,14 +139,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = loadMockedFileUpload( "test-store-file", "text", "plain" );
                 var destinationDir = getTempDirectory() & "/cbwire-test-store-file";
                 var destinationPath = destinationDir & "/myfile.png";
-                
+
                 // Store the file with specific filename
                 var storedPath = result.store( destinationPath );
-                
+
                 // Verify the file was moved to the destination with the new name
                 expect( fileExists( storedPath ) ).toBeTrue();
-                expect( storedPath ).toBe( getCanonicalPath( destinationPath ) );
-                
+                // Normalize both paths to handle platform differences (e.g., /var vs /private/var on macOS)
+                expect( getCanonicalPath( storedPath ) ).toBe( getCanonicalPath( destinationPath ) );
+
                 // Clean up
                 if ( directoryExists( destinationDir ) ) {
                     directoryDelete( destinationDir, true );
