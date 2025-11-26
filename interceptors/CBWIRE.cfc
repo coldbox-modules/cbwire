@@ -155,7 +155,7 @@ component {
                     detail = "Your layout must include a </body> tag where CBWIRE can inject JavaScript. Either add a </body> tag to your layout or set 'autoInjectAssets' to false and manually call wireStyles() and wireScripts()."
                 );
             }
-            
+
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</head>", getStyles() & chr( 10 ) & "</head>", "one" );
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</body>", getScripts() & chr( 10 ) & "</body>", "one" );
             request._cbwire_injected_assets = true;
