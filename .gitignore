@@ -31,3 +31,4 @@ test-harness/tests/resources/fileupload_metadata.json
 test-harness/tests/resources/logo_*.png
 
 .DS_Store
+.claude/settings.local.json
