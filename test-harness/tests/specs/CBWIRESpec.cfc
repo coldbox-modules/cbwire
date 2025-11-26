@@ -127,6 +127,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( beforeHead ).toInclude( "<link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"">" );
             } );
 
+            it( "should throw exception when layout is missing </head> tag with autoInjectAssets enabled", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = true;
+                expect( function() {
+                    this.get( "tests.testMissingHeadTag" );
+                } ).toThrow( type="CBWIREException", message="Layout is missing </head> tag required for wireStyles() injection." );
+            } );
+
+            it( "should throw exception when layout is missing </body> tag with autoInjectAssets enabled", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = true;
+                expect( function() {
+                    this.get( "tests.testMissingBodyTag" );
+                } ).toThrow( type="CBWIREException", message="Layout is missing </body> tag required for wireScripts() injection." );
+            } );
+
+            it( "should not throw exception when layout is missing tags with autoInjectAssets disabled", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.autoInjectAssets = false;
+                var event = this.get( "tests.testMissingBothTags" );
+                var html = event.getRenderedContent();
+                // Should render without error
+                expect( html ).toBeString();
+                expect( html ).notToInclude( "<!-- CBWIRE Styles -->" );
+                expect( html ).notToInclude( "<!-- CBWIRE Scripts -->" );
+            } );
+
         } );
 
         describe("Component.cfc", function() {

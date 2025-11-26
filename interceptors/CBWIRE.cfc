@@ -140,6 +140,22 @@ component {
 
     function postLayoutRender() {
         if ( shouldInject( arguments.event ) && !request.keyExists( "_cbwire_injected_assets" ) ) {
+            // Check if the layout has required tags for asset injection
+            if ( !findNoCase( "</head>", arguments.data.renderedLayout ) ) {
+                throw(
+                    type = "CBWIREException",
+                    message = "Layout is missing </head> tag required for wireStyles() injection.",
+                    detail = "Your layout must include a </head> tag where CBWIRE can inject CSS styles. Either add a </head> tag to your layout or set 'autoInjectAssets' to false and manually call wireStyles() and wireScripts()."
+                );
+            }
+            if ( !findNoCase( "</body>", arguments.data.renderedLayout ) ) {
+                throw(
+                    type = "CBWIREException",
+                    message = "Layout is missing </body> tag required for wireScripts() injection.",
+                    detail = "Your layout must include a </body> tag where CBWIRE can inject JavaScript. Either add a </body> tag to your layout or set 'autoInjectAssets' to false and manually call wireStyles() and wireScripts()."
+                );
+            }
+            
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</head>", getStyles() & chr( 10 ) & "</head>", "one" );
             arguments.data.renderedLayout = replaceNoCase( arguments.data.renderedLayout, "</body>", getScripts() & chr( 10 ) & "</body>", "one" );
             request._cbwire_injected_assets = true;
