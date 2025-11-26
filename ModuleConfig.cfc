@@ -39,12 +39,6 @@ component {
              */
             "moduleRootURL": "/modules/cbwire",
             /**
-             * Set to true to throw a 'WireSetterNotFound' exception if
-             * the incoming cbwire request tries to update a property
-             * without a setter on our component. Otherwise, missing setters are ignored.
-             */
-            "throwOnMissingSetterMethod" : false,
-            /**
              * The default folder name where your cbwire components are stored.
              * Defaults to 'wires' folder.
              */
