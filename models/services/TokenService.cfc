@@ -19,7 +19,7 @@ component accessors="true" singleton {
     /**
      * Cache for application metadata to avoid repeated lookups
      */
-    variables.appMetadata = "";
+    variables.appMetadata = {};
 
     /**
      * Generates a CBWIRE-specific token that doesn't expire.
@@ -97,7 +97,7 @@ component accessors="true" singleton {
      * @return True if session management is enabled, false otherwise
      */
     private function isSessionManagementEnabled() {
-        if ( !isStruct( variables.appMetadata ) ) {
+        if ( !structCount( variables.appMetadata ) ) {
             variables.appMetadata = getApplicationMetadata();
         }
         return structKeyExists( variables.appMetadata, "sessionManagement" ) && variables.appMetadata.sessionManagement;
