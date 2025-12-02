@@ -71,7 +71,19 @@ component accessors="true" singleton {
     private function generateNewToken() {
         // Generate a cryptographically secure random token
         var tokenBase = "#createUUID()##getRealIP()##randRange( 0, 65535, "SHA1PRNG" )##getTickCount()#";
-        return uCase( left( hash( tokenBase & session.sessionid, "SHA-256" ), 40 ) );
+        
+        // Include session ID if sessions are enabled (cross-platform check)
+        var sessionId = "";
+        var appSettings = getApplicationMetadata();
+        if ( structKeyExists( appSettings, "sessionManagement" ) && appSettings.sessionManagement ) {
+            try {
+                sessionId = session.sessionid;
+            } catch ( any e ) {
+                // Session not available yet, continue without it
+            }
+        }
+        
+        return uCase( left( hash( tokenBase & sessionId, "SHA-256" ), 40 ) );
     }
 
     private function getRealIP() {
