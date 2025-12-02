@@ -17,6 +17,11 @@ component accessors="true" singleton {
     variables.csrfService = "";
 
     /**
+     * Cache for application metadata to avoid repeated lookups
+     */
+    variables.appMetadata = "";
+
+    /**
      * Generates a CBWIRE-specific token that doesn't expire.
      * Stored using the configured storage implementation and lasts for session lifetime.
      *
@@ -74,16 +79,28 @@ component accessors="true" singleton {
         
         // Include session ID if sessions are enabled (cross-platform check)
         var sessionId = "";
-        var appSettings = getApplicationMetadata();
-        if ( structKeyExists( appSettings, "sessionManagement" ) && appSettings.sessionManagement ) {
+        if ( isSessionManagementEnabled() ) {
             try {
                 sessionId = session.sessionid;
             } catch ( any e ) {
-                // Session not available yet, continue without it
+                // Handle cases where session scope exists but sessionid property is not yet available,
+                // or when session operations fail during application startup
             }
         }
         
         return uCase( left( hash( tokenBase & sessionId, "SHA-256" ), 40 ) );
+    }
+
+    /**
+     * Checks if session management is enabled in the application (cross-platform)
+     *
+     * @return True if session management is enabled, false otherwise
+     */
+    private function isSessionManagementEnabled() {
+        if ( !isStruct( variables.appMetadata ) ) {
+            variables.appMetadata = getApplicationMetadata();
+        }
+        return structKeyExists( variables.appMetadata, "sessionManagement" ) && variables.appMetadata.sessionManagement;
     }
 
     private function getRealIP() {
