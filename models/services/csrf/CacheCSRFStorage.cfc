@@ -48,8 +48,8 @@ component
      * Checks if a token exists in cache storage
      */
     boolean function exists() {
-        return cacheStorage.exists( variables.STORAGE_KEY ) &&
-               len( get() ) > 0;
+        var data = cacheStorage.get( variables.STORAGE_KEY, {} );
+        return data.keyExists( "token" ) && len( data.token ) > 0;
     }
 
     /**
