@@ -47,8 +47,8 @@ component
      * Checks if a token exists in session storage
      */
     boolean function exists() {
-        return sessionStorage.exists( variables.STORAGE_KEY ) &&
-               len( get() ) > 0;
+        var data = sessionStorage.get( variables.STORAGE_KEY, {} );
+        return data.keyExists( "token" ) && len( data.token ) > 0;
     }
 
     /**
