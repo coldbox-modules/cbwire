@@ -97,7 +97,7 @@ component accessors="true" singleton {
      * @return True if session management is enabled, false otherwise
      */
     private function isSessionManagementEnabled() {
-        if ( !structCount( variables.appMetadata ) ) {
+        if ( structIsEmpty( variables.appMetadata ) ) {
             variables.appMetadata = getApplicationMetadata();
         }
         return structKeyExists( variables.appMetadata, "sessionManagement" ) && variables.appMetadata.sessionManagement;
