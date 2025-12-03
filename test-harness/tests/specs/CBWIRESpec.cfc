@@ -723,6 +723,52 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 } ).toThrow( type="CBWIREException", message="Page expired." );
             } );
 
+            it( "should process requests without CSRF verification when csrfEnabled = false", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                var originalSetting = settings.csrfEnabled;
+                settings.csrfEnabled = false;
+                
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "count": 1
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "changeTitle",
+                            "params": []
+                        }
+                    ],
+                    updates = {},
+                    csrfToken = "badToken"
+                );
+                
+                // Should not throw an error even with bad token when CSRF is disabled
+                var response = cbwireController.handleRequest( payload, event );
+                expect( isStruct( response ) ).toBeTrue();
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slays!" );
+                
+                // Restore original setting
+                settings.csrfEnabled = originalSetting;
+            } );
+
+            it( "should return empty string from generateCSRFToken() when csrfEnabled = false", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                var originalSetting = settings.csrfEnabled;
+                settings.csrfEnabled = false;
+                
+                var token = cbwireController.generateCSRFToken();
+                expect( token ).toBe( "" );
+                
+                // Restore original setting
+                settings.csrfEnabled = originalSetting;
+            } );
+
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {
                 var payload = incomingRequest(
                     memo = {

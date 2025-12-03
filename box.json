@@ -22,7 +22,7 @@
     ],
     "contributors":[],
     "dependencies":{
-        "cbcsrf":"^3.1.0+16"
+        "cbstorages":"^3.0.0"
     },
     "devDependencies":{
         "commandbox-cfformat":"*",
@@ -45,6 +45,6 @@
         "runner":"http://localhost:60299/tests/runner.cfm"
     },
     "installPaths":{
-        "cbcsrf":"modules/cbcsrf/"
+        "cbstorages":"modules/cbstorages/"
     }
 }
