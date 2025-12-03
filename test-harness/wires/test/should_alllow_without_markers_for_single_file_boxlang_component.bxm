@@ -1,0 +1,18 @@
+<bx:script>
+
+</bx:script>
+
+<bx:output>
+	<bx:script>
+		someString="Hello, CBWIRE!";
+
+	</bx:script>
+    <div>
+
+		<h1>Test Without @startWire &amp; @endWire</h1>
+        <p>SUCCESS!</p>
+		<p>#someString#</p>
+
+
+    </div>
+</bx:output>

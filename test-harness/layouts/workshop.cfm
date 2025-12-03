@@ -24,6 +24,7 @@
                         <li><a href="/workshop/Counter">Counter</a></li>
                         <li><a href="/workshop/SignupForm">Signup Form</a></li>
                         <li><a href="/workshop/TaskList">Task List</a></li>
+                        <li><a href="/workshop/nestedDataKeys">Dot Notation Data</a></li>
                     </ul>
                 </div>
                 <div class="col-9 right-content">
@@ -44,7 +45,7 @@
                 // });
             });
             document.addEventListener("livewire:navigated", () => {
-                
+
             });
         </script>
     </body>

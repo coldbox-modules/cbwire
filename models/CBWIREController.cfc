@@ -1,4 +1,4 @@
-component singleton {
+component accessors="true" singleton {
 
     // Injected WireBox instance so that we can dynamically create instances of components.
     property name="wirebox" inject="wirebox";
@@ -6,23 +6,30 @@ component singleton {
     // Injected RequestService so that we can access the current ColdBox RequestContext.
     property name="requestService" inject="coldbox:requestService";
 
-    // Inject CBCSRF for CSRF token generation and verification
-    property name="cbcsrf" inject="provider:@cbcsrf";
+    // Inject TokenService for CSRF token generation and verification
+    property name="tokenService" inject="provider:TokenService@cbwire";
 
     // Inject module settings
     property name="moduleSettings" inject="coldbox:modulesettings:cbwire";
-    
+
     // Inject module service
     property name="moduleService" inject="coldbox:moduleService";
 
     // Inject SingleFileComponentBuilder
     property name="singleFileComponentBuilder" inject="SingleFileComponentBuilder@cbwire";
 
+    // Inject ChecksumService
+    property name="checksumService" inject="ChecksumService@cbwire";
+
+	// Inject interceptorService
+	property name="interceptorService" inject="coldbox:interceptorService";
+
     function init() {
         // Initialize the array to store single file components
         variables._singleFileComponents = [];
         return this;
     }
+
     /**
      * Instantiates a CBWIRE component, mounts it,
      * and then calls its onRender() method.
@@ -30,21 +37,33 @@ component singleton {
      * @name The name of the component to load.
      * @params The parameters you want mounted initially. Defaults to an empty struct.
      * @key An optional key parameter. Defaults to an empty string.
-     * @lazy Whether the component should be lazy loaded or not. Defaults to false.
+     * @lazy Whether the component should be lazy loaded or not.
      * @lazyIsolated Whether the component should be lazy loaded in an isolated manner. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required name, params = {}, key = "", lazy = false, lazyIsolated = true ) {
+    function wire(required name, params = {}, key = "", lazy, lazyIsolated = true ) {
         local.instance = createInstance(argumentCollection=arguments)
                 ._withPath( arguments.name )
                 ._withEvent( getEvent() )
-                ._withParams( arguments.params, arguments.lazy )
+                ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
                 ._withKey( arguments.key );
 
+		// should render based on if onSecure exists and allows rendering
+		if( !local.instance._onSecureShouldRender() ){
+			return local.instance._getSecureMountFailMessage();
+		}
+
+        // Determine if component should be lazy loaded
+        // If lazy parameter is explicitly provided, use that value
+        // Otherwise, use the component's lazy preference (default false if not set)
+        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+            local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
+            arguments.lazy;  // Use explicit parameter value
+
         // If the component is lazy loaded, we need to generate an x-intersect snapshot of the component
-        return arguments.lazy ? 
-            local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params ) : 
+        return local.shouldLazyLoad ?
+            local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params ) :
             local.instance._render();
     }
 
@@ -53,7 +72,7 @@ component singleton {
      *
      * @incomingRequest The JSON struct payload of the incoming request.
      * @event The event object.
-     * 
+     *
      * @return A struct representing the response with updated component details or an error message.
      */
     function handleRequest( incomingRequest, event ) {
@@ -63,19 +82,31 @@ component singleton {
         };
         // Perform initial deserialization of the incoming request payload
         local.payload = deserializeJSON( arguments.incomingRequest.content );
-        // Set the CSRF token for the request
-        local.csrfToken = local.payload._token;
-        // Validate the CSRF token
-        local.csrfTokenVerified = variables.wirebox.getInstance( dsl="@cbcsrf" ).verify( local.csrfToken );
-        // Check the CSRF token, throw 403 if invalid
-        if( !local.csrfTokenVerified ){
-            throw( type="CBWIREException", message="Page expired." );
+
+		// Announce the preCBWIREUpdate event to global interceptors
+		variables.interceptorService.announce(
+			"preCBWIREUpdate",
+			{
+				"payload" : local.payload
+			}
+		);
+
+        // Verify CSRF token if CSRF protection is enabled
+        if ( variables.moduleSettings.csrfEnabled ) {
+            local.csrfToken = local.payload._token;
+            local.csrfTokenVerified = variables.tokenService.verify( local.csrfToken );
+            if( !local.csrfTokenVerified ){
+                throw( type="CBWIREException", message="Page expired." );
+            }
         }
+
         // Perform additional deserialization of the component snapshots
         local.payload.components = local.payload.components.map( function( _comp ) {
+            checksumService.validateChecksum( arguments._comp.snapshot );
             arguments._comp.snapshot = deserializeJSON( arguments._comp.snapshot );
             return arguments._comp;
         } );
+
         // Iterate over each component in the payload and process it
         local.componentsResult = {
             "components": local.payload.components.map( ( _componentPayload ) => {
@@ -89,6 +120,15 @@ component singleton {
                             ._getHTTPResponse( _componentPayload, httpRequestState );
             } )
         };
+
+		// Announce the onCBWIREUpdate event to global interceptors
+		variables.interceptorService.announce(
+			"onCBWIREUpdate",
+			{
+				"payload" : local.payload,
+				"response" : local.componentsResult
+			}
+		);
 
         // Return assets from components
         if ( local.httpRequestState.assets.count() ) {
@@ -121,15 +161,15 @@ component singleton {
     /**
      * Uploads all files from the request to the specified destination
      * after verifying the signed URL.
-     * 
+     *
      * @incomingRequest The JSON struct payload of the incoming request.
      * @event The event object.
-     * 
+     *
      * @return A struct representing the response with updated component details or an error message.
      */
     function handleFileUpload( incomingRequest, event ) {
         // Determine our storage path for temporary files
-        local.storagePath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "/models/tmp" );
+        local.storagePath = getCanonicalPath( variables.moduleSettings.uploadsStoragePath );
 
         // Ensure the storage path exists
         if( !directoryExists( local.storagePath ) ){
@@ -158,10 +198,10 @@ component singleton {
 
     /**
      * Handles the preview of a file by reading the file metadata and sending it back to the client.
-     * 
+     *
      * @incomingRequest The JSON struct payload of the incoming request.
      * @event The event object.
-     * 
+     *
      * @return file contents
      */
     function handleFilePreview( incomingRequest, event ){
@@ -170,10 +210,10 @@ component singleton {
             return event.noRender();
         }
 
-        local.metaPath = getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp/#local.uuid#.json" );
+        local.metaPath = getCanonicalPath( variables.moduleSettings.uploadsStoragePath & "/#local.uuid#.json" );
 
         local.metaJSON = deserializeJSON( fileRead( local.metaPath ) );
-        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.moduleRootPath & "models/tmp/#local.metaJSON.serverFile#" ) );
+        local.contents = fileReadBinary( getCanonicalPath( variables.moduleSettings.uploadsStoragePath & "/#local.metaJSON.serverFile#" ) );
         event
             .sendFile(
                 file = local.contents,
@@ -185,71 +225,149 @@ component singleton {
     }
 
     /**
-     * Dynamically creates an instance of a CBWIRE component based on the provided name.
-     * Assumes components are located within a specific namespace or directory structure.
+     * Retrieves the full dot notation path for a component based on its name.
+     * If the name contains a module reference, it resolves the path accordingly.
      *
-     * @componentName The name of the component to instantiate, possibly including a namespace.
-     * @params Optional parameters to pass to the component constructor.
-     * @key Optional key to use when retrieving the component from WireBox.
-     * 
+     * @name The name of the component to resolve.
+     *
+     * @return The full dot notation path for the component.
+     */
+    function getComponentDSL( name ) {
+        local.componentDSL = arguments.name;
+
+        if ( !local.componentDSL contains "wires." ) {
+            // Get the default wires location from our settings
+            local.componentDSL = getWiresLocation() & "." & local.componentDSL;
+        }
+
+        if ( find( "@", local.componentDSL ) ) {
+            // This is a module reference, find in our module
+            local.params = listToArray( local.componentDSL, "@" );
+            if ( local.params.len() != 2 ) {
+                throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.componentDSL & "'." );
+            }
+            // modify local.componentDSL to full path for module
+            local.componentDSL = getModuleComponentPath( params[ 1 ], params[ 2 ] );
+        }
+
+        return local.componentDSL;
+    }
+
+    /**
+     * Converts a component DSL from dot notation to slash notation.
+     *
+     * @componentDSL String | The component DSL to convert.
+     *
+     * @return String | The converted DSL in slash notation.
+     */
+    function convertDSLToSlashNotation( componentDSL ) {
+        return replace( arguments.componentDSL, ".", "/", "all" );
+    }
+
+    /**
+     * Returns true if the component DSL is a module DSL.
+     *
+     * @componentDSL String | The component DSL to check.
+     *
+     * @return boolean
+     */
+    function isModuleDSL( componentDSL ) {
+        return find( "@", arguments.componentDSL ) > 0;
+    }
+
+    function getDSLFilePathWithoutExtension( componentDSL ) {
+
+        if ( isModuleDSL( componentDSL ) ) {
+            return getModuleDSLFilePathWithoutExtension( componentDSL );
+        }
+
+        local.dslSlashNotation = convertDSLToSlashNotation( arguments.componentDSL );
+
+        return expandPath( "/" & local.dslSlashNotation);
+    }
+
+    /**
+     * Returns true if the component is a single file component.
+     * Also provides a performance optimization by checking if the component is already flagged as a single file component.
+     *
+     * @componentDSL String | The component DSL to check.
+     *
+     * @return boolean
+     */
+    function isSingleFileComponent( componentDSL ) {
+
+        if ( variables._singleFileComponents.contains( componentDSL ) ) {
+            return true;
+        }
+
+        local.dslFilePathWithoutExtension = getDSLFilePathWithoutExtension( componentDSL );
+
+        if ( !fileExists( local.dslFilePathWithoutExtension & ".bx" ) && !fileExists( local.dslFilePathWithoutExtension & ".cfc" ) ) {
+            if ( fileExists( local.dslFilePathWithoutExtension & ".bxm" ) || fileExists( local.dslFilePathWithoutExtension & ".cfm" ) ) {
+                variables._singleFileComponents.append( componentDSL );
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Creates a single file component instance based on the provided DSL and name.
+     * This method uses the SingleFileComponentBuilder to build the component.
+     *
+     * @componentDSL String | The DSL of the component to create.
+     * @name String | The name of the component to create.
+     *
+     * @return The instantiated single file component object.
+     */
+    function createSingleFileComponent( componentDSL, name ) {
+        return variables.singleFileComponentBuilder.setInitialRender( true ).build( arguments.componentDSL, arguments.name, getCurrentRequestModule() );
+    }
+
+    /**
+     * Creates a regular component instance based on the provided DSL and name.
+     * This method uses WireBox to get an instance of the component.
+     *
+     * @componentDSL String | The DSL of the component to create.
+     * @name String | The name of the component to create.
+     *
+     * @return The instantiated regular component object.
+     */
+    function createRegularComponent( componentDSL, name ) {
+        return variables.wirebox.getInstance( arguments.componentDSL )._withPath( arguments.name );
+    }
+
+    /**
+     * Creates an instance of a CBWIRE component based on the provided name or DSL.
+     *
+     * @name String | The name of the component to instantiate.
+     *
      * @return The instantiated component object.
+     *
      * @throws ApplicationException If the component cannot be found or instantiated.
      */
     function createInstance( name ) {
-        // Determine if the component name traverses a valid namespace or directory structure
-        local.fullComponentPath = arguments.name;
-        
-        if ( !local.fullComponentPath contains "wires." ) {
-            local.fullComponentPath = "wires." & local.fullComponentPath;
-        }
-        
-        if ( find( "@", local.fullComponentPath ) ) {
-            // This is a module reference, find in our module
-            var params = listToArray( local.fullComponentPath, "@" );
-            if ( params.len() != 2 ) {
-                throw( type="ModuleNotFound", message = "CBWIRE cannot locate the module or component using '" & local.fullComponentPath & "'." );
-            }
-            // modify local.fullComponentPath to full path for module
-            local.fullComponentPath = getModuleComponentPath( params[ 1 ], params[ 2 ] );
+        local.componentDSL = getComponentDSL( arguments.name );
+
+        if ( isSingleFileComponent( local.componentDSL ) ) {
+            return createSingleFileComponent( local.componentDSL, arguments.name );
+        } else {
+            return createRegularComponent( local.componentDSL, arguments.name );
         }
 
-        try {
-            // Check if we've already flagged this component as a single file component
-            // This is to improve performance by not attempting to create the component again
-            if ( variables._singleFileComponents.contains( arguments.name ) ) {
-                throw( type="Injector.InstanceNotFoundException", message="Component '#arguments.name#' is a single file component." );
-            }
-            // Attempt to create an instance of the component
-            local.componentInstance = variables.wirebox.getInstance(local.fullComponentPath)
-                ._withPath( arguments.name );
-            return local.componentInstance;
-        } catch( Injector.InstanceNotFoundException e ) {
-            local.singleFileComponent = variables.singleFileComponentBuilder
-                .setInitialRender( true )
-                .build( fullComponentPath, arguments.name, getCurrentRequestModule() );
-            if ( isNull( local.singleFileComponent ) ) {
-                writeDump( local );
-                abort;
-                rethrow;
-            }
-            variables._singleFileComponents.append( arguments.name );
-
-            return local.singleFileComponent;
-        } catch (Any e) {
-            writeDump( e );
-            abort;
-            // Log error or handle it as needed
-            throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
-        }
+        throw("ApplicationException", "Unable to instantiate component '#arguments.name#'. Detail: #e.message#");
     }
 
-    /** 
-    * Returns the path to the modules folder.
-    * 
-    * @module string | The name of the module.
-    *
-    * @return string
-    */
+	/**
+     * Returns the path to the modules folder.
+     *
+     * @module string | The name of the module.
+     *
+     * @return string
+	 *
+	 * @throws ModuleNotFound If the specified module does not exist.
+     */
     function getModuleRootPath( module ) {
         var moduleRegistry = moduleService.getModuleRegistry();
 
@@ -286,8 +404,8 @@ component singleton {
      * Returns the path to the wires folder within a module path.
      *
      * @module string | The name of the module.
-     * 
-     * @return string 
+     *
+     * @return string
      */
     function getModuleWiresPath( module ) {
         local.moduleRegistry = moduleService.getModuleRegistry();
@@ -296,7 +414,7 @@ component singleton {
 
     /**
      * Returns the ColdBox RequestContext object.
-     * 
+     *
      * @return The ColdBox RequestContext object.
      */
     function getEvent(){
@@ -305,7 +423,7 @@ component singleton {
 
     /**
      * Returns any request assets defined by components during the request.
-     * 
+     *
      * @return struct
      */
     function getRequestAssets() {
@@ -316,7 +434,7 @@ component singleton {
 
     /**
      * Returns the ColdBox ConfigSettings object.
-     * 
+     *
      * @return struct
      */
     function getConfigSettings(){
@@ -325,7 +443,7 @@ component singleton {
 
     /**
      * Returns an array of preprocessor instances.
-     * 
+     *
      * @return An array of preprocessor instances.
      */
     function getPreprocessors(){
@@ -333,7 +451,7 @@ component singleton {
         if( structKeyExists( variables, "preprocessors" ) ){
             return variables.preprocessors;
         }
-        // List of preprocesssors here. Had to hard code instead of using 
+        // List of preprocesssors here. Had to hard code instead of using
         // directoryList because of filesystem differences in various OSes
         local.files = [
             "TemplatePreprocessor.cfc",
@@ -351,18 +469,18 @@ component singleton {
 
     /**
      * Returns CSS styling needed by Livewire.
-     * 
+     *
      * @return string
      */
     function getStyles( cache=true ) {
         if (structKeyExists(variables, "styles") && arguments.cache ) {
             return variables.styles;
         }
-        
+
         savecontent variable="local.html" {
             include "styles.cfm";
         }
-        
+
         variables.styles = local.html;
         return variables.styles;
     }
@@ -372,10 +490,10 @@ component singleton {
      * We don't cache the results like we do with
      * styles because we need to generate a unique
      * CSRF token for each request.
-     * 
+     *
      * @return string
      */
-    function getScripts() {       
+    function getScripts() {
         savecontent variable="local.html" {
             include "scripts.cfm";
         }
@@ -383,29 +501,11 @@ component singleton {
     }
 
     /**
-     * Returns HTML to persist the state of anything inside the call.
-     * 
-     * @return string
-     */
-    function persist( name ) {
-        return "<div x-persist=""player"">";
-    }
-
-    /**
-     * Ends the persistence of the state of anything inside the call.
-     * 
-     * @return string
-     */
-    function endPersist() {
-        return "</div>";
-    }
-
-    /**
      * Generates a secure signature for the upload URL.
-     * 
+     *
      * @baseURL string | The base URL for the upload request.
      * @expires string | The expiration time for the request.
-     * 
+     *
      * @return string
      */
     function generateSignature(baseUrl, expires) {
@@ -419,17 +519,20 @@ component singleton {
 
     /**
      * Generates a CSRF token for the current request.
-     * 
+     * Returns empty string if CSRF protection is disabled.
+     *
      * @return string
      */
     function generateCSRFToken() {
-        // Generate the CSRF token using the cbcsrf library
-        return variables.cbcsrf.generate();
+        // Generate the CSRF token using cbwire's token service if enabled
+        return variables.moduleSettings.csrfEnabled ?
+            variables.tokenService.generate() :
+            "";
     }
 
     /**
      * Returns the base URL for incoming requests.
-     * 
+     *
      * @return string
      */
     function getBaseURL() {
@@ -446,18 +549,20 @@ component singleton {
     function generateSignedUploadURL() {
         // Get our base URL
         local.baseURL = getBaseURL();
+        // Get the configured upload endpoint
+        local.uploadEndpoint = getUploadEndpoint();
         // Set the expiration time to 1 hour from now and convert it to a Unix timestamp
         local.expires = dateConvert( "local2Utc", now() );
         local.expires = dateDiff( "s", createDate( 1970, 1, 1 ), local.expires ) + 3600; // Adding 3600 seconds (1 hour)
         // Generate a secure signature. You'll need to define the `generateSignature` method
         local.signature = generateSignature( local.baseURL, local.expires );
         // Construct the upload URL with the query parameters
-        return local.baseURL & "/cbwire/upload?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
+        return local.baseURL & local.uploadEndpoint & "?expires=" & local.expires & "&signature=" & urlEncodedFormat( local.signature );
     }
 
     /**
      * Verifies signed upload URL.
-     * 
+     *
      * @return boolean
      */
     function verifySignedUploadURL( expires, signature ) {
@@ -523,11 +628,33 @@ component singleton {
 
     /**
      * Returns the URI endpoint for updating CBWIRE components.
-     * 
+     *
      * @return string
      */
     function getUpdateEndpoint() {
-        var settings = variables.moduleSettings;        
+        var settings = variables.moduleSettings;
         return settings.keyExists( "updateEndpoint") && settings.updateEndpoint.len() ? settings.updateEndpoint : "/cbwire/update";
+    }
+
+    /**
+     * Returns the URI endpoint for uploading files.
+     * Derives the upload endpoint from the update endpoint configuration.
+     *
+     * @return string
+     */
+    function getUploadEndpoint() {
+        var updateEndpoint = getUpdateEndpoint();
+        return updateEndpoint.replaceNoCase( "/update", "/upload", "one" );
+    }
+
+    /**
+     * Returns the wires location setting.
+     * This helper method is used internally by getModuleComponentPath() to determine
+     * the folder path where wire components are stored within modules.
+     *
+     * @return string The wires location from settings, defaults to "wires"
+     */
+    private function getWiresLocation(){
+        return moduleSettings.keyExists( "wiresLocation" ) ? moduleSettings.wiresLocation : "wires";
     }
 }

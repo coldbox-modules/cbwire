@@ -1,0 +1,13 @@
+<bx:output>
+    <div>
+        <h1>#title#</h1>
+    </div>
+</bx:output>
+
+<bx:script>
+    // @startWire
+    data = {
+        "title": "A Single File Boxlang Component"
+    };
+    // @endWire
+</bx:script>

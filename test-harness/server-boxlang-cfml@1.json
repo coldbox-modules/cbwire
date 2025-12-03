@@ -1,0 +1,32 @@
+{
+    "name":"cbwire-boxlang-cfml@1",
+    "app":{
+        "serverHomeDirectory":".engine/boxlang",
+        "cfengine":"boxlang@be"
+    },
+    "web":{
+        "caseSensitivePaths":false,
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "aliases":{
+            "/modules/cbwire":"../",
+            "/moduleroot/cbwire":"../"
+        }
+    },
+    "openBrowser":"false",
+    "fusionreactor":{
+        "enable":false
+    },
+    "jvm":{
+        "heapSize":"1024",
+        "javaVersion":"openjdk21_jre",
+        "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8888"
+    },
+    "scripts":{
+        "onServerInitialInstall":"install bx-compat-cfml --noSave && install bx-esapi --noSave"
+    }
+}

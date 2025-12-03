@@ -1,9 +1,9 @@
 component {
     this.name = "cbwire";
-    this.version = "1.0.0";
-    this.author = "";
+    this.version = "@build.version@+@build.number@";
+    this.author = "Ortus Solutions";
     this.webUrl = "https://github.com/coldbox-modules/cbwire";
-    this.dependencies = [];
+    this.dependencies = [ "cbstorages" ];
     this.entryPoint = "cbwire";
     this.layoutParentLookup = false;
     this.viewParentLookup = false;
@@ -15,7 +15,7 @@ component {
     function configure(){
         settings = {
             /**
-             * Set to true to automatically include CSS and JS 
+             * Set to true to automatically include CSS and JS
              * assets for CBWIRE. This makes it where you do not
              * need to add wireStyles() and wireScripts() to your layout.
              */
@@ -25,15 +25,19 @@ component {
              */
             "moduleRootPath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) ),
             /**
+             * The default storage path for file uploads.
+             * Uses the system temporary directory for security.
+             */
+            "uploadsStoragePath": getCanonicalPath( getTempDirectory() & "/cbwire" ),
+            /**
+             * The default storage path for single-file component compilation.
+             * This must be in the module directory for WireBox to instantiate components.
+             */
+            "storagePath": getCanonicalPath( getCurrentTemplatePath().replaceNoCase( "/ModuleConfig.cfc", "", "one" ) & "/models/tmp" ),
+            /**
              * The URL to the module root. The sometimes needs to be overridden for certain server configurations.
              */
             "moduleRootURL": "/modules/cbwire",
-            /**
-             * Set to true to throw a 'WireSetterNotFound' exception if
-             * the incoming cbwire request tries to update a property
-             * without a setter on our component. Otherwise, missing setters are ignored.
-             */
-            "throwOnMissingSetterMethod" : false,
             /**
              * The default folder name where your cbwire components are stored.
              * Defaults to 'wires' folder.
@@ -47,10 +51,34 @@ component {
              * Enables or disables the progress bar when using wire:navigate
              */
             "showProgressBar": true,
-            /** 
+            /**
              * The color of the progress bar when using wire:navigate
              */
-            "progressBarColor": "##2299dd"
+            "progressBarColor": "##2299dd",
+            /**
+             * Enables or disables checksum validation for component payloads.
+             * We recommend always leaving this enabled, but you can disable it
+             * as needed.
+             */
+            "checksumValidation": true,
+            /**
+             * Enables Cross-Site Request Forgery (CSRF) protection for CBWIRE requests.
+             * When enabled, all component actions require a valid CSRF token.
+             * When disabled, checksum validation still provides security against tampering.
+             */
+            "csrfEnabled": true,
+            /**
+             * Specifies the WireBox mapping for the CSRF token storage service.
+             * The service must implement the ICSRFStorage interface.
+             *
+             * Built-in options:
+             * - "SessionCSRFStorage@cbwire" (default) - Session-based storage, OWASP recommended
+             * - "CacheCSRFStorage@cbwire" - Cache-based storage for distributed/clustered systems
+             *
+             * You can also provide your own custom implementation that implements
+             * cbwire.models.interfaces.ICSRFStorage
+             */
+            "csrfService": "SessionCSRFStorage@cbwire"
         };
 
         routes = [
@@ -77,16 +105,15 @@ component {
         ];
 
         interceptorSettings = {
-            customInterceptionPoints : []
+            customInterceptionPoints : [
+				"onCBWIREMount",
+				"preCBWIRERender",
+				"onCBWIRERender",
+				"preCBWIREUpdate",
+				"onCBWIREUpdate",
+				"onCBWIRESecureFail"
+			]
         };
-    }
-
-    /**
-     * Returns Livewire's manifest as a struct.
-     */
-    function getLivewireManifest(){
-        var path = getCanonicalPath( variables.modulePath & "/includes/js/manifest.json" );
-        return deserializeJSON( fileRead( path ) );
     }
 
 }

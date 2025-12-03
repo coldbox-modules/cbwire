@@ -1,0 +1,9 @@
+class extends="{{ EXTENDS_PATH }}" {
+
+    {{ CFC_CONTENTS }}
+
+    function onRender() {
+        return template( "{{ TEMPLATE_PATH }}" );
+    }
+
+}

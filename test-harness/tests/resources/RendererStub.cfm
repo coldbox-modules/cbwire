@@ -1,0 +1,1 @@
+<cfoutput>Rendered abc123</cfoutput>

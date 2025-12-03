@@ -2,12 +2,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
     function beforeAll() {
         super.beforeAll();
-        // delete any files in models/tmp folder
+        // delete any files in models/tmp folder (for single-file components)
         local.tempFolder = expandPath( "../../../models/tmp" );
         if ( directoryExists( local.tempFolder ) ) {
             directoryDelete( local.tempFolder, true );
         }
         directoryCreate( local.tempFolder );
+
+        // Clean out uploads temp directory
+        local.uploadsTempFolder = getTempDirectory() & "/cbwire";
+        if ( directoryExists( local.uploadsTempFolder ) ) {
+            directoryDelete( local.uploadsTempFolder, true );
+        }
+        directoryCreate( local.uploadsTempFolder );
     }
 
     // Lifecycle methods and BDD suites as before...
@@ -44,7 +51,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
             it( "should use default display bar color", function() {
                 var CBWIREController = getInstance( "CBWIREController@cbwire" );
                 var html = CBWIREController.getStyles( cache=false );
-                expect( html ).toInclude( "--livewire-progress-bar-color: ##2299dd;" );
+                expect( html ).toInclude( "livewire-progress-bar-color: ##2299dd;" );
             } );
 
             it( "should be able to change the display bar color", function() {
@@ -82,6 +89,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( CBWIREController.getUpdateEndpoint() ).toBe( "/index.cfm/cbwire/update" );
             } );
 
+            it( "should have default uploadEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                // Clear any previous setting
+                if ( settings.keyExists( "updateEndpoint" ) ) {
+                    structDelete( settings, "updateEndpoint" );
+                }
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/cbwire/upload" );
+            } );
+
+            it( "should derive uploadEndpoint from updateEndpoint setting", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.bxm/cbwire/update";
+                expect( CBWIREController.getUploadEndpoint() ).toBe( "/index.bxm/cbwire/upload" );
+            } );
+
+            it( "should generate signed upload URL with custom updateEndpoint", function() {
+                var CBWIREController = getInstance( "CBWIREController@cbwire" );
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.updateEndpoint = "/index.bxm/cbwire/update";
+
+                var uploadURL = CBWIREController.generateSignedUploadURL();
+
+                // The URL should contain the custom path
+                expect( uploadURL ).toInclude( "/index.bxm/cbwire/upload" );
+                // It should also contain expires and signature parameters
+                expect( uploadURL ).toInclude( "expires=" );
+                expect( uploadURL ).toInclude( "signature=" );
+            } );
+
             it( "should have component request assets added in head", function() {
                 var event = this.get( "tests.requestassets" );
                 var html = event.getRenderedContent();
@@ -110,11 +148,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toBeString();
             } );
 
-            it( "should raise error if markers are not found in single-file component", function() {
-                expect( function() {
-                    var result = CBWIREController.wire( "test.should_raise_error_for_single_file_component" );
-                } ).toThrow( type="CBWIREException" );
+            it( title="should render a boxlang component with a separate boxlang template", body=function() {
+                var result = CBWIREController.wire( "test.should_render_a_boxlang_component" );
+                expect( result ).toInclude( "<h1>A Boxlang Component</h1>" );
+            }, skip=!isBoxLang() );
+
+            it( title="should render a single-file boxlang component", body=function() {
+                var result = CBWIREController.wire( "test.should_render_a_singlefile_boxlang_component" );
+                expect( result ).toInclude( "<h1>A Single File Boxlang Component</h1>" );
+            }, skip=!isBoxLang() );
+
+            it( title="should allow single-file components if @startWire & @endWire are not found", body=function() {
+				var result = CBWIREController.wire( "test.should_alllow_without_markers_for_single_file_component" );
+                expect( result ).toInclude( "<p>SUCCESS!</p>" );
+                expect( result ).toInclude( "<p>Hello, CBWIRE!</p>" );
             } );
+
+            it( title="should allow a boxlang single-file components if @startWire & @endWire are not found", body=function() {
+				var result = CBWIREController.wire( "test.should_alllow_without_markers_for_single_file_boxlang_component" );
+                expect( result ).toInclude( "<p>SUCCESS!</p>" );
+                expect( result ).toInclude( "<p>Hello, CBWIRE!</p>" );
+            }, skip=!isBoxLang() );
 
             it("should have generated setters available in onMount", function() {
                 var result = CBWIREController.wire( "test.should_have_generated_setters_and_getters_available_in_onmount" );
@@ -142,7 +196,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should support rendering wires with x-data and arrow functions", function() {
                 var result = CBWIREController.wire( "test.should_support_rendering_wires_with_xdata_and_arrow_functions" );
-                expect( reFindNoCase( "<div wire:snapshot=""\{(.*)\}"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
+                expect( reFindNoCase( "<div wire:snapshot=""&##x7b;(.*)&##x7d;"" wire:effects=""(\[\])"" wire:id=""([A-Za-z0-9]+)"" x-data=""{", result ) ).toBeGT( 0 );
             } );
 
             it("should be able to call UDF/action from template", function() {
@@ -182,6 +236,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Implicitly rendered</p>" );
             } );
 
+            it("should not auto set passed in params if onMount is defined", function() {
+                var result = CBWIREController.wire( name="test.should_not_auto_set_passed_in_params_if_onMount_is_defined", params={ name="Jane Doe" } );
+                expect( result ).toInclude( "Hello John Doe" );
+            } );
+
             it( "should support passing params into a onRender method", function() {
                 var result = CBWIREController.wire( "test.should_support_passing_params_into_a_onRender_method" );
                 expect( result ).toInclude( "<p>Passed in: 5</p>" );
@@ -197,6 +256,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var firstUUID = reFindNoCase( "UUID: ([A-Za-z0-9-]+)", result, 1, true ).match[ 2 ];
                 expect( result ).toInclude( "<p>UUID: #firstUUID#</p>" );
                 expect( result ).toInclude( "<p>UUID2: #firstUUID#</p>" );
+            } );
+
+            it( "should correctly mount with _lazyMount() using a valid snapshot", function() {
+                // Create a mock snapshot
+                var mountParams = { "foo": "bar", "baz": 123 };
+                var snapshotStruct = {
+                    "data": {
+                        "forMount": [ mountParams ]
+                    }
+                };
+                var encodedSnapshot = toBase64( serializeJson( snapshotStruct ) );
+                // Setup test component and event
+                testComponent._withEvent( getRequestContext() );
+                // Spy on onMount to capture params
+                var calledParams = {};
+
+                // Call _lazyMount
+                testComponent._lazyMount( encodedSnapshot );
+                // If we got here that means there's no error NOT calling onMount
+                testComponent.$( "onMount" );
+
+                testComponent._lazyMount( encodedSnapshot );
+
             } );
 
             it( "should accept false flag for computed properties to prevent caching", function() {
@@ -221,12 +303,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result ).toInclude( "<p>Result: Hello World!</p>" );
             } );
 
+            it( "should extend custom basewire from single file component", function() {
+                var result = CBWIREController.wire( "test.should_extend_custom_basewire_from_single_file_component" );
+                expect( result ).toInclude( "<p>Result: Hello World!</p>" );
+            } );
+
+            it( title="should extend custom basewire from single file boxlang component", body=function() {
+                var result = CBWIREController.wire( "test.should_extend_custom_basewire_from_single_file_boxlang_component" );
+                expect( result ).toInclude( "<p>Result: Hello World!</p>" );
+            }, skip=!isBoxLang() );
+
+            it( "should be able to access event from template", function() {
+                var result = CBWIREController.wire( "test.should_be_able_to_access_event_from_template" );
+                expect( result ).toInclude( "<p>Event is object: true</p>" );
+                expect( result ).toInclude( "<p>Request collection is struct: true</p>" );
+            } );
+
             xit( "should support deep nesting with correct count of children", function() {
                 var result = CBWIREController.wire( "test.should_support_deep_nesting" );
                 var parent = parseRendering( result, 1 );
-                writeDump( result );
-                writeDump( parent );
-                abort;
                 var child1 = parseRendering( result, 2 );
                 var child2 = parseRendering( result, 3 );
                 expect( parent.snapshot.memo.children.count() ).toBe( 2 );
@@ -236,17 +331,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "shouldn't isolate by default", function() {
                 var result = CBWIREController.wire( "test.shouldnt_isolate_by_default" );
-                expect( result ).toInclude( "&quot;isolate&quot;:false" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;false" );
             } );
 
             it( "should isolate when using isolate=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_isolate_true" );
-                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
-            it( "should isolate when using lazyLoad=true", function() {
+            it( "should isolate when using lazy=true", function() {
                 var result = CBWIREController.wire( "test.should_isolate_when_using_lazyLoad_true" );
-                expect( result ).toInclude( "&quot;isolate&quot;:true" );
+                expect( result ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should support hasErrors(), hasError( prop ), and getError( prop ) for validation", function() {
@@ -327,8 +422,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var result = CBWIREController.wire( "test.should_support_child_components" );
                 var parent = parseRendering( result, 1 );
                 var child = parseRendering( result, 2 );
-                expect( parent.snapshot.memo.name ).toBe( "should_support_child_components" );
-                expect( child.snapshot.memo.name ).toBe( "child_component" );
+                expect( parent.snapshot.memo.name ).toBe( "test.should_support_child_components" );
+                expect( child.snapshot.memo.name ).toBe( "test.child_component" );
                 expect( parent.snapshot.memo.children ).toBeStruct();
             } );
 
@@ -453,7 +548,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should include listeners within wire:effects on initial render", function() {
                 var result = testComponent._render( testComponent.template( "wires.TestComponent" ) );
-                expect( result ).toInclude( "wire:effects=""{&quot;listeners&quot;:[&quot;someEvent&quot;]}""" );
+                expect( result ).toInclude( "wire:effects=""&##x7b;&quot;listeners&quot;&##x3a;&##x5b;&quot;someEvent&quot;&##x5d;&##x7d;""" );
             } );
 
             it( "should support single file components", function() {
@@ -469,6 +564,18 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( e.message ).toBe( "The listener 'someEvent' references a method 'someMethod' but this method does not exist. Please implement 'someMethod()' on your component." );
                 }
             } );
+
+            it( "should correctly encode snapshot data containing HTML with quotes", function() {
+                local.htmlWithQuotes = '<p>Some text with "quotes" inside & special chars >.</p>';
+                local.componentName = "test.html_with_quotes"; // Use the new component
+
+                var renderedHtml = CBWIREController.wire(
+                    name = local.componentName,
+                    params = { content = local.htmlWithQuotes }
+                );
+
+                expect( renderedHtml ).toInclude( 'Some&##x20;text&##x20;with&##x20;&##x5c;&quot;quotes' );
+            });
 
         });
 
@@ -507,7 +614,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             it( "should trim string values if enabled on component", () => {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
-                settings.trimStringValues = false;
+                settings.trimStringValues = true;
                 var payload = incomingRequest(
                     memo = {
                         "name": "test.should_trim_string_values_if_enabled_on_component",
@@ -545,7 +652,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( result.assets[ keys.first() ] ).toInclude( "tailwind.min.css" );
             } );
 
-            it( "it should NOT return assets if they were already rendered", function() {
+            it( "should NOT return assets if they were already rendered", function() {
                 var payload = incomingRequest(
                     memo = {
                         "name": "test.should_track_cbwire_assets_in_http_response",
@@ -614,6 +721,52 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( function() {
                     cbwireController.handleRequest( payload, event );
                 } ).toThrow( type="CBWIREException", message="Page expired." );
+            } );
+
+            it( "should process requests without CSRF verification when csrfEnabled = false", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                var originalSetting = settings.csrfEnabled;
+                settings.csrfEnabled = false;
+                
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "TestComponent",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "count": 1
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "changeTitle",
+                            "params": []
+                        }
+                    ],
+                    updates = {},
+                    csrfToken = "badToken"
+                );
+                
+                // Should not throw an error even with bad token when CSRF is disabled
+                var response = cbwireController.handleRequest( payload, event );
+                expect( isStruct( response ) ).toBeTrue();
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slays!" );
+                
+                // Restore original setting
+                settings.csrfEnabled = originalSetting;
+            } );
+
+            it( "should return empty string from generateCSRFToken() when csrfEnabled = false", function() {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                var originalSetting = settings.csrfEnabled;
+                settings.csrfEnabled = false;
+                
+                var token = cbwireController.generateCSRFToken();
+                expect( token ).toBe( "" );
+                
+                // Restore original setting
+                settings.csrfEnabled = originalSetting;
             } );
 
             it( "should provide a handleRequest() method that returns subsequent payloads", function() {
@@ -749,6 +902,73 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+            } );
+
+            it( "should provide updates to data properties using dot notation", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": {
+							"label" : "CBWIRE Rocks!"
+						}
+                    },
+                    calls = [],
+                    updates = {
+                        "title.label": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+            } );
+
+            it( "should support incoming array values in dot notation referenced array", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {},
+                    calls = [],
+                    updates = [
+                        "modules.names.0": "CBWIRE",
+                        "modules.names.1": "CBORM",
+                        "modules.names.2": "__rm__"
+                    ]
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                var snapshot = deserializeJson( response.components[ 1 ].snapshot );
+                expect( snapshot.data.modules.names ).toBeArray();
+                expect( snapshot.data.modules.names.len() ).toBe( 2 );
+                expect( snapshot.data.modules.names[ 1 ] ).toBe( "CBWIRE" );
+                expect( snapshot.data.modules.names[ 2 ] ).toBe( "CBORM" );
+            } );
+
+            it( "should call onUpdate[Property_Dot_Notation] if it exists", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.test_component_with_dot_notation_data",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "title": {
+							"label" : "CBWIRE Rocks!"
+						}
+                    },
+                    calls = [],
+                    updates = {
+                        "title.label": "CBWIRE Slaps!"
+                    }
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "CBWIRE Slaps!" );
+                expect( response.components[1].effects.html ).toInclude( "New Value: CBWIRE Slaps!" );
+                expect( response.components[1].effects.html ).toInclude( "Old Value: CBWIRE Rocks!" );
             } );
 
             it( "should dispatch an event without params", function() {
@@ -976,6 +1196,35 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( response.components[1].effects.html ).toInclude( "Hydrated Property: true" );
             } );
 
+            it( "should call onUploadError() if it exists when _uploadErrored is called", function() {
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_call_onuploaderror",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "uploadErrored": false,
+                        "erroredPropertyName": "",
+                        "errorInfo": "",
+                        "isMultiple": false
+                    },
+                    calls = [
+                        {
+                            "path": "",
+                            "method": "_uploadErrored",
+                            "params": [ "photo", javaCast( "null", "" ), false ]
+                        }
+                    ],
+                    updates = {}
+                );
+                var response = cbwireController.handleRequest( payload, event );
+                expect( response.components[1].effects.html ).toInclude( "Upload Errored: true" );
+                expect( response.components[1].effects.html ).toInclude( "Errored Property Name: photo" );
+                expect( response.components[1].effects.html ).toInclude( "Error Info: null" );
+                expect( response.components[1].effects.html ).toInclude( "Is Multiple: false" );
+            } );
+
             it( "should be able to return javascript to return", () => {
                 var payload = incomingRequest(
                     memo = {
@@ -995,7 +1244,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
                 var response = cbwireController.handleRequest( payload, event );
                 expect( response.components[1].effects.xjs ).toBeArray();
-                expect( response.components[1].effects.xjs.first() ).toBe( "alert('Hello from CBWIRE!');" );
+				var firstXJS = response.components[1].effects.xjs.first();
+				expect( firstXJS ).toBeStruct();
+                expect( firstXJS ).toHaveKey( "expression" );
+                expect( firstXJS ).toHaveKey( "params" );
+                expect( firstXJS.expression ).toBe( "alert('Hello from CBWIRE!');" );
             } );
 
             it( "should track return values", () => {
@@ -1306,7 +1559,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     key="",
                     lazy=true
                 );
-                expect( lazyHtml ).toInclude( "&quot;isolate&quot;:true" );
+                expect( lazyHtml ).toInclude( "&quot;isolate&quot;&##x3a;true" );
             } );
 
             it( "should lazy load a component using the original outer element", function() {
@@ -1319,7 +1572,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "^<tr\s+", lazyHTML.trim() ) ).toBeTrue();
             } );
 
-            it( "It should throw error if lazy component doesn't have a placeholder", function() {
+            it( "should throw error if lazy component doesn't have a placeholder", function() {
                 expect( function() {
                     testComponent.wire(
                         name="TestComponentWithoutPlaceholder",
@@ -1370,6 +1623,124 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 1 ] ).toBe( "div" );
                 expect( parent.snapshot.memo.children[ keys[ 1 ] ][ 2 ] ).toBe( child.snapshot.memo.id );
             } );
+
+            it( "should always lazy load when component has lazy = true", function() {
+                var lazyHtml = CBWIREController.wire( "TestAlwaysLazyComponent" );
+                // Component should be lazy loaded even without explicit lazy=true parameter
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("wire:snapshot=");
+                expect(lazyHtml).toInclude("Always Lazy Placeholder");
+            } );
+
+            it( "should not render component content when component has lazy = true", function() {
+                var lazyHtml = CBWIREController.wire( "TestAlwaysLazyComponent" );
+                // The actual component content should not be included
+                expect(lazyHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should allow overriding component lazy = true with lazy = false", function() {
+                var regularHtml = CBWIREController.wire( name="TestAlwaysLazyComponent", lazy=false );
+                // When explicitly set to lazy=false, should render normally
+                expect(regularHtml).notToInclude("x-intersect=");
+                expect(regularHtml).toInclude("This component has lazy = true");
+                expect(regularHtml).toInclude("Always Lazy Component");
+            } );
+
+            it( "should respect component lazy = true even when lazy = true is explicitly passed", function() {
+                var lazyHtml = CBWIREController.wire( name="TestAlwaysLazyComponent", lazy=true );
+                // Should still be lazy loaded
+                expect(lazyHtml).toInclude("x-intersect=");
+                expect(lazyHtml).toInclude("Always Lazy Placeholder");
+                expect(lazyHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should lazy load child component when child has lazy = true", function() {
+                var parentHtml = CBWIREController.wire( "TestParentWithLazyChild" );
+                // Parent should render normally but child should be lazy loaded
+                expect(parentHtml).toInclude("Parent Component");
+                expect(parentHtml).toInclude("x-intersect=");
+                expect(parentHtml).toInclude("Always Lazy Placeholder");
+                expect(parentHtml).notToInclude("This component has lazy = true");
+            } );
+
+            it( "should override child component lazy = true with explicit lazy = false", function() {
+                // Create a parent that overrides child lazy setting
+                var parentHtml = CBWIREController.wire( "TestParentWithOverride" );
+                expect(parentHtml).toInclude("Parent Component");
+                expect(parentHtml).notToInclude("x-intersect=");
+                expect(parentHtml).toInclude("This component has lazy = true");
+            } );
+        });
+
+        describe("CBWIREController getComponentDSL", function() {
+
+            beforeEach(function(currentSpec) {
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                prepareMock(cbwireController);
+            });
+
+            it("should return component name with wires prefix when name doesn't contain wires", function() {
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should use wiresLocation setting when provided and name doesn't contain wires", function() {
+                var settings = getInstance("coldbox:modulesettings:cbwire");
+                settings.wiresLocation = "customWires";
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("customWires.TestComponent");
+                settings.wiresLocation = "";
+            });
+
+            it("should fallback to wires prefix when wiresLocation is not set", function() {
+                var settings = getInstance("coldbox:modulesettings:cbwire");
+                if (settings.keyExists("wiresLocation")) {
+                    structDelete(settings, "wiresLocation");
+                }
+                var result = cbwireController.getComponentDSL("TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should return component name as-is when it already contains wires", function() {
+                var result = cbwireController.getComponentDSL("wires.TestComponent");
+                expect(result).toBe("wires.TestComponent");
+            });
+
+            it("should handle module reference with @ symbol", function() {
+                //cbwireController.$("getModuleComponentPath", "modules.testModule.wires.TestComponent");
+                var result = cbwireController.getComponentDSL("TestComponent@testingmodule");
+                expect(result).toBe("root.modules_app.testingmodule.wires.TestComponent");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has invalid format", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("TestComponent@module@extra");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has only one part", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("TestComponent@");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should throw ModuleNotFound exception when module reference has just @ symbol", function() {
+                expect(function() {
+                    cbwireController.getComponentDSL("@");
+                }).toThrow(type="ModuleNotFound");
+            });
+
+            it("should handle nested component paths with wires prefix", function() {
+                var result = cbwireController.getComponentDSL("nested.TestComponent");
+                expect(result).toBe("wires.nested.TestComponent");
+            });
+
+            it("should handle component with existing wires in middle of path", function() {
+                var result = cbwireController.getComponentDSL("some.wires.path.TestComponent");
+                expect(result).toBe("some.wires.path.TestComponent");
+            });
+
         });
 
         describe("CBWIREController", function() {
@@ -1380,6 +1751,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 setup();
                 cbwireController = getInstance("CBWIREController@cbwire");
                 prepareMock( cbwireController );
+
             });
 
             it( "should return an object", function() {
@@ -1431,41 +1803,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( reFindNoCase( "data-csrf=""[A-Za-z0-9]+""", scripts ) ).toBeGT( 0 );
             } );
 
-            it( "should provide a wirePersist() method", function() {
-                var result = cbwireController.persist( "player" );
-                expect( result.trim() ).toBe( "<div x-persist=""player"">" );
-            } );
-
-            it( "should provide a endWirePersist() method", function() {
-                var result = cbwireController.endPersist();
-                expect( result.trim() ).toBe( "</div>" );
-            } );
-
-			it( "can render component from ./wires folder using wire()", function() {
+			it( "should render component from ./wires folder using wire()", function() {
 				var result = cbwireController.wire( "TestComponent" );
 				expect( result ).toContain( "Title: CBWIRE Rocks!" );
 			} );
 
-			it( "can render component from nested folder using wire()", function() {
+			it( "should render component from nested folder using wire()", function() {
 				var result = cbwireController.wire( "wires.nestedComponent.NestedFolderComponent" );
 				expect( result ).toContain( "Nested folder component" );
 			} );
 
-			it( "throws error if it's unable to find a module component", function() {
+			it( "should throw error if it's unable to find a module component", function() {
 				expect( function() {
 					var result = cbwireController.wire( "missing@someModule" );
 				} ).toThrow( type="ModuleNotFound" );
 			} );
 
-			it( "can render component from nested module using default wires location", function() {
+			it( "should render component from module using default wires location", function() {
 				var result = cbwireController.wire( "NestedModuleDefaultComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component using default wires location" );
 			} );
 
-            it( "can load components from an external modules folder", function() {
+			it( "should render component from module using nested folder", function() {
+				var result = cbwireController.wire( "wires.nestedComponent.NestedFolderComponent@testingmodule" );
+				expect( result ).toContain( "Nested folder component" );
+			} );
+
+            it( "should load components from an external modules folder", function() {
                 var result = cbwireController.wire( "should_load_external_modules@ExternalModule" );
                 expect( result ).toInclude( "External Module Loaded" );
             } );
+
         });
 
         describe( "Preprocessors", function() {
@@ -1586,6 +1954,60 @@ component extends="coldbox.system.testing.BaseTestCase" {
             });
 
         } );
+
+        describe("Event Interceptors", function() {
+
+            beforeEach(function(currentSpec) {
+                // Assuming setup() initializes application environment
+                // and prepareMock() is a custom method to mock any dependencies, if necessary.
+				// Clear any previously run interceptors
+				lock name="clearEventInterceptorKey" timeout="1" {
+					application.delete( "cbwire_interceptors_run" );
+				}
+                setup();
+                cbwireController = getInstance("CBWIREController@cbwire");
+                event = getRequestContext();
+                prepareMock( cbwireController );
+            });
+
+            it( "should fire the onCBWIREMount, preCBWIRERender, and onCBWIRERender when mounting a wire", function () {
+                var result = CBWIREController.wire( "test.should_render_a_component" );
+                expect( application ).toHaveKey( "cbwire_interceptors_run" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREMount" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRERender" );
+				expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 3 );
+			} );
+
+            it( "should fire the preCBWIRERender, onCBWIRERender, preCBWIREUpdate and onCBWIREUpdate during a wire update incoming request", () => {
+                var settings = getInstance( "coldbox:modulesettings:cbwire" );
+                settings.trimStringValues = true;
+                var payload = incomingRequest(
+                    memo = {
+                        "name": "test.should_trim_string_values_if_global_setting_enabled",
+                        "id": "Z1Ruz1tGMPXSfw7osBW2",
+                        "children": []
+                    },
+                    data = {
+                        "name": "Jane Doe "
+                    },
+                    calls = [],
+                    updates = {
+                        "name": " Jane Doe "
+                    }
+                );
+                var result = cbwireController.handleRequest( payload, event );
+                expect( application ).toHaveKey( "cbwire_interceptors_run" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIRERender" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "preCBWIREUpdate" );
+				expect( application.cbwire_interceptors_run ).toHaveKey( "onCBWIREUpdate" );
+				expect( application.cbwire_interceptors_run.keyArray().len() ).toBe( 4 );
+            } );
+
+		} );
+
+
     }
 
     /**
@@ -1612,7 +2034,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "calls": arguments.calls,
                         "snapshot": {
                             "data": arguments.data,
-                            "memo": arguments.memo
+                            "memo": arguments.memo,
+                            "checksum": ""
                         },
                         "updates": arguments.updates
                     }
@@ -1621,7 +2044,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         };
 
         response.content.components = response.content.components.map( function( _comp ) {
-            _comp.snapshot = serializeJson( _comp.snapshot );
+            _comp.snapshot = getInstance( "ChecksumService@cbwire" ).calculateChecksum( _comp.snapshot );
             return _comp;
         } );
 
@@ -1649,29 +2072,96 @@ component extends="coldbox.system.testing.BaseTestCase" {
     }
 
     /**
-     * Parse the snapshot from a rendered HTML component
+     * Parse the snapshot from a rendered HTML component by decoding
+     * ALL HTML entities before attempting JSON deserialization.
      *
-     * @return struct
+     * @html string | The rendered HTML containing the component.
+     * @index numeric | The index of the component if multiple match (usually 1).
+     *
+     * @return struct The deserialized snapshot struct.
+     *
+     * @throws Error if parsing or deserialization fails.
      */
-    private function parseSnapshot( html, index = 1 ) {
-        local.match = reMatchNoCase( "wire:snapshot=""([^""]+)", html )[ index ];
-        local.regexMatches = reFindNoCase( "wire:snapshot=""([^""]+)", local.match, 1, true );
-        local.snapshot = local.regexMatches.match[ 2 ];
-        local.snapshot = replaceNoCase( local.snapshot, "&quot;", """", "all" );
-        return deserializeJSON( local.snapshot );
+    private function parseSnapshot( required string html, numeric index = 1 ) {
+        // Use single quotes for regex literals to avoid excessive escaping
+        local.match = reMatchNoCase( 'wire:snapshot="([^"]+)"', arguments.html );
+        if ( !arrayLen( local.match ) >= arguments.index ) {
+            throw( message="Snapshot attribute not found at index #arguments.index# in provided HTML.", detail=arguments.html );
+        }
+        local.snapshotAttributeMatch = local.match[ arguments.index ];
+
+        // Extract the encoded value
+        local.regexMatches = reFindNoCase( 'wire:snapshot="([^"]+)"', local.snapshotAttributeMatch, 1, true );
+        if ( !arrayLen( local.regexMatches.match ) == 2 ) {
+             throw( message="Could not extract snapshot value using regex from attribute match.", detail=local.snapshotAttributeMatch );
+        }
+        local.snapshotEncoded = local.regexMatches.match[ 2 ];
+
+        // Decode ALL HTML entities (handles ", ", ", <, &, etc.)
+        local.snapshotDecoded = canonicalize( local.snapshotEncoded, true, true ); // Key change!
+
+        try {
+             return deserializeJSON( local.snapshotDecoded );
+        } catch ( any e ) {
+            // Provide more context on failure for easier debugging
+            var errorMsg = "Failed to deserialize snapshot JSON after decoding HTML entities.";
+            errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.snapshotDecoded)#]."; // Encode for safe display
+            errorMsg &= " Original Error: #e.message# #e.detail#";
+            throw( message=errorMsg, detail=local.snapshotDecoded );
+        }
     }
 
     /**
-     * Parse the effects from a rendered HTML component
+     * Parse the effects from a rendered HTML component by decoding
+     * ALL HTML entities before attempting JSON deserialization.
      *
-     * @return struct
+     * @html The rendered HTML containing the component.
+     * @index The index of the component if multiple match (usually 1).
+     *
+     * @return any The deserialized effects (usually struct or array).
+     *
+     * @throws Error if parsing or deserialization fails.
      */
-    private function parseEffects( html, index = 1 ) {
-        local.match = reMatchNoCase( "wire:effects=""([^""]+)", html )[ index ];
-        local.regexMatches = reFindNoCase( "wire:effects=""([^""]+)", local.match, 1, true );
-        local.effects = local.regexMatches.match[ 2 ];
-        local.effects = replaceNoCase( local.effects, "&quot;", """", "all" );
-        return deserializeJSON( local.effects );
+    private function parseEffects( required string html, numeric index = 1 ) {
+        // Use single quotes for regex literals
+        local.match = reMatchNoCase( 'wire:effects="([^"]+)"', arguments.html );
+         if ( !arrayLen( local.match ) >= arguments.index ) {
+            throw( message="Effects attribute not found at index #arguments.index# in provided HTML.", detail=arguments.html );
+        }
+        local.effectsAttributeMatch = local.match[ arguments.index ];
+
+        // Extract the encoded value
+        local.regexMatches = reFindNoCase( 'wire:effects="([^"]+)"', local.effectsAttributeMatch, 1, true );
+        if ( !arrayLen( local.regexMatches.match ) == 2 ) {
+             throw( message="Could not extract effects value using regex from attribute match.", detail=local.effectsAttributeMatch );
+        }
+        local.effectsEncoded = local.regexMatches.match[ 2 ];
+
+        // Decode ALL HTML entities
+        local.effectsDecoded = canonicalize( local.effectsEncoded, true, true ); // Key change!
+
+         try {
+            if ( isJSON( local.effectsDecoded ) ) {
+                return deserializeJSON( local.effectsDecoded );
+            } else {
+                return {};
+            }
+        } catch ( any e ) {
+             // Provide more context on failure
+            var errorMsg = "Failed to deserialize effects JSON after decoding HTML entities.";
+            errorMsg &= " Decoded JSON string was: [#encodeForHtml(local.effectsDecoded)#]."; // Encode for safe display
+            errorMsg &= " Original Error: #e.message# #e.detail#";
+            throw( message=errorMsg, detail=local.effectsDecoded );
+        }
+    }
+
+    /**
+     * Check if the current environment is a BoxLang environment
+     *
+     * @return boolean
+     */
+    private function isBoxLang() {
+        return server.keyExists( "boxlang" );
     }
 
 }

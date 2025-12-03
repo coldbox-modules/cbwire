@@ -25,11 +25,19 @@ component {
      */
     function preReinit() {
         local.settings = getSettings();
-        local.tmpDirectory = local.settings.moduleRootPath & "/models/tmp";
-
+        
+        // Clean up single-file component temp directory
+        local.tmpDirectory = local.settings.storagePath;
         if ( directoryExists( local.tmpDirectory ) ) {
             directoryDelete( local.tmpDirectory, true );
             directoryCreate( local.tmpDirectory );
+        }
+        
+        // Clean up file uploads temp directory
+        local.uploadsTmpDirectory = local.settings.uploadsStoragePath;
+        if ( directoryExists( local.uploadsTmpDirectory ) ) {
+            directoryDelete( local.uploadsTmpDirectory, true );
+            directoryCreate( local.uploadsTmpDirectory );
         }
     }
 

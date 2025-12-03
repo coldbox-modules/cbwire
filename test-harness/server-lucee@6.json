@@ -1,0 +1,24 @@
+{
+    "name":"cbwire-lucee@6",
+    "app":{
+        "serverHomeDirectory":".engine/lucee6",
+        "cfengine":"lucee@6"
+    },
+    "web":{
+        "caseSensitivePaths":false,
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "aliases":{
+            "/modules/cbwire":"../",
+            "/moduleroot/cbwire":"../"
+        }
+    },
+    "openBrowser":"false",
+    "jvm":{
+        "javaVersion":"openjdk21"
+    }
+}

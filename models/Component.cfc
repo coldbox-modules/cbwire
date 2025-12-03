@@ -1,11 +1,23 @@
-component output="true" {
+component output="true" accessors="true" {
 
-    property name="_globalSettings" inject="coldbox:modulesettings:cbwire";
+	property name="_interceptorService" inject="coldbox:interceptorService";
 
-    property name="_CBWIREController" inject="CBWIREController@cbwire";
+    property name="_configService" inject="provider:ConfigService@cbwire";
 
-    property name="_wirebox" inject="wirebox";
+    property name="_CBWIREController" inject="provider:CBWIREController@cbwire";
 
+    property name="_checksumService" inject="provider:ChecksumService@cbwire";
+
+    property name="_validationService" inject="provider:ValidationService@cbwire";
+
+    property name="_renderService" inject="provider:RenderService@cbwire";
+
+    property name="_wirebox" inject="provider:wirebox";
+
+	property name="_cbSecurity";
+	property name="_cbSecurityEnabled";
+
+    property name="data";
     property name="_id";
     property name="_compileTimeKey";
     property name="_parent";
@@ -32,6 +44,7 @@ component output="true" {
     property name="_renderedContent";
     property name="_scripts";
     property name="_assets";
+    property name="_listeners";
 
     /**
      * Constructor
@@ -53,7 +66,7 @@ component output="true" {
         if ( isNull( variables._id ) ) {
             variables._id = lCase( hash( createUUID() ) );
         }
-
+		variables._cbSecurityEnabled = false;
         variables._params = [:];
         variables._compileTimeKey = hash( getCurrentTemplatePath() );
         variables._key = "";
@@ -77,6 +90,14 @@ component output="true" {
             for fast access where needed.
         */
         variables._metaData = getMetaData( this );
+
+		/*
+			Inject cbSecurity if installed and active
+		*/
+		if( application.cbcontroller.getWireBox().getInstance( "coldbox:moduleService" ).isModuleActive( 'cbSecurity' ) ){
+			variables._cbSecurity = application.cbcontroller.getWireBox().getInstance("cbsecurity@cbsecurity");
+			variables._cbSecurityEnabled = true;
+		}
 
         /*
             Prep our data properties
@@ -126,12 +147,6 @@ component output="true" {
     */
 
     /**
-     * Fires when the component is mounted.
-     * Override this method in your component to handle onMount logic.
-     */
-    function onMount() {}
-
-    /**
      * Returns the CBWIRE Controller
      *
      * @return CBWIREController
@@ -159,7 +174,7 @@ component output="true" {
         if ( local.renderIt.len() ) {
             return local.renderIt;
         }
-        return template( _getViewPath() );
+        return template( _getTemplatePath() );
     }
 
     /**
@@ -214,9 +229,9 @@ component output="true" {
      */
     function template( viewPath, params = {} ) {
         // Normalize the view path
-        local.normalizedPath = _getNormalizedViewPath( arguments.viewPath );
+        local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath );
         // Render the view content and trim the result
-        return _renderViewContent( local.normalizedPath, arguments.params );
+        return variables._renderService.renderViewContent( this, local.normalizedPath, arguments.params );
     }
 
     /**
@@ -300,12 +315,12 @@ component output="true" {
      * @name string | The name of the component to load.
      * @params struct | The parameters you want mounted initially. Defaults to an empty struct.
      * @key string | An optional key parameter. Defaults to an empty string.
-     * @lazy boolean | Optional parameter to lazy load the component. Defaults to false.
+     * @lazy boolean | Optional parameter to lazy load the component.
      * @lazyIsolated boolean | Optional parameter to lazy load the component in an isolated scope. Defaults to true.
      *
      * @return An instance of the specified component after rendering.
      */
-    function wire(required string name, struct params = {}, string key = "", lazy = false, lazyIsolated = true ) {
+    function wire(required string name, struct params = {}, string key = "", lazy, lazyIsolated = true ) {
         // Generate a key if one is not provided
         if ( !arguments.key.len() ) {
             arguments.key = _generateWireKey();
@@ -339,15 +354,24 @@ component output="true" {
             ._withPath( arguments.name )
             ._withParent( this )
             ._withEvent( variables._event )
-            ._withParams( arguments.params, arguments.lazy )
+            ._withParams( arguments.params, isNull( arguments.lazy ) ? false : arguments.lazy )
             ._withKey( arguments.key )
-            ._withLazy( arguments.lazy );
+
+        // Determine if component should be lazy loaded
+        // If lazy parameter is explicitly provided, use that value
+        // Otherwise, use the component's lazy preference
+        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+            local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
+            arguments.lazy;  // Use explicit parameter value
+
 
         // Check if lazy loading is enabled
-        if ( arguments.lazy ) {
+        if ( local.shouldLazyLoad ) {
+            // Set lazy rendering on the instance
+            local.instance._withLazy( true );
             local.lazyRendering = local.instance._generateXIntersectLazyLoadSnapshot( params=arguments.params );
             // Based on the rendering, determine our outer component tag
-            local.componentTag = _getComponentTag( local.lazyRendering );
+            local.componentTag = variables._renderService.getComponentTag( local.lazyRendering );
             // Track the rendered child
             variables._children.append( [
                 "#arguments.key#": [
@@ -355,13 +379,14 @@ component output="true" {
                     local.instance._getId()
                 ]
             ] );
-
             return local.lazyRendering;
         } else {
+            // Set lazy rendering off the instance
+            local.instance._withLazy( false );
             // Render it out normally
             local.rendering = local.instance._render();
             // Based on the rendering, determine our outer component tag
-            local.componentTag = _getComponentTag( local.rendering );
+            local.componentTag = variables._renderService.getComponentTag( local.rendering );
             // Track the rendered child
             variables._children.append( {
                 "#arguments.key#": [
@@ -380,9 +405,8 @@ component output="true" {
      * @return ValidationResult
      */
     function validate( target, fields, constraints, locale, excludeFields, includeFields, profiles ){
-        arguments.target = isNull( arguments.target ) ? _getDataProperties() : arguments.target;
-        arguments.constraints = isNull( arguments.constraints ) ? _getConstraints() : arguments.constraints;
-        variables._validationResult = _getValidationManager().validate( argumentCollection = arguments );
+        arguments.wire = this;
+        variables._validationResult = variables._validationService.validate( argumentCollection = arguments );
         return variables._validationResult;
     }
 
@@ -394,10 +418,7 @@ component output="true" {
      * @throws ValidationException
      */
     function validateOrFail(){
-        local.validationResults = validate();
-        if ( local.validationResults.hasErrors() ) {
-            throw( type="ValidationException", message="Validation failed" );
-        }
+        variables._validationService.validateOrFail( this );
     }
 
     /**
@@ -451,48 +472,50 @@ component output="true" {
 
     /**
      * Resets a data property to it's initial value.
-     * Can be used to reset all data properties, a single data property, or an array of data properties.
+     * Can be used to reset all data properties, a single data property, an array, or comma seperated list of data properties.
+	 *
+	 * @property string|list|array | The property or properties to reset. If null, all properties will be reset.
      *
      * @return
      */
     function reset( property ){
-        if ( isNull( arguments.property ) ) {
-            // Reset all properties
-            variables.data.each( function( key, value ){
-                reset( key );
-            } );
-        } else if ( isArray( arguments.property ) ) {
-            // Reset each property in our array individually
-            arguments.property.each( function( prop ){
-                reset( prop );
-            } );
-        } else {
-            var initialState = variables._initialDataProperties;
-            // Reset individual property
-            variables.data[ arguments.property ] = initialState[ arguments.property ];
-        }
+        // if no property argument get array of all data keys (in dot notation when appropriate)
+        if ( isNull( arguments.property ) )
+			arguments.property = _getDotNotationKeys();
+
+		// convert comma separated list to array ( single key string becomes single item array )
+		arguments.property = !isArray( arguments.property ) ? listToArray( arguments.property, "," ) : arguments.property;
+
+		// reset all data properties
+		arguments.property.each( function( element, index ) {
+			var initialValue = structGet( "variables._initialDataProperties." & element );
+			if( isStruct( initialValue ) )
+				initialValue = "";
+			_updateDataValue( element, initialValue );
+		});
     }
 
     /**
      * Resets all data properties except the ones specified.
+	 *
+	 * @property string|list|array | The property or properties to NOT reset.
      *
      * @return void
+	 * @throws ResetException
      */
     function resetExcept( property ){
-        if ( isNull( arguments.property ) ) {
+        if ( isNull( arguments.property ) )
             throw( type="ResetException", message="Cannot reset a null property." );
-        }
-
-        // Reset all properties except what was provided
-        _getDataProperties().each( function( key, value ){
-            if ( isArray( property ) ) {
-                if ( !arrayFindNoCase( property, arguments.key ) ) {
-                    reset( key );
-                }
-            } else if ( property != key ) {
-                reset( key );
-            }
-        } );
+		// convert comma separated list to array ( single key string becomes single item array )
+		arguments.property = !isArray( arguments.property ) ? listToArray( arguments.property, "," ) : arguments.property;
+        // Get all data property keys
+		var resetKeys = _getDotNotationKeys();
+		// remove provided properties from reset keys array
+		for( var removeKey in arguments.property ) {
+			resetKeys.delete( removeKey );
+		}
+        // Reset all properties except what was removed above
+		reset( resetKeys );
     }
 
     /**
@@ -510,11 +533,14 @@ component output="true" {
     /**
      * Provide ability to return and execute Javascript
      * in the browser.
+	 *
+	 * @expression string | The javascript expression to execute.
+	 * @params array | (Optional) An array of parameters. Currently a placeholder for compatibility
      *
      * @return void
      */
-    function js( code ) {
-        variables._xjs.append( arguments.code );
+    function js( expression, params=[] ) {
+        variables._xjs.append( { "expression" : expression, "params" : params } );
     }
 
     /**
@@ -530,7 +556,7 @@ component output="true" {
         if ( !variables._event.privateValueExists( "_cbwire_stream" ) ) {
             cfcontent( reset=true );
             variables._event.setPrivateValue( "_cbwire_stream", true );
-            cfheader( statusCode=200, statustext="OK" );
+            cfheader( statusCode=200 );
             cfheader( name="Cache-Control", value="no-cache, private" );
             cfheader( name="Host", value=cgi.http_host );
             cfheader( name="Content-Type", value="text/event-stream" );
@@ -589,6 +615,15 @@ component output="true" {
     }
 
     /**
+     * Returns the lazy load preference of the component.
+     *
+     * @return boolean
+     */
+    function _getLazyLoad() {
+        return variables._lazyLoad;
+    }
+
+    /**
      * Passes a reference to the parent of a child component.
      *
      * @return Component
@@ -642,26 +677,37 @@ component output="true" {
     function _withParams( params, lazy = false ) {
         variables._params = arguments.params;
 
+		// intercept secureMountFailMessage in params if exists and set as variable
+		if( arguments.params.keyExists( "secureMountFailMessage" ) ){
+			variables.secureMountFailMessage = arguments.params.secureMountFailMessage;
+			arguments.params.delete( "secureMountFailMessage" );
+		}
+
         if ( arguments.lazy ) return this; // Skip onMount here for lazy loaded components
 
         // Loop over our params and set them as data properties
-        arguments.params.each( function( key, value ) {
-            if ( variables.data.keyExists( key ) ) {
-                variables.data[ key ] = value;
+        if ( !structKeyExists( this, "onMount" ) ) {
+            arguments.params.each( function( key, value ) {
+                if ( variables.data.keyExists( key ) ) {
+                    variables.data[ key ] = value;
+                }
+            } );
+        } else {
+            try {
+                // Fire onMount if it exists
+                onMount(
+                    event=variables._event,
+                    rc=variables._event.getCollection(),
+                    prc=variables._event.getPrivateCollection(),
+                    params=arguments.params
+                );
+            } catch ( any e ) {
+                throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
             }
-        } );
-
-        try {
-            // Fire onMount if it exists
-            onMount(
-                event=variables._event,
-                rc=variables._event.getCollection(),
-                prc=variables._event.getPrivateCollection(),
-                params=arguments.params
-            );
-        } catch ( any e ) {
-            throw( type="CBWIREException", message="Failure when calling onMount(). #e.message#" );
         }
+
+		// Announce the onCBWIREMount event to global interceptors
+		_fireInterceptorEvent( "onCBWIREMount", { "params" : arguments.params, "lazy" : false} );
 
         return this;
     }
@@ -692,6 +738,128 @@ component output="true" {
         return this;
     }
 
+	/**
+	 * Determines if the onSecure method allows rendering.
+	 * checks if cbSecurity is enabled and if onSecure exists.
+	 *
+	 * @isInitial boolean | Indicates if this is the initial render.
+	 *
+	 * @return boolean
+	 */
+	function _onSecureShouldRender() {
+		// cbSecurity checks
+		if( variables._cbSecurityEnabled ){
+			// check wire component annotation
+			if( _metaData.keyExists( "secured" ) ){
+				var securedAnnotationAllows = _securedAnnotationEvaluate( _metaData.secured );
+				if( !securedAnnotationAllows ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: "component",
+						"cbSecurity" 	: true,
+						"annotation" 	: _metaData.secured
+					} );
+				}
+				return securedAnnotationAllows;
+			}
+		}
+		// onSecure method
+        if ( structKeyExists( this, "onSecure" ) ) {
+            try {
+                // Fire onSecure if it exists
+               var onSecureResults = onSecure(
+					event=variables._event,
+					prc=variables._event.getPrivateCollection(),
+					isInitial=variables._initialLoad,
+					params=local.keyExists( "mountParams" ) ? local.mountParams : variables._params
+				);
+            } catch ( any e ) {
+                throw( type="CBWIREException", message="Failure when calling onSecure(). #e.message#" );
+            }
+			if( !isNull( onSecureResults ) && isBoolean( onSecureResults ) ){
+				if( !onSecureResults ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: "onSecure",
+						"cbSecurity" 	: false
+					} );
+				}
+				return onSecureResults;
+			}
+        }
+		return true;
+	}
+
+	/**
+	 * Evaluates if a method with a secured annotation can be executed.
+	 * fires onCBWIRESecureFail interceptor event if not allowed.
+	 *
+	 * @methodName string | The name of the method to evaluate.
+	 *
+	 * @return boolean | True if the method can be executed, false otherwise.
+	 */
+	function _securedAnnotationAllows( methodName ){
+		if( variables._cbSecurityEnabled && _metaData.keyExists( "functions" ) ){
+			// find metadata for method
+			var functionMetaData = variables._metaData.functions.filter( function( item ){
+				return item.name == methodName;
+			} );
+			if( functionMetaData.len() && functionMetaData[1].keyExists( "secured" ) ){
+				var annotationAllows = _securedAnnotationEvaluate( functionMetaData[1].secured );
+				if( !annotationAllows ){
+					// fireInterceptor event for secure mount fail
+					_fireInterceptorEvent( "onCBWIRESecureFail", {
+						"method" 		: arguments.methodName,
+						"cbSecurity" 	: true,
+						"annotation" 	: functionMetaData[1].secured
+					} );
+				}
+				return annotationAllows;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Evaluates a secured annotation value.
+	 *
+	 * @annotation mixed | The secured annotation value to evaluate.
+	 *
+	 * @return boolean | True if the annotation allows access, false otherwise.
+	 */
+	function _securedAnnotationEvaluate( annotation ){
+		// comvert blank secured annotaiton to secured="true"
+		arguments.annotation = !len( arguments.annotation ) ? true : arguments.annotation;
+		// if secured is a boolean then return login status or false
+		if( isBoolean( arguments.annotation ) ){
+			return arguments.annotation ? variables._cbSecurity.isLoggedIn() : true;
+		}
+		// before checking roles/permissions, ensure user is logged in
+		if( !variables._cbSecurity.isLoggedIn() ){
+			return false;
+		}
+		// secured is NOT boolean, so check permissions/roles via cbSecurity
+		return _cbSecurity.has( arguments.annotation );
+	}
+
+	/**
+	 * Retrieves the secure mount failure message.
+	 *
+	 * @return string
+	 */
+	function _getSecureMountFailMessage(){
+		// check if overridden via variables first and return
+		if( variables.keyExists( "secureMountFailMessage" ) ){
+			return variables.secureMountFailMessage;
+		}
+		// get from module settings
+		var moduleSettings = variables._CBWIREController.getmoduleSettings();
+		return moduleSettings.keyExists( "secureMountFailMessage" ) ?
+			moduleSettings.secureMountFailMessage :
+			"";
+			// <!-- BLOCKED -->
+	}
+
     /**
      * Hydrate the component
      *
@@ -713,12 +881,22 @@ component output="true" {
         arguments.componentPayload.snapshot.data.filter( function( key, value ) {
             return structKeyExists( this, "onHydrate#arguments.key#" );
         } ).each( function( key, value ) {
-            invoke( this, "onHydrate#arguments.key#" );
+			if( _securedAnnotationAllows( "onHydrate#arguments.key#" ) ){
+				invoke( this, "onHydrate#arguments.key#" );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle, maybe fire interceptor event for onCBWIRESecureMethodFail?
+			}
         } );
 
         // Run onHydrate if it exists
-        if ( structKeyExists( this, "onHydrate" ) ) {
-            invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+        if ( structKeyExists( this, "onHydrate" ) ){
+			if( _securedAnnotationAllows( "onHydrate" ) ){
+				invoke( this, "onHydrate", { incomingPayload: arguments.componentPayload.snapshot.data } );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+			}
         }
 
         if ( arguments.componentPayload.calls.len() && arguments.componentPayload.calls[1].method == "_finishUpload" ) {
@@ -767,6 +945,12 @@ component output="true" {
      * @return void
      */
     function _applyUpdates( updates ) {
+
+		// skip applying updates if not secure
+		if( !_onSecureShouldRender() ){
+			return;
+		}
+
         if ( !updates.count() ) return;
         // Capture old values
         local.oldValues = duplicate( data );
@@ -778,7 +962,7 @@ component output="true" {
 			_validateLockedProperty( key );
 
             // Check if we should trim if simple value
-            if ( isSimpleValue( arguments.value ) && shouldTrimStringValues() ) {
+            if ( isSimpleValue( arguments.value ) && variables._configService.trimStringValues() ) {
                 arguments.value = trim( arguments.value );
             }
 
@@ -787,31 +971,96 @@ component output="true" {
                 local.regexMatch = reFindNoCase( "(.+)\.([0-9]+)", arguments.key, 1, true );
                 local.propertyName = local.regexMatch.match[ 2 ];
                 local.arrayIndex = local.regexMatch.match[ 3 ];
-                variables.data[ local.propertyName][ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
-                // Track that we updated an array property
+				local.currentArray = structGet( "variables.data." & local.propertyName );
+				local.currentArray[ local.arrayIndex + 1 ] = isNumeric( arguments.value ) ? val( arguments.value ) : arguments.value;
+				_updateDataValue( local.propertyName, local.currentArray );
+				// Track that we updated an array property
                 if ( !arrayFindNoCase( updatedArrayProps, local.propertyName ) ) {
                     updatedArrayProps.append( local.propertyName );
                 }
             } else {
-                local.oldValue = variables.data[ key ];
-                variables.data[ key ] = arguments.value;
-                if ( structKeyExists( this, "onUpdate#key#") ) {
-                    invoke( this, "onUpdate#key#", { value: arguments.value, oldValue: local.oldValue });
+                local.oldValue = structGet( "variables.data." & key );
+                _updateDataValue( key, arguments.value );
+				var onUpdateFunctionName = "onUpdate" & key.replace( ".", "_", "all" );
+				if ( structKeyExists( this, onUpdateFunctionName) ) {
+					if( _securedAnnotationAllows( onUpdateFunctionName ) ){
+						invoke( this, onUpdateFunctionName, { value: arguments.value, oldValue: local.oldValue });
+					}else{
+						// Method is secured and user is not authorized!
+						// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+					}
                 }
             }
         } );
 
         local.updatedArrayProps.each( function( prop ) {
-            variables.data[ arguments.prop ] = variables.data[ arguments.prop ].filter( function( value ) {
-                return arguments.value != "__rm__";
-            } );
+			var currentArray = structGet( "variables.data." & prop );
+			_updateDataValue(
+				prop,
+				currentArray.filter( function( value ) {
+					return value != "__rm__";
+				} )
+			);
         } );
 
         // Call onUpdate passing newValues and oldValues
         if ( structKeyExists( this, "onUpdate" ) ) {
-            invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+			if( _securedAnnotationAllows( "onUpdate" ) ){
+				invoke( this, "onUpdate", { newValues: duplicate( variables.data ), oldValues: local.oldValues } );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+			}
         }
     }
+
+    /**
+     * update a key value in variables.data structure.
+     *
+     * @keyPath string | the data property key being updated. Supports dot notation for nested structures (e.g., "user.address.street").
+     * @value any | the value to set.
+     *
+     * @return void
+     */
+	public void function _updateDataValue( required string keyPath, required any value ) {
+        var keys = ListToArray( arguments.keyPath, "." );
+        var current = variables.data;
+        // Loop through keys except the last one to create/traverse nested structure
+        for ( var i = 1; i < keys.Len(); i++ ) {
+            var key = keys[ i ];
+            // Create nested struct if it doesn't exist
+            if ( !current.KeyExists( key ) ) {
+                current[ key ] = {};
+            }
+            // Move to the next level
+            current = current[ key ];
+        }
+        current[ keys[ keys.Len() ] ] = arguments.value;
+    }
+
+	/**
+	 * Recursively retrieves all keys from a struct in dot notation.
+	 *
+	 * @inputStruct struct | The input struct to retrieve keys from.
+	 * @prefix string | The prefix for nested keys (used in recursion).
+	 *
+	 * @return array | An array of keys in dot notation.
+	 */
+	public array function _getDotNotationKeys( struct inputStruct, string prefix="" ) {
+		if( isNull( arguments.inputStruct ) )
+			arguments.inputStruct = variables.data;
+		var result = [];
+		for ( var key in inputStruct.keyArray() ) {
+			var fullKey = ( prefix == "" ) ? key : prefix & "." & key;
+			var value = inputStruct[ key ];
+			if ( isStruct( value ) ) {
+				result.append( _getDotNotationKeys( value, fullKey ), true )
+			} else {
+				result.append( fullKey );
+			}
+		}
+		return result;
+	}
 
     /**
      * Validate if key being updated is a locked property.
@@ -836,31 +1085,26 @@ component output="true" {
      * @return void
      */
     function _applyCalls( calls ) {
+		// skip all calls if not secure
+		if( !_onSecureShouldRender() ){
+			return;
+		}
         arguments.calls.each( function( call ) {
             try {
-                local.result = invoke( this, arguments.call.method, arguments.call.params );
-                // Capture the return value in case it's needed by the front-end
-                variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
+				if( _securedAnnotationAllows( arguments.call.method ) ){
+					local.result = invoke( this, arguments.call.method, arguments.call.params );
+					// Capture the return value in case it's needed by the front-end
+					variables._returnValues.append( isNull( local.result ) ? javaCast( "null", 0 ) : local.result );
+				}else{
+					// Method is secured and user is not authorized!
+					// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+				}
             } catch ( ValidationException e ) {
                 // silently fail so the component can continue to render
             } catch( any e ) {
                 rethrow;
             }
         } );
-    }
-
-    /**
-     * Returns the validation manager if it's available.
-     * Otherwise throws error.
-     *
-     * @return ValidationManager
-     */
-    function _getValidationManager(){
-        try {
-            return getInstance( dsl="ValidationManager@cbvalidation" );
-        } catch ( any e ) {
-            throw( type="CBWIREException", message="ValidationManager not found. Make sure the 'cbvalidation' module is installed." );
-        }
     }
 
     /**
@@ -888,44 +1132,19 @@ component output="true" {
     }
 
     /**
-     * Returns the normalized view path.
-     *
-     * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
-     *
-     * @return string
-     */
-    function _getNormalizedViewPath( viewPath ) {
-        // Replace all dots with slashes to normalize the path
-        local.normalizedPath = replace( arguments.viewPath, ".", "/", "all" );
-
-        if ( local.normalizedPath contains "cbwire/models/tmp/" ) {
-            return "/" & local.normalizedPath & ".cfm";
-        }
-        // Check if ".cfm" is present; if not, append it.
-        if (not findNoCase(".cfm", local.normalizedPath)) {
-            local.normalizedPath &= ".cfm";
-        }
-        // Ensure the path starts with "/wires/" without duplicating it
-        if (!isModulePath() && left(local.normalizedPath, 6) != "wires/") {
-            local.normalizedPath = "wires/" & local.normalizedPath;
-        }
-        // Prepend a leading slash if not present
-        if (left(local.normalizedPath, 1) != "/") {
-            local.normalizedPath = "/" & local.normalizedPath;
-        }
-
-        return local.normalizedPath;
-    }
-
-    /**
      * Handles a dispatched event
      *
      * @return void
      */
     function __dispatch( event, params ) {
-        local.methodToCall = variables.listeners[ arguments.event ];
-        invoke( this, local.methodToCall, arguments.params );
-    }
+        local.methodToCall = variables._listeners[ arguments.event ];
+		if( _securedAnnotationAllows( local.methodToCall ) ){
+			invoke( this, local.methodToCall, arguments.params );
+		}else{
+			// Method is secured and user is not authorized!
+			// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+		}
+	}
 
     /**
      * Method that is invoke when a file upload is first requested.
@@ -965,6 +1184,38 @@ component output="true" {
                 "tmpFilenames"=arguments.files
             ]
         );
+    }
+
+    /**
+     * Method that is invoked when a file upload errors.
+     *
+     * @prop string | The property for the file input.
+     * @errors any | The errors that occurred during upload.
+     * @multiple boolean | Whether multiple files are being uploaded.
+     *
+     * @return void
+     */
+    function _uploadErrored( prop, errors, multiple ) {
+        // Dispatch the upload errored event
+        dispatchSelf(
+            event="upload:errored",
+            params=[
+                "name"=arguments.prop
+            ]
+        );
+        // Check if the component has an onUploadError method and invoke it
+        if ( structKeyExists( this, "onUploadError" ) ) {
+			if( _securedAnnotationAllows( "onUploadError" ) ){
+				invoke( this, "onUploadError", {
+					property: arguments.prop,
+					errors: isNull( arguments.errors ) ? javaCast( "null", "" ) : arguments.errors,
+					multiple: arguments.multiple
+				} );
+			}else{
+				// Method is secured and user is not authorized!
+				// TODO: how to handle? NOTE: _securedAnnotationAllows() above fires interceptor if not allowed
+			}
+        }
     }
 
     /**
@@ -1011,76 +1262,6 @@ component output="true" {
     }
 
     /**
-     * Generates a checksum for securing the component's data.
-     *
-     * @return String The generated checksum.
-     */
-    function _generateChecksum() {
-        return "f9f66fa895026e389a10ce006daf3f59afaec8db50cdb60f152af599b32f9192";
-        var secretKey = "YourSecretKey"; // This key should be securely retrieved
-        return hash(serializeJson(arguments.snapshot) & secretKey, "SHA-256");
-    }
-
-    /**
-     * Encodes a given string for safe usage within an HTML attribute.
-     *
-     * @value string | The string to be encoded.
-     *
-     * @return String The encoded string suitable for HTML attribute inclusion.
-     */
-    function _encodeAttribute( value ) {
-        return arguments.value.replaceNoCase( '"', "&quot;", "all" );
-        // return encodeForHTMLAttribute(arguments.value);
-    }
-
-    /**
-     * Inserts Livewire-specific attributes into the given HTML content, ensuring Livewire can manage the component.
-     *
-     * @html string | The original HTML content to be processed.
-     * @snapshotEncoded string | The encoded snapshot data for Livewire's consumption.
-     * @id string | The component's unique identifier.
-     *
-     * @return String The HTML content with Livewire attributes properly inserted.
-     */
-    function _insertInitialLivewireAttributes( html, snapshotEncoded, id ) {
-        // Trim our html
-        arguments.html = arguments.html.trim();
-        // Define the wire attributes to append
-        local.wireAttributes = 'wire:snapshot="' & arguments.snapshotEncoded & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"';
-        // Determine our outer element
-        local.outerElement = _getOuterElement( arguments.html );
-        // Find the position of the opening tag
-        local.openingTagStart = findNoCase("<" & local.outerElement, arguments.html);
-        local.openingTagEnd = find(">", arguments.html, local.openingTagStart);
-        // Insert attributes into the opening tag
-        if (local.openingTagStart > 0 && local.openingTagEnd > 0) {
-            local.openingTag = mid(arguments.html, local.openingTagStart, local.openingTagEnd - local.openingTagStart + 1);
-            local.newOpeningTag = replace(local.openingTag, "<" & local.outerElement, "<" & local.outerElement & " " & local.wireAttributes, "one");
-            arguments.html = replace(arguments.html, local.openingTag, local.newOpeningTag, "one");
-        }
-
-        return arguments.html;
-    }
-
-    /**
-     * Inserts subsequent Livewire-specific attributes into the given HTML content.
-     *
-     * @html string | The original HTML content to be processed.
-     *
-     * @return String The HTML content with Livewire attributes properly inserted.
-     */
-    function _insertSubsequentLivewireAttributes( html ) {
-        // Trim our html
-        arguments.html = arguments.html.trim();
-        // Define the wire attributes to append
-        local.wireAttributes = "wire:id=""#variables._id#""";
-        // Determine our outer element
-        local.outerElement = _getOuterElement( arguments.html );
-        // Insert attributes into the opening tag
-        return arguments.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
-    }
-
-    /**
      * Provides on subsequent mounting for lazy loaded components.
      *
      * @snapshot string | The base64 encoded snapshot.
@@ -1097,130 +1278,20 @@ component output="true" {
             }
             return acc;
         }, [:] );
+
         // Call our onMount method with the params
-        onMount(
-            event=variables._event,
-            rc=variables._event.getCollection(),
-            prc=variables._event.getPrivateCollection(),
-            params=local.mountParams
-        );
-    }
-
-    /**
-     * Renders the content of a view template file.
-     * This method is used internally by the view method to render the content of a view template.
-     *
-     * @normalizedPath string | The normalized path to the view template file.
-     * @params struct | The parameters to pass to the view template.
-     *
-     * @return The rendered content of the view template.
-     */
-    function _renderViewContent( normalizedPath, params = {} ){
-        if ( !variables._renderedContent.len() ) {
-            local.templateReturnValues = {};
-            // Render our view using an renderer encapsulator
-            savecontent variable="local.viewContent" {
-                cfmodule(
-                    template = "RendererEncapsulator.cfm",
-                    cbwireComponent = this,
-                    normalizedPath = arguments.normalizedPath,
-                    params = arguments.params,
-                    returnValues = local.templateReturnValues
-                );
-            }
-            _parseTemplateReturnValues( local.templateReturnValues );
-            variables._renderedContent = local.viewContent;
+        if ( structKeyExists( this, "onMount" ) ) {
+            onMount(
+                event=variables._event,
+                rc=variables._event.getCollection(),
+                prc=variables._event.getPrivateCollection(),
+                params=local.mountParams
+            );
         }
 
-        return variables._renderedContent;
-    }
+		// Announce the onCBWIREMount event to global interceptors
+		_fireInterceptorEvent( "onCBWIREMount", { "params" : local.mountParams, "lazy" : true } );
 
-    /**
-     * Parses the return values from the RendererEncapsulator.
-     *
-     * @return void
-     */
-    function _parseTemplateReturnValues( returnValues ) {
-        // Parse and track cbwire:script tags
-        arguments.returnValues.filter( function( key, value ) {
-            return key.findNoCase( "script" );
-        } ).each( function( key, value, result ) {
-            // Extract the counter from the tag name
-            local.counter = key.replaceNoCase( "script", "" );
-            // Create script tag id based on compile time id and counter
-            local.scriptTagId = variables._compileTimeKey & "-" & local.counter;
-            // Track the script tag
-            variables._scripts[ local.scriptTagId ] = value;
-        } );
-
-        // Parse and track cbwire:assets tags
-        arguments.returnValues.filter( function( key, value ) {
-            return key.findNoCase( "assets" );
-        } ).each( function( key, value, result ) {
-            // Extract the counter from the tag name
-            local.counter = key.replaceNoCase( "assets", "" );
-            // Create assets tag id based on hash of assets
-            local.assetsTagId = hash( value, "MD5" );
-            // Track the assets tag
-            variables._assets[ local.assetsTagId ] = value;
-            local.requestAssets = variables._CBWIREController.getRequestAssets();
-            local.requestAssets[ local.assetsTagId ] = value;
-        } );
-    }
-
-    /**
-     * Validates that the HTML content has a single outer element.
-     * Ensures the first and last tags match and that the total number of tags is even.
-     *
-     * @trimmedHtml string | The trimmed HTML content to validate.
-     * @throws ApplicationException When the HTML does not meet the single outer element criteria.
-     */
-    function _validateSingleOuterElement( trimmedHtml ) {
-        return; // Skip until we can find a much faster way to validate a single outer element.
-
-        // Define void elements
-        local.voidTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
-
-        // Trim and remove any extra spaces between tags for accurate matching
-        local.cleanHtml = trim(arguments.trimmedHtml).replaceAll("\s+>", ">");
-
-        // Regex to find all tags
-        local.tags = reMatch("<\/?[a-z]+[^>]*>", local.cleanHtml);
-
-        // Ensure there is at least one tag
-        if (arrayLen(local.tags) == 0) {
-            throw("ApplicationException", "Template must contain at least one HTML tag.");
-        }
-
-        // Check for single outer element by comparing the first and last tag
-        local.firstTag = tags.first().replaceAll("<\/?([a-z]+)[^>]*>", "$1");
-        local.lastTag = tags.last().replaceAll("<\/?([a-z]+)[^>]*>", "$1");
-
-        // Check if the first and last tags match and are properly nested
-        if ( local.firstTag != local.lastTag ) {
-            throw("CBWIRETemplateException", "Template does not have matching outer tags.");
-        }
-
-        // Additional check to ensure no other top-level tags are present
-        local.depth = 0;
-        local.tags.each( function( tag, index ) {
-            local.tagName = tag.replaceAll("<\/?([a-z]+)[^>]*>", "$1");
-
-            // Skip depth modification for void elements
-            if (arrayFindNoCase(voidTags, local.tagName) && left( arguments.tag, 2) != "</") {
-                return;
-            }
-
-            if (left( arguments.tag, 2) == "</") {
-                depth--;
-            } else {
-                depth++;
-            }
-            // If depth returns to zero before last tag, or if depth is not zero after last tag, throw exception
-            if (depth == 0 && index != tags.len() || index == tags.len() && depth != 0 ) {
-                throw("CBWIRETemplateException", "Template has more than one outer element, or is missing an end tag </element>.");
-            }
-        });
     }
 
     /**
@@ -1251,7 +1322,7 @@ component output="true" {
                 "errors": [],
                 "locale": "en"
             ],
-            "checksum": _generateChecksum()
+            "checksum": ""
         };
 
         // Prepend any passed in params into our forMount array
@@ -1259,10 +1330,10 @@ component output="true" {
             snapshot.data.forMount.prepend( { "#arguments.key#": arguments.value } );
         } );
 
-        // Serialize the snapshot to JSON and then encode it for HTML attribute inclusion
-        local.lazyLoadSnapshot = serializeJson( local.snapshot );
+    	  // Serialize the snapshot to JSON, calculate the checksum, and then encode it for HTML attribute inclusion
+		local.lazyLoadSnapshot = variables._checksumService.calculateChecksum( local.snapshot )
 
-        // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
+		    // Generate the base64 encoded version of the serialized snapshot for use in x-intersect
         local.base64EncodedSnapshot = toBase64( local.lazyLoadSnapshot );
 
         // Get our placeholder html
@@ -1273,11 +1344,13 @@ component output="true" {
             throw( type="CBWIREException", message="The placeholder method must be defined for lazy loaded components and it must have the same outer element as your CBWIRE template." );
         }
 
+        local.wireEffectsAttribute = variables._renderService.generateWireEffectsAttribute( listeners=variables._listeners, scripts=variables._scripts );
+
         // Define the wire attributes to append
-        local.wireAttributes = 'wire:snapshot="' & _encodeAttribute( serializeJson( _getSnapshot() ) ) & '" wire:effects="#_generateWireEffectsAttribute()#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
+		local.wireAttributes = 'wire:snapshot="' & variables._renderService.encodeAttribute( variables._checksumService.calculateChecksum( _getSnapshot() ) ) & '" wire:effects="#local.wireEffectsAttribute#" wire:id="#variables._id#"' & ' x-intersect="$wire._lazyMount(&##039;' & local.base64EncodedSnapshot & '&##039;)"';
 
         // Determine our outer element
-        local.outerElement = _getOuterElement( local.html );
+        local.outerElement = variables._renderService.getOuterElement( local.html );
 
         // Insert attributes into the opening tag
         return local.html.reReplaceNoCase( "<" & local.outerElement & "\s*", "<" & local.outerElement & " " & local.wireAttributes & " ", "one" );
@@ -1325,7 +1398,7 @@ component output="true" {
 
         // Return the HTML response
         local.response = [
-            "snapshot": serializeJson( local.snapshot ),
+            "snapshot": variables._checksumService.calculateChecksum( local.snapshot ),
             "effects": {
                 "returns": variables._returnValues,
                 "html": local.html
@@ -1365,7 +1438,7 @@ component output="true" {
         return [
             "data": _getDataProperties(),
             "memo": _getMemo(),
-            "checksum": _generateChecksum()
+            "checksum": ""
         ];
     }
 
@@ -1500,8 +1573,8 @@ component output="true" {
      * @return void
      */
     function _prepareLazyLoading() {
-        // If the component has a lazyLoad method, call it
-        variables._lazyLoad = variables.keyExists( "lazyLoad" ) && isBoolean( variables.lazyLoad ) && variables.lazyLoad ?
+        // Check if the component has a lazy property
+        variables._lazyLoad = variables.keyExists( "lazy" ) && isBoolean( variables.lazy ) && variables.lazy ?
             true : false;
 
         if ( variables._lazyLoad ) {
@@ -1515,18 +1588,12 @@ component output="true" {
      * @return void
      */
     function _prepareListeners() {
-        /*
-            listers = {
-                'eventName': 'methodName'
-            }
-        */
-        if ( !variables.keyExists( "listeners" ) ) {
-            variables.listeners = [:];
-        }
+
+        variables._listeners = variables.keyExists( "listeners" ) ? variables.listeners : [:];
 
         // Loop through the listeners and check the methods exists, throw error if not
         // TODO: add tests (having issues getting testbox to assert this error)
-        variables.listeners.each( function( key, value ) {
+        variables._listeners.each( function( key, value ) {
             if ( !variables.keyExists( arguments.value ) ) {
                 throw( type="CBWIREException", message="The listener '#arguments.key#' references a method '#arguments.value#' but this method does not exist. Please implement '#arguments.value#()' on your component." );
             }
@@ -1536,13 +1603,8 @@ component output="true" {
     /**
      * Returns the path to the view template file.
      */
-    function _getViewPath(){
-        if ( isModulePath() ) {
-            var moduleRoot = variables._CBWIREController.getModuleRootPath( _getModuleName() );
-            return moduleRoot & ".wires." & _getComponentName().listFirst( "@" );
-        }
-
-        return "wires." & variables._path;
+    function _getTemplatePath(){
+        return variables._renderService.getTemplatePath( this, variables._path );
     }
 
     /**
@@ -1560,14 +1622,7 @@ component output="true" {
      * @return struct
      */
     function _getDataProperties(){
-        return variables.data.reduce( function( acc, key, value ) {
-            if ( isBoolean( variables.data[ key ] ) && !isNumeric( variables.data[ key ] ) ) {
-                acc[ key ] = variables.data[ key ] ? true : false;
-            } else {
-                acc[ key ] = variables.data[ key ];
-            }
-            return acc;
-        }, [:] );
+        return duplicate( variables.data );
     }
 
     /**
@@ -1607,23 +1662,6 @@ component output="true" {
     }
 
     /**
-     * Take an incoming rendering and determine the outer component tag.
-     * <div>...</div> would return 'div'
-     *
-     * @rendering string | The rendering to parse.
-     *
-     * @return string
-     */
-    function _getComponentTag( rendering ){
-        var tag = "";
-        var regexMatches = reFindNoCase( "^<([a-zA-Z0-9]+)", arguments.rendering.trim(), 1, true );
-        if ( regexMatches.match.len() == 2 ) {
-            return regexMatches.match[ 2 ];
-        }
-        throw( type="CBWIREException", message="Cannot determine component tag." );
-    }
-
-    /**
      * Returns a generated key for the component.
      *
      * @return string
@@ -1660,90 +1698,63 @@ component output="true" {
     }
 
     /**
-     * Returns the wire:effects attribute contents.
-     *
-     * @return string
-     */
-    function _generateWireEffectsAttribute() {
-        local.effects = {};
-        local.listenersAsArray = variables.listeners.reduce( function( acc, key, value ) {
-            acc.append( key );
-            return acc;
-        }, [] );
-        if ( local.listenersAsArray.len() ) {
-            local.effects[ "listeners" ] = local.listenersAsArray;
-        }
-        if ( variables._scripts.count() ) {
-            local.effects[ "scripts" ] = variables._scripts;
-        }
-        if ( local.effects.count() ) {
-            return _encodeAttribute( serializeJson( local.effects ) );
-        }
-        return "[]";
-    }
-
-    /**
      * Response for actually starting rendering of a component.
      */
     function _render( rendering ) {
-        local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
-        // Validate the HTML content to ensure it has a single outer element
-        _validateSingleOuterElement( local.trimmedHTML);
-        // If this is the initial load, encode the snapshot and insert Livewire attributes
-        if ( variables._initialLoad ) {
-            // Encode the snapshot for HTML attribute inclusion and process the view content
-            local.snapshotEncoded = _encodeAttribute( serializeJson( _getSnapshot() ) );
-            return _insertInitialLivewireAttributes( local.trimmedHTML, local.snapshotEncoded, variables._id );
-        } else {
-            // Return the trimmed HTML content
-            return _insertSubsequentLivewireAttributes( local.trimmedHTML );
-        }
+		_fireInterceptorEvent( "preCBWIRERender" );
+
+		// should render based on if onSecure exists and allows rendering. render only if true.
+		var renderedContent = "";
+		if( _onSecureShouldRender() ){
+			local.trimmedHTML = isNull( arguments.rendering ) ? trim( onRender() ) : trim( arguments.rendering );
+			renderedContent = variables._renderService.render( this, local.trimmedHTML );
+		}else{
+			// fireInterceptor event for blocked render
+
+			renderedContent = ""; // <span><!-- BLOCKED --></span>
+		}
+
+		_fireInterceptorEvent( "onCBWIRERender", { "html" : renderedContent } );
+
+		return renderedContent;
     }
 
-    /**
-     * Returns the first outer element from the provided html.
-     * "<div x-data=""></div>" returns "div";
-     *
-     * @return string
-     */
-    function _getOuterElement( html ) {
-        local.outerElement = reMatchNoCase( "<[A-Za-z]+\s*", arguments.html ).first();
-        local.outerElement = local.outerElement.replaceNoCase( "<", "", "one" );
-        return local.outerElement.trim();
+    function _trackScript( required scriptTagId, required scriptContent ) {
+        variables._scripts[ scriptTagId ] = scriptContent;
     }
 
-    /**
-     * Returns true if the path contains a module.
-     *
-     * @return boolean
-     */
-    function isModulePath() {
-        return variables._path contains "@";
+    function _trackAsset( required assetTagId, required assetContent ) {
+        variables._assets[ assetTagId ] = assetContent;
     }
 
-    /**
-     * Returns true if the cbvalidation module is installed.
-     *
-     * @return boolean
-     */
-    function _isCBValidationInstalled() {
-        try {
-            _getValidationManager();
-            return true;
-        } catch ( any e ) {
-            return false;
-        }
+    function _getCompileTimeKey() {
+        return variables._compileTimeKey;
     }
 
-    /**
-     * Returns true if trimStringValues is enabled, either globally
-     * or for the component.
-     *
-     * @return boolean
-     */
-    function shouldTrimStringValues() {
-        return
-            ( _globalSettings.keyExists( "trimStringValues" ) && _globalSettings.trimStringValues == true ) ||
-            ( variables.keyExists( "trimStringValues" ) && variables.trimStringValues == true );
-    }
+	/**
+	 * Fires an interceptor event.
+	 * Standardizes data passed to interceptors fired from base wire Component.cfc
+	 * ensure consistent data structure. Includes wire, wireName, wireData, and meta in eventData.
+	 *
+	 * @eventName string | The name of the event to fire.
+	 * @eventData struct | Additional data to pass to the interceptor.
+	 *
+	 * @return void
+	 */
+	function _fireInterceptorEvent( eventName, eventData={} ) {
+		// append standard data to eventData struct, but do NOT overwrite existing keys
+		arguments.eventData.append(
+			{
+				"wire"		: this,
+				"wireName"	: variables._path,
+				"wireData"	: variables.data,
+				"meta"		: variables._metaData
+			},
+			false
+		);
+		return variables._interceptorService.announce(
+			arguments.eventName,
+			arguments.eventData
+		);
+	}
 }

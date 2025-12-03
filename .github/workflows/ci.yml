@@ -6,6 +6,11 @@ on:
       - development
       - next
       - master
+  pull_request:
+    branches:
+      - development
+      - next
+      - master
 
 env:
   MODULE_ID: cbwire
@@ -24,25 +29,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "lucee@5", "adobe@2021", "adobe@2023" ]
+        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2023", "adobe@2025" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "adopt"
-          java-version: "11"
+          java-version: "17"
 
-      - name: Cache CommandBox Dependencies
-        uses: actions/cache@v4
-        if: ${{ true }}
-        with:
-          path: ~/.CommandBox/artifacts
-          key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
-          restore-keys: |
-            ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
+      # - name: Cache CommandBox Dependencies
+      #   uses: actions/cache@v4
+      #   if: ${{ true }}
+      #   with:
+      #     path: ~/.CommandBox/artifacts
+      #     key: ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
+      #     restore-keys: |
+      #       ${{ runner.OS }}-commandbox-cache-${{ hashFiles( 'box.json' ) }}-${{ hashFiles( 'test-harness/box.json' ) }}
 
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.1
@@ -65,14 +70,14 @@ jobs:
         working-directory: ./test-harness
         run: |
           box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
-          # Install Adobe 2021 cfpm modules
-          if [[ "${{ matrix.cfengine }}" == "adobe@2021" ]] ; then
-            box run-script install:2021
-          fi
+          # Install Adobe cfpm modules
           if [[ "${{ matrix.cfengine }}" == "adobe@2023" ]] ; then
             box run-script install:2023
           fi
-          curl http://127.0.0.1:60299
+          if [[ "${{ matrix.cfengine }}" == "adobe@2025" ]] ; then
+            box run-script install:2025
+          fi
+          curl http://127.0.0.1:60299/tests
 
       - name: Run Tests
         working-directory: ./test-harness
@@ -132,6 +137,7 @@ jobs:
             test-harness/.engine/**/WEB-INF/cfusion/logs/*
 
   docs:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -163,15 +169,16 @@ jobs:
 
   publish:
     name: Simple 'box publish'
+    if: github.event_name == 'push'
     needs: tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: Ortus-Solutions/commandbox-action@v1
+      - uses: Ortus-Solutions/commandbox-action@v1.0.3
         env:
           box_config_endpoints_forgebox_APIToken: ${{ secrets.FORGEBOX_TOKEN }}
         with:
-          cmd: publish
+          cmd: publish --force
           #cmd: publish --force
 
   # release:

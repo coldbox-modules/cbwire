@@ -196,7 +196,6 @@ Module settings are defined in `ModuleConfig.cfc`:
 - `autoInjectAssets` - Auto-include CSS/JS assets (default: `true`)
 - `moduleRootPath` - Physical path to module (computed from module location)
 - `moduleRootURL` - URL to module root (default: `"/modules/cbwire"`)
-- `throwOnMissingSetterMethod` - Throw exception on missing setters (default: `false`)
 - `wiresLocation` - Folder name for wire components (default: `"wires"`)
 - `trimStringValues` - Trim string properties (default: `false`)
 - `showProgressBar` - Enable progress bar with wire:navigate (default: `true`)
