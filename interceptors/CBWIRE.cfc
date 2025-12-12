@@ -28,14 +28,15 @@ component {
         
         // Clean up single-file component temp directory
         local.tmpDirectory = local.settings.storagePath;
-        if ( directoryExists( local.tmpDirectory ) ) {
+
+        if ( local.tmpDirectory.len() && directoryExists( local.tmpDirectory ) ) {
             directoryDelete( local.tmpDirectory, true );
             directoryCreate( local.tmpDirectory );
         }
         
         // Clean up file uploads temp directory
         local.uploadsTmpDirectory = local.settings.uploadsStoragePath;
-        if ( directoryExists( local.uploadsTmpDirectory ) ) {
+        if ( local.uploadsTmpDirectory.len() && directoryExists( local.uploadsTmpDirectory ) ) {
             directoryDelete( local.uploadsTmpDirectory, true );
             directoryCreate( local.uploadsTmpDirectory );
         }
