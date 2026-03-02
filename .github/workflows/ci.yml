@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload Test Results Artifacts
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.cfengine }}
           path: |
@@ -104,7 +104,7 @@ jobs:
       # Leaving this here for future debugging
       # - name: Upload tmp folder as artifact
       #   if: always()
-      #   uses: actions/upload-artifact@v5
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: tmp-folder
       #     path: models/tmp/
@@ -129,7 +129,7 @@ jobs:
 
       - name: Upload Debugging Info To Artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Failure Debugging Info - ${{ matrix.cfengine }}
           path: |
