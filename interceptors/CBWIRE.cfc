@@ -110,10 +110,6 @@ component {
         return true;
     }
 
-    function afterInstanceCreation() eventPattern="^cbwire.*" {
-        return true;
-    }
-
     function preLayout() eventPattern="^cbwire.*" {
         return true;
     }
