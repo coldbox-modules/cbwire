@@ -229,7 +229,7 @@ component output="true" accessors="true" {
      */
     function template( viewPath, params = {} ) {
         // Normalize the view path
-        local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath );
+        local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath, variables._path );
         // Render the view content and trim the result
         return variables._renderService.renderViewContent( this, local.normalizedPath, arguments.params );
     }
@@ -360,7 +360,7 @@ component output="true" accessors="true" {
         // Determine if component should be lazy loaded
         // If lazy parameter is explicitly provided, use that value
         // Otherwise, use the component's lazy preference
-        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+        local.shouldLazyLoad = isNull( arguments.lazy ) ?
             local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
             arguments.lazy;  // Use explicit parameter value
 

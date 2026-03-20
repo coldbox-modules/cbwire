@@ -727,7 +727,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 var originalSetting = settings.csrfEnabled;
                 settings.csrfEnabled = false;
-                
+
                 var payload = incomingRequest(
                     memo = {
                         "name": "TestComponent",
@@ -747,12 +747,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     updates = {},
                     csrfToken = "badToken"
                 );
-                
+
                 // Should not throw an error even with bad token when CSRF is disabled
                 var response = cbwireController.handleRequest( payload, event );
                 expect( isStruct( response ) ).toBeTrue();
                 expect( response.components[1].effects.html ).toInclude( "CBWIRE Slays!" );
-                
+
                 // Restore original setting
                 settings.csrfEnabled = originalSetting;
             } );
@@ -761,10 +761,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 var originalSetting = settings.csrfEnabled;
                 settings.csrfEnabled = false;
-                
+
                 var token = cbwireController.generateCSRFToken();
                 expect( token ).toBe( "" );
-                
+
                 // Restore original setting
                 settings.csrfEnabled = originalSetting;
             } );
@@ -1819,9 +1819,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} ).toThrow( type="ModuleNotFound" );
 			} );
 
-			it( "should render component from module using default wires location", function() {
+			it( "should render single file component from module using default wires location", function() {
 				var result = cbwireController.wire( "NestedModuleDefaultComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component using default wires location" );
+			} );
+
+			it( "should render a two file component from module using default wires location", function() {
+				var result = cbwireController.wire( "twoFileModuleComponent@testingmodule" );
+				expect( result ).toContain( "hello CBWire Developer from a two file wire in a module" );
 			} );
 
 			it( "should render component from module using nested folder", function() {
