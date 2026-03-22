@@ -360,7 +360,7 @@ component output="true" accessors="true" {
         // Determine if component should be lazy loaded
         // If lazy parameter is explicitly provided, use that value
         // Otherwise, use the component's lazy preference
-        local.shouldLazyLoad = isNull( arguments.lazy ) ? 
+        local.shouldLazyLoad = isNull( arguments.lazy ) ?
             local.instance._getLazyLoad() :  // Use component's preference if no explicit parameter
             arguments.lazy;  // Use explicit parameter value
 
@@ -1115,7 +1115,9 @@ component output="true" accessors="true" {
     function _getConstraints(){
         if ( variables.keyExists( "constraints" ) ) {
             return variables.constraints;
-        }
+        }else if ( structKeyExists( this, "constraints" ) ) {
+			return this.constraints;
+		}
         return [:];
     }
 
