@@ -575,26 +575,26 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
 
                 expect( renderedHtml ).toInclude( 'Some&##x20;text&##x20;with&##x20;&##x5c;&quot;quotes' );
-            });
+            } );
 
-            it("should get constraints when set using this.constraints= ", function() {
+            it( "should get constraints when set using this.constraints=", function() {
 				var testValidationComponent = getInstance("wires.test.validation.validateConstraints1");
 				var constraints = testValidationComponent._getConstraints();
 				expect( constraints ).toBeTypeOf( "struct" );
 				expect( constraints ).toHaveLength( 1 );
 				expect( constraints ).toHaveKey( "firstname" );
-            });
+            } );
 
-            it("should get constraints when set using constraints= ", function() {
+            it( "should get constraints when set using constraints=", function() {
 				var testValidationComponent = getInstance("wires.test.validation.validateConstraints2");
 				var constraints = testValidationComponent._getConstraints();
 				expect( constraints ).toBeTypeOf( "struct" );
 				expect( constraints ).toHaveLength( 1 );
 				expect( constraints ).toHaveKey( "firstname" );
-            });
+            } );
 
 
-        });
+        } );
 
         describe("Incoming Requests", function() {
 
