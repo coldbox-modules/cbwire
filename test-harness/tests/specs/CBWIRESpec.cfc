@@ -575,9 +575,26 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 );
 
                 expect( renderedHtml ).toInclude( 'Some&##x20;text&##x20;with&##x20;&##x5c;&quot;quotes' );
-            });
+            } );
 
-        });
+            it( "should get constraints when set using this.constraints=", function() {
+				var testValidationComponent = getInstance("wires.test.validation.validateConstraints1");
+				var constraints = testValidationComponent._getConstraints();
+				expect( constraints ).toBeTypeOf( "struct" );
+				expect( constraints ).toHaveLength( 1 );
+				expect( constraints ).toHaveKey( "firstname" );
+            } );
+
+            it( "should get constraints when set using constraints=", function() {
+				var testValidationComponent = getInstance("wires.test.validation.validateConstraints2");
+				var constraints = testValidationComponent._getConstraints();
+				expect( constraints ).toBeTypeOf( "struct" );
+				expect( constraints ).toHaveLength( 1 );
+				expect( constraints ).toHaveKey( "firstname" );
+            } );
+
+
+        } );
 
         describe("Incoming Requests", function() {
 
@@ -727,7 +744,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 var originalSetting = settings.csrfEnabled;
                 settings.csrfEnabled = false;
-                
+
                 var payload = incomingRequest(
                     memo = {
                         "name": "TestComponent",
@@ -747,12 +764,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     updates = {},
                     csrfToken = "badToken"
                 );
-                
+
                 // Should not throw an error even with bad token when CSRF is disabled
                 var response = cbwireController.handleRequest( payload, event );
                 expect( isStruct( response ) ).toBeTrue();
                 expect( response.components[1].effects.html ).toInclude( "CBWIRE Slays!" );
-                
+
                 // Restore original setting
                 settings.csrfEnabled = originalSetting;
             } );
@@ -761,10 +778,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var settings = getInstance( "coldbox:modulesettings:cbwire" );
                 var originalSetting = settings.csrfEnabled;
                 settings.csrfEnabled = false;
-                
+
                 var token = cbwireController.generateCSRFToken();
                 expect( token ).toBe( "" );
-                
+
                 // Restore original setting
                 settings.csrfEnabled = originalSetting;
             } );

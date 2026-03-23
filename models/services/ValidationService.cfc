@@ -45,8 +45,12 @@ component accessors="true" singleton {
      * @return ValidationResult The result of the validation operation.
      */
     function validate( wire, target, fields, constraints, locale, excludeFields, includeFields, profiles ){
-        arguments.target = isNull( arguments.target ) ? arguments.wire._getDataProperties() : arguments.target;
-        arguments.constraints = isNull( arguments.constraints ) ? arguments.wire._getConstraints() : arguments.constraints;
+		if( isNull( arguments.target ) ){
+			// if no target is provided, default to the wire's data properties
+			arguments.target = arguments.wire._getDataProperties();
+			// use the wire's constraints if explicit constraints are not provided
+			arguments.constraints = isNull( arguments.constraints ) ? arguments.wire._getConstraints() : arguments.constraints
+		}
         return getManager().validate( argumentCollection = arguments );
     }
 
