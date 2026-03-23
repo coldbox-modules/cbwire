@@ -63,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result ).toHaveKey( "ok" );
                 });
 
-                it( "shoud validate an object other than the wire itself", function() {
+                it( "should validate an object other than the wire itself", function() {
 					var oValidationTest = getInstance( "validationTest" );
                     var wire = prepareMock( createStub() );
                     wire.$( "_getDataProperties", { "bar": "baz" } );
