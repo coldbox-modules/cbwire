@@ -168,6 +168,7 @@ component accessors="true" singleton {
      * to a slash notation path, check for the existence of .bxm or .cfm files, and ensure the path is correctly formatted.
      *
      * @viewPath string | The dot notation path to the view template to be rendered, without the .cfm extension.
+	 * @componentPath string | The component path, used to determine if the normalized path should be prefixed with "wires/".
      *
      * @return string
      */
@@ -190,7 +191,7 @@ component accessors="true" singleton {
             throw( type="CBWIREException", message="A .bxm or .cfm template could not be found for '#arguments.viewPath#'." );
         }
 
-        if ( !find( "@", arguments.componentPath ) && left( paths.normalizedPath, 6 ) != "wires/" ) {
+        if ( !isNull( arguments.componentPath ) && !find( "@", arguments.componentPath ) && left( paths.normalizedPath, 6 ) != "wires/" ) {
             paths.normalizedPath = "wires/" & paths.normalizedPath;
         }
         if ( left( paths.normalizedPath, 1 ) != "/" ) {

@@ -81,6 +81,7 @@ component output="true" accessors="true" {
         variables._redirect = "";
         variables._redirectUsingNavigate = false;
         variables._isolate = false;
+		variables._path = "";
         variables._renderedContent = "";
         variables._scripts = [:];
         variables._assets = [:];

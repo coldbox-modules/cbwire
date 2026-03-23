@@ -264,7 +264,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 it( "should return .bxm path when .bxm file exists", function() {
                     var input = "my.view.template";
 					// simulate the components variables._path which is what is passed to the wire() method
-					var component_path = "my.view.template";
+					var componentPath = "my.view.template";
                     var bxmAbsolutePath = expandPath( "/my/view/template.bxm" );
                     var cfmAbsolutePath = expandPath( "/my/view/template.cfm" );
                     var expectedPath = "/wires/my/view/template.bxm";
@@ -272,7 +272,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     mockUtility.$( "fileExists" ).$args( bxmAbsolutePath ).$results( true );
                     mockUtility.$( "fileExists" ).$args( cfmAbsolutePath ).$results( false );
 
-                    var result = renderService.normalizeViewPath( input, component_path );
+                    var result = renderService.normalizeViewPath( input, componentPath );
                     expect( result ).toBe( expectedPath );
                 });
 
@@ -292,14 +292,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 });
 
                 it( "should return .cfm module path when wire is located in module wires directory", function() {
-                    var input = "modules_app.testingModule.wires.twoFileModuleComponent";
+                    var input = "modules_app.testingmodule.wires.twoFileModuleComponent";
 					// simulate the components variables._path which is what is passed to the wire() method
-					var component_path = "twoFileModuleComponent@testingModule";
+					var component_path = "twoFileModuleComponent@testingmodule";
 					// use full path to module wire
-                    var bxmAbsolutePath = expandPath( "../modules_app/testingModule/wires/twoFileModuleComponent.bxm" );
-                    var cfmAbsolutePath = expandPath( "../modules_app/testingModule/wires/twoFileModuleComponent.cfm" );
+                    var bxmAbsolutePath = expandPath( "../modules_app/testingmodule/wires/twoFileModuleComponent.bxm" );
+                    var cfmAbsolutePath = expandPath( "../modules_app/testingmodule/wires/twoFileModuleComponent.cfm" );
 
-                    var expectedPath = "/modules_app/testingModule/wires/twoFileModuleComponent.cfm";
+                    var expectedPath = "/modules_app/testingmodule/wires/twoFileModuleComponent.cfm";
 					// mock the file exists calls for both .bxm and .cfm paths
                     mockUtility.$( "fileExists" ).$args( bxmAbsolutePath ).$results( false );
                     mockUtility.$( "fileExists" ).$args( cfmAbsolutePath ).$results( true );
