@@ -108,7 +108,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							required : true,
 							requiredMessage : "Password is required",
 							size : "8..50",
-							sizeMessage : "Password name must be 2-50 characters"
+							sizeMessage : "Password must be 8-50 characters"
 						}
 					};
 					// mock the validate method to return the arguments passed to it so that
