@@ -3,7 +3,7 @@ component extends="cbwire.models.Component" {
     data = {
         "firstname": "sdfsad",
         "lastname": ""
-    }
+    };
 	/*
 		This components DOES use constraints=
 
