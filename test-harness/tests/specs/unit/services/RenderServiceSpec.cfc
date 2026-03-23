@@ -291,7 +291,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( result ).toBe( expectedPath );
                 });
 
-                it( "should return .cfm module path when wire is located in module wires direcotry", function() {
+                it( "should return .cfm module path when wire is located in module wires directory", function() {
                     var input = "modules_app.testingModule.wires.twoFileModuleComponent";
 					// simulate the components variables._path which is what is passed to the wire() method
 					var component_path = "twoFileModuleComponent@testingModule";
