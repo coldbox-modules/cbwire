@@ -1,13 +1,13 @@
 component extends="coldbox.system.testing.BaseTestCase" {
 
-    
+
     function beforeAll() {
         variables.mockController = createStub();
         variables.mockUtility = createStub();
         variables.mockChecksumService = createStub();
         variables.mockValidationService = createStub();
         variables.mockRequestService = createStub();
-        
+
         variables.renderService = prepareMock( new cbwire.models.services.RenderService() );
         renderService.setCBWIREController( mockController );
         renderService.setUtilityService( mockUtility );
@@ -263,6 +263,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                 it( "should return .bxm path when .bxm file exists", function() {
                     var input = "my.view.template";
+					// simulate the components variables._path which is what is passed to the wire() method
+					var componentPath = "my.view.template";
                     var bxmAbsolutePath = expandPath( "/my/view/template.bxm" );
                     var cfmAbsolutePath = expandPath( "/my/view/template.cfm" );
                     var expectedPath = "/wires/my/view/template.bxm";
@@ -270,12 +272,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     mockUtility.$( "fileExists" ).$args( bxmAbsolutePath ).$results( true );
                     mockUtility.$( "fileExists" ).$args( cfmAbsolutePath ).$results( false );
 
-                    var result = renderService.normalizeViewPath( input );
+                    var result = renderService.normalizeViewPath( input, componentPath );
                     expect( result ).toBe( expectedPath );
                 });
 
                 it( "should return .cfm path when only .cfm file exists", function() {
                     var input = "my.view.template";
+					// simulate the components variables._path which is what is passed to the wire() method
+					var component_path = "my.view.template";
                     var bxmAbsolutePath = expandPath( "/my/view/template.bxm" );
                     var cfmAbsolutePath = expandPath( "/my/view/template.cfm" );
                     var expectedPath = "/wires/my/view/template.cfm";
@@ -283,12 +287,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     mockUtility.$( "fileExists" ).$args( bxmAbsolutePath ).$results( false );
                     mockUtility.$( "fileExists" ).$args( cfmAbsolutePath ).$results( true );
 
-                    var result = renderService.normalizeViewPath( input );
+                    var result = renderService.normalizeViewPath( input, component_path );
+                    expect( result ).toBe( expectedPath );
+                });
+
+                it( "should return .cfm module path when wire is located in module wires directory", function() {
+                    var input = "modules_app.testingmodule.wires.twoFileModuleComponent";
+					// simulate the components variables._path which is what is passed to the wire() method
+					var component_path = "twoFileModuleComponent@testingmodule";
+					// use full path to module wire
+                    var bxmAbsolutePath = expandPath( "../modules_app/testingmodule/wires/twoFileModuleComponent.bxm" );
+                    var cfmAbsolutePath = expandPath( "../modules_app/testingmodule/wires/twoFileModuleComponent.cfm" );
+
+                    var expectedPath = "/modules_app/testingmodule/wires/twoFileModuleComponent.cfm";
+					// mock the file exists calls for both .bxm and .cfm paths
+                    mockUtility.$( "fileExists" ).$args( bxmAbsolutePath ).$results( false );
+                    mockUtility.$( "fileExists" ).$args( cfmAbsolutePath ).$results( true );
+
+                    var result = renderService.normalizeViewPath( input, component_path );
                     expect( result ).toBe( expectedPath );
                 });
 
                 it( "should throw when neither .bxm nor .cfm exists", function() {
                     var input = "my.view.template";
+					// simulate the components variables._path which is what is passed to the wire() method
+					var component_path = "my.view.template";
                     var bxmAbsolutePath = expandPath( "/nonexistent/view.bxm" );
                     var cfmAbsolutePath = expandPath( "/nonexistent/view.cfm" );
                     var expectedPath = "/wires/my/view/template.cfm";
@@ -297,29 +320,34 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     mockUtility.$( "fileExists" ).$args( cfmAbsolutePath ).$results( false );
 
                     expect( function() {
-                        renderService.normalizeViewPath( "nonexistent.view" );
+                        renderService.normalizeViewPath( "nonexistent.view", component_path );
                     }).toThrow( "CBWIREException" );
                 });
 
                 it( "should return path with .bxm for tmp path when .bxm exists", function() {
                     var input = "cbwire.models.tmp.componentName";
+					// simulate the components variables._path which is what is passed to the wire() method
+					var component_path = "cbwire.models.tmp.componentName";
 
                     mockUtility.$( "fileExists" ).$args( expandPath( "/cbwire/models/tmp/componentName.bxm" ) ).$results( true );
                     mockUtility.$( "fileExists" ).$args( expandPath( "/cbwire/models/tmp/componentName.cfm" ) ).$results( false );
 
-                    var result = renderService.normalizeViewPath( input );
+                    var result = renderService.normalizeViewPath( input, component_path );
                     expect( result ).toBe( "/cbwire/models/tmp/componentName.bxm" );
                 });
 
                 it( "should return path with .cfm for tmp path when .cfm exists", function() {
                     var input = "cbwire.models.tmp.componentName";
+					// simulate the components variables._path which is what is passed to the wire() method
+					var component_path = "cbwire.models.tmp.componentName";
 
                     mockUtility.$( "fileExists" ).$args( expandPath( "/cbwire/models/tmp/componentName.bxm" ) ).$results( false );
                     mockUtility.$( "fileExists" ).$args( expandPath( "/cbwire/models/tmp/componentName.cfm" ) ).$results( true );
 
-                    var result = renderService.normalizeViewPath( input );
+                    var result = renderService.normalizeViewPath( input, component_path );
                     expect( result ).toBe( "/cbwire/models/tmp/componentName.cfm" );
                 });
+
             });
 
             describe( "getTemplatePath()", function() {
