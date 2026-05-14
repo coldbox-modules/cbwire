@@ -1836,9 +1836,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} ).toThrow( type="ModuleNotFound" );
 			} );
 
-			it( "should render component from module using default wires location", function() {
+			it( "should render single file component from module using default wires location", function() {
 				var result = cbwireController.wire( "NestedModuleDefaultComponent@testingmodule" );
 				expect( result ).toContain( "Nested module component using default wires location" );
+			} );
+
+			it( "should render a two file component from module using default wires location", function() {
+				var result = cbwireController.wire( "twoFileModuleComponent@testingmodule" );
+				expect( result ).toContain( "hello CBWire Developer from a two file wire in a module" );
 			} );
 
 			it( "should render component from module using nested folder", function() {

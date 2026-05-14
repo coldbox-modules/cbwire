@@ -81,6 +81,7 @@ component output="true" accessors="true" {
         variables._redirect = "";
         variables._redirectUsingNavigate = false;
         variables._isolate = false;
+		variables._path = "";
         variables._renderedContent = "";
         variables._scripts = [:];
         variables._assets = [:];
@@ -229,7 +230,7 @@ component output="true" accessors="true" {
      */
     function template( viewPath, params = {} ) {
         // Normalize the view path
-        local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath );
+        local.normalizedPath = variables._renderService.normalizeViewPath( arguments.viewPath, variables._path );
         // Render the view content and trim the result
         return variables._renderService.renderViewContent( this, local.normalizedPath, arguments.params );
     }
