@@ -127,6 +127,45 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 expect( beforeHead ).toInclude( "<link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"">" );
             } );
 
+            it( "should use wireGenericView() to set the event view to view=genericWireView & module=cbwire (without wire params)", function() {
+
+				var event = this.get( "Main.testGenericWireView1" );
+				var prc = event.getPrivateContext();
+				var html = event.getRenderedContent();
+				// validate view and module were set properly by wireGenericView() helper
+				expect( prc.currentView ).toBe( "genericWireView" );
+				expect( prc.viewModule ).toBe( "cbwire" );
+				expect( prc.currentViewArgs._WIRENAME ).toBe( "genericWireViewTesting.genericTest" );
+				// validate custom title tags
+				expect( html ).toInclude( "<h2>" );
+				expect( html ).toInclude( "</h2>" );
+				// validate custom title
+				expect( html ).toInclude( "CBWIRE Test wireGenericView() Helper One" );
+				// validate that the wire component rendered in the view
+				expect( html ).toInclude( "Generic Wire View Test Component" );
+				expect( html ).toInclude( "No Test Argument Passed" );
+           } );
+
+            it( "should use wireGenericView() to set the event view to view=genericWireView & module=cbwire (with wire params)", function() {
+
+				var event = this.get( "Main.testGenericWireView2" );
+				var prc = event.getPrivateContext();
+				var html = event.getRenderedContent();
+				// validate view and module were set properly by wireGenericView() helper
+				expect( prc.currentView ).toBe( "genericWireView" );
+				expect( prc.viewModule ).toBe( "cbwire" );
+				expect( prc.currentViewArgs._WIRENAME ).toBe( "genericWireViewTesting.genericTest" );
+				// validate custom title tags
+				expect( html ).toInclude( "<h3>" );
+				expect( html ).toInclude( "</h3>" );
+				// validate custom title
+				expect( html ).toInclude( "CBWIRE Test wireGenericView() Helper Two" );
+				// validate that the wire component rendered in the view
+				expect( html ).toInclude( "Generic Wire View Test Component" );
+				expect( html ).toInclude( "Test Argument Passed In Succesfully" );
+           } );
+
+
         } );
 
         describe("Component.cfc", function() {
