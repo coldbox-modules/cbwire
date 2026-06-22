@@ -78,6 +78,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
             });
 
+            describe( "_applyCalls()", function() {
+
+                it( "skips calls to methods the component does not expose without throwing", function() {
+                    variables.wireComponent.$property( propertyName="_returnValues", mock=[] );
+
+                    // "toJSON" is the standard JS method injected by some WebViews
+                    // when they serialize the $wire object; no component defines it.
+                    expect( function(){
+                        variables.wireComponent._applyCalls( [
+                            { "method": "toJSON", "params": [] }
+                        ] );
+                    } ).notToThrow();
+
+                    expect( variables.wireComponent.$getProperty( "_returnValues" ) ).toBeEmpty();
+                });
+
+                it( "invokes existing methods and captures their return value", function() {
+                    variables.wireComponent.$property( propertyName="_returnValues", mock=[] );
+                    variables.wireComponent.$( "increment", "done" );
+
+                    variables.wireComponent._applyCalls( [
+                        { "method": "increment", "params": [] }
+                    ] );
+
+                    var returns = variables.wireComponent.$getProperty( "_returnValues" );
+                    expect( returns ).toHaveLength( 1 );
+                    expect( returns[ 1 ] ).toBe( "done" );
+                });
+
+            });
+
         });
     }
 
