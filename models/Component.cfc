@@ -1092,6 +1092,13 @@ component output="true" accessors="true" {
 		}
         arguments.calls.each( function( call ) {
             try {
+				// Skip calls to methods the component does not expose. Embedded
+				// browsers/WebViews and extensions sometimes serialize the $wire
+				// object and inject noise calls (e.g. the standard JS "toJSON"),
+				// which would otherwise hit onMissingMethod() and throw a 500.
+				if( !structKeyExists( this, arguments.call.method ) ){
+					return;
+				}
 				if( _securedAnnotationAllows( arguments.call.method ) ){
 					local.result = invoke( this, arguments.call.method, arguments.call.params );
 					// Capture the return value in case it's needed by the front-end
